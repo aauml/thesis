@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PM Log — Tesis Doctoral</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:ital,wght@0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --text: #2c2c2c;
+      --text-light: #606060;
+      --text-muted: #8a8a8a;
+      --accent: #1a3a5c;
+      --border: #d4d4d4;
+      --bg: #fdfdfd;
+      --serif: 'Source Serif 4', Georgia, serif;
+      --sans: 'DM Sans', system-ui, sans-serif;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: var(--sans);
+      font-size: 15px;
+      line-height: 1.7;
+      color: var(--text);
+      background: var(--bg);
+      -webkit-font-smoothing: antialiased;
+    }
+    .container { max-width: 780px; margin: 0 auto; padding: 3rem 2rem 5rem; }
+    header { margin-bottom: 3rem; padding-bottom: 1.5rem; border-bottom: 2px solid var(--accent); }
+    header h1 { font-family: var(--serif); font-size: 2rem; font-weight: 700; color: var(--accent); letter-spacing: -0.02em; margin-bottom: 0.25rem; }
+    header .subtitle { font-size: 0.85rem; color: var(--text-muted); font-style: italic; }
+    section { margin-bottom: 2.5rem; }
+    h2 { font-family: var(--serif); font-size: 1.4rem; font-weight: 700; color: var(--accent); margin-bottom: 1.25rem; padding-bottom: 0.4rem; border-bottom: 1px solid var(--border); }
+    h3 { font-family: var(--sans); font-size: 0.85rem; font-weight: 700; color: var(--text-light); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 1.5rem; margin-bottom: 0.5rem; }
+    h3:first-child { margin-top: 0; }
+    p { margin-bottom: 0.75rem; color: var(--text); }
+    .reading { margin-bottom: 1.1rem; }
+    .author { font-weight: 700; }
+    .decision { margin-bottom: 1.25rem; padding-left: 1rem; border-left: 3px solid #e0e0e0; }
+    .date { font-weight: 700; color: var(--accent); font-size: 0.9rem; }
+    .task-group { margin-bottom: 1.25rem; }
+    .task-group p { margin-bottom: 0.4rem; padding-left: 0.75rem; position: relative; }
+    .task-group p::before { content: "\2013"; position: absolute; left: 0; color: var(--text-muted); }
+    .normative p { margin-bottom: 1rem; }
+    footer { margin-top: 3rem; padding-top: 1rem; border-top: 1px solid var(--border); font-size: 0.8rem; color: var(--text-muted); text-align: center; }
+    @media (max-width: 600px) { .container { padding: 2rem 1.25rem 3rem; } header h1 { font-size: 1.6rem; } h2 { font-size: 1.2rem; } }
+  </style>
+</head>
+<body>
+  <div class="container">
+
+    <header>
+      <h1>Log de Gestión de Proyecto</h1>
+      <div class="subtitle">Tesis doctoral — Universidad de Salamanca, 2026–2030. Documento vivo, actualizado por sesión.</div>
+    </header>
+
+    <section id="estado">
+      <h2>Estado Actual</h2>
+
+      <h3>Fase y cronograma</h3>
+      <p>Año 0 (2026), inscripción y preparación. El trabajo formal de investigación comienza en 2027. La prioridad actual es familiarizarse con los pilares teóricos y dejar resueltos los trámites de inscripción.</p>
+
+      <h3>Lecturas</h3>
+      <div class="reading">
+        <p><span class="author">Kaminski, M. E. (2023).</span> «Regulating the Risks of AI». Lectura prioritaria, en progreso. Objetivo: entender la tensión entre regulación vinculante y estándares voluntarios como marco general de la tesis. Producto esperado: ficha de media página en Obsidian con comprensión propia, sin citas ni formato académico.</p>
+      </div>
+      <div class="reading">
+        <p><span class="author">Bradford, A. (2020).</span> «The Brussels Effect», capítulos 1 a 3. Pendiente. Objetivo: comprender el mecanismo de influencia regulatoria extraterritorial de la UE y su aplicación al RIA. Producto esperado: ficha de media página en Obsidian.</p>
+      </div>
+      <div class="reading">
+        <p><span class="author">Consulta (sin lectura profunda).</span> Engler (2023), Veale y Borgesius (2021), Veale et al. (2023). Textos de referencia para situar el debate académico sobre el AI Act. Se consultarán puntualmente según avance la orientación teórica.</p>
+      </div>
+
+      <h3>Caso de estudio</h3>
+      <p>Decisión pendiente. La evaluación sistemática de enero 2026 seleccionó a PATTERN (Bureau of Prisons, First Step Act) como candidato primario con 25 de 25 en criterios. Sin embargo, hay inclinación hacia STRmix (FBI Laboratory, genotipado probabilístico de ADN) por su mayor impacto procesal y la tensión directa entre secreto comercial y derecho de defensa. La decisión se confirmará con el director de tesis.</p>
+
+      <h3>Recursos</h3>
+      <p>Biblioteca de 551 fuentes organizadas en 9 carpetas temáticas. Knowledge Base con 977 entradas consultable vía API. Infraestructura de trabajo: Zotero con Better BibTeX, Obsidian para notas, Google Drive para PDFs.</p>
+
+      <h3>Marco normativo actualizado</h3>
+      <div class="normative">
+        <p>La Executive Order 14110, que establecía requisitos federales para el desarrollo seguro de IA, fue revocada en enero de 2025. La sustituyó la Executive Order 14179, que adopta un enfoque menos prescriptivo y elimina varias obligaciones de reporte para agencias federales.</p>
+        <p>El memorándum OMB M-24-10, que exigía a las agencias federales completar inventarios de uso de IA y evaluaciones de impacto, fue rescindido. Lo reemplazó el memorándum M-25-21 en abril de 2025, con requisitos significativamente reducidos.</p>
+        <p>El Convenio Marco del Consejo de Europa sobre Inteligencia Artificial y Derechos Humanos (CETS 225) entró en vigor en noviembre de 2025. Es el primer tratado internacional vinculante en la materia y establece principios de transparencia, supervisión y contestabilidad.</p>
+        <p>El Reglamento de Ejecución 2025/454 de la Comisión Europea reguló la composición y funcionamiento del Panel Científico independiente previsto en el AI Act, que asesora en la clasificación de sistemas de alto riesgo y modelos de propósito general.</p>
+      </div>
+    </section>
+
+    <section id="decisiones">
+      <h2>Registro de Decisiones</h2>
+
+      <div class="decision">
+        <p><span class="date">2026-01-18.</span> Roles del ecosistema multi-LLM definidos. Perplexity para descubrimiento con citaciones verificables, NotebookLM para análisis estrictamente basado en fuentes, ChatGPT para razonamiento complejo y evaluación con rúbricas, Claude para consolidación final y redacción académica. Gemini clasificado como opcional por alta tasa de alucinación en pruebas.</p>
+      </div>
+      <div class="decision">
+        <p><span class="date">2026-01-20.</span> PATTERN seleccionado como caso de estudio primario con 25 de 25 en criterios de evaluación. NGI-IPS (FBI) descartado como primario por conexión procesal indirecta, conservado como caso comparativo. STRmix descartado por corpus inmanejable y predominancia de secreto comercial.</p>
+      </div>
+      <div class="decision">
+        <p><span class="date">2026-01-21.</span> Estructura de la tesis fijada en siete capítulos: Introducción, Marco teórico, El RIA (artículos 8 a 15), El NIST AI RMF, Análisis comparativo con matriz y protocolo, Caso de estudio DOJ, Conclusiones y anexos.</p>
+      </div>
+      <div class="decision">
+        <p><span class="date">2026-01-23.</span> Guía de estilo académico doctoral consolidada. Principios: voz impersonal, evitar absolutismos, asimetría estructural deliberada, máximo una tríada por sección, primera persona reservada exclusivamente para decisiones metodológicas.</p>
+      </div>
+      <div class="decision">
+        <p><span class="date">2026-01-23.</span> PATTERN confirmado tras verificación documental exhaustiva: atribución institucional clara al Bureau of Prisons, documentación pública sustancial en NIJ, GAO y OIG, conexión directa con el First Step Act, clasificación de alto riesgo verificable.</p>
+      </div>
+      <div class="decision">
+        <p><span class="date">2026-02-01.</span> Cambios normativos posteriores al plan de investigación integrados al marco del proyecto. El plan de investigación en PDF se mantiene como documento institucional sin modificar; las actualizaciones se reflejan en las instrucciones del proyecto.</p>
+      </div>
+      <div class="decision">
+        <p><span class="date">2026-02-02.</span> Hallazgo sustantivo: ninguno de los sistemas evaluados del Departamento de Justicia tiene publicado un AI Impact Assessment pese a los requisitos establecidos por OMB. Decisión: tratar la ausencia como hallazgo empírico dentro del análisis de cumplimiento documentable, no como limitación metodológica.</p>
+      </div>
+      <div class="decision">
+        <p><span class="date">2026-02-05.</span> Cobertura del marco teórico estimada en 70 a 75 por ciento. Fuentes críticas pendientes de adquisición: Kaminski y Urban (2021) «The Right to Contest AI», Selbst y Powles (2017), Citron (2008).</p>
+      </div>
+      <div class="decision">
+        <p><span class="date">2026-02-11.</span> Convención de nomenclatura definida para todo el proyecto: AutorAño-Título, sin espacio entre autor y año para alinear con las citation keys de Better BibTeX en Zotero.</p>
+      </div>
+      <div class="decision">
+        <p><span class="date">2026-02-26.</span> Artículos 16 a 18 del RIA incorporados al mapa conceptual y a la matriz de correspondencia, corrigiendo una omisión de versiones anteriores. Supuesto epistemológico central del proyecto: cumplimiento documentable no equivale a cumplimiento real.</p>
+      </div>
+      <div class="decision">
+        <p><span class="date">2026-02-27.</span> Estrategia de lectura para el Año 0: orientación, no anotación académica. Regla de trabajo: leer primero, conversar con un LLM después para probar comprensión, nunca al revés.</p>
+      </div>
+      <div class="decision">
+        <p><span class="date">2026-02-28.</span> Título definitivo: «El Reglamento Europeo de Inteligencia Artificial (RIA) y el NIST AI RMF: Comparación de requisitos para sistemas de alto riesgo en el Departamento de Justicia de Estados Unidos». Terminología estandarizada: RIA en lugar de AI Act en todo el manuscrito.</p>
+      </div>
+      <div class="decision">
+        <p><span class="date">2026-03-02.</span> PM Log migrado a HTML estático en GitHub Pages. Google Doc y Apps Script retirados por inestabilidad en la API de Docs.</p>
+      </div>
+    </section>
+
+    <section id="pendientes">
+      <h2>Tareas Pendientes</h2>
+
+      <h3>Semana del 3 al 9 de marzo</h3>
+      <div class="task-group">
+        <p>Por definir al inicio de la próxima sesión de trabajo.</p>
+      </div>
+
+      <h3>Marzo 2026</h3>
+      <div class="task-group">
+        <p>Completar lectura de Kaminski (2023) y escribir ficha en Obsidian.</p>
+        <p>Iniciar lectura de Bradford (2020), capítulos 1 a 3.</p>
+      </div>
+
+      <h3>Trimestre marzo–mayo 2026</h3>
+      <div class="task-group">
+        <p>Completar la estrategia de orientación de cinco semanas, un pilar teórico por semana.</p>
+        <p>Decidir caso de estudio definitivo (PATTERN o STRmix) y confirmar con el Dr. Bueno de Mata.</p>
+        <p>Adquirir fuentes críticas pendientes: Kaminski y Urban (2021), Selbst y Powles (2017), Citron (2008).</p>
+        <p>Monitorear la publicación del crosswalk de NIST al AI Act final.</p>
+        <p>Obtener email institucional de la USAL y completar inscripción formal.</p>
+      </div>
+    </section>
+
+    <footer>
+      Última actualización: 2 de marzo de 2026
+    </footer>
+
+  </div>
+</body>
+</html>

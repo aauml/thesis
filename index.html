@@ -457,6 +457,31 @@ let state = {
   loading: false, lastFetch: null,
 };
 let expandedIds = new Set();
+let _cache = null; // { rows: [], stats: {} } — loaded once, filtered client-side
+
+// ── Normalise accented chars for comparison ───────────────────────────────────
+function normStr(s) {
+  return (s || "").toLowerCase()
+    .replace(/[áàâä]/g, "a").replace(/[éèêë]/g, "e")
+    .replace(/[íìîï]/g, "i").replace(/[óòôö]/g, "o")
+    .replace(/[úùûü]/g, "u").replace(/ñ/g, "n");
+}
+
+// ── Load all rows once, cache ─────────────────────────────────────────────────
+async function loadAllRows() {
+  if (_cache) return _cache;
+  const data = await fetch(API_URL + "?action=getAll&limit=2000&offset=0")
+    .then(r => { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); });
+  const rows = data.rows || [];
+  const stats = {
+    total_all: rows.length,
+    alta:  rows.filter(r => r.importance === "ALTA").length,
+    media: rows.filter(r => r.importance === "MEDIA").length,
+    baja:  rows.filter(r => r.importance === "BAJA").length,
+  };
+  _cache = { rows, stats };
+  return _cache;
+}
 
 // ── Subcapa dropdown sync ─────────────────────────────────────────────────────
 function buildSubcapaDropdown(capaKey) {
@@ -543,7 +568,7 @@ function updateAllButtonCounts(stats) {
   });
 }
 
-// ── Fetch ─────────────────────────────────────────────────────────────────────
+// ── Fetch + filter + sort + paginate — all client-side ────────────────────────
 async function fetchData() {
   if (state.loading) return;
   state.loading = true;
@@ -551,33 +576,68 @@ async function fetchData() {
   renderMain('<div class="state-msg">Loading…</div>');
   document.getElementById("pagination").innerHTML = "";
   try {
-    const data = await jsonp(buildUrl());
-    if (data.error) throw new Error(data.error);
+    const { rows: allRows, stats } = await loadAllRows();
 
-    // Apply client-side star filter if active
-    // The API returns all rows; we filter here since the Apps Script doesn't
-    // have a `starred` parameter. For large datasets this is fine since
-    // PAGE_LIMIT caps the payload; starred filter narrows display only.
-    let rows = data.rows || [];
-    if (state.starFilter) {
-      rows = rows.filter(r => r.starred === "1" || r.starred === "true" || r.starred === "yes");
+    // ── Filter ──────────────────────────────────────────────────────────────
+    let filtered = allRows;
+
+    if (state.importance)
+      filtered = filtered.filter(r => r.importance === state.importance);
+
+    if (state.capa) {
+      const nc = normStr(state.capa);
+      filtered = filtered.filter(r => normStr(r.capa).includes(nc));
     }
 
-    // Derive pagination from API response, or compute it locally if not provided
-    const apiTotal      = data.total      !== undefined ? data.total      : (data.rows || []).length;
-    const apiTotalPages = data.total_pages !== undefined ? data.total_pages : Math.max(1, Math.ceil(apiTotal / PAGE_LIMIT));
-    const apiHasNext    = data.has_next   !== undefined ? data.has_next   : (state.page < apiTotalPages);
-    const apiHasPrev    = data.has_prev   !== undefined ? data.has_prev   : (state.page > 1);
+    const cd = document.getElementById("selCapaDetail").value;
+    if (cd) filtered = filtered.filter(r => (r.capa_detail || "").includes(cd));
 
-    state.total       = state.starFilter ? rows.length : apiTotal;
-    state.total_pages = state.starFilter ? Math.max(1, Math.ceil(rows.length / PAGE_LIMIT)) : apiTotalPages;
-    state.has_next    = state.starFilter ? false : apiHasNext;
-    state.has_prev    = state.starFilter ? false : apiHasPrev;
-    state.page        = data.page || state.page;
-    state.lastFetch   = new Date();
-    state.rows        = rows;
-    renderHeader(data.stats || null);
-    updateAllButtonCounts(data.stats || null);
+    const ev = document.getElementById("selEvaluativa").value;
+    if (ev) filtered = filtered.filter(r =>
+      normStr(r.evaluativa_criteria).includes(normStr(ev)));
+
+    const tp = document.getElementById("selType").value;
+    if (tp) filtered = filtered.filter(r => (r.content_type || "") === tp);
+
+    if (state.search) {
+      const q = normStr(state.search);
+      filtered = filtered.filter(r =>
+        normStr(r.title).includes(q) ||
+        normStr(r.thesis_relevance).includes(q) ||
+        normStr(r.source).includes(q) ||
+        normStr(r.scholar).includes(q) ||
+        normStr(r.capa_detail).includes(q)
+      );
+    }
+
+    if (state.starFilter)
+      filtered = filtered.filter(r =>
+        r.starred == 1 || r.starred === "1" || r.starred === "true" || r.starred === "yes");
+
+    // ── Sort ────────────────────────────────────────────────────────────────
+    filtered = [...filtered].sort((a, b) => {
+      switch (state.sort) {
+        case "found-asc":  return new Date(a.date_found)      - new Date(b.date_found);
+        case "date-desc":  return new Date(b.date_published)  - new Date(a.date_published);
+        case "date-asc":   return new Date(a.date_published)  - new Date(b.date_published);
+        case "importance": { const o={ALTA:0,MEDIA:1,BAJA:2}; return (o[a.importance]??3)-(o[b.importance]??3); }
+        default:           return new Date(b.date_found)      - new Date(a.date_found); // found-desc
+      }
+    });
+
+    // ── Paginate ────────────────────────────────────────────────────────────
+    state.total       = filtered.length;
+    state.total_pages = Math.max(1, Math.ceil(filtered.length / PAGE_LIMIT));
+    state.has_next    = state.page < state.total_pages;
+    state.has_prev    = state.page > 1;
+    if (state.page > state.total_pages) state.page = Math.max(1, state.total_pages);
+    state.lastFetch   = state.lastFetch || new Date();
+
+    const start  = (state.page - 1) * PAGE_LIMIT;
+    state.rows   = filtered.slice(start, start + PAGE_LIMIT);
+
+    renderHeader(stats);
+    updateAllButtonCounts(stats);
     renderFlat();
     renderPagination();
   } catch(e) {
@@ -590,7 +650,7 @@ async function fetchData() {
       state.lastFetch.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 }
 
-function refresh() { fetchData(); }
+function refresh() { _cache = null; state.lastFetch = null; fetchData(); }
 
 // ── Star toggle on individual card ────────────────────────────────────────────
 function toggleStar(event, url, cardStarBtnId) {
@@ -617,16 +677,17 @@ function toggleStar(event, url, cardStarBtnId) {
   jsonp(writeUrl).then(result => {
     if (result.error) throw new Error(result.error);
 
-    // Update local state so re-renders stay consistent
-    const row = state.rows.find(r => r.url === url);
-    if (row) row.starred = newVal;
-
-    // If star filter is active and we just unstarred, remove from view
-    if (state.starFilter && !newVal) {
-      state.rows = state.rows.filter(r => r.url !== url);
-      state.total = state.rows.length;
-      renderFlat();
+    // Update cache and current page rows so re-renders stay consistent
+    if (_cache) {
+      const cached = _cache.rows.find(r => r.url === url);
+      if (cached) cached.starred = newVal ? 1 : "";
     }
+    const row = state.rows.find(r => r.url === url);
+    if (row) row.starred = newVal ? 1 : "";
+
+    // If star filter is active and we just unstarred, refresh the view
+    if (state.starFilter && !newVal) fetchData();
+
   }).catch(e => {
     // Revert optimistic update on failure
     btn.classList.toggle("starred", isStarred);
@@ -757,7 +818,7 @@ function renderFlat() {
 function renderCard(item, id) {
   const imp    = item.importance || "BAJA";
   const isOpen = expandedIds.has(id);
-  const isStarred = item.starred === "1" || item.starred === "true" || item.starred === "yes";
+  const isStarred = item.starred == 1 || item.starred === "1" || item.starred === "true" || item.starred === "yes";
   const starBtnId = "star-" + id;
   // Escape url for inline handler
   const urlEscaped = (item.url || "").replace(/'/g, "\\'");

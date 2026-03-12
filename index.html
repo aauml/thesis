@@ -15,6 +15,13 @@
   a { color: #1E40AF; text-decoration: none; }
   a:hover { text-decoration: underline; }
   button { font-family: inherit; cursor: pointer; }
+  button:focus-visible,
+  select:focus-visible,
+  input:focus-visible,
+  a:focus-visible {
+    outline: 2px solid #1D4ED8;
+    outline-offset: 2px;
+  }
   .container { max-width: 820px; margin: 0 auto; padding: 0 16px; }
 
   /* ── Header ── */
@@ -25,6 +32,16 @@
   }
   h1 { font-family: Georgia, serif; font-size: 24px; font-weight: 300; letter-spacing: -0.5px; }
   .header-sub { font-family: Georgia, serif; font-size: 12px; color: #6B7280; font-style: italic; margin-bottom: 10px; }
+  .header-note {
+    font-size: 12px;
+    color: #4B5563;
+    background: #F3F4F6;
+    border-left: 3px solid #1E40AF;
+    padding: 8px 10px;
+    margin-bottom: 10px;
+    border-radius: 3px;
+    line-height: 1.45;
+  }
   .header-stats { display: flex; gap: 12px; font-size: 12px; color: #6B7280; flex-wrap: wrap; align-items: center; }
   .header-stats strong { color: #111; }
   .refresh-area { display: flex; gap: 10px; align-items: baseline; flex-shrink: 0; }
@@ -33,7 +50,31 @@
   .btn-refresh:disabled { color: #9CA3AF; cursor: default; }
 
   /* ── Controls ── */
-  .controls-section { padding-top: 10px; }
+  .controls-section {
+    padding-top: 10px;
+    position: sticky;
+    top: 0;
+    background: #FAFAF8;
+    z-index: 2;
+  }
+  .advanced-filters {
+    margin-bottom: 6px;
+    border: 1px solid #E5E7EB;
+    border-radius: 6px;
+    background: #fff;
+    padding: 6px 8px;
+  }
+  .advanced-filters summary {
+    font-size: 12px;
+    font-weight: 600;
+    color: #374151;
+    cursor: pointer;
+    list-style: none;
+  }
+  .advanced-filters summary::-webkit-details-marker { display: none; }
+  .advanced-filters summary::after { content: " +"; color: #6B7280; }
+  .advanced-filters[open] summary::after { content: " −"; }
+  .advanced-inner { margin-top: 8px; }
 
   /* Row 1: importance toggles */
   .controls-row1 {
@@ -258,6 +299,7 @@
     h1 { font-size: 18px; }
     .last-fetch { display: none; }
     .controls-row-label { display: none; }
+    .header-note { font-size: 11px; padding: 7px 8px; }
 
     .controls-row1,
     .controls-row2 { gap: 4px; flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 2px; }
@@ -306,12 +348,13 @@
       </div>
     </div>
     <p class="header-sub">EU AI Act ↔ NIST AI RMF Interoperability</p>
+    <p class="header-note">Use the top filters to narrow the list quickly, then open any card for the full thesis relevance summary.</p>
     <div class="header-stats" id="headerStats"><span>Loading…</span></div>
   </header>
 
   <div class="controls-section">
 
-    <!-- Row 1: Importance + Star filter -->
+    <!-- Row 1: Essential filters -->
     <div class="controls-row1">
       <button class="btn-imp" id="btn-ALTA"  onclick="toggleImp('ALTA')">
         Alta<span class="btn-count" id="cnt-ALTA">—</span>
@@ -323,54 +366,60 @@
         Baja<span class="btn-count" id="cnt-BAJA">—</span>
       </button>
       <div class="ctrl-sep"></div>
-      <button class="btn-star-filter" id="btnStarFilter" onclick="toggleStarFilter()" title="Show starred only">★</button>
+      <button class="btn-star-filter" id="btnStarFilter" onclick="toggleStarFilter()" title="Show starred only" aria-label="Show starred only">★</button>
+      <button class="btn-clear-all" id="btnClearAll" onclick="clearAllFilters()">✕ Clear</button>
     </div>
 
-    <!-- Row 2: Capa -->
-    <div class="controls-row2">
-      <button class="btn-capa" id="btn-teorica"       onclick="toggleCapa('teorica')">Teórica</button>
-      <button class="btn-capa" id="btn-analitica"     onclick="toggleCapa('analitica')">Analítica</button>
-      <button class="btn-capa" id="btn-evaluativa"    onclick="toggleCapa('evaluativa')">Evaluativa</button>
-      <button class="btn-capa" id="btn-metodologica"  onclick="toggleCapa('metodologica')">Metodológica</button>
-    </div>
-
-    <!-- Row 3: Dropdowns + search -->
+    <!-- Row 2: Search + sort -->
     <div class="controls-row3">
-      <select id="selCapaDetail" onchange="applyDropdown()">
-        <!-- Options filled dynamically based on active capa -->
-      </select>
-      <select id="selEvaluativa" onchange="applyDropdown()">
-        <option value="">Criterio</option>
-        <option value="contestabilidad">Contestabilidad</option>
-        <option value="accountability">Accountability</option>
-        <option value="equidad">Equidad</option>
-        <option value="explicabilidad">Explicabilidad</option>
-      </select>
-      <select id="selType" onchange="applyDropdown()">
-        <option value="">Tipo</option>
-        <option value="article">Article</option>
-        <option value="book">Book</option>
-        <option value="report">Report</option>
-        <option value="regulation">Regulation</option>
-        <option value="thesis">Thesis</option>
-        <option value="other">Other</option>
-      </select>
-      <select id="selSort" onchange="applySort()">
+      <div class="search-wrap">
+        <input type="text" id="searchInput" placeholder="Search title, source, relevance…"
+               onkeydown="if(event.key==='Enter')submitSearch()"
+               oninput="updateXBtn()" />
+        <button class="btn-clear-x" id="btnClearX" onclick="clearSearch()" title="Clear" aria-label="Clear search">✕</button>
+      </div>
+      <button class="btn-search" onclick="submitSearch()">Go</button>
+      <select id="selSort" onchange="applySort()" aria-label="Sort results">
         <option value="found-desc">Newest</option>
         <option value="found-asc">Oldest</option>
         <option value="date-desc">Pub. ↓</option>
         <option value="date-asc">Pub. ↑</option>
         <option value="importance">Importance</option>
       </select>
-      <div class="search-wrap">
-        <input type="text" id="searchInput" placeholder="Search…"
-               onkeydown="if(event.key==='Enter')submitSearch()"
-               oninput="updateXBtn()" />
-        <button class="btn-clear-x" id="btnClearX" onclick="clearSearch()" title="Clear">✕</button>
-      </div>
-      <button class="btn-search" onclick="submitSearch()">Go</button>
-      <button class="btn-clear-all" id="btnClearAll" onclick="clearAllFilters()">✕ Clear</button>
     </div>
+
+    <details class="advanced-filters" id="advancedFilters">
+      <summary>More filters</summary>
+      <div class="advanced-inner">
+        <div class="controls-row2">
+          <button class="btn-capa" id="btn-teorica"       onclick="toggleCapa('teorica')">Teórica</button>
+          <button class="btn-capa" id="btn-analitica"     onclick="toggleCapa('analitica')">Analítica</button>
+          <button class="btn-capa" id="btn-evaluativa"    onclick="toggleCapa('evaluativa')">Evaluativa</button>
+          <button class="btn-capa" id="btn-metodologica"  onclick="toggleCapa('metodologica')">Metodológica</button>
+        </div>
+        <div class="controls-row3">
+          <select id="selCapaDetail" onchange="applyDropdown()" aria-label="Subcapa">
+            <!-- Options filled dynamically based on active capa -->
+          </select>
+          <select id="selEvaluativa" onchange="applyDropdown()" aria-label="Evaluative criteria">
+            <option value="">Criterio</option>
+            <option value="contestabilidad">Contestabilidad</option>
+            <option value="accountability">Accountability</option>
+            <option value="equidad">Equidad</option>
+            <option value="explicabilidad">Explicabilidad</option>
+          </select>
+          <select id="selType" onchange="applyDropdown()" aria-label="Content type">
+            <option value="">Tipo</option>
+            <option value="article">Article</option>
+            <option value="book">Book</option>
+            <option value="report">Report</option>
+            <option value="regulation">Regulation</option>
+            <option value="thesis">Thesis</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+      </div>
+    </details>
 
   </div>
 
@@ -379,7 +428,7 @@
     <button class="btn-export" onclick="exportMarkdown()">⬇ Copy as Markdown</button>
   </div>
 
-  <main id="main"><div class="state-msg">Loading…</div></main>
+  <main id="main" aria-live="polite"><div class="state-msg">Loading…</div></main>
   <div class="pagination" id="pagination"></div>
 
 </div>
@@ -709,7 +758,7 @@ function toggleImp(imp) {
   state.importance = document.getElementById("btn-ALTA").classList.contains("active-ALTA")   ? "ALTA"
                    : document.getElementById("btn-MEDIA").classList.contains("active-MEDIA") ? "MEDIA"
                    : document.getElementById("btn-BAJA").classList.contains("active-BAJA")   ? "BAJA" : "";
-  state.page = 1; updateClearBtn(); fetchData();
+  state.page = 1; updateClearBtn(); syncAdvancedFiltersPanel(); fetchData();
 }
 
 function toggleCapa(capa) {
@@ -731,14 +780,14 @@ function toggleCapa(capa) {
   state.capa    = newCapaKey ? (capaValueMap[newCapaKey] || newCapaKey) : "";
 
   buildSubcapaDropdown(newCapaKey);
-  state.page = 1; updateClearBtn(); fetchData();
+  state.page = 1; updateClearBtn(); syncAdvancedFiltersPanel(); fetchData();
 }
 
 function applyDropdown() {
   updateDropdownStyle(document.getElementById("selCapaDetail"));
   updateDropdownStyle(document.getElementById("selEvaluativa"));
   updateDropdownStyle(document.getElementById("selType"));
-  state.page = 1; updateClearBtn(); fetchData();
+  state.page = 1; updateClearBtn(); syncAdvancedFiltersPanel(); fetchData();
 }
 
 function applySort() {
@@ -769,12 +818,23 @@ function clearAllFilters() {
   state.sort = "found-desc"; state.page = 1; state.starFilter = false;
   document.getElementById("btnStarFilter").classList.remove("active");
   buildSubcapaDropdown("");
+  syncAdvancedFiltersPanel();
   updateXBtn(); updateClearBtn(); fetchData();
 }
 
 function updateXBtn() {
   const val = document.getElementById("searchInput").value;
   document.getElementById("btnClearX").style.display = val ? "block" : "none";
+}
+
+function syncAdvancedFiltersPanel() {
+  const panel = document.getElementById("advancedFilters");
+  if (!panel) return;
+  const hasAdvanced = state.capa
+    || document.getElementById("selCapaDetail").value
+    || document.getElementById("selEvaluativa").value
+    || document.getElementById("selType").value;
+  panel.open = Boolean(hasAdvanced);
 }
 
 function updateClearBtn() {
@@ -954,6 +1014,7 @@ function exportMarkdown() {
 
 // ── Init ──────────────────────────────────────────────────────────────────────
 buildSubcapaDropdown("");
+syncAdvancedFiltersPanel();
 fetchData();
 </script>
 </body>

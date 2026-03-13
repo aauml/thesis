@@ -235,7 +235,7 @@
     <p class="note">Pendiente de confirmar con el Dr. Bueno de Mata. <strong>PATTERN</strong> (Bureau of Prisons / First Step Act) es el candidato primario — puntuación máxima en criterios de selección y buena documentación pública. Hay inclinación hacia <strong>STRmix</strong> (FBI Laboratory, genotipado probabilístico de ADN) por la tensión más directa entre secreto comercial y derecho de defensa. La decisión la tomo con el director.</p>
 
     <h3>Recursos</h3>
-    <p class="note">977 entradas en el Knowledge Base, organizadas por capa teórica, tema e importancia. Las fuentes de alta prioridad cubren gobernanza y regulación comparada (Bradford, Veale, Kaminski, Engler), contestabilidad y derecho procesal (Kaminski &amp; Urban, Wexler, Citron, Henin &amp; Le Métayer, Bueno de Mata), marco normativo (RIA, NIST AI RMF, CETS 225, EO 14179, M-25-21) y documentación del caso DOJ/PATTERN (GAO, OIG, First Step Act). Infraestructura: Zotero + Better BibTeX, Obsidian, Google Drive (9 carpetas, 551 fuentes). La citation key BibTeX actúa como conector universal entre los tres sistemas.</p>
+    <p class="note">1.255 entradas en el Knowledge Base, organizadas por capa teórica, tema e importancia. Las fuentes de alta prioridad cubren gobernanza y regulación comparada (Bradford, Veale, Kaminski, Engler), contestabilidad y derecho procesal (Kaminski &amp; Urban, Wexler, Citron, Henin &amp; Le Métayer, Bueno de Mata), marco normativo (RIA, NIST AI RMF, CETS 225, EO 14179, M-25-21) y documentación del caso DOJ/PATTERN (GAO, OIG, First Step Act). Infraestructura: Zotero + Better BibTeX, Obsidian, Google Drive (9 carpetas, 551 fuentes). La citation key BibTeX actúa como conector universal entre los tres sistemas.</p>
 
     <h3>Marco normativo — cambios post-plan</h3>
     <p class="note">EO 14110 revocada (ene 2025) → sustituida por EO 14179, enfoque menos prescriptivo. OMB M-24-10 rescindida → M-25-21 (abr 2025), requisitos significativamente reducidos. Convenio CETS 225 en vigor nov 2025 — primer tratado internacional vinculante sobre IA. Reglamento de Ejecución 2025/454 regula el Panel Científico del AI Act. Estos cambios afectan el capítulo de contexto normativo pero no la pregunta de investigación.</p>
@@ -255,6 +255,11 @@
         <button class="btn-sm" onclick="toggleAllDec(true)">Expandir todo</button>
         <button class="btn-sm" onclick="toggleAllDec(false)">Contraer todo</button>
       </div>
+
+      <details class="dec">
+        <summary><span class="dec-date">2026-03-13</span><span class="dec-preview">Pipeline KB reparado: 76 entradas nuevas en NewsLog (1.176 → 1.255). AcademicQueue con 249 pendientes.</span><span class="dec-toggle">▸</span></summary>
+        <div class="dec-body">Sesión técnica de mantenimiento del pipeline KB. Reparaciones: (1) evaluación de 198 items en PerplexityQueue — 170 promovidos, 24 revisados, 4 descartados; (2) bug crítico identificado y corregido: todas las URLs <code>https://www.*</code> generaban el mismo ID base64[:16] (<code>aHR0cHM6Ly93d3cu</code>), causando que la deduplicación de NewsLog rechazara todas las entradas; fix: strip de <code>www.</code> antes de generar el ID; (3) 76 entradas nuevas añadidas al NewsLog (1.176 → 1.255 URLs totales). Bug pendiente: 84 items duplicados en PerplexityQueue con estatus «stuck pending» por colisión de IDs en GAS — sin resolver, prioridad baja. AcademicQueue: 249 items pendientes de evaluación para próxima sesión.</div>
+      </details>
 
       <details class="dec">
         <summary><span class="dec-date">2026-03-12</span><span class="dec-preview">SHEET_API endpoint restaurado tras fallo de proyecto GCP. WebApp v35 desplegada.</span><span class="dec-toggle">▸</span></summary>
@@ -364,6 +369,7 @@
     <div class="task-group">
       <p class="note">Terminar Kaminski (2023) y escribir ficha en Obsidian.</p>
       <p class="note">Iniciar Bradford (2020), capítulos 1 a 3.</p>
+      <p class="note"><code>update academic</code> — evaluar 249 items en AcademicQueue y promover a NewsLog.</p>
     </div>
 
     <h3>Trimestre marzo–mayo 2026</h3>
@@ -377,7 +383,7 @@
   </section>
 
   <footer>
-    Última actualización: 12 de marzo de 2026 &nbsp;·&nbsp; Documento vivo — las secciones cambian según avance el proyecto
+    Última actualización: 13 de marzo de 2026 &nbsp;·&nbsp; Documento vivo — las secciones cambian según avance el proyecto
   </footer>
 
 </div><!-- /container -->

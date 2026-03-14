@@ -12,6 +12,14 @@ _Actualizar al cierre de cada sesión. Este archivo es la memoria técnica del s
 - **Fix posible:** Correr script Python que llame `updatePerplexityRow` múltiples veces por URL hasta que no queden pending. O purgar manualmente desde el sheet.
 - **Fecha detectado:** 2026-03-13
 
+### BUG-003 — 77 entradas degradadas en NewsLog (context window compression)
+- **Estado:** Abierto
+- **Descripción:** Sesión `update perplexity` del 2026-03-13 procesó 198 items (run `2026-03-13-205`). Al agotarse el contexto, 77 entradas fueron promovidas con `thesis_relevance` degradada: empiezan con "This content addresses [X]." y terminan con texto boilerplate genérico. Longitud promedio: 433ch vs. 1074ch de las entradas limpias.
+- **Impacto:** Medio — 77 entradas en NewsLog tienen evaluación de tesis incompleta. Las entradas existen y no son duplicados, pero su valor analítico es mínimo.
+- **Fix:** En sesión fresca: (1) filtrar NewsLog por `run_id=2026-03-13-205` y `thesis_relevance` corta, (2) recuperar síntesis originales de PerplexityQueue (aún existen, marcadas `promoted`), (3) re-evaluar y actualizar via `updateByUrl`. Priorizar las marcadas `importance=ALTA`.
+- **Prevención:** SKILL-KB-v11 introduce límite hard de 50 items por sesión y quality gate (bloquea posts con thesis_relevance < 600ch o con boilerplate detectado).
+- **Fecha detectado:** 2026-03-13
+
 ### BUG-002 — sweep_index architectural bug en AcademicOrchestrator
 - **Estado:** Abierto
 - **Descripción:** El índice `sweep_index` avanza más allá del array de queries elegibles cuando el array se reduce entre runs. Causa que algunas queries se salten en el historical sweep.
@@ -55,7 +63,7 @@ _Actualizar al cierre de cada sesión. Este archivo es la memoria técnica del s
 | 2026-03-13 | `updatePerplexityRow` y `updateAcademicRow` deben usar `url` como lookup key, nunca `id`. |
 | 2026-03-13 | `normalizeUrl` debe quitar `www.` para evitar que `www.domain.com` y `domain.com` sean tratados como URLs distintas. |
 | 2026-03-13 | NewsAPI free tier devuelve 426 desde GAS. Reemplazado por Google News RSS (sin key, sin límite). |
-| 2026-03-13 | Versiones activas: WebApp-v32, GoogleNewsRSS-v1, PerplexitySearch-v3, SKILL-KB-v10. |
+| 2026-03-13 | Versiones activas: WebApp-v32, GoogleNewsRSS-v1, PerplexitySearch-v3, SKILL-KB-v11. |
 | 2026-03-13 | Google News RSS reemplaza NewsAPI (426 en free tier). Sin API key, sin límite de requests. |
 | 2026-03-13 | Duplicate function names resuelto: `_advanceNextRunDate`, `_isQueryDue`, `_fmtDate` eliminadas de PerplexitySearch-v3. Solo viven en AcademicOrchestrator. |
 
@@ -66,7 +74,8 @@ _Actualizar al cierre de cada sesión. Este archivo es la memoria técnica del s
 ## Próxima sesión
 
 - **Prioridad 1:** `update academic` — 249 items pendientes en AcademicQueue (papers arxiv/CORE/OpenAlex)
-- **Prioridad 2:** Resolver BUG-001 (84 stuck en PerplexityQueue) — script Python de limpieza
-- **Prioridad 3:** TASK-001 — limpiar 3 entradas TEST en NewsLog
+- **Prioridad 2:** BUG-003 — re-evaluar 77 entradas degradadas (priorizar ALTA, usar synthesis de PerplexityQueue)
+- **Prioridad 3:** Resolver BUG-001 (84 stuck en PerplexityQueue) — script Python de limpieza
+- **Prioridad 4:** TASK-001 — limpiar 3 entradas TEST en NewsLog
 
 _Última actualización: 2026-03-13_

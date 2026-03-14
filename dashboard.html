@@ -193,6 +193,93 @@
       padding: 0.9rem 1rem; margin: 0;
     }
 
+    /* ── Conceptual Map v6 ── */
+    #mapModal .modal { max-width: 880px; }
+    .map-question { background: #fff; border: 2px solid var(--border); border-radius: 10px; padding: 0.6rem 1.2rem; text-align: center; margin-bottom: 1rem; }
+    .map-question small { font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 0.15rem; }
+    .map-question strong { font-family: var(--serif); font-size: 0.95rem; color: var(--text); }
+    .map-arrow { text-align: center; color: var(--text-muted); font-size: 0.75rem; padding: 0.3rem 0; }
+
+    .map-foundation { background: #f8f7f4; border: 2px solid #c8c7c2; border-radius: 12px; padding: 0.8rem; margin-bottom: 0.3rem; }
+    .map-foundation > .map-section-label { text-align: center; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); font-weight: 700; margin-bottom: 0.6rem; }
+    .map-found-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.7rem; }
+    .map-found-block { border-radius: 10px; padding: 0.7rem; border-width: 2px; border-style: solid; }
+    .map-found-block h3 { font-family: var(--sans); font-size: 0.82rem; font-weight: 700; margin: 0 0 0.5rem; text-transform: none; letter-spacing: 0; border: none; padding: 0; }
+    .map-teo { background: #eeedfe; border-color: #afa9ec; }
+    .map-teo h3 { color: #534ab7; }
+    .map-met { background: #f1efe8; border-color: #b4b2a9; }
+    .map-met h3 { color: #6b6b68; }
+    .map-card-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.4rem; }
+    .map-card { background: #fff; border: 1px solid; border-radius: 6px; padding: 0.45rem 0.55rem; }
+    .map-card .mc-title { font-size: 0.78rem; font-weight: 600; color: var(--text); line-height: 1.3; }
+    .map-card .mc-authors { font-size: 0.68rem; color: var(--text-muted); margin-top: 0.1rem; }
+    .map-teo .map-card { border-color: #d4caf0; }
+    .map-met .map-card { border-color: #ccc9c0; }
+    .map-card-full { grid-column: 1 / -1; }
+    .map-eje { background: #e1f5ee; border: 1px solid #5dcaa5; border-radius: 5px; padding: 0.3rem 0.6rem; font-size: 0.72rem; color: #0f6e56; margin-top: 0.45rem; font-style: italic; }
+    .map-limit { background: var(--warn-bg); border: 1px solid var(--warn-border); border-radius: 5px; padding: 0.3rem 0.6rem; font-size: 0.72rem; color: var(--warn-text); margin-top: 0.45rem; }
+
+    .map-analytical { background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 0.7rem; margin-bottom: 0.3rem; }
+    .map-analytical > .map-section-label { text-align: center; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); font-weight: 700; margin-bottom: 0.5rem; }
+    .map-ana-layout { display: grid; grid-template-columns: 200px 1fr 200px; gap: 0.5rem; }
+    .map-pillar { border-radius: 10px; padding: 0.6rem; border-width: 2px; border-style: solid; }
+    .map-pillar h3 { font-size: 0.82rem; font-weight: 700; text-align: center; margin: 0 0 0.15rem; text-transform: none; letter-spacing: 0; border: none; padding: 0; }
+    .map-pillar .mp-sub { font-size: 0.68rem; color: var(--text-muted); text-align: center; margin-bottom: 0.45rem; }
+    .map-ria { background: #f3ecf7; border-color: #c9a5d8; }
+    .map-ria h3 { color: #7f3f98; }
+    .map-nist { background: #e1f5ee; border-color: #5dcaa5; }
+    .map-nist h3 { color: #0f6e56; }
+    .map-art { background: #fff; border: 1px solid #c9a5d8; border-radius: 5px; padding: 0.3rem 0.5rem; margin-bottom: 0.3rem; }
+    .map-art .ma-num { font-size: 0.76rem; font-weight: 700; color: #7f3f98; }
+    .map-art .ma-desc { font-size: 0.66rem; color: var(--text-muted); }
+    .map-nist-fn { background: #fff; border: 1px solid #5dcaa5; border-radius: 6px; padding: 0.4rem 0.55rem; margin-bottom: 0.35rem; }
+    .map-nist-fn .mf-name { font-size: 0.82rem; font-weight: 700; color: #0f6e56; }
+    .map-nist-fn .mf-desc { font-size: 0.66rem; color: var(--text-muted); margin-top: 0.1rem; }
+
+    .map-matrix { background: #fafaf8; border: 1px solid var(--border); border-radius: 10px; padding: 0.5rem; }
+    .map-matrix-label { text-align: center; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); font-weight: 700; margin-bottom: 0.35rem; }
+    .map-mtx-table { width: 100%; border-collapse: collapse; }
+    .map-mtx-table th { font-size: 0.72rem; font-weight: 700; color: var(--text-muted); padding: 0.2rem; text-align: center; border-bottom: 1px solid #e8e8e4; }
+    .map-mtx-table td { padding: 0.35rem 0.2rem; text-align: center; border-bottom: 1px solid #f0f0ec; }
+    .map-mtx-table tr:last-child td { border-bottom: none; }
+    .mtx-dot { display: inline-block; width: 20px; height: 20px; border-radius: 50%; }
+    .mtx-on { background: #2c2c2a; }
+    .mtx-off { background: #e8e8e4; }
+    .map-legend { padding: 0.5rem 0.4rem 0.2rem; font-size: 0.72rem; color: var(--text-muted); }
+    .map-legend-title { margin-bottom: 0.3rem; }
+    .map-legend-item { margin-bottom: 0.15rem; }
+    .map-legend-item .lg-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 0.3rem; vertical-align: middle; }
+    .lg-co { background: #2d7a3f; } .lg-di { background: #b03030; } .lg-cp { background: #185fa5; }
+    .map-legend-item .lg-label { font-weight: 600; }
+    .map-legend-pending { font-size: 0.68rem; color: var(--text-muted); font-style: italic; margin-top: 0.2rem; }
+
+    .map-evaluativa { background: #faece7; border: 2px solid #f0997b; border-radius: 12px; padding: 0.7rem; margin-bottom: 0.3rem; }
+    .map-evaluativa h3 { font-size: 0.82rem; font-weight: 700; color: #993c1d; margin: 0 0 0.15rem; text-transform: none; letter-spacing: 0; border: none; padding: 0; }
+    .map-evaluativa .me-sub { font-size: 0.72rem; color: var(--text-light); margin-bottom: 0.5rem; }
+    .map-eva-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.4rem; }
+    .map-eva-card { background: #fff; border: 1px solid #f0997b; border-radius: 8px; padding: 0.5rem; display: flex; gap: 0.45rem; align-items: flex-start; }
+    .map-eva-icon { width: 30px; height: 30px; border-radius: 50%; background: #faece7; border: 1px solid #f0997b; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; color: #993c1d; flex-shrink: 0; }
+    .map-eva-card .me-name { font-size: 0.78rem; font-weight: 700; color: #993c1d; }
+    .map-eva-card .me-desc { font-size: 0.66rem; color: var(--text-muted); margin-top: 0.1rem; line-height: 1.4; }
+
+    .map-case { background: #faeeda; border: 2px solid #fac775; border-radius: 12px; padding: 0.7rem; }
+    .map-case-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.35rem; }
+    .map-case h3 { font-size: 0.82rem; font-weight: 700; color: #854f0b; margin: 0; text-transform: none; letter-spacing: 0; border: none; padding: 0; }
+    .map-case-badge { background: var(--warn-bg); border: 1px solid var(--warn-border); border-radius: 4px; padding: 0.15rem 0.5rem; font-size: 0.7rem; font-weight: 600; color: var(--warn-text); white-space: nowrap; }
+    .map-case-impl { display: inline-block; background: #fff; border: 1px solid #fac775; border-radius: 5px; padding: 0.2rem 0.6rem; font-size: 0.7rem; color: #854f0b; margin-bottom: 0.4rem; }
+    .map-case .mc-criteria-label { font-size: 0.78rem; font-weight: 600; color: var(--text); margin-bottom: 0.2rem; }
+    .map-case .mc-criteria { font-size: 0.72rem; color: var(--text-light); padding-left: 0.6rem; line-height: 1.7; }
+    .map-case .mc-criteria li { list-style: disc; }
+
+    .map-derivation { font-size: 0.68rem; font-style: italic; color: #534ab7; text-align: right; margin-top: -0.1rem; margin-bottom: 0.2rem; }
+
+    @media (max-width: 700px) {
+      .map-found-grid { grid-template-columns: 1fr; }
+      .map-ana-layout { grid-template-columns: 1fr; }
+      .map-eva-grid { grid-template-columns: 1fr 1fr; }
+      .map-card-grid { grid-template-columns: 1fr; }
+    }
+
     /* ── KB Report modal specifics ── */
     .kb-stat { display: inline-block; background: var(--accent-soft); border-radius: 4px; padding: 0.2rem 0.6rem; font-size: 0.78rem; font-weight: 600; color: var(--accent); margin: 0.15rem 0.25rem 0.15rem 0; }
     .kb-section { margin-bottom: 1.2rem; }
@@ -830,112 +917,172 @@
       <button class="modal-close" onclick="closeModal('mapModal')" aria-label="Cerrar">✕</button>
     </div>
     <div class="modal-body">
+      <!-- Epistemological banner -->
       <div class="epist-box">
-        <strong>Supuesto epistemológico transversal:</strong> «Cumplimiento documentable ≠ cumplimiento real.» Esta tesis mide evidencia pública disponible, no implementación efectiva. Aplica a todas las capas como limitación constitutiva, no como debilidad.
+        <strong>Supuesto epistemológico transversal:</strong> «Cumplimiento documentable ≠ cumplimiento real.» Esta tesis mide evidencia pública disponible, no implementación efectiva. Aplica a todas las capas como limitación constitutiva.
       </div>
 
-      <div class="modal-controls">
-        <button class="btn-sm" onclick="toggleAllLayers(true)">Expandir todo</button>
-        <button class="btn-sm" onclick="toggleAllLayers(false)">Contraer todo</button>
+      <!-- Research question -->
+      <div class="map-question">
+        <small>Pregunta central</small>
+        <strong>¿Puede una agencia federal que implementa el NIST AI RMF acreditar cumplimiento sustancial con los requisitos del RIA para sistemas de alto riesgo, sin duplicar estructuras de control?</strong>
       </div>
+      <div class="map-arrow">▼</div>
 
-      <details class="layer">
-        <summary><span class="layer-icon">⚙</span> Capa metodológica <span class="layer-toggle">▸</span></summary>
-        <div class="layer-body"><pre>├── Metodología de derecho comparado
-│   ├── Equivalencia funcional → Zweigert & Kötz (1998); Siems (2018)
-│   ├── Investigación jurídica contextualizada → Taekema & van der Burg (2021)
-│   └── Análisis comparado de políticas → Peters & Fontaine (2020)
-├── Estudio de caso instrumental
-│   ├── Diseño → Yin (2018); Gerring (2017); Stake (1995)
-│   ├── Análisis documental → Bowen (2009); Tight (2019)
-│   └── Codificación cualitativa → Saldaña (2021); Miles et al. (2014)
-├── Fuentes públicas
-│   ├── Primarias: textos normativos, guidance, OIG reports, PIAs, testimony
-│   ├── Secundarias: crosswalks, scholarly analysis, think tank reports
-│   └── Límite: solo acceso público, sin FOIA, sin información clasificada
-└── Precedente de crosswalk → West et al. (2025); GLACIS crosswalk guide</pre></div>
-      </details>
+      <!-- FOUNDATION: Teórica + Metodológica -->
+      <div class="map-foundation">
+        <div class="map-section-label">Fundamentación</div>
+        <div class="map-found-grid">
+          <!-- Teórica -->
+          <div class="map-found-block map-teo">
+            <h3>Capa teórica — porqué</h3>
+            <div class="map-card-grid">
+              <div class="map-card">
+                <div class="mc-title">1. Gobernanza IA comparada</div>
+                <div class="mc-authors">Bradford · Mulligan · Veale</div>
+              </div>
+              <div class="map-card">
+                <div class="mc-title">2. Teoría regulatoria</div>
+                <div class="mc-authors">Ayres & Braithwaite · Black</div>
+              </div>
+              <div class="map-card">
+                <div class="mc-title">3. Derecho procesal</div>
+                <div class="mc-authors">Bueno de Mata · Wexler · Faigman</div>
+              </div>
+              <div class="map-card">
+                <div class="mc-title">4. Contestabilidad algorítmica</div>
+                <div class="mc-authors">Kaminski & Urban · Henin · Citron</div>
+              </div>
+            </div>
+            <div class="map-eje">Eje procesal (pilares 3–4): la documentación de IA como requisito del derecho de defensa y la contradicción.</div>
+          </div>
+          <!-- Metodológica -->
+          <div class="map-found-block map-met">
+            <h3>Capa metodológica — cómo</h3>
+            <div class="map-card-grid">
+              <div class="map-card">
+                <div class="mc-title">Derecho comparado</div>
+                <div class="mc-authors">Equivalencia funcional</div>
+              </div>
+              <div class="map-card">
+                <div class="mc-title">Estudio de caso instrumental</div>
+                <div class="mc-authors">Yin · Gerring · Stake</div>
+              </div>
+              <div class="map-card">
+                <div class="mc-title">Análisis documental</div>
+                <div class="mc-authors">Bowen · Tight</div>
+              </div>
+              <div class="map-card">
+                <div class="mc-title">Codificación cualitativa</div>
+                <div class="mc-authors">Saldaña · Miles et al.</div>
+              </div>
+              <div class="map-card map-card-full">
+                <div class="mc-title">Precedente crosswalk</div>
+                <div class="mc-authors">West et al. (2025)</div>
+              </div>
+            </div>
+            <div class="map-limit">Solo fuentes públicas · sin FOIA · sin clasificado · sin entrevistas</div>
+          </div>
+        </div>
+      </div>
+      <div class="map-arrow">fundamentan y delimitan ▼</div>
 
-      <details class="layer">
-        <summary><span class="layer-icon">📚</span> Capa teórica — cuatro pilares <span class="layer-toggle">▸</span></summary>
-        <div class="layer-body"><pre>├── 1. Gobernanza de IA comparada
-│   ├── Modelo vinculante UE/RIA → Bradford (2020, 2023)
-│   ├── Estándares voluntarios EE.UU./NIST → Mulligan & Bamberger (2019)
-│   ├── Convergencia/divergencia transatlántica → Fahey (2013, 2016); Chinen (2023)
-│   └── Efecto Bruselas en IA → Bradford (2020); Veale et al. (2023)
-├── 2. Teoría regulatoria
-│   ├── Regulación responsiva → Ayres & Braithwaite (1992); Black (1997)
-│   ├── Equivalencia funcional → Zweigert & Kötz (1998); Smits (2012)
-│   └── Estado de derecho y decisión automatizada → Yeung (2018); Suksi (2023)
-├── 3. Derecho procesal y prueba electrónica
-│   ├── Admisibilidad de evidencia algorítmica → Faigman et al. (2019)
-│   ├── Secreto comercial vs. due process → Wexler (2018); Chan (2024)
-│   └── Prueba científica → Taruffo (1992); Nieva Fenoll (2010)
-└── 4. Contestabilidad algorítmica
-    ├── Derecho a impugnar decisiones → Kaminski & Urban (2021)
-    ├── Explicabilidad y transparencia → Henin & Le Métayer (2021)
-    └── Acceso epistémico previo
-        "No puedes impugnar lo que no sabes que existe"
-        → Wexler (2018, 2024); Citron (2008); Chan (2024)</pre></div>
-      </details>
+      <!-- ANALYTICAL LAYER -->
+      <div class="map-analytical">
+        <div class="map-section-label">Capa analítica</div>
+        <div class="map-ana-layout">
+          <!-- RIA Pillar -->
+          <div class="map-pillar map-ria">
+            <h3>RIA (UE)</h3>
+            <div class="mp-sub">Obligaciones vinculantes</div>
+            <div class="map-art"><span class="ma-num">Art. 9</span> <span class="ma-desc">Gestión de riesgos</span></div>
+            <div class="map-art"><span class="ma-num">Art. 10</span> <span class="ma-desc">Gobernanza de datos</span></div>
+            <div class="map-art"><span class="ma-num">Art. 11</span> <span class="ma-desc">Documentación técnica</span></div>
+            <div class="map-art"><span class="ma-num">Art. 12</span> <span class="ma-desc">Registro / logs</span></div>
+            <div class="map-art"><span class="ma-num">Art. 13</span> <span class="ma-desc">Transparencia</span></div>
+            <div class="map-art"><span class="ma-num">Art. 14</span> <span class="ma-desc">Supervisión humana</span></div>
+            <div class="map-art"><span class="ma-num">Art. 15</span> <span class="ma-desc">Robustez / precisión</span></div>
+            <div class="map-art"><span class="ma-num">Arts. 16–18</span> <span class="ma-desc">Obligaciones operador</span></div>
+          </div>
 
-      <details class="layer">
-        <summary><span class="layer-icon">⇄</span> Capa analítica — matriz RIA ↔ NIST AI RMF <span class="layer-toggle">▸</span></summary>
-        <div class="layer-body"><pre>├── Art. 9 ↔ MAP/MEASURE   [Gestión de riesgos]
-│   Tensión: RIA exige documentación formal; NIST recomienda proceso
-│
-├── Art. 10 ↔ MAP/GOVERN   [Gobernanza de datos]
-│   Tensión: RIA exige trazabilidad; NIST no prescribe granularidad
-│
-├── Art. 11 ↔ GOVERN   [Documentación técnica]
-│   Tensión: RIA exige formato y contenido mínimo; NIST es principista
-│
-├── Art. 12 ↔ MEASURE   [Registro de actividades / logs]
-│   Tensión: RIA especifica qué debe registrarse; NIST no prescribe
-│
-├── Art. 13 ↔ GOVERN/MAP   [Transparencia]
-│   Tensión: RIA exige transparencia hacia afectados; NIST orienta hacia operadores
-│
-├── Art. 14 ↔ GOVERN/MANAGE   [Supervisión humana]
-│   Tensión: RIA exige supervisión efectiva; NIST recomienda sin verificabilidad externa
-│
-├── Art. 15 ↔ MEASURE/MANAGE   [Robustez, precisión, ciberseguridad]
-│   Tensión: RIA exige umbrales mínimos; NIST no fija estándares
-│
-└── Arts. 16–18 ↔ GOVERN   [Obligaciones del operador]
-    Tensión: RIA asigna responsabilidad jurídica; NIST, responsabilidad organizacional</pre></div>
-      </details>
+          <!-- Matrix -->
+          <div class="map-matrix">
+            <div class="map-matrix-label">Matriz de correspondencia</div>
+            <table class="map-mtx-table">
+              <thead><tr><th></th><th>GOV</th><th>MAP</th><th>MEA</th><th>MAN</th></tr></thead>
+              <tbody>
+                <tr><td></td><td><span class="mtx-dot mtx-off"></span></td><td><span class="mtx-dot mtx-on"></span></td><td><span class="mtx-dot mtx-on"></span></td><td><span class="mtx-dot mtx-off"></span></td></tr>
+                <tr><td></td><td><span class="mtx-dot mtx-on"></span></td><td><span class="mtx-dot mtx-on"></span></td><td><span class="mtx-dot mtx-off"></span></td><td><span class="mtx-dot mtx-off"></span></td></tr>
+                <tr><td></td><td><span class="mtx-dot mtx-on"></span></td><td><span class="mtx-dot mtx-off"></span></td><td><span class="mtx-dot mtx-off"></span></td><td><span class="mtx-dot mtx-off"></span></td></tr>
+                <tr><td></td><td><span class="mtx-dot mtx-off"></span></td><td><span class="mtx-dot mtx-off"></span></td><td><span class="mtx-dot mtx-on"></span></td><td><span class="mtx-dot mtx-off"></span></td></tr>
+                <tr><td></td><td><span class="mtx-dot mtx-on"></span></td><td><span class="mtx-dot mtx-on"></span></td><td><span class="mtx-dot mtx-off"></span></td><td><span class="mtx-dot mtx-off"></span></td></tr>
+                <tr><td></td><td><span class="mtx-dot mtx-on"></span></td><td><span class="mtx-dot mtx-off"></span></td><td><span class="mtx-dot mtx-off"></span></td><td><span class="mtx-dot mtx-on"></span></td></tr>
+                <tr><td></td><td><span class="mtx-dot mtx-off"></span></td><td><span class="mtx-dot mtx-off"></span></td><td><span class="mtx-dot mtx-on"></span></td><td><span class="mtx-dot mtx-on"></span></td></tr>
+                <tr><td></td><td><span class="mtx-dot mtx-on"></span></td><td><span class="mtx-dot mtx-off"></span></td><td><span class="mtx-dot mtx-off"></span></td><td><span class="mtx-dot mtx-off"></span></td></tr>
+              </tbody>
+            </table>
+            <div class="map-legend">
+              <div class="map-legend-title">Cada correspondencia se clasificará como:</div>
+              <div class="map-legend-item"><span class="lg-dot lg-co"></span> <span class="lg-label" style="color:#2d7a3f">Coincidencia</span> — control comparable en el NIST</div>
+              <div class="map-legend-item"><span class="lg-dot lg-di"></span> <span class="lg-label" style="color:#b03030">Diferencia</span> — sin correspondencia o insuficiente</div>
+              <div class="map-legend-item"><span class="lg-dot lg-cp"></span> <span class="lg-label" style="color:#185fa5">Complemento</span> — enfoques que se refuerzan</div>
+              <div class="map-legend-pending">Pendiente — producto de la Fase 1</div>
+            </div>
+          </div>
 
-      <details class="layer">
-        <summary><span class="layer-icon">✓</span> Capa evaluativa — criterios transversales <span class="layer-toggle">▸</span></summary>
-        <div class="layer-body"><pre>├── Contestabilidad
-│   ¿Permite la documentación que un afectado identifique, comprenda
-│   e impugne la decisión? Umbral: acceso epistémico + mecanismo de recurso
-│
-├── Accountability
-│   ¿Hay responsabilidades asignadas, verificables, con consecuencias?
-│   Umbral: persona/rol identificable + trazabilidad de decisiones
-│
-├── Equidad / No discriminación
-│   ¿Se documentan y miden sesgos de forma verificable?
-│   Umbral: evaluación de impacto disparatado + medidas correctivas
-│
-└── Explicabilidad
-    ¿Puede un actor externo entender el funcionamiento del sistema?
-    Umbral: descripción operativa + limitaciones conocidas</pre></div>
-      </details>
+          <!-- NIST Pillar -->
+          <div class="map-pillar map-nist">
+            <h3>NIST AI RMF 1.0</h3>
+            <div class="mp-sub">Estándares voluntarios</div>
+            <div class="map-nist-fn"><div class="mf-name">GOVERN</div><div class="mf-desc">Políticas, roles, cultura</div></div>
+            <div class="map-nist-fn"><div class="mf-name">MAP</div><div class="mf-desc">Contexto, uso, categorización</div></div>
+            <div class="map-nist-fn"><div class="mf-name">MEASURE</div><div class="mf-desc">Métricas, evaluación, monitoreo</div></div>
+            <div class="map-nist-fn"><div class="mf-name">MANAGE</div><div class="mf-desc">Respuesta, priorización</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="map-arrow">hallazgos del análisis ▼</div>
 
-      <details class="layer">
-        <summary><span class="layer-icon">⚖</span> Capa de caso — pendiente de confirmación <span class="layer-toggle">▸</span></summary>
-        <div class="layer-body"><pre>├── Caso primario: PATTERN (Bureau of Prisons / First Step Act)
-│   Sistema de evaluación de riesgo de reincidencia · 25/25 en criterios
-│
-├── Alternativa en consideración: STRmix (FBI Laboratory)
-│   Genotipado probabilístico de ADN · tensión secreto comercial vs. defensa
-│
-└── Casos comparativos: NGI-IPS / FACE Services (FBI)
-    Reconocimiento facial · conexión procesal indirecta</pre></div>
-      </details>
+      <!-- EVALUATIVA -->
+      <div class="map-evaluativa">
+        <h3>Capa evaluativa — criterios transversales</h3>
+        <div class="me-sub">Rúbrica derivada de la capa teórica. Mide los hallazgos de aplicar la matriz al caso.</div>
+        <div class="map-eva-grid">
+          <div class="map-eva-card">
+            <div class="map-eva-icon">⚖</div>
+            <div><div class="me-name">Contestabilidad</div><div class="me-desc">¿Puede el afectado impugnar la decisión?</div></div>
+          </div>
+          <div class="map-eva-card">
+            <div class="map-eva-icon">◎</div>
+            <div><div class="me-name">Accountability</div><div class="me-desc">¿Hay roles verificables con consecuencias?</div></div>
+          </div>
+          <div class="map-eva-card">
+            <div class="map-eva-icon">⚖</div>
+            <div><div class="me-name">Equidad</div><div class="me-desc">¿Se documentan y miden sesgos verificables?</div></div>
+          </div>
+          <div class="map-eva-card">
+            <div class="map-eva-icon">?</div>
+            <div><div class="me-name">Explicabilidad</div><div class="me-desc">¿Puede un externo entender el funcionamiento?</div></div>
+          </div>
+        </div>
+        <div class="map-derivation">Criterios derivados de la capa teórica (pilares 1–4)</div>
+      </div>
+      <div class="map-arrow">se aplican al ▼</div>
+
+      <!-- CASE STUDY -->
+      <div class="map-case">
+        <div class="map-case-header">
+          <h3>Caso de estudio — Departamento de Justicia de EE.UU.</h3>
+          <span class="map-case-badge">⚠ Pendiente de selección</span>
+        </div>
+        <div class="map-case-impl">Implementa: fundamentación + análisis + evaluación</div>
+        <div class="mc-criteria-label">Criterios de selección del caso:</div>
+        <ul class="mc-criteria">
+          <li>Sistema de alto riesgo con impacto en derechos o seguridad</li>
+          <li>Documentación pública suficiente (auditorías, PIAs, testimonios)</li>
+          <li>Relevancia para el ámbito de justicia y el derecho procesal</li>
+        </ul>
+      </div>
 
     </div><!-- /modal-body -->
   </div><!-- /modal -->

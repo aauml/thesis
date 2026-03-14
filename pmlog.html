@@ -257,6 +257,11 @@
       </div>
 
       <details class="dec">
+        <summary><span class="dec-date">2026-03-13</span><span class="dec-preview">Infraestructura GAS auditada: triggers confirmados, duplicate function warning resuelto.</span><span class="dec-toggle">▸</span></summary>
+        <div class="dec-body">Auditoría completa de triggers GAS: <code>runPerplexitySearch</code> (domingos 3–4am), <code>runNewsAPI</code> (diario 11pm–medianoche), <code>startIncrementalScan</code> (lunes 6–7am) — todos correctos. Causa del warning «functions with same name» identificada: <code>_advanceNextRunDate</code>, <code>_isQueryDue</code> y <code>_fmtDate</code> estaban definidas en paralelo en <code>PerplexitySearch.gs</code> y <code>AcademicOrchestrator.gs</code>. Fix: <code>PerplexitySearch-v3</code> desplegado con las tres funciones eliminadas — permanecen en AcademicOrchestrator, accesibles globalmente en GAS. Warning eliminado. Versiones activas: WebApp-v32, GoogleNewsRSS-v1, PerplexitySearch-v3, SKILL-KB-v10.</div>
+      </details>
+
+      <details class="dec">
         <summary><span class="dec-date">2026-03-13</span><span class="dec-preview">Pipeline KB reparado: 76 entradas nuevas en NewsLog (1.176 → 1.255). AcademicQueue con 249 pendientes.</span><span class="dec-toggle">▸</span></summary>
         <div class="dec-body">Sesión técnica de mantenimiento del pipeline KB. Reparaciones: (1) evaluación de 198 items en PerplexityQueue — 170 promovidos, 24 revisados, 4 descartados; (2) bug crítico identificado y corregido: todas las URLs <code>https://www.*</code> generaban el mismo ID base64[:16] (<code>aHR0cHM6Ly93d3cu</code>), causando que la deduplicación de NewsLog rechazara todas las entradas; fix: strip de <code>www.</code> antes de generar el ID; (3) 76 entradas nuevas añadidas al NewsLog (1.176 → 1.255 URLs totales). Bug pendiente: 84 items duplicados en PerplexityQueue con estatus «stuck pending» por colisión de IDs en GAS — sin resolver, prioridad baja. AcademicQueue: 249 items pendientes de evaluación para próxima sesión.</div>
       </details>

@@ -93,8 +93,21 @@ _Registro técnico del proyecto phd-pm. Actualizar al cierre de cada sesión. Al
 - Deployment preserva mismo URL (editar deployment existente, nueva versión, no crear nuevo deployment)
 
 **Pendiente para próxima sesión:**
-- (Opcional) Configurar trigger diario para sync automático: Edit → Triggers → Add → syncGitHubToDrive → Time-driven → Day timer → 6am–7am
-- PM-BUG-001 sigue abierto (KB API schema)
+- ~~(Opcional) Configurar trigger diario para sync automático~~ → **HECHO** (sesión 3, 2026-03-15)
+- PM-BUG-001 sigue abierto (KB API schema — solución: extraer schema de WebApp.gs y documentarlo)
+
+---
+
+### 2026-03-15 (sesión 3) — Trigger diario + context compaction recovery
+
+**Contexto:** Sesión continuada tras context compaction. Tarea pendiente de sesión 2.
+
+**Cambios realizados:**
+- **Trigger diario configurado** para `syncGitHubToDrive`: Time-driven → Day timer → 6am–7am (GMT-7). Ahora hay 4 triggers en el proyecto GAS.
+- PM-BUG-001 revisado y explicado: bloqueador para automatización del KB Intelligence Report en el dashboard. Solución identificada: extraer schema del WebApp.gs.
+
+**Decisiones:**
+- Trigger diario a las 6–7am para que el mirror en Drive esté actualizado antes de la jornada de trabajo.
 
 ---
 

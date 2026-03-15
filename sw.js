@@ -1,10 +1,15 @@
+// Service Worker — must live in repo root.
+// A SW's scope is limited to its directory and below.
+// Moving it to pwa/sw.js would restrict its scope to /thesis/pwa/
+// and it wouldn't be able to cache /thesis/dashboard.html.
+
 const CACHE = 'thesis-v1';
 const ASSETS = [
   '/thesis/dashboard.html',
-  '/thesis/manifest.json',
-  '/thesis/icon-192.png',
-  '/thesis/icon-512.png',
-  '/thesis/apple-touch-icon.png'
+  '/thesis/pwa/manifest.json',
+  '/thesis/pwa/icon-192.png',
+  '/thesis/pwa/icon-512.png',
+  '/thesis/pwa/apple-touch-icon.png'
 ];
 
 self.addEventListener('install', e => {

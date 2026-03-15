@@ -345,40 +345,111 @@
     .v-done { background: var(--success-bg); color: var(--success-text); }
 
     /* ═══════════════════════════════════════
-       MAPA CONCEPTUAL
+       MAPA CONCEPTUAL v6
     ═══════════════════════════════════════ */
-    .map-container { display: flex; flex-direction: column; gap: 0.75rem; align-items: center; }
-    .map-arrow { font-size: 0.82rem; color: var(--text-muted); font-weight: 600; padding: 0.3rem; text-align: center; }
-    .map-box {
+    .map-container { display: flex; flex-direction: column; gap: 0.6rem; align-items: center; }
+    .map-arrow { font-size: 0.78rem; color: var(--text-muted); font-weight: 500; padding: 0.15rem; text-align: center; }
+
+    /* Banner epistemológico */
+    .map-epist {
+      width: 100%; background: #EEEDFE; border: 1px solid #AFA9EC;
+      border-radius: 6px; padding: 0.55rem 0.75rem; font-size: 0.78rem;
+      color: #3C3489; font-style: italic; text-align: center;
+    }
+    /* Pregunta central */
+    .map-question {
       width: 100%; background: var(--bg-card); border: 1px solid var(--border);
-      border-radius: 6px; padding: 0.9rem;
+      border-radius: 6px; padding: 0.7rem 0.9rem; font-size: 0.8rem;
+      color: var(--text); text-align: center; font-weight: 500; line-height: 1.5;
     }
-    .map-box-title { font-weight: 700; color: var(--accent); font-size: 0.82rem; margin-bottom: 0.5rem; }
-    .map-grid-2x2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
-    .map-pillar {
-      background: white; border: 1px solid #c8dae8; border-radius: 4px;
-      padding: 0.5rem; text-align: center; font-size: 0.78rem;
+    /* Fundamentación container */
+    .map-foundation {
+      width: 100%; background: #f8f7f4; border: 1px solid #c8c7c2;
+      border-radius: 8px; padding: 0.75rem;
     }
-    .map-pillar-icon { font-size: 1rem; margin-bottom: 0.15rem; }
-    .map-pillar strong { display: block; color: var(--accent); font-size: 0.78rem; }
-    .map-pillar p { color: var(--text-muted); font-size: 0.68rem; margin: 0.1rem 0 0; }
-    .map-case {
-      width: 100%; background: var(--warn-bg); border: 1px solid var(--warn-border);
-      border-radius: 6px; padding: 0.9rem;
+    .map-found-label { font-size: 0.68rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: #5F5E5A; margin-bottom: 0.5rem; }
+    .map-found-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
+    .map-found-block-label { font-size: 0.68rem; font-weight: 600; margin-bottom: 0.35rem; }
+    /* Teórica */
+    .map-teo .map-found-block-label { color: #534ab7; }
+    .map-card-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.35rem; }
+    .map-card {
+      border-radius: 4px; padding: 0.4rem 0.5rem; text-align: center; font-size: 0.72rem;
     }
-    .map-case-badge { font-size: 0.62rem; font-weight: 700; text-transform: uppercase; color: var(--warn-text); }
-    .map-eva-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.5rem; }
+    .map-teo .map-card { background: #EEEDFE; border: 1px solid #AFA9EC; }
+    .map-teo .map-card strong { display: block; color: #3C3489; font-size: 0.72rem; }
+    .map-teo .map-card p { color: #534ab7; font-size: 0.62rem; margin: 0.1rem 0 0; }
+    .map-proc-badge {
+      display: inline-block; background: #e1f5ee; border-radius: 2px;
+      padding: 0.05rem 0.3rem; font-size: 0.58rem; color: #0f6e56; margin-top: 0.15rem;
+    }
+    /* Metodológica */
+    .map-met .map-found-block-label { color: #5F5E5A; }
+    .map-met .map-card { background: #f1efe8; border: 1px solid #b4b2a9; }
+    .map-met .map-card strong { display: block; color: #444441; font-size: 0.72rem; }
+    .map-met .map-card p { color: #5F5E5A; font-size: 0.62rem; margin: 0.1rem 0 0; }
+    .map-met .map-card-full { grid-column: 1 / -1; }
+
+    /* Capa analítica */
+    .map-analytical { width: 100%; }
+    .map-ana-layout { display: grid; grid-template-columns: 1fr auto 1fr; gap: 0.4rem; align-items: start; }
+    .map-pillar { border-radius: 6px; padding: 0.6rem; }
+    .map-pillar-title { font-weight: 600; font-size: 0.78rem; margin-bottom: 0.4rem; text-align: center; }
+    .map-pillar-item { font-size: 0.68rem; padding: 0.15rem 0; }
+    .map-ria { background: #f3ecf7; border: 1px solid #c9a5d8; }
+    .map-ria .map-pillar-title { color: #7f3f98; }
+    .map-ria .map-pillar-item { color: #7f3f98; }
+    .map-nist { background: #e1f5ee; border: 1px solid #5dcaa5; }
+    .map-nist .map-pillar-title { color: #0f6e56; }
+    .map-nist .map-pillar-item { color: #0f6e56; }
+    /* Matriz de puntos */
+    .map-matrix { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 0.3rem 0.15rem; }
+    .map-mtx-label { font-size: 0.58rem; color: var(--text-muted); margin-bottom: 0.25rem; font-weight: 600; }
+    .map-mtx-table { display: grid; grid-template-columns: repeat(4, 10px); gap: 2px; }
+    .mtx-dot { width: 8px; height: 8px; border-radius: 50%; }
+    .mtx-on { background: #2c2c2a; }
+    .mtx-off { background: #e8e8e4; }
+    .mtx-co { background: #2d7a3f; }
+    .mtx-di { background: #b03030; }
+    .mtx-cp { background: #185fa5; }
+    .map-mtx-cols { font-size: 0.54rem; color: var(--text-muted); margin-top: 0.2rem; text-align: center; }
+    /* Leyenda */
+    .map-legend { width: 100%; font-size: 0.66rem; color: var(--text-muted); display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 0.15rem; }
+    .map-legend span { display: flex; align-items: center; gap: 0.25rem; }
+    .lg-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+    /* Evaluativa */
+    .map-evaluativa {
+      width: 100%; background: #faece7; border: 1px solid #f0997b;
+      border-radius: 6px; padding: 0.6rem 0.75rem;
+    }
+    .map-evaluativa-title { font-size: 0.72rem; font-weight: 600; color: #993c1d; margin-bottom: 0.35rem; }
+    .map-eva-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.35rem; }
     .map-eva-card {
-      background: white; border: 1px solid #c8dae8; border-radius: 4px;
-      padding: 0.45rem; display: flex; align-items: center; gap: 0.4rem; font-size: 0.75rem;
+      text-align: center; font-size: 0.68rem; font-weight: 500; color: #712b13;
     }
-    .map-eva-icon {
-      flex-shrink: 0; width: 26px; height: 26px; display: flex; align-items: center;
-      justify-content: center; background: var(--accent-soft); border-radius: 50%;
-      font-weight: 700; color: var(--accent); font-size: 0.85rem;
+    .map-eva-note { font-size: 0.6rem; color: #993c1d; font-style: italic; margin-top: 0.3rem; }
+
+    /* Caso */
+    .map-case {
+      width: 100%; background: #faeeda; border: 1px solid #fac775;
+      border-radius: 6px; padding: 0.7rem;
     }
-    .me-name { font-weight: 600; }
-    .me-desc { font-size: 0.68rem; color: var(--text-muted); margin-top: 0.1rem; }
+    .map-case-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.3rem; }
+    .map-case-title { font-weight: 600; font-size: 0.78rem; color: #854f0b; }
+    .map-case-badge { font-size: 0.6rem; font-weight: 600; text-transform: uppercase; color: #854f0b; }
+    .map-case-detail { font-size: 0.68rem; color: #633806; }
+
+    /* Responsive: analítica scroll horizontal en mobile */
+    @media (max-width: 700px) {
+      .map-found-grid { grid-template-columns: 1fr; }
+      .map-ana-layout {
+        display: flex; overflow-x: auto; -webkit-overflow-scrolling: touch;
+        gap: 0.4rem; padding-bottom: 0.3rem;
+      }
+      .map-ana-layout > * { flex-shrink: 0; min-width: 140px; }
+      .map-eva-grid { grid-template-columns: repeat(2, 1fr); }
+    }
 
     /* ═══════════════════════════════════════
        DECISIONES
@@ -796,63 +867,122 @@
     <div class="view" id="view-mapa">
 
       <h2>Mapa Conceptual</h2>
-      <div style="font-size:0.82rem; color:var(--text-light); font-style:italic; margin-bottom:1rem; border-left:3px solid var(--accent-mid); padding-left:0.75rem;">
-        Supuesto epistemológico: cumplimiento documentable ≠ cumplimiento real.
-      </div>
 
       <div class="map-container">
 
-        <div class="map-box">
-          <div class="map-box-title">Base teórica — 4 pilares</div>
-          <div class="map-grid-2x2">
-            <div class="map-pillar"><div class="map-pillar-icon">🏛</div><strong>Gobernanza comparada</strong><p>Bradford, Veale, Gorwa</p></div>
-            <div class="map-pillar"><div class="map-pillar-icon">⚖</div><strong>Teoría regulatoria</strong><p>Kaminski, Engler, Selbst</p></div>
-            <div class="map-pillar"><div class="map-pillar-icon">👨‍⚖</div><strong>Derecho procesal</strong><p>Faigman, Wexler, Citron</p></div>
-            <div class="map-pillar"><div class="map-pillar-icon">🔓</div><strong>Contestabilidad</strong><p>Selbst, Powles, Kaminski&amp;Urban</p></div>
+        <!-- Banner epistemológico -->
+        <div class="map-epist">Supuesto epistemológico: cumplimiento documentable ≠ cumplimiento real.</div>
+
+        <!-- Pregunta central -->
+        <div class="map-question">¿Puede una agencia federal que implementa el NIST AI RMF acreditar cumplimiento sustancial con los requisitos del RIA para sistemas de alto riesgo, sin duplicar estructuras de control?</div>
+
+        <div class="map-arrow">fundamentan y delimitan ▼</div>
+
+        <!-- FUNDAMENTACIÓN -->
+        <div class="map-foundation">
+          <div class="map-found-label">Fundamentación</div>
+          <div class="map-found-grid">
+
+            <!-- Teórica -->
+            <div class="map-teo">
+              <div class="map-found-block-label">TEÓRICA</div>
+              <div class="map-card-grid">
+                <div class="map-card"><strong>Gobernanza comparada</strong><p>Bradford, Veale, Gorwa</p></div>
+                <div class="map-card"><strong>Teoría regulatoria</strong><p>Kaminski, Engler, Selbst</p></div>
+                <div class="map-card"><strong>Derecho procesal</strong><p>Bueno de Mata, Wexler, Citron</p><span class="map-proc-badge">eje procesal</span></div>
+                <div class="map-card"><strong>Contestabilidad</strong><p>Kaminski&amp;Urban, Henin&amp;Le Métayer</p><span class="map-proc-badge">eje procesal</span></div>
+              </div>
+            </div>
+
+            <!-- Metodológica -->
+            <div class="map-met">
+              <div class="map-found-block-label">METODOLÓGICA</div>
+              <div class="map-card-grid">
+                <div class="map-card"><strong>Derecho comparado</strong><p>Zweigert&amp;Kötz, Siems</p></div>
+                <div class="map-card"><strong>Caso instrumental</strong><p>Yin, Gerring</p></div>
+                <div class="map-card map-card-full"><strong>Cumplimiento documentable</strong><p>nodo puente: delimita qué se mide</p></div>
+              </div>
+            </div>
+
           </div>
         </div>
 
-        <div class="map-arrow">se integran en ▼</div>
+        <div class="map-arrow">▼</div>
 
-        <div class="map-box">
-          <div class="map-box-title">Marcos de gobernanza de IA</div>
-          <div class="map-eva-grid">
-            <div class="map-eva-card">
-              <div class="map-eva-icon">🇪🇺</div>
-              <div><div class="me-name">AI Act (UE)</div><div class="me-desc">Regulación vinculante. Arts. 8–15, 16–18.</div></div>
+        <!-- CAPA ANALÍTICA -->
+        <div class="map-analytical">
+          <div class="map-ana-layout">
+
+            <!-- RIA -->
+            <div class="map-pillar map-ria">
+              <div class="map-pillar-title">RIA (UE)</div>
+              <div class="map-pillar-item">Art. 9 — Gestión de riesgos</div>
+              <div class="map-pillar-item">Art. 10 — Gobernanza datos</div>
+              <div class="map-pillar-item">Art. 11 — Documentación</div>
+              <div class="map-pillar-item">Art. 12 — Registro logs</div>
+              <div class="map-pillar-item">Art. 13 — Transparencia</div>
+              <div class="map-pillar-item">Art. 14 — Supervisión humana</div>
+              <div class="map-pillar-item">Art. 15 — Robustez/ciber</div>
+              <div class="map-pillar-item">Arts. 16–18 — Obligaciones</div>
             </div>
-            <div class="map-eva-card">
-              <div class="map-eva-icon">🇺🇸</div>
-              <div><div class="me-name">NIST AI RMF</div><div class="me-desc">Estándar voluntario. Govern, Map, Measure, Manage.</div></div>
+
+            <!-- Matriz de puntos -->
+            <div class="map-matrix">
+              <div class="map-mtx-label">MATRIZ</div>
+              <div class="map-mtx-table">
+                <div class="mtx-dot mtx-on"></div><div class="mtx-dot mtx-on"></div><div class="mtx-dot mtx-off"></div><div class="mtx-dot mtx-off"></div>
+                <div class="mtx-dot mtx-on"></div><div class="mtx-dot mtx-on"></div><div class="mtx-dot mtx-off"></div><div class="mtx-dot mtx-off"></div>
+                <div class="mtx-dot mtx-on"></div><div class="mtx-dot mtx-off"></div><div class="mtx-dot mtx-off"></div><div class="mtx-dot mtx-off"></div>
+                <div class="mtx-dot mtx-off"></div><div class="mtx-dot mtx-off"></div><div class="mtx-dot mtx-on"></div><div class="mtx-dot mtx-off"></div>
+                <div class="mtx-dot mtx-on"></div><div class="mtx-dot mtx-on"></div><div class="mtx-dot mtx-off"></div><div class="mtx-dot mtx-off"></div>
+                <div class="mtx-dot mtx-on"></div><div class="mtx-dot mtx-off"></div><div class="mtx-dot mtx-off"></div><div class="mtx-dot mtx-on"></div>
+                <div class="mtx-dot mtx-off"></div><div class="mtx-dot mtx-off"></div><div class="mtx-dot mtx-on"></div><div class="mtx-dot mtx-on"></div>
+                <div class="mtx-dot mtx-on"></div><div class="mtx-dot mtx-off"></div><div class="mtx-dot mtx-off"></div><div class="mtx-dot mtx-off"></div>
+              </div>
+              <div class="map-mtx-cols">G · M · Me · Ma</div>
             </div>
+
+            <!-- NIST -->
+            <div class="map-pillar map-nist">
+              <div class="map-pillar-title">NIST AI RMF</div>
+              <div class="map-pillar-item">GOVERN</div>
+              <div class="map-pillar-item">MAP</div>
+              <div class="map-pillar-item">MEASURE</div>
+              <div class="map-pillar-item">MANAGE</div>
+            </div>
+
+          </div>
+
+          <!-- Leyenda -->
+          <div class="map-legend">
+            <span><div class="lg-dot mtx-on"></div> correspondencia (pendiente clasificar)</span>
+            <span><div class="lg-dot mtx-off"></div> sin correspondencia</span>
           </div>
         </div>
 
-        <div class="map-arrow">se evalúan con ▼</div>
+        <div class="map-arrow">hallazgos del análisis ▼</div>
 
-        <div class="map-box">
-          <div class="map-box-title">Criterios de evaluación transversales</div>
+        <!-- EVALUATIVA -->
+        <div class="map-evaluativa">
+          <div class="map-evaluativa-title">Criterios de evaluación transversales</div>
           <div class="map-eva-grid">
-            <div class="map-eva-card"><div class="map-eva-icon">T</div><div><div class="me-name">Transparencia</div><div class="me-desc">¿Se divulga cómo funciona?</div></div></div>
-            <div class="map-eva-card"><div class="map-eva-icon">A</div><div><div class="me-name">Accountability</div><div class="me-desc">¿Responsabilidad documentada?</div></div></div>
-            <div class="map-eva-card"><div class="map-eva-icon">F</div><div><div class="me-name">Fairness</div><div class="me-desc">¿Sesgos verificables?</div></div></div>
-            <div class="map-eva-card"><div class="map-eva-icon">E</div><div><div class="me-name">Explicabilidad</div><div class="me-desc">¿Puede un externo entender?</div></div></div>
+            <div class="map-eva-card">Contestabilidad</div>
+            <div class="map-eva-card">Accountability</div>
+            <div class="map-eva-card">Equidad</div>
+            <div class="map-eva-card">Explicabilidad</div>
           </div>
+          <div class="map-eva-note">Criterios derivados de la capa teórica (pilares 1–4)</div>
         </div>
 
         <div class="map-arrow">se aplican al ▼</div>
 
+        <!-- CASO -->
         <div class="map-case">
-          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:0.5rem;">
-            <h3 style="font-size:0.85rem;">Caso de estudio — DOJ</h3>
+          <div class="map-case-header">
+            <span class="map-case-title">Caso de estudio — DOJ</span>
             <span class="map-case-badge">⚠ Pendiente de selección</span>
           </div>
-          <div style="font-size:0.8rem; color:var(--text-light); margin-bottom:0.5rem;">
-            PATTERN (BOP) candidato primario 25/25 · STRmix como alternativa con mayor tensión procesal.
-          </div>
-          <div style="font-size:0.72rem; color:var(--warn-text);">
-            Criterios: alto riesgo + documentación pública + relevancia procesal.
-          </div>
+          <div class="map-case-detail">Criterios: alto riesgo + documentación pública + relevancia procesal.</div>
         </div>
 
       </div>

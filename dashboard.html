@@ -613,25 +613,25 @@
       </div>
 
       <div style="font-size:0.78rem; color:var(--text-muted); margin-bottom:1rem;">
-        Actualizado: 15 de marzo de 2026 · 1,324 entradas · Cobertura: feb–mar 2026
+        Actualizado: 15 de marzo de 2026 · 1,459 entradas · Cobertura: feb–mar 2026
       </div>
 
       <!-- Stats grid -->
       <div class="kb-grid">
-        <div class="kb-card"><div class="kb-num">1,324</div><div class="kb-lbl">Total</div></div>
-        <div class="kb-card alta"><div class="kb-num">431</div><div class="kb-lbl">Alta</div></div>
-        <div class="kb-card"><div class="kb-num">709</div><div class="kb-lbl">Media</div></div>
-        <div class="kb-card"><div class="kb-num">183</div><div class="kb-lbl">Baja</div></div>
+        <div class="kb-card"><div class="kb-num">1,459</div><div class="kb-lbl">Total</div></div>
+        <div class="kb-card alta"><div class="kb-num">438</div><div class="kb-lbl">Alta</div></div>
+        <div class="kb-card"><div class="kb-num">809</div><div class="kb-lbl">Media</div></div>
+        <div class="kb-card"><div class="kb-num">212</div><div class="kb-lbl">Baja</div></div>
       </div>
 
       <div class="grid-2" style="margin-bottom:1rem;">
         <!-- By layer -->
         <div class="card">
           <div class="card-title">Distribución por capa</div>
-          <div class="bar-row"><span class="bar-label">Teórica</span><div class="bar-track"><div class="bar-fill" style="width:100%"></div></div><span class="bar-val">856</span></div>
-          <div class="bar-row"><span class="bar-label">Analítica</span><div class="bar-track"><div class="bar-fill" style="width:65%"></div></div><span class="bar-val">556</span></div>
-          <div class="bar-row"><span class="bar-label">Evaluativa</span><div class="bar-track"><div class="bar-fill" style="width:30%"></div></div><span class="bar-val">254</span></div>
-          <div class="bar-row"><span class="bar-label">Caso</span><div class="bar-track"><div class="bar-fill low" style="width:12%"></div></div><span class="bar-val">101</span></div>
+          <div class="bar-row"><span class="bar-label">Teórica</span><div class="bar-track"><div class="bar-fill" style="width:100%"></div></div><span class="bar-val">881</span></div>
+          <div class="bar-row"><span class="bar-label">Analítica</span><div class="bar-track"><div class="bar-fill" style="width:74%"></div></div><span class="bar-val">655</span></div>
+          <div class="bar-row"><span class="bar-label">Evaluativa</span><div class="bar-track"><div class="bar-fill" style="width:30%"></div></div><span class="bar-val">264</span></div>
+          <div class="bar-row"><span class="bar-label">Caso</span><div class="bar-track"><div class="bar-fill low" style="width:12%"></div></div><span class="bar-val">104</span></div>
           <div class="bar-row"><span class="bar-label">Metod.</span><div class="bar-track"><div class="bar-fill" style="width:10%"></div></div><span class="bar-val">84</span></div>
         </div>
         <!-- By type -->
@@ -691,10 +691,11 @@
       <!-- Pipeline status -->
       <div class="section-label">Estado del pipeline</div>
       <div class="card">
-        <div class="news-item"><span class="news-date">15 mar</span><div><strong>69 entradas nuevas al NewsLog</strong> (1,255 → 1,324) · 3 queues procesados (7 academic + 17 perplexity + 21 news + 24 Claude web)</div></div>
-        <div class="news-item"><span class="news-date">15 mar</span><div>PR-005: AcademicQueue IDs no únicos (5 IDs / 247 rows) — corregido: lookup por URL</div></div>
-        <div class="news-item"><span class="news-date">15 mar</span><div>PR-006: <code>append</code> → <code>promoteToNewsLog</code> para promociones desde staging queues</div></div>
-        <div class="news-item" style="background:var(--warn-bg);border-radius:3px;"><span class="news-date" style="color:var(--warn-text);">⚠</span><div><strong>~207 en AcademicQueue</strong> · <strong>~34 en PerplexityQueue</strong> · <strong>~136 en NewsResults</strong> — pendientes</div></div>
+        <div class="news-item"><span class="news-date">15 mar</span><div><strong>204 entradas nuevas al NewsLog</strong> (1,255 → 1,459) · todas las queues vaciadas</div></div>
+        <div class="news-item"><span class="news-date">15 mar</span><div>PerplexityQueue: 24 promoted, 10 discarded → <strong>0 pending</strong></div></div>
+        <div class="news-item"><span class="news-date">15 mar</span><div>NewsResults: 99 promoted, 37 discarded → <strong>0 pending</strong></div></div>
+        <div class="news-item"><span class="news-date">15 mar</span><div>AcademicQueue: 58 promoted, 34 discarded, 111 held → <strong>0 pending</strong></div></div>
+        <div class="news-item" style="background:var(--success-bg,#d4edda);border-radius:3px;"><span class="news-date" style="color:var(--success-text,#155724);">✓</span><div><strong>Todas las colas en cero</strong> · PR-009 aplicado</div></div>
       </div>
 
     </div>
@@ -1032,7 +1033,7 @@
     </div>
 
     <footer>
-      Última actualización: 15 de marzo de 2026 · Thesis Dashboard v4.1 — documento vivo
+      Última actualización: 15 de marzo de 2026 · Thesis Dashboard v4.2 — documento vivo
     </footer>
 
   </div><!-- /main -->
@@ -1085,16 +1086,16 @@ function toggleAllDec(open) {
 // OPERATIVO — interactive checklist with undo
 // Version bump forces localStorage refresh on deploy
 // ═══════════════════════════════════════
-const OPS_VERSION = 2; // bump when DEFAULT_OPS change
+const OPS_VERSION = 3; // bump when DEFAULT_OPS change
 const DEFAULT_OPS = [
-  { id: 'op-academic', text: 'AcademicQueue: ~207 items — ejecutar update academic (por URL, no ID)', done: false, ts: null },
-  { id: 'op-perplexity', text: 'PerplexityQueue: ~34 items pendientes', done: false, ts: null },
-  { id: 'op-news', text: 'NewsResults: ~136 items pendientes', done: false, ts: null },
+  { id: 'op-queues', text: 'Queues vaciadas: 0 academic, 0 perplexity, 0 news', done: true, ts: '15 mar 2026' },
   { id: 'op-email', text: 'Obtener email institucional USAL', done: false, ts: null },
   { id: 'op-inscripcion', text: 'Inscripción formal programa doctoral', done: false, ts: null },
   { id: 'op-obsidian', text: 'Expandir stubs de pilares teóricos', done: false, ts: null },
   { id: 'op-tanner', text: 'Agregar Tanner et al. (2026) al KB', done: false, ts: null },
   { id: 'op-bug001', text: 'PM-BUG-001: documentar schema API del KB para phd-pm', done: false, ts: null },
+  { id: 'op-stoltz', text: 'Leer Stoltz (2024) — Road to Compliance: Federal Agencies and NIST RMF', done: false, ts: null },
+  { id: 'op-finck', text: 'Leer Finck (2026) — EU AI Act Article-by-Article Commentary (OUP)', done: false, ts: null },
 ];
 
 function loadOps() {

@@ -48,6 +48,16 @@ These are hard rules derived from past bugs. Violating any of these means repeat
 - **Root cause:** No había regla explícita de siempre actualizar el dashboard al cerrar sesión.
 - **Rule:** Toda sesión que modifique estado del KB, queues, decisiones, o tareas DEBE actualizar y pushear `dashboard.html` antes de cerrar. Sin excepciones.
 
+### PR-010 — NewsResults: use URL for updateNewsRow, never ID (same issue as PR-005)
+- **Derived from:** Queue emptying session 2026-03-15 (sesión 5)
+- **Root cause:** ALL 136 NewsResults rows had the identical ID `aHR0cHM6Ly9uZXdz` because all Google News RSS URLs start with `https://news.google.com/...` and `base64(url)[:16]` truncates identically. `updateNewsRow` by ID only updates one row.
+- **Rule:** Always pass `"url"` to `updateNewsRow`. The WebApp.gs already supports URL-based lookup. Same pattern as PR-005 (AcademicQueue).
+
+### PR-009 — Queues se vacían completamente, sin dejar pendientes
+- **Derived from:** Sesión 4, 2026-03-15. Queues quedaron con ~377 items pendientes tras procesar solo 1 batch por cola.
+- **Root cause:** Se respetó el batch limit (40/50/40) como si fuera un máximo por sesión. En realidad es un máximo por llamada para evitar degradación de contexto — pero se pueden hacer múltiples batches.
+- **Rule:** Cuando se procesan queues, correr batches sucesivos hasta que la cola quede en 0. No cerrar sesión con items pendientes. Si el contexto se agota, documentar exactamente cuántos quedan y retomar en la siguiente sesión como prioridad #1.
+
 ---
 
 ## Problem Log
@@ -61,6 +71,8 @@ These are hard rules derived from past bugs. Violating any of these means repeat
 | 2026-03-15 | `append` from staging queue returns skipped:1 | `append` dedup checks all 4 tabs including source queue | PR-006 | Yes — use `promoteToNewsLog` |
 | 2026-03-15 | Sección Operativo del dashboard mostraba datos viejos | `DEFAULT_OPS` hardcodeado no se actualizó + localStorage cacheaba indefinidamente | PR-007 | Yes — ops versioning + defaults actualizados |
 | 2026-03-15 | Dashboard desactualizado reportado dos veces | No había regla explícita de actualizar dashboard al cierre | PR-008 | Yes — standing rule |
+| 2026-03-15 | NewsResults IDs all identical (136 rows, 1 ID) | base64 truncation of Google News URLs | PR-010 | Yes — use URL |
+| 2026-03-15 | Queues dejados con ~377 items pendientes | Solo se corrió 1 batch por cola en lugar de vaciarlas | PR-009 | Yes — 3 colas en cero |
 
 ---
 
@@ -68,6 +80,7 @@ These are hard rules derived from past bugs. Violating any of these means repeat
 
 | Date | Session Type | Key Actions | Lessons Added |
 |------|-------------|-------------|---------------|
+| 2026-03-15 | queue-empty | 370 items processed, 3 queues → 0, NewsResults ID bug found | PR-009, PR-010 |
 | 2026-03-15 | dashboard-fix | Operativo defaults + ops versioning, standing rule dashboard | PR-007, PR-008 |
 | 2026-03-15 | kb-review | Queue review: 45 items to NewsLog, SKILL-KB v14, PR-005/PR-006 | PR-005, PR-006 |
 | 2026-03-15 | infrastructure | Daily trigger for syncGitHubToDrive (6–7am), PM-BUG-001 assessed | — |
@@ -76,4 +89,4 @@ These are hard rules derived from past bugs. Violating any of these means repeat
 
 ---
 
-_Última actualización: 2026-03-15 (sesión 4)_
+_Última actualización: 2026-03-15 (sesión 5)_

@@ -24,12 +24,9 @@ The system has four independent pipelines feeding the same Google Sheet:
 
 ## Configuration
 
-The Google Sheet API endpoint URL is stored in the project knowledge file `config.txt`:
 ```
 SHEET_API=https://script.google.com/macros/s/AKfycbzk2vhu-qcKFBPqEImKGEZKSitpVZv1IQQEv5ZzG7pNfo-iPUWfvSoLWWnkoc8d8PQQ/exec
 ```
-
-If `config.txt` is not found, ask the user for the URL and instruct them to add it as a project knowledge file.
 
 ---
 

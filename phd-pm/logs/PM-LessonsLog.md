@@ -38,6 +38,16 @@ These are hard rules derived from past bugs. Violating any of these means repeat
 - **Root cause:** `append` deduplicates against ALL 4 tabs (NewsLog + PerplexityQueue + AcademicQueue + NewsResults). Items being promoted from a staging queue already exist in that queue, so `append` always returns `skipped:1`.
 - **Rule:** When promoting items from any staging queue to NewsLog, use `action=promoteToNewsLog` (dedup only against NewsLog). Only use `append` for direct Claude web search results that don't exist in any staging queue.
 
+### PR-007 — Dashboard: actualizar TODAS las secciones, no solo las estáticas
+- **Derived from:** Dashboard update session 2026-03-15 (sesión 4)
+- **Root cause:** La sección Operativo usa `DEFAULT_OPS` hardcodeado en JS + `localStorage` para persistencia. Al actualizar el dashboard, solo se tocaron las secciones HTML estáticas (KB stats, pipeline, news) pero no los defaults de JS. Además, `localStorage` cachea datos viejos indefinidamente.
+- **Rule:** Al actualizar el dashboard: (1) revisar TODAS las secciones — HTML estáticas Y constantes JS (`DEFAULT_OPS`, etc.), (2) si se cambian defaults JS, hacer bump de `OPS_VERSION` para forzar refresh del localStorage. Checklist: stats grid, capa bars, content bars, gaps, thematic news, pipeline status, **Operativo DEFAULT_OPS**, footer version.
+
+### PR-008 — Dashboard es standing rule: actualizar con cada cambio
+- **Derived from:** Usuario reportó dashboard desactualizado dos veces, sesiones 3 y 4
+- **Root cause:** No había regla explícita de siempre actualizar el dashboard al cerrar sesión.
+- **Rule:** Toda sesión que modifique estado del KB, queues, decisiones, o tareas DEBE actualizar y pushear `dashboard.html` antes de cerrar. Sin excepciones.
+
 ---
 
 ## Problem Log
@@ -49,6 +59,8 @@ These are hard rules derived from past bugs. Violating any of these means repeat
 | 2026-03-15 | PM files only in Drive, not accessible from chat | No repo structure for PM project | PR-001 | Yes — migrated to GitHub |
 | 2026-03-15 | `updateAcademicRow` by ID updates wrong row | IDs non-unique (base64 truncation, 5 IDs for 247 rows) | PR-005 | Yes — use URL |
 | 2026-03-15 | `append` from staging queue returns skipped:1 | `append` dedup checks all 4 tabs including source queue | PR-006 | Yes — use `promoteToNewsLog` |
+| 2026-03-15 | Sección Operativo del dashboard mostraba datos viejos | `DEFAULT_OPS` hardcodeado no se actualizó + localStorage cacheaba indefinidamente | PR-007 | Yes — ops versioning + defaults actualizados |
+| 2026-03-15 | Dashboard desactualizado reportado dos veces | No había regla explícita de actualizar dashboard al cierre | PR-008 | Yes — standing rule |
 
 ---
 
@@ -56,6 +68,7 @@ These are hard rules derived from past bugs. Violating any of these means repeat
 
 | Date | Session Type | Key Actions | Lessons Added |
 |------|-------------|-------------|---------------|
+| 2026-03-15 | dashboard-fix | Operativo defaults + ops versioning, standing rule dashboard | PR-007, PR-008 |
 | 2026-03-15 | kb-review | Queue review: 45 items to NewsLog, SKILL-KB v14, PR-005/PR-006 | PR-005, PR-006 |
 | 2026-03-15 | infrastructure | Daily trigger for syncGitHubToDrive (6–7am), PM-BUG-001 assessed | — |
 | 2026-03-15 | infrastructure | GitHubSync v1 + WebApp v33 installed, Drive API enabled, 53 files synced | PR-003, PR-004 |
@@ -63,4 +76,4 @@ These are hard rules derived from past bugs. Violating any of these means repeat
 
 ---
 
-_Última actualización: 2026-03-15 (sesión 3)_
+_Última actualización: 2026-03-15 (sesión 4)_

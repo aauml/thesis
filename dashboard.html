@@ -492,368 +492,17 @@
   </section>
 
   <!-- ══════════════════════════════════════
-       2. PROGRESO
+       2. PROGRESO (inline collapsible)
   ═══════════════════════════════════════ -->
-  <section id="progreso">
-    <h2>Progreso</h2>
-
-    <!-- Compact timeline strip — clicking opens the modal -->
-    <div class="timeline" onclick="openModal('progressModal')" style="cursor:pointer;" title="Click para ver detalle">
-      <div class="timeline-fill" style="width: calc((100% - 48px) * 0.08)"></div>
-
-      <div class="timeline-node tl-selected">
-        <div class="tl-dot current">Q1</div>
-        <div class="tl-label active">2026</div>
-        <div class="tl-phase active-phase">Orientación</div>
-      </div>
-
-      <div class="timeline-node">
-        <div class="tl-dot future">Q2</div>
-        <div class="tl-label">2026</div>
-        <div class="tl-phase">Cimientos teóricos</div>
-      </div>
-
-      <div class="timeline-node">
-        <div class="tl-dot future">Q3</div>
-        <div class="tl-label">2026</div>
-        <div class="tl-phase">Construcción analítica</div>
-      </div>
-
-      <div class="timeline-node">
-        <div class="tl-dot future">Q4</div>
-        <div class="tl-label">2026</div>
-        <div class="tl-phase">Primeros borradores</div>
-      </div>
-
-      <div class="timeline-node">
-        <div class="tl-dot future">27</div>
-        <div class="tl-label">2027</div>
-        <div class="tl-phase">Escritura y análisis</div>
-      </div>
-
-      <div class="timeline-node">
-        <div class="tl-dot future">28</div>
-        <div class="tl-label">2028</div>
-        <div class="tl-phase">Cierre y defensa</div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ══════════════════════════════════════
-       3. HOJA DE RUTA
-  ═══════════════════════════════════════ -->
-  <section id="hoja-de-ruta">
-    <h2>Hoja de Ruta</h2>
-
-    <div class="reading-entry">
-      <div class="reading-title">Kaminski (2023) · "The Right to Explanation" revisited</div>
-      <div class="prose">
-        Lectura prioritaria. Conecta transparencia normativa con contestabilidad procesal. Argumento central: la tensión entre regulación vinculante (RIA, AI Act) y estándares voluntarios (NIST) es una forma de la distinción entre hard law y soft law en gobernanza tecnológica.
-        <div class="reading-status">
-          <span class="badge badge-active">En curso</span>
-          <span class="reading-eval">Criterio: puedas explicar la tensión sin notas.</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="reading-entry">
-      <div class="reading-title">Bradford (2020) · Exporting the GDPR</div>
-      <div class="prose">
-        Caps. 1–3. Equivalencia funcional y "efecto Bruselas". Cómo la regulación de la UE influye en estándares globales. Conectar con AI Act como exportación de principios.
-        <div class="reading-status">
-          <span class="badge badge-next">Próxima</span>
-          <span class="reading-eval">Criterio: ficha en Obsidian articulando por qué el AI Act afecta al DOJ de EE.UU.</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="reading-entry">
-      <div class="reading-title">Fuentes críticas pendientes</div>
-      <div class="prose">
-        Kaminski &amp; Urban (2021), Selbst &amp; Powles (2017), Citron (2008). Necesarias para el pilar de contestabilidad. (Referencia en el mapa como base del evaluador.)
-        <div class="reading-status">
-          <span class="badge badge-next">Próxima</span>
-          <span class="reading-eval">Criterio: las tres en Zotero con PDF y entrada KB.</span>
-        </div>
-      </div>
-    </div>
-
-  </section>
-
-  <!-- ══════════════════════════════════════
-       4. VAULT
-  ═══════════════════════════════════════ -->
-  <section id="vault-section">
-    <h2>Vault</h2>
-
-    <div class="prose" style="margin-bottom: 0.5rem;">
-      <p>12 notas en Permanent, 1 en Bibliografía, 25 clippings, 1 canvas en Inbox. <a href="#" onclick="openModal('vaultModal'); return false;" style="font-weight:600;">Ver mapa del vault →</a></p>
-    </div>
-  </section>
-
-  <!-- ══════════════════════════════════════
-       5. OPERATIVO
-  ═══════════════════════════════════════ -->
-  <details class="section-collapse" id="sec-operativo" open>
+  <details class="section-collapse" id="sec-progreso" open>
     <summary>
-      <h2>Operativo</h2>
-      <div class="section-toggle"><span class="chevron">▶</span></div>
-    </summary>
-    <div class="section-body">
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.6rem;">
-        <span style="font-size:0.75rem; color:var(--text-muted);">Marcar para completar · los items completados se pueden limpiar</span>
-        <button class="btn-sm" onclick="clearCompleted()">Limpiar completados</button>
-      </div>
-      <div id="op-list">
-        <label class="op-item" data-key="op-academic"><input type="checkbox" onchange="toggleOp(this)"><span>AcademicQueue: 249 items pendientes de evaluación — ejecutar <code>update academic</code></span></label>
-        <label class="op-item" data-key="op-perplexity"><input type="checkbox" onchange="toggleOp(this)"><span>PerplexityQueue: 84 items pendientes — ejecutar <code>update perplexity</code></span></label>
-        <label class="op-item" data-key="op-news"><input type="checkbox" onchange="toggleOp(this)"><span>NewsResults: 137 items pendientes — ejecutar <code>update news</code></span></label>
-        <label class="op-item" data-key="op-email"><input type="checkbox" onchange="toggleOp(this)"><span>Obtener email institucional USAL para inscripción formal</span></label>
-        <label class="op-item" data-key="op-inscripcion"><input type="checkbox" onchange="toggleOp(this)"><span>Completar inscripción formal al programa doctoral</span></label>
-        <label class="op-item" data-key="op-obsidian-links"><input type="checkbox" onchange="toggleOp(this)"><span>Obsidian: expandir stubs de pilares teóricos conforme avancen las lecturas</span></label>
-        <label class="op-item" data-key="op-tanner"><input type="checkbox" onchange="toggleOp(this)"><span>Agregar Tanner et al. (2026) Brookings/CEPS al KB</span></label>
-      </div>
-    </div>
-  </details>
-
-  <!-- ══════════════════════════════════════
-       6. REGISTRO DE DECISIONES
-  ═══════════════════════════════════════ -->
-  <details class="section-collapse" id="sec-decisiones">
-    <summary>
-      <h2>Registro de decisiones</h2>
-      <div class="section-toggle"><span class="chevron">▶</span></div>
-    </summary>
-    <div class="section-body">
-      <div class="dec-controls">
-        <button class="btn-sm" onclick="toggleAllDec(true)">Expandir todo</button>
-        <button class="btn-sm" onclick="toggleAllDec(false)">Contraer todo</button>
-      </div>
-
-      <details class="dec">
-        <summary><span class="dec-date">2026-03-15</span><span class="dec-preview">Dashboard v3.1: Progreso y Vault como modales, Operativo con checkboxes, KB Report con datos reales del API.</span><span class="dec-toggle">▸</span></summary>
-        <div class="dec-body">Iteración del dashboard: (1) Progreso convertido en modal — solo el timeline visible en la página principal, detalle por periodo al hacer click; (2) Vault convertido en modal — resumen en línea, mapa completo en modal; (3) Operativo rediseñado como checklist interactivo con localStorage — items se marcan como completados y se pueden limpiar; (4) KB Report corregido con datos reales del API: 1,255 total, 417 ALTA, 661 MEDIA, 176 BAJA; distribución por capa y tipo de contenido añadida; (5) Infraestructura eliminada como subsección (redundante). Colas pendientes: AcademicQueue 249, PerplexityQueue 84, NewsResults 137.</div>
-      </details>
-
-      <details class="dec">
-        <summary><span class="dec-date">2026-03-15</span><span class="dec-preview">Dashboard v3: reestructuración completa — Estado actual, Progreso interactivo, Vault, Operativo, KB dashboard visual.</span><span class="dec-toggle">▸</span></summary>
-        <div class="dec-body">Reestructuración del dashboard en 6 secciones con funciones diferenciadas: (1) «Estado actual» (panorámico, sin tareas); (2) «Progreso» con timeline interactivo Q1–2028, paneles limitados a objetivos intelectuales de la tesis; (3) «Hoja de Ruta» con evaluaciones de lectura inline y sin milestones duplicados; (4) «Vault» como mapa textual del vault de Obsidian con acciones pendientes; (5) «Operativo» (nueva, colapsable) para tareas administrativas, KB, inscripción y infraestructura; (6) «Registro de decisiones» sin cambios. KB Report modal rediseñado como dashboard visual con distribución por importancia y capa. Criterio rector: separar el trabajo intelectual (tesis) del trabajo operativo (infraestructura).</div>
-      </details>
-
-      <details class="dec">
-        <summary><span class="dec-date">2026-03-14</span><span class="dec-preview">Nueva sección «Progreso» con timeline visual (Q1–Q4 2026, 2027, 2028) y caja de Siguientes Pasos basada en análisis integral.</span><span class="dec-toggle">▸</span></summary>
-        <div class="dec-body">Añadida sección «Progreso» entre Briefing de Estado y Hoja de Ruta. Componentes: (1) timeline horizontal con 6 nodos (Q1–Q4 2026 por trimestre, 2027 y 2028 por año), estados visuales (done/current/future) y barra de progreso; (2) caja «Siguientes Pasos» con 5 items derivados del análisis integral del KB, lecturas pendientes, decisiones sin resolver, y gaps bibliográficos. Cada item tiene criterio de «hecho cuando» para facilitar seguimiento. La sección se actualiza manualmente cada sesión: mover nodos de current a done, ajustar porcentaje de fill, renovar items de siguientes pasos.</div>
-      </details>
-
-      <details class="dec">
-        <summary><span class="dec-date">2026-03-14</span><span class="dec-preview">PM Log rediseñado como Thesis Dashboard. Tono experto-mentor. Nuevas secciones: Briefing, KB Report, Hoja de Ruta, Obsidian Digest.</span><span class="dec-toggle">▸</span></summary>
-        <div class="dec-body">Rediseño completo del documento. Cambios principales: (1) renombrado de «Log de Tesis Doctoral» a «Thesis Dashboard»; (2) tono cambia de notas personales a voz de experto-mentor que orienta y contextualiza; (3) nuevas secciones: Briefing de Estado, KB Intelligence Report (modal), Hoja de Ruta (reemplaza Tareas Pendientes), Obsidian Digest (análisis de notas del vault con sugerencias); (4) Registro de Decisiones movido al final; (5) título provisional reemplazado por pregunta de investigación central en el header. Creada carpeta <code>09_sistema</code> en Obsidian vault para logs y archivos de sistema del PM.</div>
-      </details>
-
-      <details class="dec">
-        <summary><span class="dec-date">2026-03-13</span><span class="dec-preview">Infraestructura GAS auditada: triggers confirmados, duplicate function warning resuelto.</span><span class="dec-toggle">▸</span></summary>
-        <div class="dec-body">Auditoría completa de triggers GAS: <code>runPerplexitySearch</code> (domingos 3–4am), <code>runNewsAPI</code> (diario 11pm–medianoche), <code>startIncrementalScan</code> (lunes 6–7am) — todos correctos. Causa del warning «functions with same name» identificada: <code>_advanceNextRunDate</code>, <code>_isQueryDue</code> y <code>_fmtDate</code> estaban definidas en paralelo en <code>PerplexitySearch.gs</code> y <code>AcademicOrchestrator.gs</code>. Fix: <code>PerplexitySearch-v3</code> desplegado con las tres funciones eliminadas — permanecen en AcademicOrchestrator, accesibles globalmente en GAS. Warning eliminado. Versiones activas: WebApp-v32, GoogleNewsRSS-v1, PerplexitySearch-v3, SKILL-KB-v10.</div>
-      </details>
-
-      <details class="dec">
-        <summary><span class="dec-date">2026-03-13</span><span class="dec-preview">Pipeline KB reparado: 76 entradas nuevas en NewsLog (1.176 → 1.255). AcademicQueue con 249 pendientes.</span><span class="dec-toggle">▸</span></summary>
-        <div class="dec-body">Sesión técnica de mantenimiento del pipeline KB. Reparaciones: (1) evaluación de 198 items en PerplexityQueue — 170 promovidos, 24 revisados, 4 descartados; (2) bug crítico identificado y corregido: todas las URLs <code>https://www.*</code> generaban el mismo ID base64[:16] (<code>aHR0cHM6Ly93d3cu</code>), causando que la deduplicación de NewsLog rechazara todas las entradas; fix: strip de <code>www.</code> antes de generar el ID; (3) 76 entradas nuevas añadidas al NewsLog (1.176 → 1.255 URLs totales). Bug pendiente: 84 items duplicados en PerplexityQueue con estatus «stuck pending» por colisión de IDs en GAS — sin resolver, prioridad baja. AcademicQueue: 249 items pendientes de evaluación para próxima sesión.</div>
-      </details>
-    </div>
-  </details>
-
-  <footer>
-    Última actualización: 15 de marzo de 2026 · Thesis Dashboard v3.1 — documento vivo
-  </footer>
-
-</div><!-- /container -->
-
-<!-- ════════════════════════════════════════
-     KB INTELLIGENCE REPORT MODAL
-════════════════════════════════════════ -->
-<div class="modal-overlay" id="kbModal" onclick="closeModalOutside(event, 'kbModal')">
-  <div class="modal" role="dialog" aria-modal="true" aria-label="KB Intelligence Report">
-    <div class="modal-header">
-      <h2>KB Intelligence Report</h2>
-      <button class="modal-close" onclick="closeModal('kbModal')" aria-label="Cerrar">✕</button>
-    </div>
-    <div class="modal-body">
-
-      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
-        <div class="callout callout-info" style="margin-bottom: 0; flex: 1;">
-          <strong>Última actualización:</strong> 15 de marzo de 2026
-        </div>
-        <a href="https://aauml.github.io/thesis/index.html" target="_blank" class="hdr-btn" style="margin-left: 0.75rem; white-space: nowrap; text-decoration: none;">
-          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" style="width:13px;height:13px;"><path d="M6 3H3v10h10v-3" stroke-linecap="round"/><path d="M9 2h5v5M14 2L7 9" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          Abrir KB
-        </a>
-      </div>
-
-      <!-- Stats grid -->
-      <div class="kb-grid">
-        <div class="kb-card">
-          <div class="kb-num">1,255</div>
-          <div class="kb-label">Total entradas</div>
-        </div>
-        <div class="kb-card kb-alta">
-          <div class="kb-num">417</div>
-          <div class="kb-label">Alta</div>
-        </div>
-        <div class="kb-card kb-media">
-          <div class="kb-num">661</div>
-          <div class="kb-label">Media</div>
-        </div>
-        <div class="kb-card kb-baja">
-          <div class="kb-num">176</div>
-          <div class="kb-label">Baja</div>
-        </div>
-      </div>
-
-      <!-- Distribution by layer -->
-      <div class="kb-section">
-        <h3>Distribución por capa</h3>
-        <div class="kb-layer-grid">
-          <div class="kb-layer">
-            <div class="kb-layer-name">Teórica</div>
-            <div class="kb-layer-bar"><div class="kb-layer-fill" style="width: 65%"></div></div>
-            <div class="kb-layer-detail">823 entradas</div>
-          </div>
-          <div class="kb-layer">
-            <div class="kb-layer-name">Analítica</div>
-            <div class="kb-layer-bar"><div class="kb-layer-fill" style="width: 42%"></div></div>
-            <div class="kb-layer-detail">525 entradas</div>
-          </div>
-          <div class="kb-layer">
-            <div class="kb-layer-name">Evaluativa</div>
-            <div class="kb-layer-bar"><div class="kb-layer-fill" style="width: 20%"></div></div>
-            <div class="kb-layer-detail">248 entradas</div>
-          </div>
-          <div class="kb-layer">
-            <div class="kb-layer-name">Caso</div>
-            <div class="kb-layer-bar"><div class="kb-layer-fill" style="width: 7%"></div></div>
-            <div class="kb-layer-detail">92 entradas</div>
-          </div>
-          <div class="kb-layer">
-            <div class="kb-layer-name">Metodológica</div>
-            <div class="kb-layer-bar"><div class="kb-layer-fill" style="width: 7%"></div></div>
-            <div class="kb-layer-detail">84 entradas</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Content types -->
-      <div class="kb-section">
-        <h3>Por tipo de contenido</h3>
-        <div class="kb-layer-grid">
-          <div class="kb-layer">
-            <div class="kb-layer-name">article</div>
-            <div class="kb-layer-bar"><div class="kb-layer-fill" style="width: 28%"></div></div>
-            <div class="kb-layer-detail">353 entradas</div>
-          </div>
-          <div class="kb-layer">
-            <div class="kb-layer-name">report</div>
-            <div class="kb-layer-bar"><div class="kb-layer-fill" style="width: 22%"></div></div>
-            <div class="kb-layer-detail">276 entradas</div>
-          </div>
-          <div class="kb-layer">
-            <div class="kb-layer-name">book</div>
-            <div class="kb-layer-bar"><div class="kb-layer-fill" style="width: 21%"></div></div>
-            <div class="kb-layer-detail">262 entradas</div>
-          </div>
-          <div class="kb-layer">
-            <div class="kb-layer-name">paper</div>
-            <div class="kb-layer-bar"><div class="kb-layer-fill" style="width: 14%"></div></div>
-            <div class="kb-layer-detail">174 entradas</div>
-          </div>
-          <div class="kb-layer">
-            <div class="kb-layer-name">guidance + regulation</div>
-            <div class="kb-layer-bar"><div class="kb-layer-fill" style="width: 9%"></div></div>
-            <div class="kb-layer-detail">113 entradas</div>
-          </div>
-          <div class="kb-layer">
-            <div class="kb-layer-name">court_ruling + transcript + otros</div>
-            <div class="kb-layer-bar"><div class="kb-layer-fill" style="width: 6%"></div></div>
-            <div class="kb-layer-detail">77 entradas</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Recent highlights -->
-      <div class="kb-section">
-        <h3>Incorporaciones recientes</h3>
-        <div class="kb-recent">
-          <div class="kb-recent-item"><span class="kb-recent-date">13 mar</span> 76 entradas nuevas al NewsLog (1,176 → 1,255)</div>
-          <div class="kb-recent-item"><span class="kb-recent-date">13 mar</span> Pipeline reparado: bug de deduplicación de URLs www.* corregido</div>
-          <div class="kb-recent-item"><span class="kb-recent-date">13 mar</span> 170 items promovidos de PerplexityQueue al NewsLog</div>
-          <div class="kb-recent-item"><span class="kb-recent-date">pendiente</span> <strong>249 items en AcademicQueue</strong> sin evaluar</div>
-        </div>
-      </div>
-
-    </div><!-- /modal-body -->
-  </div><!-- /modal -->
-</div><!-- /modal-overlay -->
-
-<!-- ════════════════════════════════════════
-     VAULT MODAL
-════════════════════════════════════════ -->
-<div class="modal-overlay" id="vaultModal" onclick="closeModalOutside(event, 'vaultModal')">
-  <div class="modal" role="dialog" aria-modal="true" aria-label="Vault Map">
-    <div class="modal-header">
-      <h2>Vault Map</h2>
-      <button class="modal-close" onclick="closeModal('vaultModal')" aria-label="Cerrar">✕</button>
-    </div>
-    <div class="modal-body">
-
-      <div class="vault-map">
-        <div class="vm-folder">
-          <div class="vm-folder-name">02_Permanent <span class="vm-hint">12 notas — canónicas + pilares</span></div>
-          <div class="vm-item">mapa de tesis.md <span class="vm-note">MOC principal · mermaid + matriz</span></div>
-          <div class="vm-item">preguntas para defensa.md <span class="vm-note">21 preguntas por categoría</span></div>
-          <div class="vm-item">Introduccion.md <span class="vm-note">semilla Cap.1 · Unamuno + contestabilidad</span></div>
-          <div class="vm-item">marco teorico.md <span class="vm-note">esquema Cap.2 · links a 4 pilares</span></div>
-          <div class="vm-item">pilares.md <span class="vm-note">índice de los 4 pilares teóricos</span></div>
-          <div class="vm-item">categorias.md <span class="vm-note">criterios evaluativos + analíticos</span></div>
-          <div class="vm-item vm-action">gobernanza de IA comparada.md <span class="vm-note">← expandir post-Bradford</span></div>
-          <div class="vm-item vm-stub">derecho comparado.md <span class="vm-note">stub · esperando lecturas</span></div>
-          <div class="vm-item vm-stub">derecho procesal y prueba electrónica.md <span class="vm-note">stub · esperando lecturas</span></div>
-          <div class="vm-item vm-stub">contestabilidad algorítmica.md <span class="vm-note">stub · esperando lecturas</span></div>
-          <div class="vm-item vm-stub">metodología de derecho comparado.md <span class="vm-note">stub · esperando lecturas</span></div>
-          <div class="vm-item">ai governance study guide.md <span class="vm-note">guía completa · 7 secciones + recursos web</span></div>
-        </div>
-        <div class="vm-folder">
-          <div class="vm-folder-name">01_Bibliografia</div>
-          <div class="vm-item vm-done">Gorwa-AI And Global Governance (2023) <span class="vm-check">✓</span></div>
-        </div>
-        <div class="vm-folder">
-          <div class="vm-folder-name">00_Inbox <span class="vm-hint">1 archivo</span></div>
-          <div class="vm-item">mapa visual de tesis.canvas <span class="vm-note">canvas de Obsidian</span></div>
-        </div>
-        <div class="vm-folder">
-          <div class="vm-folder-name">09_sistema <span class="vm-hint">config</span></div>
-          <div class="vm-item">claude-revisor-academico.md <span class="vm-note">prompt de revisión</span></div>
-        </div>
-        <div class="vm-folder">
-          <div class="vm-folder-name">Clippings <span class="vm-hint">25 web clippings — bibliografía capturada</span></div>
-        </div>
-      </div>
-
-    </div><!-- /modal-body -->
-  </div><!-- /modal -->
-</div><!-- /modal-overlay -->
-
-<!-- ════════════════════════════════════════
-     PROGRESS MODAL
-════════════════════════════════════════ -->
-<div class="modal-overlay" id="progressModal" onclick="closeModalOutside(event, 'progressModal')">
-  <div class="modal" role="dialog" aria-modal="true" aria-label="Progreso detallado">
-    <div class="modal-header">
       <h2>Progreso</h2>
-      <button class="modal-close" onclick="closeModal('progressModal')" aria-label="Cerrar">✕</button>
-    </div>
-    <div class="modal-body">
+      <div class="section-toggle"><span class="chevron">▶</span></div>
+    </summary>
+    <div class="section-body">
 
-      <!-- Timeline inside modal (interactive) -->
-      <div class="timeline" style="margin-bottom: 1.5rem;">
+      <!-- Interactive timeline -->
+      <div class="timeline" style="margin-bottom: 1.25rem;">
         <div class="timeline-fill" style="width: calc((100% - 48px) * 0.08)"></div>
 
         <div class="timeline-node tl-selected" onclick="showPeriod('q1')">
@@ -893,7 +542,7 @@
         </div>
       </div>
 
-      <!-- Period detail panels (interactive) -->
+      <!-- Period detail panels -->
       <div id="periodPanels">
 
         <!-- Q1: Ene–Abr 2026 — Orientación -->
@@ -1046,9 +695,298 @@
 
       </div><!-- /periodPanels -->
 
+    </div>
+  </details>
+
+  <!-- ══════════════════════════════════════
+       3. HOJA DE RUTA
+  ═══════════════════════════════════════ -->
+  <section id="hoja-de-ruta">
+    <h2>Hoja de Ruta</h2>
+
+    <div class="reading-entry">
+      <div class="reading-title">Kaminski (2023) · "The Right to Explanation" revisited</div>
+      <div class="prose">
+        Lectura prioritaria. Conecta transparencia normativa con contestabilidad procesal. Argumento central: la tensión entre regulación vinculante (RIA, AI Act) y estándares voluntarios (NIST) es una forma de la distinción entre hard law y soft law en gobernanza tecnológica.
+        <div class="reading-status">
+          <span class="badge badge-active">En curso</span>
+          <span class="reading-eval">Criterio: puedas explicar la tensión sin notas.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="reading-entry">
+      <div class="reading-title">Bradford (2020) · Exporting the GDPR</div>
+      <div class="prose">
+        Caps. 1–3. Equivalencia funcional y "efecto Bruselas". Cómo la regulación de la UE influye en estándares globales. Conectar con AI Act como exportación de principios.
+        <div class="reading-status">
+          <span class="badge badge-next">Próxima</span>
+          <span class="reading-eval">Criterio: ficha en Obsidian articulando por qué el AI Act afecta al DOJ de EE.UU.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="reading-entry">
+      <div class="reading-title">Fuentes críticas pendientes</div>
+      <div class="prose">
+        Kaminski &amp; Urban (2021), Selbst &amp; Powles (2017), Citron (2008). Necesarias para el pilar de contestabilidad. (Referencia en el mapa como base del evaluador.)
+        <div class="reading-status">
+          <span class="badge badge-next">Próxima</span>
+          <span class="reading-eval">Criterio: las tres en Zotero con PDF y entrada KB.</span>
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ══════════════════════════════════════
+       4. VAULT (inline collapsible)
+  ═══════════════════════════════════════ -->
+  <details class="section-collapse" id="sec-vault">
+    <summary>
+      <h2>Vault</h2>
+      <div class="section-toggle"><span style="font-size:0.73rem; color:var(--text-muted); margin-right:0.4rem;">12 notas · 25 clippings</span><span class="chevron">▶</span></div>
+    </summary>
+    <div class="section-body">
+
+      <div class="vault-map">
+        <div class="vm-folder">
+          <div class="vm-folder-name">02_Permanent <span class="vm-hint">12 notas — canónicas + pilares</span></div>
+          <div class="vm-item">mapa de tesis.md <span class="vm-note">MOC principal · mermaid + matriz</span></div>
+          <div class="vm-item">preguntas para defensa.md <span class="vm-note">21 preguntas por categoría</span></div>
+          <div class="vm-item">Introduccion.md <span class="vm-note">semilla Cap.1 · Unamuno + contestabilidad</span></div>
+          <div class="vm-item">marco teorico.md <span class="vm-note">esquema Cap.2 · links a 4 pilares</span></div>
+          <div class="vm-item">pilares.md <span class="vm-note">índice de los 4 pilares teóricos</span></div>
+          <div class="vm-item">categorias.md <span class="vm-note">criterios evaluativos + analíticos</span></div>
+          <div class="vm-item vm-action">gobernanza de IA comparada.md <span class="vm-note">← expandir post-Bradford</span></div>
+          <div class="vm-item vm-stub">derecho comparado.md <span class="vm-note">stub · esperando lecturas</span></div>
+          <div class="vm-item vm-stub">derecho procesal y prueba electrónica.md <span class="vm-note">stub · esperando lecturas</span></div>
+          <div class="vm-item vm-stub">contestabilidad algorítmica.md <span class="vm-note">stub · esperando lecturas</span></div>
+          <div class="vm-item vm-stub">metodología de derecho comparado.md <span class="vm-note">stub · esperando lecturas</span></div>
+          <div class="vm-item">ai governance study guide.md <span class="vm-note">guía completa · 7 secciones + recursos web</span></div>
+        </div>
+        <div class="vm-folder">
+          <div class="vm-folder-name">01_Bibliografia</div>
+          <div class="vm-item vm-done">Gorwa-AI And Global Governance (2023) <span class="vm-check">✓</span></div>
+        </div>
+        <div class="vm-folder">
+          <div class="vm-folder-name">00_Inbox <span class="vm-hint">1 archivo</span></div>
+          <div class="vm-item">mapa visual de tesis.canvas <span class="vm-note">canvas de Obsidian</span></div>
+        </div>
+        <div class="vm-folder">
+          <div class="vm-folder-name">09_sistema <span class="vm-hint">config</span></div>
+          <div class="vm-item">claude-revisor-academico.md <span class="vm-note">prompt de revisión</span></div>
+        </div>
+        <div class="vm-folder">
+          <div class="vm-folder-name">Clippings <span class="vm-hint">25 web clippings — bibliografía capturada</span></div>
+        </div>
+      </div>
+
+    </div>
+  </details>
+
+  <!-- ══════════════════════════════════════
+       5. OPERATIVO
+  ═══════════════════════════════════════ -->
+  <details class="section-collapse" id="sec-operativo" open>
+    <summary>
+      <h2>Operativo</h2>
+      <div class="section-toggle"><span class="chevron">▶</span></div>
+    </summary>
+    <div class="section-body">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.6rem;">
+        <span style="font-size:0.75rem; color:var(--text-muted);">Marcar para completar · los items completados se pueden limpiar</span>
+        <button class="btn-sm" onclick="clearCompleted()">Limpiar completados</button>
+      </div>
+      <div id="op-list">
+        <label class="op-item" data-key="op-academic"><input type="checkbox" onchange="toggleOp(this)"><span>AcademicQueue: 249 items pendientes de evaluación — ejecutar <code>update academic</code></span></label>
+        <label class="op-item" data-key="op-perplexity"><input type="checkbox" onchange="toggleOp(this)"><span>PerplexityQueue: 84 items pendientes — ejecutar <code>update perplexity</code></span></label>
+        <label class="op-item" data-key="op-news"><input type="checkbox" onchange="toggleOp(this)"><span>NewsResults: 137 items pendientes — ejecutar <code>update news</code></span></label>
+        <label class="op-item" data-key="op-email"><input type="checkbox" onchange="toggleOp(this)"><span>Obtener email institucional USAL para inscripción formal</span></label>
+        <label class="op-item" data-key="op-inscripcion"><input type="checkbox" onchange="toggleOp(this)"><span>Completar inscripción formal al programa doctoral</span></label>
+        <label class="op-item" data-key="op-obsidian-links"><input type="checkbox" onchange="toggleOp(this)"><span>Obsidian: expandir stubs de pilares teóricos conforme avancen las lecturas</span></label>
+        <label class="op-item" data-key="op-tanner"><input type="checkbox" onchange="toggleOp(this)"><span>Agregar Tanner et al. (2026) Brookings/CEPS al KB</span></label>
+      </div>
+    </div>
+  </details>
+
+  <!-- ══════════════════════════════════════
+       6. REGISTRO DE DECISIONES
+  ═══════════════════════════════════════ -->
+  <details class="section-collapse" id="sec-decisiones">
+    <summary>
+      <h2>Registro de decisiones</h2>
+      <div class="section-toggle"><span class="chevron">▶</span></div>
+    </summary>
+    <div class="section-body">
+      <div class="dec-controls">
+        <button class="btn-sm" onclick="toggleAllDec(true)">Expandir todo</button>
+        <button class="btn-sm" onclick="toggleAllDec(false)">Contraer todo</button>
+      </div>
+
+      <details class="dec">
+        <summary><span class="dec-date">2026-03-15</span><span class="dec-preview">Dashboard v3.1: Progreso y Vault como modales, Operativo con checkboxes, KB Report con datos reales del API.</span><span class="dec-toggle">▸</span></summary>
+        <div class="dec-body">Iteración del dashboard: (1) Progreso convertido en modal — solo el timeline visible en la página principal, detalle por periodo al hacer click; (2) Vault convertido en modal — resumen en línea, mapa completo en modal; (3) Operativo rediseñado como checklist interactivo con localStorage — items se marcan como completados y se pueden limpiar; (4) KB Report corregido con datos reales del API: 1,255 total, 417 ALTA, 661 MEDIA, 176 BAJA; distribución por capa y tipo de contenido añadida; (5) Infraestructura eliminada como subsección (redundante). Colas pendientes: AcademicQueue 249, PerplexityQueue 84, NewsResults 137.</div>
+      </details>
+
+      <details class="dec">
+        <summary><span class="dec-date">2026-03-15</span><span class="dec-preview">Dashboard v3: reestructuración completa — Estado actual, Progreso interactivo, Vault, Operativo, KB dashboard visual.</span><span class="dec-toggle">▸</span></summary>
+        <div class="dec-body">Reestructuración del dashboard en 6 secciones con funciones diferenciadas: (1) «Estado actual» (panorámico, sin tareas); (2) «Progreso» con timeline interactivo Q1–2028, paneles limitados a objetivos intelectuales de la tesis; (3) «Hoja de Ruta» con evaluaciones de lectura inline y sin milestones duplicados; (4) «Vault» como mapa textual del vault de Obsidian con acciones pendientes; (5) «Operativo» (nueva, colapsable) para tareas administrativas, KB, inscripción y infraestructura; (6) «Registro de decisiones» sin cambios. KB Report modal rediseñado como dashboard visual con distribución por importancia y capa. Criterio rector: separar el trabajo intelectual (tesis) del trabajo operativo (infraestructura).</div>
+      </details>
+
+      <details class="dec">
+        <summary><span class="dec-date">2026-03-14</span><span class="dec-preview">Nueva sección «Progreso» con timeline visual (Q1–Q4 2026, 2027, 2028) y caja de Siguientes Pasos basada en análisis integral.</span><span class="dec-toggle">▸</span></summary>
+        <div class="dec-body">Añadida sección «Progreso» entre Briefing de Estado y Hoja de Ruta. Componentes: (1) timeline horizontal con 6 nodos (Q1–Q4 2026 por trimestre, 2027 y 2028 por año), estados visuales (done/current/future) y barra de progreso; (2) caja «Siguientes Pasos» con 5 items derivados del análisis integral del KB, lecturas pendientes, decisiones sin resolver, y gaps bibliográficos. Cada item tiene criterio de «hecho cuando» para facilitar seguimiento. La sección se actualiza manualmente cada sesión: mover nodos de current a done, ajustar porcentaje de fill, renovar items de siguientes pasos.</div>
+      </details>
+
+      <details class="dec">
+        <summary><span class="dec-date">2026-03-14</span><span class="dec-preview">PM Log rediseñado como Thesis Dashboard. Tono experto-mentor. Nuevas secciones: Briefing, KB Report, Hoja de Ruta, Obsidian Digest.</span><span class="dec-toggle">▸</span></summary>
+        <div class="dec-body">Rediseño completo del documento. Cambios principales: (1) renombrado de «Log de Tesis Doctoral» a «Thesis Dashboard»; (2) tono cambia de notas personales a voz de experto-mentor que orienta y contextualiza; (3) nuevas secciones: Briefing de Estado, KB Intelligence Report (modal), Hoja de Ruta (reemplaza Tareas Pendientes), Obsidian Digest (análisis de notas del vault con sugerencias); (4) Registro de Decisiones movido al final; (5) título provisional reemplazado por pregunta de investigación central en el header. Creada carpeta <code>09_sistema</code> en Obsidian vault para logs y archivos de sistema del PM.</div>
+      </details>
+
+      <details class="dec">
+        <summary><span class="dec-date">2026-03-13</span><span class="dec-preview">Infraestructura GAS auditada: triggers confirmados, duplicate function warning resuelto.</span><span class="dec-toggle">▸</span></summary>
+        <div class="dec-body">Auditoría completa de triggers GAS: <code>runPerplexitySearch</code> (domingos 3–4am), <code>runNewsAPI</code> (diario 11pm–medianoche), <code>startIncrementalScan</code> (lunes 6–7am) — todos correctos. Causa del warning «functions with same name» identificada: <code>_advanceNextRunDate</code>, <code>_isQueryDue</code> y <code>_fmtDate</code> estaban definidas en paralelo en <code>PerplexitySearch.gs</code> y <code>AcademicOrchestrator.gs</code>. Fix: <code>PerplexitySearch-v3</code> desplegado con las tres funciones eliminadas — permanecen en AcademicOrchestrator, accesibles globalmente en GAS. Warning eliminado. Versiones activas: WebApp-v32, GoogleNewsRSS-v1, PerplexitySearch-v3, SKILL-KB-v10.</div>
+      </details>
+
+      <details class="dec">
+        <summary><span class="dec-date">2026-03-13</span><span class="dec-preview">Pipeline KB reparado: 76 entradas nuevas en NewsLog (1.176 → 1.255). AcademicQueue con 249 pendientes.</span><span class="dec-toggle">▸</span></summary>
+        <div class="dec-body">Sesión técnica de mantenimiento del pipeline KB. Reparaciones: (1) evaluación de 198 items en PerplexityQueue — 170 promovidos, 24 revisados, 4 descartados; (2) bug crítico identificado y corregido: todas las URLs <code>https://www.*</code> generaban el mismo ID base64[:16] (<code>aHR0cHM6Ly93d3cu</code>), causando que la deduplicación de NewsLog rechazara todas las entradas; fix: strip de <code>www.</code> antes de generar el ID; (3) 76 entradas nuevas añadidas al NewsLog (1.176 → 1.255 URLs totales). Bug pendiente: 84 items duplicados en PerplexityQueue con estatus «stuck pending» por colisión de IDs en GAS — sin resolver, prioridad baja. AcademicQueue: 249 items pendientes de evaluación para próxima sesión.</div>
+      </details>
+    </div>
+  </details>
+
+  <footer>
+    Última actualización: 15 de marzo de 2026 · Thesis Dashboard v3.2 — documento vivo
+  </footer>
+
+</div><!-- /container -->
+
+<!-- ════════════════════════════════════════
+     KB INTELLIGENCE REPORT MODAL
+════════════════════════════════════════ -->
+<div class="modal-overlay" id="kbModal" onclick="closeModalOutside(event, 'kbModal')">
+  <div class="modal" role="dialog" aria-modal="true" aria-label="KB Intelligence Report">
+    <div class="modal-header">
+      <h2>KB Intelligence Report</h2>
+      <button class="modal-close" onclick="closeModal('kbModal')" aria-label="Cerrar">✕</button>
+    </div>
+    <div class="modal-body">
+
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
+        <div class="callout callout-info" style="margin-bottom: 0; flex: 1;">
+          <strong>Última actualización:</strong> 15 de marzo de 2026
+        </div>
+        <a href="https://aauml.github.io/thesis/index.html" target="_blank" class="hdr-btn" style="margin-left: 0.75rem; white-space: nowrap; text-decoration: none;">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" style="width:13px;height:13px;"><path d="M6 3H3v10h10v-3" stroke-linecap="round"/><path d="M9 2h5v5M14 2L7 9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Abrir KB
+        </a>
+      </div>
+
+      <!-- Stats grid -->
+      <div class="kb-grid">
+        <div class="kb-card">
+          <div class="kb-num">1,255</div>
+          <div class="kb-label">Total entradas</div>
+        </div>
+        <div class="kb-card kb-alta">
+          <div class="kb-num">417</div>
+          <div class="kb-label">Alta</div>
+        </div>
+        <div class="kb-card kb-media">
+          <div class="kb-num">661</div>
+          <div class="kb-label">Media</div>
+        </div>
+        <div class="kb-card kb-baja">
+          <div class="kb-num">176</div>
+          <div class="kb-label">Baja</div>
+        </div>
+      </div>
+
+      <!-- Distribution by layer -->
+      <div class="kb-section">
+        <h3>Distribución por capa</h3>
+        <div class="kb-layer-grid">
+          <div class="kb-layer">
+            <div class="kb-layer-name">Teórica</div>
+            <div class="kb-layer-bar"><div class="kb-layer-fill" style="width: 65%"></div></div>
+            <div class="kb-layer-detail">823 entradas</div>
+          </div>
+          <div class="kb-layer">
+            <div class="kb-layer-name">Analítica</div>
+            <div class="kb-layer-bar"><div class="kb-layer-fill" style="width: 42%"></div></div>
+            <div class="kb-layer-detail">525 entradas</div>
+          </div>
+          <div class="kb-layer">
+            <div class="kb-layer-name">Evaluativa</div>
+            <div class="kb-layer-bar"><div class="kb-layer-fill" style="width: 20%"></div></div>
+            <div class="kb-layer-detail">248 entradas</div>
+          </div>
+          <div class="kb-layer">
+            <div class="kb-layer-name">Caso</div>
+            <div class="kb-layer-bar"><div class="kb-layer-fill" style="width: 7%"></div></div>
+            <div class="kb-layer-detail">92 entradas</div>
+          </div>
+          <div class="kb-layer">
+            <div class="kb-layer-name">Metodológica</div>
+            <div class="kb-layer-bar"><div class="kb-layer-fill" style="width: 7%"></div></div>
+            <div class="kb-layer-detail">84 entradas</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Content types -->
+      <div class="kb-section">
+        <h3>Por tipo de contenido</h3>
+        <div class="kb-layer-grid">
+          <div class="kb-layer">
+            <div class="kb-layer-name">article</div>
+            <div class="kb-layer-bar"><div class="kb-layer-fill" style="width: 28%"></div></div>
+            <div class="kb-layer-detail">353 entradas</div>
+          </div>
+          <div class="kb-layer">
+            <div class="kb-layer-name">report</div>
+            <div class="kb-layer-bar"><div class="kb-layer-fill" style="width: 22%"></div></div>
+            <div class="kb-layer-detail">276 entradas</div>
+          </div>
+          <div class="kb-layer">
+            <div class="kb-layer-name">book</div>
+            <div class="kb-layer-bar"><div class="kb-layer-fill" style="width: 21%"></div></div>
+            <div class="kb-layer-detail">262 entradas</div>
+          </div>
+          <div class="kb-layer">
+            <div class="kb-layer-name">paper</div>
+            <div class="kb-layer-bar"><div class="kb-layer-fill" style="width: 14%"></div></div>
+            <div class="kb-layer-detail">174 entradas</div>
+          </div>
+          <div class="kb-layer">
+            <div class="kb-layer-name">guidance + regulation</div>
+            <div class="kb-layer-bar"><div class="kb-layer-fill" style="width: 9%"></div></div>
+            <div class="kb-layer-detail">113 entradas</div>
+          </div>
+          <div class="kb-layer">
+            <div class="kb-layer-name">court_ruling + transcript + otros</div>
+            <div class="kb-layer-bar"><div class="kb-layer-fill" style="width: 6%"></div></div>
+            <div class="kb-layer-detail">77 entradas</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent highlights -->
+      <div class="kb-section">
+        <h3>Incorporaciones recientes</h3>
+        <div class="kb-recent">
+          <div class="kb-recent-item"><span class="kb-recent-date">13 mar</span> 76 entradas nuevas al NewsLog (1,176 → 1,255)</div>
+          <div class="kb-recent-item"><span class="kb-recent-date">13 mar</span> Pipeline reparado: bug de deduplicación de URLs www.* corregido</div>
+          <div class="kb-recent-item"><span class="kb-recent-date">13 mar</span> 170 items promovidos de PerplexityQueue al NewsLog</div>
+          <div class="kb-recent-item"><span class="kb-recent-date">pendiente</span> <strong>249 items en AcademicQueue</strong> sin evaluar</div>
+        </div>
+      </div>
+
     </div><!-- /modal-body -->
   </div><!-- /modal -->
 </div><!-- /modal-overlay -->
+
 
 <!-- ════════════════════════════════════════
      MAPA CONCEPTUAL MODAL
@@ -1210,13 +1148,13 @@
     document.querySelectorAll('.modal details.layer').forEach(d => d.open = open);
   }
 
-  // ── Interactive Timeline (only in modals) ──
+  // ── Interactive Timeline (inline) ──
   function showPeriod(id) {
     document.querySelectorAll('#periodPanels .period-detail').forEach(p => p.style.display = 'none');
     const panel = document.getElementById('pd-' + id);
     if (panel) panel.style.display = 'block';
-    document.querySelectorAll('#progressModal .timeline-node').forEach(n => n.classList.remove('tl-selected'));
-    const nodes = document.querySelectorAll('#progressModal .timeline-node');
+    document.querySelectorAll('#sec-progreso .timeline-node').forEach(n => n.classList.remove('tl-selected'));
+    const nodes = document.querySelectorAll('#sec-progreso .timeline-node');
     const ids = ['q1', 'q2', 'q3', 'q4', 'y27', 'y28'];
     const idx = ids.indexOf(id);
     if (idx >= 0 && nodes[idx]) nodes[idx].classList.add('tl-selected');

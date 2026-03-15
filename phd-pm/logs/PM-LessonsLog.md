@@ -28,6 +28,16 @@ These are hard rules derived from past bugs. Violating any of these means repeat
 - **Root cause:** GAS editor's autocomplete corrupts text when Claude uses `type` action to enter code. Text gets garbled with autocomplete suggestions mixed in.
 - **Rule:** Always use `monaco.editor.getModels()` + `model.pushEditOperations()` to replace file content programmatically. Find the correct model by searching content (`content.includes('functionName')`), not by index — indexes shift between page navigations.
 
+### PR-005 — AcademicQueue: use URL as lookup key, never ID
+- **Derived from:** Queue review session 2026-03-15 (sesión 3)
+- **Root cause:** AcademicQueue IDs are `base64(url)[:16]`. URLs from the same domain (arxiv, core, doi, etc.) produce identical truncated base64 prefixes. Result: only 5 unique IDs across 247 rows. Updating by ID hits the wrong row or multiple rows.
+- **Rule:** Always pass `"url"` (not `"id"`) to `updateAcademicRow`. WebApp.gs already supports URL-based lookup (line 434) with pending-status priority. SKILL-KB v14 documents this correctly.
+
+### PR-006 — Use promoteToNewsLog for staging queue promotions, not append
+- **Derived from:** Queue review session 2026-03-15 (sesión 3)
+- **Root cause:** `append` deduplicates against ALL 4 tabs (NewsLog + PerplexityQueue + AcademicQueue + NewsResults). Items being promoted from a staging queue already exist in that queue, so `append` always returns `skipped:1`.
+- **Rule:** When promoting items from any staging queue to NewsLog, use `action=promoteToNewsLog` (dedup only against NewsLog). Only use `append` for direct Claude web search results that don't exist in any staging queue.
+
 ---
 
 ## Problem Log
@@ -37,6 +47,8 @@ These are hard rules derived from past bugs. Violating any of these means repeat
 | 2026-03-15 | DriveApp "server error" in GitHubSync | Drive API not enabled in GCP project | PR-003 | Yes — enabled via GCP console |
 | 2026-03-15 | GAS editor corrupts typed code | Autocomplete interference | PR-004 | Yes — use Monaco API |
 | 2026-03-15 | PM files only in Drive, not accessible from chat | No repo structure for PM project | PR-001 | Yes — migrated to GitHub |
+| 2026-03-15 | `updateAcademicRow` by ID updates wrong row | IDs non-unique (base64 truncation, 5 IDs for 247 rows) | PR-005 | Yes — use URL |
+| 2026-03-15 | `append` from staging queue returns skipped:1 | `append` dedup checks all 4 tabs including source queue | PR-006 | Yes — use `promoteToNewsLog` |
 
 ---
 
@@ -44,10 +56,11 @@ These are hard rules derived from past bugs. Violating any of these means repeat
 
 | Date | Session Type | Key Actions | Lessons Added |
 |------|-------------|-------------|---------------|
+| 2026-03-15 | kb-review | Queue review: 45 items to NewsLog, SKILL-KB v14, PR-005/PR-006 | PR-005, PR-006 |
 | 2026-03-15 | infrastructure | Daily trigger for syncGitHubToDrive (6–7am), PM-BUG-001 assessed | — |
 | 2026-03-15 | infrastructure | GitHubSync v1 + WebApp v33 installed, Drive API enabled, 53 files synced | PR-003, PR-004 |
 | 2026-03-15 | infrastructure | Created phd-pm folder in repo, migrated files from Drive | PR-001, PR-002 |
 
 ---
 
-_Última actualización: 2026-03-15_
+_Última actualización: 2026-03-15 (sesión 3)_

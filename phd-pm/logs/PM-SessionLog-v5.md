@@ -98,16 +98,55 @@ _Registro técnico del proyecto phd-pm. Actualizar al cierre de cada sesión. Al
 
 ---
 
-### 2026-03-15 (sesión 3) — Trigger diario + context compaction recovery
+### 2026-03-15 (sesión 3) — Trigger diario, revisión de colas KB, fix documentación SKILL
 
-**Contexto:** Sesión continuada tras context compaction. Tarea pendiente de sesión 2.
+**Contexto:** Sesión continuada tras context compaction. Tareas pendientes de sesión 2 + revisión completa de las tres colas del KB.
 
 **Cambios realizados:**
 - **Trigger diario configurado** para `syncGitHubToDrive`: Time-driven → Day timer → 6am–7am (GMT-7). Ahora hay 4 triggers en el proyecto GAS.
 - PM-BUG-001 revisado y explicado: bloqueador para automatización del KB Intelligence Report en el dashboard. Solución identificada: extraer schema del WebApp.gs.
+- **Revisión completa de tres colas del KB** (run_id: 2026-03-15-207):
+  - AcademicQueue: 40 procesados → 7 promovidos, 18 descartados, 15 retenidos. Mucho ruido de ArXiv (BUG-004): física cuántica, astronomía, homónimos de scholars.
+  - PerplexityQueue: 50 procesados → 32 promovidos (17 nuevos al NewsLog, 15 ya existían), 10 descartados, 8 retenidos.
+  - NewsResults: 40 procesados → 21 promovidos, 18 descartados/retenidos.
+  - **Total: 45 items nuevos en NewsLog** (7 academic + 17 perplexity + 21 news)
+- **SKILL-KB actualizado a v14**: documentación de `updateAcademicRow` corregida — usar `url` como lookup key, no `id` (IDs no son únicos por truncación de base64).
+- Dashboard actualizado con decisión de la sesión.
+
+**Items ALTA destacados del NewsLog:**
+- NIST COSAIS (Control Overlays for Securing AI Systems) — NIST acercándose a controles prescriptivos
+- OMB M-24-10 rescindida → M-25-21 — la brecha de gobernanza EU-US se amplía
+- US v. Ortiz — challenge a probabilistic genotyping en corte federal
+- CETS 225 ratificada por EEUU — obligaciones vinculantes internacionales
+- Selbst & Kaminski "American's Guide to EU AI Act" — source directamente relevante
+- Carnegie: regulación entity-based como alternativa US
+- EC-Council: comparación AI Act / NIST RMF / ISO 42001 — crosswalk practitioner
+- High-risk AI guidelines retrasadas otra vez — gap de estándares persiste
+- AI Omnibus: renegociación de requisitos del AI Act por el Parlamento
+- National security como escudo contra AI accountability — impacto en caso de estudio
+
+**Error encontrado y resuelto:**
+| Error | Causa raíz | Solución |
+|-------|-----------|---------|
+| `updateAcademicRow` por `id` actualizaba row incorrecto o no encontraba | IDs en AcademicQueue son `base64(url)[:16]` — solo 5 IDs únicos para 247 rows (URLs del mismo dominio producen mismo prefijo truncado) | Usar `url` como lookup key. WebApp.gs ya lo soportaba (línea 434), pero SKILL documentaba `id`. SKILL-KB v14 corrige la documentación. |
+
+**Componentes actualizados:**
+
+| Componente | Versión | Cambio |
+|-----------|---------|--------|
+| SKILL-KB | v14 | Corrección doc: updateAcademicRow usa url, no id |
+| Dashboard | v4.1 | Nueva decisión de sesión 3 |
+| PM-SessionLog | v5 | Entrada sesión 3 expandida |
+| PM-LessonsLog | — | Nueva entrada PR-005 + session history |
 
 **Decisiones:**
 - Trigger diario a las 6–7am para que el mirror en Drive esté actualizado antes de la jornada de trabajo.
+- Para `updateAcademicRow`: siempre usar `url` como lookup key, nunca `id`.
+- Para `append` desde staging queues: usar `promoteToNewsLog` (dedup solo contra NewsLog), no `append` (dedup contra todas las tabs incluyendo la de origen).
+
+**Pendiente para próxima sesión:**
+- ~207 academic, ~34 perplexity, ~136 news items pendientes en las colas.
+- PM-BUG-001 sigue abierto (KB API schema).
 
 ---
 

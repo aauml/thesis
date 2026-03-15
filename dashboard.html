@@ -343,7 +343,12 @@
       z-index: 1;
       flex: 1;
       min-width: 0;
+      cursor: pointer;
     }
+    .timeline-node:hover .tl-dot:not(.current) {
+      transform: scale(1.12);
+    }
+    .timeline-node.tl-selected .tl-label { color: var(--accent); }
     .tl-dot {
       width: 28px;
       height: 28px;
@@ -404,6 +409,85 @@
       z-index: 0;
       transition: width 0.4s ease;
     }
+
+    /* ── Period detail panel ── */
+    .period-detail {
+      background: #fafcff;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 1rem 1.2rem;
+      margin-top: 0.8rem;
+      animation: fadeSlide 0.2s ease;
+    }
+    @keyframes fadeSlide {
+      from { opacity: 0; transform: translateY(-6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .period-detail-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 0.6rem;
+    }
+    .period-detail-header h3 {
+      font-family: var(--serif);
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--accent);
+      text-transform: none;
+      letter-spacing: 0;
+      margin: 0;
+    }
+    .period-detail-header .pd-phase {
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      background: var(--accent-soft);
+      padding: 0.15rem 0.5rem;
+      border-radius: 3px;
+    }
+    .pd-obj {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.55rem;
+      padding: 0.4rem 0;
+      font-size: 0.85rem;
+      color: var(--text);
+      line-height: 1.55;
+    }
+    .pd-obj + .pd-obj { border-top: 1px solid #edf2f7; }
+    .pd-icon {
+      flex-shrink: 0;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.68rem;
+      margin-top: 1px;
+    }
+    .pd-icon.pd-read { background: #e6f4ea; color: #2d7a3f; }
+    .pd-icon.pd-write { background: #e8f0fe; color: #1a56db; }
+    .pd-icon.pd-decide { background: #fff3e0; color: #a05c00; }
+    .pd-icon.pd-build { background: #f3ecf7; color: #7f3f98; }
+    .pd-icon.pd-general { background: #f0f0f0; color: #606060; }
+    .pd-status {
+      display: inline-block;
+      font-size: 0.68rem;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+      padding: 0.05rem 0.4rem;
+      border-radius: 3px;
+      margin-left: 0.35rem;
+      vertical-align: middle;
+    }
+    .pd-status.st-done { background: #e6f4ea; color: #2d7a3f; }
+    .pd-status.st-active { background: #fff3e0; color: #a05c00; }
+    .pd-status.st-pending { background: #f0f0f0; color: #8a8a8a; }
 
     /* Next steps box */
     .next-steps {
@@ -505,7 +589,7 @@
     <h2>Briefing de Estado</h2>
 
     <div class="callout callout-info">
-      <strong>Fase:</strong> Año 0 — Orientación teórica · Semana ~5 de preparación · Inscripción formal pendiente
+      <strong>Fase:</strong> Año 0 — Orientación teórica · Q1 2026 (Ene–Abr) · Inscripción formal pendiente
     </div>
 
     <div class="prose">
@@ -516,6 +600,28 @@
       <p>Tu primera lectura prioritaria es <strong>Kaminski (2023)</strong> — todavía no la has terminado. No la subestimes: ese texto te va a dar el vocabulario para articular por qué la regulación basada en riesgo (modelo UE) y los estándares técnicos voluntarios (modelo EE.UU.) son respuestas diferentes al mismo problema. Cuando puedas explicar esa tensión en tus propias palabras, sin consultar notas, habrás completado el primer paso real de la tesis.</p>
 
       <p>El caso de estudio sigue abierto. PATTERN tiene 25/25 en criterios pero tu inclinación es STRmix por la tensión procesal. <strong>No decidas todavía</strong> — esa decisión se toma con el director y con mejor comprensión de los pilares. Primero lee, después elige.</p>
+    </div>
+
+    <h3>Evaluación de lecturas Q1</h3>
+    <!-- Estado se actualiza según notas encontradas en Obsidian. Si existe ficha con objetivos cumplidos → ✓ Completada. Si no hay notas → sin estado. -->
+    <div style="display: flex; flex-direction: column; gap: 0.4rem; margin-bottom: 1rem;">
+      <div style="display: flex; align-items: center; gap: 0.6rem; padding: 0.45rem 0.7rem; border-left: 3px solid #e8a030; background: #fffdf6; border-radius: 0 4px 4px 0;">
+        <span class="pd-status st-active">En curso</span>
+        <span style="font-size: 0.88rem; color: var(--text);"><strong>Kaminski (2023)</strong> — «Regulating the Risks of AI»</span>
+        <span style="font-size: 0.72rem; color: var(--text-muted); margin-left: auto;">Ficha en Obsidian: pendiente</span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 0.6rem; padding: 0.45rem 0.7rem; border-left: 3px solid var(--border); background: #fafafa; border-radius: 0 4px 4px 0;">
+        <span class="pd-status st-pending">Pendiente</span>
+        <span style="font-size: 0.88rem; color: var(--text);"><strong>Bradford (2020)</strong> — «The Brussels Effect» caps. 1–3</span>
+        <span style="font-size: 0.72rem; color: var(--text-muted); margin-left: auto;">No iniciada</span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 0.6rem; padding: 0.45rem 0.7rem; border-left: 3px solid var(--border); background: #fafafa; border-radius: 0 4px 4px 0;">
+        <span class="badge badge-ref" style="font-size: 0.68rem;">Consulta</span>
+        <span style="font-size: 0.88rem; color: var(--text-light);">Veale &amp; Borgesius (2021) · Veale et al. (2023) · Engler (2023)</span>
+      </div>
+    </div>
+    <div class="callout callout-warn" style="font-size: 0.82rem;">
+      <strong>Criterio de completación:</strong> una lectura se marca como <span class="pd-status st-done">completada</span> cuando existe en Obsidian una ficha con notas propias y los objetivos de lectura cumplidos. El estado se actualiza en cada sesión del PM.
     </div>
 
     <h3>Marco normativo vigente</h3>
@@ -536,87 +642,204 @@
       <!-- Fill bar: ~8% through (early Q1) — adjust width as milestones complete -->
       <div class="timeline-fill" style="width: calc((100% - 48px) * 0.08)"></div>
 
-      <div class="timeline-node">
+      <div class="timeline-node tl-selected" onclick="showPeriod('q1')">
         <div class="tl-dot current">Q1</div>
         <div class="tl-label active">2026</div>
         <div class="tl-phase active-phase">Orientación</div>
       </div>
 
-      <div class="timeline-node">
+      <div class="timeline-node" onclick="showPeriod('q2')">
         <div class="tl-dot future">Q2</div>
         <div class="tl-label">2026</div>
         <div class="tl-phase">Cimientos teóricos</div>
       </div>
 
-      <div class="timeline-node">
+      <div class="timeline-node" onclick="showPeriod('q3')">
         <div class="tl-dot future">Q3</div>
         <div class="tl-label">2026</div>
         <div class="tl-phase">Construcción analítica</div>
       </div>
 
-      <div class="timeline-node">
+      <div class="timeline-node" onclick="showPeriod('q4')">
         <div class="tl-dot future">Q4</div>
         <div class="tl-label">2026</div>
         <div class="tl-phase">Primeros borradores</div>
       </div>
 
-      <div class="timeline-node">
+      <div class="timeline-node" onclick="showPeriod('y27')">
         <div class="tl-dot future">27</div>
         <div class="tl-label">2027</div>
         <div class="tl-phase">Escritura y análisis</div>
       </div>
 
-      <div class="timeline-node">
+      <div class="timeline-node" onclick="showPeriod('y28')">
         <div class="tl-dot future">28</div>
         <div class="tl-label">2028</div>
         <div class="tl-phase">Cierre y defensa</div>
       </div>
     </div>
 
-    <!-- Siguientes pasos — análisis integral -->
-    <div class="next-steps">
-      <div class="next-steps-header">▸ Siguientes pasos</div>
+    <!-- Period detail panels (interactive) -->
+    <div id="periodPanels">
 
-      <div class="ns-item">
-        <div class="ns-icon ns-read">↦</div>
-        <div>
-          <strong>Completar Kaminski (2023)</strong> — lectura prioritaria en curso. Escribir ficha breve en Obsidian.
-          <span class="ns-criteria">Hecho cuando: puedas explicar la tensión regulación vinculante vs. estándares voluntarios sin notas.</span>
+      <!-- Q1: Ene–Abr 2026 — Orientación -->
+      <div class="period-detail" id="pd-q1">
+        <div class="period-detail-header">
+          <h3>Q1 2026 · Enero – Abril</h3>
+          <span class="pd-phase">Orientación</span>
+        </div>
+        <div class="pd-obj">
+          <div class="pd-icon pd-read">↦</div>
+          <div><strong>Completar Kaminski (2023)</strong> — lectura prioritaria. Escribir ficha en Obsidian. <span class="pd-status st-active">En curso</span>
+            <span class="ns-criteria">Hecho cuando: puedas explicar la tensión regulación vinculante vs. estándares voluntarios sin notas.</span></div>
+        </div>
+        <div class="pd-obj">
+          <div class="pd-icon pd-read">↦</div>
+          <div><strong>Iniciar Bradford (2020)</strong> caps. 1–3 — segunda lectura. Conectar el Efecto Bruselas con la hipótesis de equivalencia funcional. <span class="pd-status st-pending">Pendiente</span>
+            <span class="ns-criteria">Hecho cuando: tengas ficha en Obsidian articulando por qué el AI Act afecta al DOJ.</span></div>
+        </div>
+        <div class="pd-obj">
+          <div class="pd-icon pd-decide">◆</div>
+          <div><strong>Caso de estudio</strong> — pendiente de confirmación con director. PATTERN 25/25 vs. STRmix (mayor tensión procesal). <span class="pd-status st-pending">Pendiente</span>
+            <span class="ns-criteria">Hecho cuando: haya decisión consensuada con el director y documentada en el Registro.</span></div>
+        </div>
+        <div class="pd-obj">
+          <div class="pd-icon pd-build">⚙</div>
+          <div><strong>KB: procesar cola académica</strong> — 249 items pendientes en AcademicQueue. Ejecutar <code>update academic</code>. <span class="pd-status st-pending">Pendiente</span>
+            <span class="ns-criteria">Hecho cuando: AcademicQueue tenga &lt;50 items pendientes.</span></div>
+        </div>
+        <div class="pd-obj">
+          <div class="pd-icon pd-read">!</div>
+          <div><strong>Fuentes críticas pendientes</strong> — Kaminski &amp; Urban (2021), Selbst &amp; Powles (2017), Citron (2008). Necesarias para el pilar de contestabilidad. <span class="pd-status st-pending">Pendiente</span>
+            <span class="ns-criteria">Hecho cuando: las tres estén en Zotero con PDF y entrada en KB.</span></div>
+        </div>
+        <div class="pd-obj">
+          <div class="pd-icon pd-decide">◆</div>
+          <div><strong>Inscripción formal USAL</strong> — obtener email institucional y completar trámites de inscripción al programa doctoral. <span class="pd-status st-pending">Pendiente</span></div>
         </div>
       </div>
 
-      <div class="ns-item">
-        <div class="ns-icon ns-read">↦</div>
-        <div>
-          <strong>Iniciar Bradford (2020)</strong> caps. 1–3 — segunda lectura. Conectar el Efecto Bruselas con la hipótesis de equivalencia funcional.
-          <span class="ns-criteria">Hecho cuando: tengas ficha en Obsidian articulando por qué el AI Act afecta al DOJ.</span>
+      <!-- Q2: May–Jul 2026 — Cimientos teóricos -->
+      <div class="period-detail" id="pd-q2" style="display:none;">
+        <div class="period-detail-header">
+          <h3>Q2 2026 · Mayo – Julio</h3>
+          <span class="pd-phase">Cimientos teóricos</span>
+        </div>
+        <div class="pd-obj">
+          <div class="pd-icon pd-read">↦</div>
+          <div><strong>Lecturas de los 4 pilares teóricos</strong> — completar orientación en gobernanza comparada, teoría regulatoria, derecho procesal y contestabilidad algorítmica. Articular cada pilar en tus propias palabras.</div>
+        </div>
+        <div class="pd-obj">
+          <div class="pd-icon pd-write">✎</div>
+          <div><strong>Fichas de pilar en Obsidian</strong> — una ficha por pilar (~1 página) que conecte las lecturas con la pregunta de investigación. Mover stubs actuales a notas permanentes.</div>
+        </div>
+        <div class="pd-obj">
+          <div class="pd-icon pd-read">↦</div>
+          <div><strong>Veale &amp; Borgesius (2021)</strong> y <strong>Engler (2023)</strong> — lectura dirigida para conectar New Legislative Framework (UE) con el modelo de regulación distribuida (EE.UU.).</div>
+        </div>
+        <div class="pd-obj">
+          <div class="pd-icon pd-build">⚙</div>
+          <div><strong>Monitorear crosswalk NIST → AI Act</strong> — seguir publicación del crosswalk final. Alimentar KB con cualquier documento oficial que aparezca.</div>
+        </div>
+        <div class="pd-obj">
+          <div class="pd-icon pd-decide">◆</div>
+          <div><strong>Primera reunión sustantiva con director</strong> — presentar mapa conceptual, caso de estudio elegido, y plan de trabajo para el año. Obtener feedback sobre enfoque metodológico.</div>
         </div>
       </div>
 
-      <div class="ns-item">
-        <div class="ns-icon ns-decide">◆</div>
-        <div>
-          <strong>Caso de estudio</strong> — pendiente de confirmación con director. PATTERN 25/25 vs. STRmix (mayor tensión procesal).
-          <span class="ns-criteria">Hecho cuando: haya decisión consensuada con el director y documentada en el Registro.</span>
+      <!-- Q3: Ago–Oct 2026 — Construcción analítica -->
+      <div class="period-detail" id="pd-q3" style="display:none;">
+        <div class="period-detail-header">
+          <h3>Q3 2026 · Agosto – Octubre</h3>
+          <span class="pd-phase">Construcción analítica</span>
+        </div>
+        <div class="pd-obj">
+          <div class="pd-icon pd-build">⚙</div>
+          <div><strong>Construir la matriz de correspondencia</strong> — poblar cada celda RIA art. × función NIST con análisis documental real. Clasificar como coincidencia, diferencia o complemento.</div>
+        </div>
+        <div class="pd-obj">
+          <div class="pd-icon pd-write">✎</div>
+          <div><strong>Protocolo de documentación</strong> — diseñar el instrumento que se aplicará al caso de estudio. Definir criterios de codificación y umbrales de cumplimiento.</div>
+        </div>
+        <div class="pd-obj">
+          <div class="pd-icon pd-read">↦</div>
+          <div><strong>Lectura profunda del caso</strong> — documentación pública del sistema seleccionado: auditorías GAO/OIG, testimonios, PIAs, reportes NIJ. Compilar corpus documental.</div>
+        </div>
+        <div class="pd-obj">
+          <div class="pd-icon pd-decide">◆</div>
+          <div><strong>Validación metodológica</strong> — revisar con director la matriz poblada y el protocolo antes de aplicar al caso. Ajustar si hay objeciones.</div>
         </div>
       </div>
 
-      <div class="ns-item">
-        <div class="ns-icon ns-build">⚙</div>
-        <div>
-          <strong>KB: procesar cola académica</strong> — 249 items pendientes en AcademicQueue. Ejecutar <code>update academic</code>.
-          <span class="ns-criteria">Hecho cuando: AcademicQueue tenga &lt;50 items pendientes.</span>
+      <!-- Q4: Nov 2026 – Ene 2027 — Primeros borradores -->
+      <div class="period-detail" id="pd-q4" style="display:none;">
+        <div class="period-detail-header">
+          <h3>Q4 2026 · Noviembre – Enero 2027</h3>
+          <span class="pd-phase">Primeros borradores</span>
+        </div>
+        <div class="pd-obj">
+          <div class="pd-icon pd-write">✎</div>
+          <div><strong>Borrador Cap. 2 (Marco teórico)</strong> — redacción del capítulo completo integrando los cuatro pilares, en español académico.</div>
+        </div>
+        <div class="pd-obj">
+          <div class="pd-icon pd-write">✎</div>
+          <div><strong>Borrador Cap. 3 (El RIA)</strong> — análisis de los arts. 8–15 y 16–18 como cuerpo normativo. Contextualizar en el NLF y la arquitectura de conformidad.</div>
+        </div>
+        <div class="pd-obj">
+          <div class="pd-icon pd-write">✎</div>
+          <div><strong>Borrador Cap. 4 (NIST AI RMF)</strong> — descripción analítica de las cuatro funciones. Situar en la tradición de estándares voluntarios de EE.UU.</div>
+        </div>
+        <div class="pd-obj">
+          <div class="pd-icon pd-decide">◆</div>
+          <div><strong>Feedback del director</strong> — entregar los tres borradores para revisión. Integrar correcciones antes de pasar al análisis comparativo.</div>
         </div>
       </div>
 
-      <div class="ns-item">
-        <div class="ns-icon ns-gap">!</div>
-        <div>
-          <strong>Fuentes críticas pendientes</strong> — Kaminski &amp; Urban (2021), Selbst &amp; Powles (2017), Citron (2008). Necesarias para el pilar de contestabilidad.
-          <span class="ns-criteria">Hecho cuando: las tres estén en Zotero con PDF y entrada en KB.</span>
+      <!-- 2027 — Escritura y análisis -->
+      <div class="period-detail" id="pd-y27" style="display:none;">
+        <div class="period-detail-header">
+          <h3>2027</h3>
+          <span class="pd-phase">Escritura y análisis</span>
+        </div>
+        <div class="pd-obj">
+          <div class="pd-icon pd-general">▸</div>
+          <div><strong>Análisis comparativo (Cap. 5)</strong> — aplicar la matriz al caso seleccionado. Producir hallazgos por artículo y por función NIST. Evaluar con los cuatro criterios transversales.</div>
+        </div>
+        <div class="pd-obj">
+          <div class="pd-icon pd-general">▸</div>
+          <div><strong>Caso de estudio (Cap. 6)</strong> — redacción completa del caso con análisis de cumplimiento documentable, gaps identificados, y evaluación según la rúbrica.</div>
+        </div>
+        <div class="pd-obj">
+          <div class="pd-icon pd-general">▸</div>
+          <div><strong>Revisiones iterativas</strong> — ciclos de entrega-revisión con el director. Refinar argumento central, coherencia terminológica, y solidez de evidencia.</div>
+        </div>
+        <div class="pd-obj">
+          <div class="pd-icon pd-general">▸</div>
+          <div><strong>Conferencias y publicación</strong> — explorar presentación de avances en congresos de derecho de IA o gobernanza tecnológica. Potencial artículo derivado.</div>
         </div>
       </div>
-    </div>
+
+      <!-- 2028 — Cierre y defensa -->
+      <div class="period-detail" id="pd-y28" style="display:none;">
+        <div class="period-detail-header">
+          <h3>2028</h3>
+          <span class="pd-phase">Cierre y defensa</span>
+        </div>
+        <div class="pd-obj">
+          <div class="pd-icon pd-general">▸</div>
+          <div><strong>Conclusiones y manuscrito final</strong> — redactar Cap. 7, integrar anexos (matriz, protocolo, fichas). Revisión completa de coherencia interna.</div>
+        </div>
+        <div class="pd-obj">
+          <div class="pd-icon pd-general">▸</div>
+          <div><strong>Revisión formal y depósito</strong> — incorporar correcciones finales del director. Completar proceso administrativo de depósito en la USAL.</div>
+        </div>
+        <div class="pd-obj">
+          <div class="pd-icon pd-general">▸</div>
+          <div><strong>Defensa de la tesis</strong> — preparar presentación, anticipar preguntas del tribunal, ensayar. Las 21 preguntas del archivo de Obsidian son tu punto de partida.</div>
+        </div>
+      </div>
+
+    </div><!-- /periodPanels -->
   </section>
 
   <!-- ══════════════════════════════════════
@@ -867,7 +1090,7 @@
   </details><!-- /sec-decisiones -->
 
   <footer>
-    Última actualización: 14 de marzo de 2026 &nbsp;·&nbsp; Thesis Dashboard v2.0 — documento vivo
+    Última actualización: 15 de marzo de 2026 &nbsp;·&nbsp; Thesis Dashboard v2.1 — documento vivo
   </footer>
 
 </div><!-- /container -->
@@ -883,8 +1106,14 @@
     </div>
     <div class="modal-body">
 
-      <div class="callout callout-info" style="margin-bottom: 1.2rem;">
-        <strong>Última actualización:</strong> 14 de marzo de 2026 · Este reporte se regenera con cada sesión de <code>news</code> o <code>update</code>.
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
+        <div class="callout callout-info" style="margin-bottom: 0; flex: 1;">
+          <strong>Última actualización:</strong> 14 de marzo de 2026 · Este reporte se regenera con cada sesión de <code>news</code> o <code>update</code>.
+        </div>
+        <a href="https://aauml.github.io/thesis/index.html" target="_blank" class="hdr-btn" style="margin-left: 0.75rem; white-space: nowrap; text-decoration: none;">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" style="width:13px;height:13px;"><path d="M6 3H3v10h10v-3" stroke-linecap="round"/><path d="M9 2h5v5M14 2L7 9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Abrir KB
+        </a>
       </div>
 
       <!-- Panorama general -->
@@ -1165,6 +1394,22 @@
   }
   function toggleAllLayers(open) {
     document.querySelectorAll('.modal details.layer').forEach(d => d.open = open);
+  }
+
+  // ── Interactive Timeline ──
+  function showPeriod(id) {
+    // Hide all panels
+    document.querySelectorAll('#periodPanels .period-detail').forEach(p => p.style.display = 'none');
+    // Show selected
+    const panel = document.getElementById('pd-' + id);
+    if (panel) panel.style.display = 'block';
+    // Update selected state on nodes
+    document.querySelectorAll('.timeline-node').forEach(n => n.classList.remove('tl-selected'));
+    // Find the clicked node by matching onclick
+    const nodes = document.querySelectorAll('.timeline-node');
+    const ids = ['q1', 'q2', 'q3', 'q4', 'y27', 'y28'];
+    const idx = ids.indexOf(id);
+    if (idx >= 0 && nodes[idx]) nodes[idx].classList.add('tl-selected');
   }
 
   // ── PWA Service Worker ──

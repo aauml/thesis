@@ -66,16 +66,26 @@ _Actualizar al cierre de cada sesión. Este archivo es la memoria técnica del s
 | 2026-03-13 | Versiones activas: WebApp-v32, GoogleNewsRSS-v1, PerplexitySearch-v3, SKILL-KB-v11. |
 | 2026-03-13 | Google News RSS reemplaza NewsAPI (426 en free tier). Sin API key, sin límite de requests. |
 | 2026-03-13 | Duplicate function names resuelto: `_advanceNextRunDate`, `_isQueryDue`, `_fmtDate` eliminadas de PerplexitySearch-v3. Solo viven en AcademicOrchestrator. |
+| 2026-03-15 | AcademicQueue first full review: 200 pending → 24 promoted, 156 discarded, 17 reviewed, 3 skipped (dupes). ArXiv queries return massive noise (quantum physics, biology) — needs query refinement or pre-staging filters. |
+| 2026-03-15 | Confirmado: `action=append` dedup contra 4 tabs incluye la queue de origen. Para promover desde AcademicQueue usar `action=promoteToNewsLog` (ya documentado, pero se re-confirmó con AcademicQueue). |
 
 ---
+
+### BUG-004 — AcademicOrchestrator arXiv noise: massive off-topic returns
+- **Estado:** Abierto
+- **Descripción:** ArXiv queries retornan papers completamente off-topic (quantum physics, coral larvae, Hawking radiation) para queries de AI Act, Forensic AI, etc. La query construction en `q_arxiv` no filtra por categoría o subject. De 200 items pendientes, 79 fueron obviamente off-topic por keywords, y ~77 adicionales fueron tangenciales.
+- **Impacto:** Alto — la mayoría de los items en AcademicQueue son noise, desperdiciando tiempo de evaluación.
+- **Fix posible:** (1) Añadir `cat:cs.*` o filtro de categoría a las queries arXiv en AcademicOrchestrator, (2) Implementar pre-screening por abstract keywords antes de staging, (3) Revisar `q_arxiv` fields en Queries tab para queries más precisas.
+- **Fecha detectado:** 2026-03-15
 
 ---
 
 ## Próxima sesión
 
-- **Prioridad 1:** `update academic` — 249 items pendientes en AcademicQueue (papers arxiv/CORE/OpenAlex)
+- **Prioridad 1:** BUG-004 — Reducir noise en AcademicQueue (filtros arXiv o pre-screening)
 - **Prioridad 2:** BUG-003 — re-evaluar 77 entradas degradadas (priorizar ALTA, usar synthesis de PerplexityQueue)
 - **Prioridad 3:** Resolver BUG-001 (84 stuck en PerplexityQueue) — script Python de limpieza
 - **Prioridad 4:** TASK-001 — limpiar 3 entradas TEST en NewsLog
+- **Prioridad 5:** `update academic` — remaining ~6 pending items if any after today's processing
 
-_Última actualización: 2026-03-13_
+_Última actualización: 2026-03-15_

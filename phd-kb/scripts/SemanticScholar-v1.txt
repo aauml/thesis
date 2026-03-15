@@ -1,0 +1,46 @@
+// =============================================================================
+// SemanticScholar.gs — Proveedor Semantic Scholar v1
+// Bueno para: scholars (muy preciso con nombres), papers recientes
+// Campo en Queries tab: q_semantic
+// Sin API key: 100 req/5min. Con key: 1 req/sec.
+// =============================================================================
+
+function searchSemanticScholar(term, fromYear, opts) {
+  if (!term) return [];
+  var apiKey = (opts && opts.ssKey) ? opts.ssKey : '';
+  var url = 'https://api.semanticscholar.org/graph/v1/paper/search'
+    + '?query=' + encodeURIComponent(term)
+    + '&year=' + fromYear + '-'
+    + '&limit=3'
+    + '&fields=title,authors,year,externalIds,abstract,url';
+  var headers = {'User-Agent': 'thesis-scanner/1.0 (doctoral research)'};
+  if (apiKey) headers['x-api-key'] = apiKey;
+  try {
+    var resp = UrlFetchApp.fetch(url, {headers:headers, muteHttpExceptions:true});
+    if (resp.getResponseCode() === 429) {
+      Logger.log('[SemanticScholar] Rate limited — skipping');
+      Utilities.sleep(5000);
+      return [];
+    }
+    if (resp.getResponseCode() !== 200) {
+      Logger.log('[SemanticScholar] HTTP ' + resp.getResponseCode() + ' for: ' + term);
+      return [];
+    }
+    var papers = JSON.parse(resp.getContentText()).data || [];
+    return papers.map(function(p) {
+      var paperUrl = (p.externalIds && p.externalIds.DOI)
+        ? 'https://doi.org/' + p.externalIds.DOI
+        : (p.url || 'https://www.semanticscholar.org/paper/' + (p.paperId||''));
+      return {
+        url:      paperUrl,
+        title:    p.title || '',
+        authors:  (p.authors||[]).slice(0,3).map(function(a){return a.name;}).join('; '),
+        year:     p.year || '',
+        abstract: p.abstract || ''
+      };
+    });
+  } catch(e) {
+    Logger.log('[SemanticScholar] ERR: ' + e.message);
+    return [];
+  }
+}

@@ -1,0 +1,589 @@
+// =============================================================================
+// NewsSearch.gs v6 — NewsAPI provider (news article monitoring)
+//
+// API: https://newsapi.org/v2/everything
+// Key: NEWS_API_KEY in Script Properties
+// Plan: free dev tier — 100 req/day, articles from past 30 days only
+// Output: NewsResults tab (direct SpreadsheetApp write)
+// Query column: q_news (in Queries tab)
+//
+// CHANGES from v5:
+//   + PRIORITY SCHEDULING: ya no barre todas las queries activas en order fijo.
+//     En su lugar, cada run selecciona las queries más urgentes según:
+//       1) next_run vencido o vacío (elegibilidad)
+//       2) tier (1 primero — mayor prioridad)
+//       3) fecha next_run más antigua (más atrasada primero)
+//     Esto garantiza que queries tier-1 siempre se procesen primero, y que
+//     queries no vencidas no consuman cuota innecesaria.
+//   + next_run update: después de procesar exitosamente una query, actualiza
+//     next_run en la Queries tab según su frequency.
+//   + news_batch_index: ya no se usa para el batch principal (se mantiene la
+//     función resetBatchIndex() por compatibilidad pero no tiene efecto).
+//   + _advanceNextRunDate(): helper de scheduling compartido.
+//   + Logging mejorado: muestra tier, queries saltadas, y próximas fechas.
+//
+// CHANGES from v4:
+//   (ver historial v4→v5 en NewsSearch-v5.txt)
+//
+// ENTRY POINTS:
+//   runNewsAPI()         — llamado por el trigger diario (procesa batch prioritario)
+//   runNewsSweep()       — manual: barre todas las queries ignorando next_run
+//   runNewsSweepAll()    — manual: barre ALL queries sin límite de batch
+//   quickTestNewsAPI()   — verifica API key y conectividad
+//
+// TRIGGER MANAGEMENT:
+//   setupNewsTrigger()   — crea trigger DIARIO a las 11pm
+//   removeNewsTrigger()  — elimina el trigger
+//   resetBatchIndex()    — no-op en v6 (compatibilidad con v5)
+// =============================================================================
+
+var NEWS_CONFIG = {
+  RESULTS_TAB:     'NewsResults',
+  RESULTS_PER_Q:   15,
+  RESULTS_COLUMNS: ['id','url','title','snippet','source_domain','news_rank',
+                    'date_found','query_used','q_id','q_name','run_id','status','notes'],
+
+  // Máximo de queries a procesar por run. Con ~106+ queries y cuota de 97 req/día
+  // (100 - ~3 calls de setup), este valor deja margen seguro.
+  // Con priority scheduling, las 90 más urgentes siempre se procesan primero.
+  BATCH_SIZE:      90,
+  FLUSH_EVERY:     10
+};
+
+var RELEVANCE_FILTER_ENABLED = true;
+
+var RELEVANCE_TERMS = [
+  // Core frameworks
+  'AI Act', 'NIST', 'AI RMF', 'risk management framework',
+  // AI regulation / governance
+  'artificial intelligence', 'AI regulation', 'AI governance', 'AI policy',
+  'AI standard', 'AI compliance', 'AI audit', 'AI safety',
+  'AI oversight', 'AI accountability', 'AI transparency',
+  'algorithmic', 'machine learning',
+  // Specific thesis topics
+  'high-risk AI', 'conformity assessment', 'fundamental rights',
+  'Brussels Effect', 'Digital Omnibus',
+  'explainability', 'contestability', 'bias', 'fairness',
+  // Forensic / law enforcement
+  'forensic', 'STRmix', 'probabilistic genotyping', 'DNA evidence',
+  'biometric', 'facial recognition', 'law enforcement AI',
+  // Institutional
+  'CAISI', 'AI Office', 'OMB', 'federal agency',
+  'European Commission', 'EDPB',
+  // Scholars (last names only)
+  'Kaminski', 'Veale', 'Bradford', 'Wachter', 'Hildebrandt',
+  'Calo', 'Hacker', 'Pasquale', 'Narayanan', 'Finck',
+  'Rozenshtein', 'Kratsios'
+];
+
+function _isRelevant(title, snippet) {
+  if (!RELEVANCE_FILTER_ENABLED) return true;
+  var text = ((title || '') + ' ' + (snippet || '')).toLowerCase();
+  for (var i = 0; i < RELEVANCE_TERMS.length; i++) {
+    if (text.indexOf(RELEVANCE_TERMS[i].toLowerCase()) !== -1) return true;
+  }
+  return false;
+}
+
+// =============================================================================
+// SCHEDULING HELPERS
+// =============================================================================
+
+/**
+ * _advanceNextRunDate(frequencyStr)
+ * Calcula la próxima fecha desde hoy según frequency.
+ * Retorna yyyy-MM-dd.
+ */
+function _advanceNextRunDate(frequencyStr) {
+  var base = new Date();
+  var daysToAdd = 30; // default: mensual
+  var freq = (frequencyStr || '').toLowerCase().trim();
+
+  if      (freq === 'weekly')    daysToAdd = 7;
+  else if (freq === 'biweekly')  daysToAdd = 14;
+  else if (freq === 'monthly')   daysToAdd = 30;
+  else if (freq === 'quarterly') daysToAdd = 90;
+  else if (freq === 'manual')    return _fmtDate(base);
+
+  base.setDate(base.getDate() + daysToAdd);
+  return _fmtDate(base);
+}
+
+/**
+ * _isQueryDue(nextRunStr)
+ * True si la query debe ejecutarse hoy.
+ */
+function _isQueryDue(nextRunStr) {
+  if (!nextRunStr || String(nextRunStr).trim() === '') return true;
+  var nextRun = new Date(nextRunStr);
+  if (isNaN(nextRun.getTime())) return true;
+  var today = new Date();
+  today.setHours(0, 0, 0, 0);
+  nextRun.setHours(0, 0, 0, 0);
+  return today >= nextRun;
+}
+
+/**
+ * _news_updateQuerySchedule(sheetApi, queryId, frequency)
+ * Actualiza next_run (y last_run si existe) vía SHEET_API.
+ */
+function _news_updateQuerySchedule(sheetApi, queryId, frequency) {
+  if (!sheetApi || !queryId) return;
+  var nextRun = _advanceNextRunDate(frequency);
+  var lastRun = _fmtDate(new Date());
+  try {
+    UrlFetchApp.fetch(sheetApi, {
+      method: 'post',
+      headers: { 'Content-Type': 'application/json' },
+      payload: JSON.stringify({
+        action: 'updateQuery',
+        id: queryId,
+        fields: { next_run: nextRun, last_run: lastRun }
+      }),
+      muteHttpExceptions: true
+    });
+  } catch(e) {
+    Logger.log('[NewsAPI][Schedule] ERR for ' + queryId + ': ' + e.message);
+  }
+}
+
+// =============================================================================
+// PUBLIC ENTRY POINTS
+// =============================================================================
+
+/**
+ * runNewsAPI() — llamado por el trigger diario.
+ * Selecciona las queries más urgentes y vencidas (tier priority + oldest next_run).
+ * Procesa hasta BATCH_SIZE queries dentro del budget de 100 req/día.
+ */
+function runNewsAPI() {
+  _runNews('incremental', false);
+}
+
+/**
+ * runNewsSweep() — manual. Sweep 30-day window para las queries MÁS URGENTES.
+ * Respeta BATCH_SIZE pero ignora next_run (procesa todas las elegibles).
+ */
+function runNewsSweep() {
+  _runNews('sweep', false);
+}
+
+/**
+ * runNewsSweepAll() — manual. Procesa TODAS las queries ignorando límites.
+ * WARNING: puede superar 100 req/día si tienes más de 97 queries con q_news.
+ */
+function runNewsSweepAll() {
+  _runNews('sweep', true);
+}
+
+// =============================================================================
+// CORE LOGIC
+// =============================================================================
+
+function _runNews(mode, ignoresBatch) {
+  var props    = PropertiesService.getScriptProperties();
+  var apiKey   = props.getProperty('NEWS_API_KEY');
+  var sheetApi = props.getProperty('SHEET_API');
+
+  if (!apiKey) {
+    Logger.log('[NewsAPI] ERROR: NEWS_API_KEY not set.');
+    return;
+  }
+  if (!sheetApi) {
+    Logger.log('[NewsAPI] ERROR: SHEET_API not set in Script Properties.');
+    return;
+  }
+
+  Logger.log('=== NewsAPI v6 START mode=' + mode + (ignoresBatch ? ' (ALL)' : '') + ' ===');
+
+  // ── Date range ──
+  var toDate = new Date();
+  var fromDate;
+  if (mode === 'sweep') {
+    fromDate = new Date(toDate.getTime() - 29 * 24 * 60 * 60 * 1000);
+    Logger.log('Sweep: ' + _fmtDate(fromDate) + ' → ' + _fmtDate(toDate));
+  } else {
+    var lastScan = _news_getLastScan(sheetApi);
+    if (lastScan) {
+      fromDate = new Date(lastScan);
+      fromDate.setDate(fromDate.getDate() + 1);
+    } else {
+      fromDate = new Date(toDate.getTime() - 7 * 24 * 60 * 60 * 1000);
+    }
+    Logger.log('Incremental: ' + _fmtDate(fromDate) + ' → ' + _fmtDate(toDate));
+  }
+
+  // ── Dedup ──
+  var knownUrls = _news_getKnownUrls(sheetApi);
+  Logger.log('Known URLs (dedup): ' + knownUrls.size);
+
+  // ── Cargar todas las queries activas con q_news ──
+  var allQueries = _news_getActiveQueries(sheetApi);
+  Logger.log('Total queries with q_news: ' + allQueries.length);
+  if (allQueries.length === 0) {
+    Logger.log('[NewsAPI] No active queries have q_news set.');
+    return;
+  }
+
+  // ── v6: Filtrar por next_run ──
+  var eligibleQueries;
+  if (ignoresBatch) {
+    // runNewsSweepAll: ignorar next_run
+    eligibleQueries = allQueries;
+    Logger.log('ALL mode: procesando ' + eligibleQueries.length + ' queries');
+  } else if (mode === 'sweep') {
+    // runNewsSweep: ignorar next_run pero respetar BATCH_SIZE
+    eligibleQueries = allQueries;
+    Logger.log('Sweep mode: ' + eligibleQueries.length + ' queries elegibles');
+  } else {
+    // runNewsAPI (incremental): solo queries vencidas
+    eligibleQueries = allQueries.filter(function(q) {
+      return _isQueryDue(q.next_run);
+    });
+    var skippedCount = allQueries.length - eligibleQueries.length;
+    Logger.log('Eligible (due): ' + eligibleQueries.length + ' | Skipped (not due): ' + skippedCount);
+  }
+
+  if (eligibleQueries.length === 0) {
+    Logger.log('[NewsAPI] No queries are due today. Las queries tier-1 pueden estar en otro batch.');
+    return;
+  }
+
+  // ── v6: Ordenar por prioridad: tier ASC, luego next_run más antiguo primero ──
+  eligibleQueries.sort(function(a, b) {
+    var tierA = parseInt(a.tier || '3', 10);
+    var tierB = parseInt(b.tier || '3', 10);
+    if (tierA !== tierB) return tierA - tierB;
+
+    // Mismo tier: procesar primero el más atrasado
+    var dateA = (a.next_run && String(a.next_run).trim()) ? new Date(a.next_run) : new Date(0);
+    var dateB = (b.next_run && String(b.next_run).trim()) ? new Date(b.next_run) : new Date(0);
+    if (isNaN(dateA.getTime())) dateA = new Date(0);
+    if (isNaN(dateB.getTime())) dateB = new Date(0);
+    return dateA - dateB;
+  });
+
+  // ── Tomar las top BATCH_SIZE queries (o todas si ignoresBatch) ──
+  var queries = ignoresBatch ? eligibleQueries : eligibleQueries.slice(0, NEWS_CONFIG.BATCH_SIZE);
+  Logger.log('Procesando ' + queries.length + ' queries (batch cap=' + NEWS_CONFIG.BATCH_SIZE + ')');
+
+  // ── Process queries ──
+  var runDate       = _fmtDate(toDate);
+  var runId         = runDate + '-N' + (mode === 'sweep' ? 'S' : 'I');
+  var pendingRows   = [];
+  var totalAdded    = 0;
+  var totalFiltered = 0;
+  var rateLimited   = false;
+  var apiCalls      = 0;
+  var successCount  = 0;
+
+  for (var qi = 0; qi < queries.length; qi++) {
+    var q    = queries[qi];
+    var term = (q.q_news || '').trim();
+    if (!term) continue;
+
+    Logger.log('[' + (qi + 1) + '/' + queries.length + '] ' + q.name
+      + ' (tier=' + (q.tier || '?') + ') → "' + term + '"');
+
+    try {
+      var results = searchNewsAPI(term, apiKey, fromDate, toDate);
+      apiCalls++;
+
+      if (results === null) {
+        Logger.log('  ⚠ RATE LIMITED — stopping. Progress saved.');
+        rateLimited = true;
+        break;
+      }
+
+      var added    = 0;
+      var filtered = 0;
+
+      for (var ri = 0; ri < results.length; ri++) {
+        var r = results[ri];
+        if (!r.url || knownUrls.has(r.url)) continue;
+        if (!_isRelevant(r.title, r.snippet)) { filtered++; continue; }
+
+        knownUrls.add(r.url);
+        added++;
+        pendingRows.push({
+          id:            _news_makeId(r.url),
+          url:           r.url,
+          title:         r.title    || '',
+          snippet:       r.snippet  || '',
+          source_domain: r.domain   || '',
+          news_rank:     r.rank     || '',
+          date_found:    r.published || runDate,
+          query_used:    term,
+          q_id:          q.id       || '',
+          q_name:        q.name     || '',
+          run_id:        runId,
+          status:        'pending',
+          notes:         ''
+        });
+      }
+
+      totalAdded    += added;
+      totalFiltered += filtered;
+      Logger.log('  → ' + results.length + ' fetched, +' + added + ' new, ' + filtered + ' filtered');
+
+      // ── v6: Actualizar next_run para esta query (solo en modo incremental) ──
+      if (mode === 'incremental' && !rateLimited) {
+        _news_updateQuerySchedule(sheetApi, q.id, q.frequency);
+        successCount++;
+      }
+
+      // ── Incremental flush ──
+      if (pendingRows.length >= NEWS_CONFIG.FLUSH_EVERY * 2) {
+        _news_writeToResultsTab(pendingRows);
+        Logger.log('  [flush] wrote ' + pendingRows.length + ' rows');
+        pendingRows = [];
+      }
+
+      Utilities.sleep(1100);
+
+    } catch(e) {
+      Logger.log('  [NewsAPI] ERR on "' + term + '": ' + e.message);
+    }
+  }
+
+  // ── Final flush ──
+  if (pendingRows.length > 0) {
+    _news_writeToResultsTab(pendingRows);
+    Logger.log('[flush] wrote final ' + pendingRows.length + ' rows');
+  }
+
+  // ── Summary ──
+  Logger.log('=== NewsAPI v6 DONE ===');
+  Logger.log('  API calls:       ' + apiCalls);
+  Logger.log('  New rows:        ' + totalAdded);
+  Logger.log('  Filtered noise:  ' + totalFiltered);
+  Logger.log('  next_run updated: ' + successCount + ' queries');
+
+  if (rateLimited) {
+    Logger.log('  ⚠ Run cut short by rate limit. Queries restantes se procesarán en el siguiente run.');
+  }
+
+  // ── last_news_scan: actualizar cuando el ciclo fue exitoso ──
+  // En v6, "ciclo completo" significa que se procesaron todas las queries elegibles
+  // sin rate limit. Si hay más queries elegibles que BATCH_SIZE, se procesarán
+  // en el siguiente run (ya tendrán next_run actualizado).
+  var allEligibleProcessed = !rateLimited && (queries.length === eligibleQueries.length || !ignoresBatch);
+  if (mode === 'incremental' && !rateLimited) {
+    _news_updateLastScan(sheetApi);
+    Logger.log('  ✓ last_news_scan actualizado.');
+  }
+}
+
+// =============================================================================
+// NEWSAPI CALL
+// =============================================================================
+
+function searchNewsAPI(term, apiKey, fromDate, toDate) {
+  if (!term) return [];
+
+  if (!apiKey) {
+    apiKey = PropertiesService.getScriptProperties().getProperty('NEWS_API_KEY');
+    if (!apiKey) { Logger.log('[NewsAPI] NEWS_API_KEY missing'); return []; }
+  }
+
+  var url = 'https://newsapi.org/v2/everything'
+    + '?q='        + encodeURIComponent(term)
+    + '&sortBy=publishedAt'
+    + '&language=en'
+    + '&pageSize='  + NEWS_CONFIG.RESULTS_PER_Q
+    + '&apiKey='    + encodeURIComponent(apiKey);
+
+  if (fromDate) url += '&from=' + _fmtDate(fromDate);
+  if (toDate)   url += '&to='   + _fmtDate(toDate);
+
+  try {
+    var resp = UrlFetchApp.fetch(url, { muteHttpExceptions: true });
+    var code = resp.getResponseCode();
+
+    if (code === 426) {
+      Logger.log('[NewsAPI] 426 — free tier requires server-side calls only.');
+      return [];
+    }
+    if (code === 429) {
+      Logger.log('[NewsAPI] 429 — RATE LIMITED.');
+      return null;
+    }
+    if (code !== 200) {
+      var msg = '';
+      try { msg = JSON.parse(resp.getContentText()).message; } catch(x) {}
+      Logger.log('[NewsAPI] HTTP ' + code + ' for "' + term + '": ' + msg);
+      return [];
+    }
+
+    var data     = JSON.parse(resp.getContentText());
+    var articles = data.articles || [];
+
+    return articles
+      .map(function(a, idx) {
+        var link = a.url || '';
+        return {
+          url:       link,
+          title:     a.title       || '',
+          snippet:   a.description || '',
+          domain:    _news_extractDomain(link),
+          rank:      idx + 1,
+          published: a.publishedAt ? a.publishedAt.split('T')[0] : ''
+        };
+      })
+      .filter(function(r) {
+        return r.url
+          && r.url     !== 'https://removed.com'
+          && r.title   !== '[Removed]'
+          && r.snippet !== '[Removed]';
+      });
+
+  } catch(e) {
+    Logger.log('[NewsAPI] FETCH ERR: ' + e.message);
+    return [];
+  }
+}
+
+function quickTestNewsAPI() {
+  var apiKey = PropertiesService.getScriptProperties().getProperty('NEWS_API_KEY');
+  if (!apiKey) {
+    Logger.log('[quickTest] NEWS_API_KEY not set.');
+    return;
+  }
+  var results = searchNewsAPI('"AI Act" AND "NIST"', apiKey);
+  if (results === null) {
+    Logger.log('[quickTest] Rate limited!');
+    return;
+  }
+  Logger.log('[quickTest] Got ' + results.length + ' results');
+  results.slice(0, 5).forEach(function(r) {
+    var relevant = _isRelevant(r.title, r.snippet);
+    Logger.log('  [' + r.rank + '] ' + (relevant ? '✓' : '✗') + ' ' + r.published + ' | ' + r.title);
+  });
+}
+
+// =============================================================================
+// TRIGGER MANAGEMENT
+// =============================================================================
+
+function setupNewsTrigger() {
+  var existing = ScriptApp.getProjectTriggers().filter(function(t) {
+    return t.getHandlerFunction() === 'runNewsAPI';
+  });
+  if (existing.length > 0) {
+    Logger.log('[NewsAPI] Trigger already exists.');
+    return;
+  }
+  ScriptApp.newTrigger('runNewsAPI')
+    .timeBased().everyDays(1).atHour(23).create();
+  Logger.log('[NewsAPI] Daily trigger created (11pm). Priority-based selection of up to ' + NEWS_CONFIG.BATCH_SIZE + ' queries.');
+}
+
+function removeNewsTrigger() {
+  var removed = 0;
+  ScriptApp.getProjectTriggers().forEach(function(t) {
+    if (t.getHandlerFunction() === 'runNewsAPI') { ScriptApp.deleteTrigger(t); removed++; }
+  });
+  Logger.log('[NewsAPI] Removed ' + removed + ' trigger(s).');
+}
+
+/**
+ * resetBatchIndex() — no-op en v6.
+ * Mantenido por compatibilidad con v5. El priority scheduling no usa batch_index.
+ */
+function resetBatchIndex() {
+  Logger.log('[NewsAPI] v6: resetBatchIndex() es no-op. El priority scheduling no necesita batch index.');
+}
+
+// =============================================================================
+// INTERNAL HELPERS
+// =============================================================================
+
+function _news_getKnownUrls(sheetApi) {
+  var known = new Set();
+
+  try {
+    var resp = UrlFetchApp.fetch(sheetApi + '?action=getUrls', { muteHttpExceptions: true });
+    if (resp.getResponseCode() === 200) {
+      var data = JSON.parse(resp.getContentText());
+      (data.urls || []).forEach(function(u) { if (u) known.add(String(u)); });
+    }
+  } catch(e) { Logger.log('[NewsAPI] getUrls err: ' + e.message); }
+
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  ['AcademicQueue', NEWS_CONFIG.RESULTS_TAB].forEach(function(tabName) {
+    try {
+      var sheet = ss.getSheetByName(tabName);
+      if (!sheet || sheet.getLastRow() < 2) return;
+      var vals = sheet.getRange(2, 2, sheet.getLastRow() - 1, 1).getValues();
+      vals.forEach(function(row) { if (row[0]) known.add(String(row[0])); });
+    } catch(e) { Logger.log('[NewsAPI] dedup err (' + tabName + '): ' + e.message); }
+  });
+
+  return known;
+}
+
+function _news_getActiveQueries(sheetApi) {
+  try {
+    var resp = UrlFetchApp.fetch(sheetApi + '?action=getQueries', { muteHttpExceptions: true });
+    if (resp.getResponseCode() !== 200) return [];
+    var all = JSON.parse(resp.getContentText()).queries || [];
+    return all.filter(function(q) {
+      return q.active === 'yes' && (q.q_news || '').trim() !== '';
+    });
+  } catch(e) { Logger.log('[NewsAPI] getQueries err: ' + e.message); return []; }
+}
+
+function _news_getLastScan(sheetApi) {
+  try {
+    var resp = UrlFetchApp.fetch(sheetApi + '?action=getMeta', { muteHttpExceptions: true });
+    if (resp.getResponseCode() !== 200) return null;
+    return (JSON.parse(resp.getContentText()) || {}).last_news_scan || null;
+  } catch(e) { return null; }
+}
+
+function _news_updateLastScan(sheetApi) {
+  try {
+    UrlFetchApp.fetch(sheetApi, {
+      method:             'post',
+      headers:            { 'Content-Type': 'application/json' },
+      payload:            JSON.stringify({ action: 'updateMeta', meta: { last_news_scan: new Date().toISOString() } }),
+      muteHttpExceptions: true
+    });
+  } catch(e) { Logger.log('[NewsAPI] updateMeta err: ' + e.message); }
+}
+
+function _news_ensureResultsTab() {
+  var ss    = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName(NEWS_CONFIG.RESULTS_TAB);
+  if (!sheet) {
+    sheet = ss.insertSheet(NEWS_CONFIG.RESULTS_TAB);
+  }
+  var header = sheet.getRange(1, 1, 1, NEWS_CONFIG.RESULTS_COLUMNS.length).getValues()[0];
+  if (header[0] !== 'id') {
+    sheet.getRange(1, 1, 1, NEWS_CONFIG.RESULTS_COLUMNS.length)
+      .setValues([NEWS_CONFIG.RESULTS_COLUMNS]).setFontWeight('bold').setBackground('#d9ead3');
+    sheet.setFrozenRows(1);
+  }
+  return sheet;
+}
+
+function _news_writeToResultsTab(rows) {
+  var sheet  = _news_ensureResultsTab();
+  var values = rows.map(function(r) {
+    return NEWS_CONFIG.RESULTS_COLUMNS.map(function(col) { return r[col] !== undefined ? r[col] : ''; });
+  });
+  sheet.getRange(sheet.getLastRow() + 1, 1, values.length, NEWS_CONFIG.RESULTS_COLUMNS.length).setValues(values);
+}
+
+function _news_extractDomain(url) {
+  try { var m = url.match(/^https?:\/\/([^\/]+)/); return m ? m[1].replace(/^www\./, '') : ''; }
+  catch(e) { return ''; }
+}
+
+function _news_makeId(url) {
+  return Utilities.base64Encode(url).replace(/[^a-zA-Z0-9]/g, '').substring(0, 16);
+}
+
+function _fmtDate(d) {
+  return d.toISOString().split('T')[0];
+}

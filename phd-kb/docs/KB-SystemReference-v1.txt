@@ -1,0 +1,678 @@
+# KB System Reference v1
+**Proyecto:** Thesis Knowledge Base (Apps Script + Claude SKILL)
+**Sheet ID:** `1EpWyDv-EaRBttRxRGMFJuOfqUmnjlJtpl3zZu2w2muI`
+**Script ID:** `19CE8dj2-1FcFNrHczcKC79xA5KGn9o1fHaa1skp4R3SYZ60ScQszSufo`
+**SHEET_API:** `https://script.google.com/macros/s/AKfycbzk2vhu-qcKFBPqEImKGEZKSitpVZv1IQQEv5ZzG7pNfo-iPUWfvSoLWWnkoc8d8PQQ/exec`
+**Deployment activo:** Thesis_Monitor v28 — 7 Mar 2026, 5:44 PM
+**Última actualización:** 8 Mar 2026
+**GitHub (index.html):** https://github.com/aauml/thesis | **GitHub Pages:** https://aauml.github.io/thesis/
+
+---
+
+## Arquitectura General — TRES PIPELINES
+
+El sistema tiene **tres pipelines independientes** que alimentan el mismo Google Sheet:
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│                        GOOGLE SHEET                                 │
+│                                                                     │
+│  ┌──────────────┐  ┌───────────────┐  ┌────────────────────┐       │
+│  │ NewsLog      │  │ AcademicQueue │  │ NewsResults        │       │
+│  │ 1,041 entries│  │ Papers crudos │  │ Noticias crudas    │       │
+│  │ KB CURADO    │  │ sin evaluar   │  │ sin evaluar        │       │
+│  └──────┬───────┘  └──────┬────────┘  └──────┬─────────────┘       │
+│         │                 │                   │                     │
+│  ┌──────┴───────┐  ┌──────┴────────┐  ┌──────┴─────────────┐       │
+│  │ Queries      │  │ Queries       │  │ Queries            │       │
+│  │ (q_fullweb)  │  │ (q_openalex…) │  │ (q_news)           │       │
+│  └──────┬───────┘  └──────┬────────┘  └──────┬─────────────┘       │
+│         │                 │                   │                     │
+│  ┌──────┴───────┐  ┌──────┴────────┐  ┌──────┴─────────────┐       │
+│  │ Meta         │  │ Meta          │  │ Meta               │       │
+│  │ (timestamps) │  │ (timestamps)  │  │ (timestamps)       │       │
+│  └──────────────┘  └───────────────┘  └────────────────────┘       │
+└─────────────────────────────────────────────────────────────────────┘
+         ▲                   ▲                   ▲
+         │                   │                   │
+
+  PIPELINE 1             PIPELINE 2          PIPELINE 3
+  ─────────              ──────────          ──────────
+  SKILL (Claude)         ACADÉMICO           NOTICIAS
+  ─────────              ──────────          ──────────
+  Trigger: usuario       Trigger: cron       Trigger: cron
+  dice "news" o "nd"     runIncrementalScan  runNewsAPI
+                         startDeepSweep      (lunes 6am)
+
+  Método:                Método:             Método:
+  Claude web_search      OpenAlex.gs         NewsAPI.org
+  + evaluación AI        SemanticScholar.gs  (newsapi.org/v2)
+  + 3-párrafo análisis   ArXiv.gs
+                         CORE.gs
+
+  Acceso al Sheet:       Acceso al Sheet:    Acceso al Sheet:
+  SHEET_API (web app)    SpreadsheetApp      SpreadsheetApp
+  via HTTP/curl          (directo)           (directo)
+
+  Output:                Output:             Output:
+  → NewsLog             → AcademicQueue     → NewsResults
+    (curado, evaluado)    (papers crudos)     (noticias crudas)
+```
+
+**NewsLog es la pestaña más importante del sistema.** Es el Knowledge Base curado de la tesis: 1,041 entradas, cada una con análisis de relevancia de 3 párrafos, clasificación por capa, importancia, y criterios evaluativos. Los otros dos pipelines (académico y noticias) producen resultados crudos que eventualmente se revisan y, si son relevantes, se promueven a NewsLog.
+
+---
+
+## index.html — Knowledge Base Webapp
+
+**Repositorio:** https://github.com/aauml/thesis
+**URL pública:** https://aauml.github.io/thesis/
+**Deploy:** Automático — cada push a `main` actualiza GitHub Pages en ~1-2 min.
+
+### Arquitectura
+
+```
+GitHub Pages (index.html)
+       │
+       │  fetch() — CORS OK (access-control-allow-origin: *)
+       ▼
+Apps Script Web App (WebApp.gs, deployment v28)
+       │
+       ▼
+Google Sheet → pestaña NewsLog
+```
+
+Es un archivo HTML/CSS/JS autocontenido sin dependencias externas ni build process. Carga **todos los datos de una vez** (`limit=2000&offset=0`), los cachea en `_cache`, y hace todo el filtrado, ordenamiento y paginación en el browser (client-side). Esto es necesario porque el API tiene limitaciones importantes (ver tabla abajo).
+
+### Limitaciones del API — verificadas con curl (2026-03-08)
+
+| Parámetro | Server-side | Notas |
+|---|---|---|
+| `limit` | ✅ | Funciona. Máx testeado: 2000 (devuelve todos los rows) |
+| `offset` | ✅ | Funciona para paginación |
+| `importance` | ✅ parcial | Filtra rows correctamente pero `total` **siempre devuelve 1041** (total global, nunca filtrado) |
+| `capa` | ✅ parcial | Igual — filtra rows pero `total` no refleja el filtro |
+| `search` | ❌ | Ignorado. Se hace client-side |
+| `sort` | ❌ | Ignorado. Se hace client-side |
+| `capa_detail` | ❌ | Ignorado. Se hace client-side |
+| `callback` (JSONP) | ❌ | API devuelve JSON plano; ignorar parámetro `callback`. Usar `fetch()` |
+
+**Formato de respuesta:** `{ "rows": [...], "total": 1041 }` — no incluye `total_pages`, `has_next`, `has_prev`, ni `stats`.
+
+**Valores de campos a tener en cuenta:**
+- `starred`: el Sheet devuelve el **entero** `1`, no el string `"1"`. Comparar con `==` (loose equality).
+- `capa`: inconsistencia de acentos en ~22 entradas (ver GAP 2 abajo). La webapp usa `normStr()` para comparación accent-insensitive.
+
+### Funciones principales
+
+| Función | Qué hace |
+|---|---|
+| `loadAllRows()` | Fetch una vez, cachea en `_cache`. Calcula stats de importancia. |
+| `fetchData()` | `loadAllRows()` → filter → sort → paginate → render. Todo client-side. |
+| `normStr(s)` | Normaliza acentos para comparaciones robustas (maneja Teorica/Teórica). |
+| `refresh()` | Borra `_cache`, llama `fetchData()`. Fuerza re-fetch del Sheet. |
+| `toggleStar()` | Escribe via `action=updateByUrl` (GET). Actualiza `_cache` y `state.rows` inmediatamente. |
+
+### Historial de bugs y fixes
+
+| Fecha | Bug | Causa | Fix |
+|---|---|---|---|
+| 2026-03-07 | Sin datos — "Loading…" indefinido | `buildUrl()` usaba `action=getPage`, que no existe en WebApp.gs v28 | Cambiar a `action=getAll` con `offset=(page-1)*limit` |
+| 2026-03-07 | Sin datos con `action=getAll` | Webapp usaba JSONP (`<script>&callback=_cb_xyz`). API ignora `callback`, devuelve JSON plano. Browser ejecutaba `{"rows":...}` como JS → SyntaxError silencioso | Reemplazar `jsonp()` con `fetch()`. API tiene CORS habilitado (redirect 302→200, ambas respuestas con `access-control-allow-origin: *`) |
+| 2026-03-08 | Filtros no funcionan, total siempre 1041, starred vacío | API siempre devuelve `total: 1041`; `search`/`sort`/`capa_detail` ignorados server-side; `starred` es int `1` no string `"1"`; filtro starred solo escaneaba 50 rows de la página actual | Cargar todos los datos (`limit=2000`), cachear, filtrar/ordenar/paginar todo client-side. Comparación starred con `==`. |
+
+### Modificar la webapp
+
+- **Agregar filtro nuevo:** añadir UI en HTML + filtro en `fetchData()` sección "── Filter ──" + reset en `clearAllFilters()` y `updateClearBtn()`
+- **Nueva columna del NewsLog:** el API la devuelve automáticamente; acceder via `item.nombre_campo` en `renderCard()`
+- **Agregar subcapas:** modificar `SUBCAPA_OPTIONS` (keys: `all`, `teorica`, `analitica`, `evaluativa`, `metodologica`)
+- **Items por página:** cambiar constante `PAGE_LIMIT` (actualmente 50)
+- **Si el Apps Script cambia:** actualizar `API_URL`; verificar que devuelva `{ rows: [...], total: N }` con CORS headers
+
+---
+
+## Apps Script — Archivos
+
+### `appsscript.json` — Manifiesto del proyecto
+**Para qué sirve:** Configuración base del proyecto. Define el runtime, permisos OAuth, y zona horaria.
+
+**Campos importantes:**
+- `timeZone`: `America/Los_Angeles`
+- `runtimeVersion`: `V8` (JavaScript moderno)
+- `oauthScopes`: `spreadsheets` + `external_request`
+- `webapp.access`: `ANYONE_ANONYMOUS` — necesario para que el SKILL pueda llamar a la SHEET_API desde fuera
+
+**Cuándo modificar:** Solo si se agregan scopes nuevos (Drive, Gmail, etc.) o cambia la zona horaria.
+
+**Troubleshooting:** Si el script pide reautorizar, probablemente se modificó un scope aquí.
+
+---
+
+### `AcademicOrchestrator.gs` — Orquestador académico
+
+**Función única: pipeline académico.** Lee las queries de la pestaña Queries, las distribuye entre los 4 proveedores académicos, guarda los resultados en AcademicQueue, y maneja el sistema de batches con triggers automáticos.
+
+> **Nota:** La API del web app (doGet/doPost) ya NO está en AcademicOrchestrator.gs — está en `WebApp.gs` (ver sección siguiente). Si necesitas agregar acciones a la SHEET_API, edita WebApp.gs.
+
+**Objeto CONFIG:**
+
+| Parámetro | Valor | Para qué |
+|---|---|---|
+| `RESULTS_PER_QUERY` | 3 | Papers máximos por query por proveedor |
+| `BATCH_SIZE` | 15 | Queries procesadas por ejecución |
+| `BATCH_GAP_MS` | 70,000 ms | Espera entre batches (evita timeout de Apps Script) |
+| `QUERY_TYPES` | `['scholar', 'topic']` | Tipos de query que procesa |
+| `QUEUE_TAB` | `'AcademicQueue'` | Pestaña donde escribe |
+
+**Funciones del orquestador:**
+- `runIncrementalScan()` — Entry point del trigger regular. Procesa el siguiente batch.
+- `startDeepSweep()` — Barrido histórico desde 2020. Resetea sweep_index.
+- `_cleanBatchTriggers()` — Limpia triggers acumulados.
+
+**Proveedores mapeados:**
+- `q_openalex` → `searchOpenAlex()` en OpenAlex.gs
+- `q_semantic` → `searchSemanticScholar()` en SemanticScholar.gs
+- `q_arxiv` → `searchArXiv()` en ArXiv.gs
+- `q_core` → `searchCORE()` en CORE.gs
+
+**Cuándo modificar:**
+- Cambiar el tamaño del batch académico: editar CONFIG
+- Agregar un proveedor académico: entrada en PROVIDERS + nuevo .gs en **AcademicOrchestrator.gs**
+
+**Troubleshooting:**
+- "too many triggers": correr `_cleanBatchTriggers()`
+- Scan se detiene: revisar `sweep_index` en Script Properties
+
+---
+
+### `WebApp.gs` — API del web app (SHEET_API) ✅ NUEVO en v28
+
+**Para qué sirve:** Contiene las funciones `doGet()` y `doPost()` que exponen la SHEET_API. Cuando el SKILL corre `curl` contra la URL del deployment, es WebApp.gs quien procesa la petición.
+
+**Historial:** Esta lógica existía en versiones antiguas de AcademicOrchestrator.gs (hasta v27). Fue reconstruida en un archivo separado WebApp.gs y desplegada como v28 el 7 Mar 2026.
+
+**Acciones GET (doGet):**
+
+| Action | Lee | Descripción |
+|---|---|---|
+| `getMeta` | Meta | Timestamps y metadatos del sistema |
+| `getAll` | NewsLog | Todas las entradas (soporta filtros: `importance`, `folder`, `action_tag`, `limit`) |
+| `getUrls` | NewsLog | Solo URLs — para deduplicación rápida |
+| `getQueries` | Queries | Queries activas (filtra por `active=yes`) |
+| `getNewsResults` | NewsResults | Resultados crudos del pipeline de noticias (soporta `status`, `limit`) |
+
+**Acciones POST (doPost):**
+
+| Action | Escribe | Descripción |
+|---|---|---|
+| `append` | NewsLog | Agrega filas nuevas (dedup por URL) |
+| `updateRow` | NewsLog | Actualiza campos de una fila existente (por `id`) |
+| `updateMeta` | Meta | Actualiza timestamps y contadores |
+| `updateNewsRow` | NewsResults | Actualiza `status` y `notes` de un resultado de noticias |
+
+**Cuándo modificar:**
+- Agregar una nueva acción a la SHEET_API: agregar case en doGet o doPost
+- Si se cambian columnas en NewsLog: actualizar la lógica de `append` y `getAll`
+- Si se cambian columnas en NewsResults: actualizar `getNewsResults` y `updateNewsRow`
+
+**IMPORTANTE:** Cada vez que se modifica WebApp.gs, hay que **redesplegar** el web app para que los cambios se reflejen en la SHEET_API. Ir a Deploy → Manage deployments → editar → New version → Deploy.
+
+**Troubleshooting:**
+- SKILL da error de API: verificar que el deployment esté activo (Deploy → Manage deployments). Deployment activo: v28
+- API devuelve HTML en lugar de JSON: el deployment no está actualizado — redesplegar
+- "Unknown action": la acción no está implementada en doGet/doPost de WebApp.gs
+
+---
+
+### `OpenAlex.gs` — Proveedor OpenAlex
+**Pipeline:** Académico (llamado por AcademicOrchestrator.gs)
+**API:** `https://api.openalex.org/works`
+**Clave:** No requiere (gratuita, abierta)
+**Rate limit:** Usa `mailto: thesis-scanner@academic.local` como cortesía
+
+**Campos que devuelve (formato estandarizado):**
+- `url`: landing page (con fallback a URL de OpenAlex)
+- `title`, `authors` (primeros 3), `year`, `abstract` (reconstruido desde inverted index)
+- `source_api`: `'OpenAlex'`
+
+**Cuándo modificar:**
+- Más de 3 autores: cambiar `.slice(0,3)`
+- Más campos (DOI, venue, citations): agregar al `select` y al objeto de retorno
+
+**Troubleshooting:**
+- HTTP 429: rate limit. Agregar `Utilities.sleep()`.
+- Abstract vacío: normal, no todos los papers tienen abstract.
+
+---
+
+### `SemanticScholar.gs` — Proveedor Semantic Scholar
+**Pipeline:** Académico (llamado por AcademicOrchestrator.gs)
+**API:** `https://api.semanticscholar.org/graph/v1/paper/search`
+**Clave:** No requiere para uso básico. Fuerte en AI, NLP, CS.
+
+**Cuándo modificar:** Filtrar por campo de estudio, ajustar rate limits.
+
+**Troubleshooting:** HTTP 429 — el más restrictivo de los 4 proveedores. Reducir RESULTS_PER_QUERY o agregar delays.
+
+---
+
+### `ArXiv.gs` — Proveedor ArXiv
+**Pipeline:** Académico (llamado por AcademicOrchestrator.gs)
+**API:** `http://export.arxiv.org/api/query` (Atom XML, no JSON)
+**Clave:** No requiere. Totalmente abierta.
+
+**Cuándo modificar:** Filtrar por categoría (`cat:cs.AI`), ajustar rango de fechas.
+
+**Troubleshooting:** Resultados con lag, errores de parsing XML silenciosos.
+
+---
+
+### `CORE.gs` — Proveedor CORE
+**Pipeline:** Académico (llamado por AcademicOrchestrator.gs)
+**API:** `https://api.core.ac.uk/v3/search/works`
+**Clave:** Funciona sin clave (límites reducidos). Se puede agregar `CORE_API_KEY` en Script Properties para mayor cuota.
+**Fuerte en:** Papers de universidades europeas, policy documents.
+
+**Troubleshooting:** Más lento e inconsistente que los otros. Si da timeout frecuente, desactivar o reducir cuota.
+
+---
+
+### `Setup.gs` — Funciones de mantenimiento
+**Pipeline:** Ninguno — se ejecuta manualmente desde el editor.
+**Para qué sirve:** Inicialización de pestañas, reseteo de contadores/propiedades, funciones de diagnóstico, limpieza de datos.
+
+**Cuándo usar:** Cambios estructurales al Sheet, reseteo de estado, migración de datos.
+
+---
+
+### `NewsSearch.gs` — Proveedor NewsAPI
+**Pipeline:** Noticias (independiente)
+**API:** `https://newsapi.org/v2/everything`
+**Clave:** `NEWS_API_KEY` en Script Properties
+**Plan:** Free dev tier — 100 req/día, solo server-to-server
+**Trigger:** Lunes 6am, biweekly
+**Output:** Pestaña NewsResults
+
+**Funciones:**
+
+| Función | Qué hace |
+|---|---|
+| `runNewsAPI()` | Entry point del trigger. Lee `q_news`, llama API, escribe resultados. |
+| `searchNewsAPI(term)` | Una llamada a NewsAPI con el término dado. |
+| `quickTestNewsAPI()` | Test manual para verificar API key. |
+| `setupNewsTrigger()` | Crea trigger biweekly lunes 6am. Correr una vez. |
+| `removeNewsTrigger()` | Elimina trigger. Para pausar monitoring. |
+| `_news_getKnownUrls()` | Set de URLs conocidas (dedup). Lee AcademicQueue + NewsResults. |
+| `_news_getActiveQueries()` | Queries con `q_news` no vacío. |
+| `_news_updateLastScan()` | Timestamp → Meta → `last_news_scan`. |
+| `_news_ensureResultsTab()` | Crea pestaña NewsResults si no existe. |
+| `_news_writeToResultsTab()` | Escribe artículos nuevos en NewsResults. |
+| `_news_extractDomain()` | Extrae dominio de URL. |
+| `_news_makeId()` | Genera ID único por artículo. |
+
+**Cuándo modificar:**
+- Agregar queries: solo poblar `q_news` en pestaña Queries (no tocar código)
+- Cambiar frecuencia: `removeNewsTrigger()` + `setupNewsTrigger()` con nuevo intervalo
+- Límite 100 req/día superado: upgrade en newsapi.org
+
+**Troubleshooting:**
+- `NEWS_API_KEY not set`: Script Properties → agregar clave
+- 0 resultados: query demasiado específica o en español
+- HTTP 426: no correr desde browser, solo desde Apps Script
+
+---
+
+## Google Sheet — Pestañas
+
+### ★ `NewsLog` — Knowledge Base curado de la tesis (PESTAÑA PRINCIPAL)
+**Estado:** Activa — **es la pestaña más importante del sistema**
+**Entradas:** 1,041
+**Escrita por:** Pipeline 1 (SKILL de Claude, via SHEET_API `action=append`)
+**Leída por:** SKILL via `getAll`, `getUrls`, `updateRow`, `updateByUrl`, `deleteRow`
+
+**Qué es:** La base de conocimiento curada de la tesis. Cada entrada es un recurso (artículo, paper, ruling, video, etc.) que fue encontrado por el SKILL mediante web search, evaluado por Claude con criterios de relevancia, importancia y clasificación por capas de la tesis, y almacenado con un análisis de 3 párrafos en el estilo de Gregory C. Allen.
+
+**Columnas (21):**
+
+| Col | Campo | Descripción |
+|---|---|---|
+| A | `id` | ID único (base64 de URL, primeros 16 chars) |
+| B | `url` | URL del recurso |
+| C | `title` | Título |
+| D | `source` | Fuente con fecha (ej: "Internet Policy Review (Ben Crum, Aug 2025)") |
+| E | `date_published` | Fecha de publicación del recurso |
+| F | `date_found` | Cuándo lo encontró el SKILL |
+| G | `content_type` | Tipo: `paper`, `article`, `report`, `blog`, `podcast`, `video`, `event`, `court_ruling`, `regulation`, `guidance`, `presentation`, `news`, `transcript`, `book`, `chapter`, `handbook` |
+| H | `importance` | `ALTA` / `MEDIA` / `BAJA` — calibración: 1-3 ALTA, 5-10 MEDIA por scan |
+| I | `capa` | Capa(s) de la tesis: `Teórica`, `Analítica`, `Evaluativa`, `Metodológica`, `Caso` |
+| J | `capa_detail` | Detalle: ej. "Gobernanza IA comparada, Art. 9 ↔ MAP/MEASURE" |
+| K | `evaluativa_criteria` | Criterios evaluativos: `Contestabilidad`, `Accountability`, `Equidad`, `Explicabilidad` |
+| L | `action_tag` | `REFERENCE` (citable), `CONTEXT` (informa), `FOLLOW-UP` (monitorear), `URGENT` (inmediato) |
+| M | `thesis_relevance` | **Campo más importante.** 3 párrafos: Contexto → Artículo → Tesis. Estilo Gregory Allen. Nunca truncar. |
+| N | `scholar` | Nombre del scholar si aplica |
+| O | `search_scope` | Qué búsqueda lo encontró (ej: "full scan", "nd: forensic") |
+| P | `language` | `en`, `es`, etc. |
+| Q | `run_id` | ID del scan: formato `YYYY-MM-DD-NNN` |
+| R | `tier` | Confiabilidad: `1` = oficial/gobierno, `2` = académico/experto, `3` = general |
+| S | `folder` | Organización manual: `01_Marco_Teorico`, `02_Metodologia`, `03_Corpus_Juridico`, `04_Estado_del_Arte` |
+| T | `notes` | Notas adicionales |
+| U | `starred` | Marcado manual |
+
+**Relación con las capas de la tesis:**
+
+La columna `capa` conecta cada entrada con la estructura de la tesis:
+
+| Capa | Subcategorías en `capa_detail` |
+|---|---|
+| **Teórica** | Gobernanza IA comparada, Metodología derecho comparado, Derecho procesal y prueba electrónica, Contestabilidad algorítmica |
+| **Analítica** | Art. 9 ↔ MAP/MEASURE, Art. 10 ↔ MAP/GOVERN, Art. 11 ↔ GOVERN, Art. 12 ↔ MEASURE, Art. 13 ↔ GOVERN/MAP, Art. 14 ↔ GOVERN/MANAGE, Art. 15 ↔ MEASURE/MANAGE |
+| **Evaluativa** | Contestabilidad, Accountability, Equidad, Explicabilidad |
+| **Metodológica** | Metodología de derecho comparado, marcos analíticos, diseño de investigación |
+| **Caso** | Estudios de caso, implementaciones concretas, casos forenses, ejemplos jurisdiccionales |
+
+**Cuándo modificar manualmente:**
+- Cambiar `importance` después de leer el recurso
+- Agregar `notes` con reflexiones
+- Marcar `starred` para items prioritarios
+- Mover a un `folder` temático
+- Cambiar `action_tag` de FOLLOW-UP a REFERENCE si se decide citar
+
+**Troubleshooting:**
+- Si el SKILL no puede escribir: verificar que el deployment del web app esté activo (WebApp.gs, actualmente v28)
+- Si hay duplicados: la API deduplica por URL, pero el `id` también ayuda
+- Para buscar en el KB: usar el SKILL con "what did we find about [topic]?" o `action=getAll` via curl
+
+---
+
+### ✅ `Queries` — Registro de queries (TABLA MAESTRA)
+**Estado:** Activa — controla los tres pipelines
+**Entradas:** 115 queries
+**Escrita por:** SKILL via `addQuery` / `updateQuery`, y manualmente
+**Leída por:** Los tres pipelines
+
+**Columnas (19):**
+
+| Col | Campo | Descripción | Usado por |
+|---|---|---|---|
+| A | `id` | ID auto-asignado (ej: Q001) | Todos |
+| B | `type` | `topic`, `scholar`, `government`, `media`, `podcast` | SKILL |
+| C | `name` | Nombre legible | Todos |
+| D | `query` | Término de búsqueda general | SKILL |
+| E | `date_filter` | Rango de fechas (ej: "2025 2026") | SKILL |
+| F | `active` | `yes`/`no` | Todos |
+| G | `hist_sweep` | `pending`, `done`, `no` | Académico |
+| H | `notes` | Notas sobre la query | Referencia |
+| I | `added` | Fecha de creación | Referencia |
+| J | (vacío) | Columna sin header — posible campo legacy | — |
+| K | `tier` | `1`=oficial, `2`=académico, `3`=general | SKILL |
+| L | `frequency` | `monthly`, `weekly`, `biweekly` | Referencia |
+| M | `next_run` | Próxima ejecución | Referencia |
+| N | `q_openalex` | Término para OpenAlex | Académico |
+| O | `q_semantic` | Término para Semantic Scholar | Académico |
+| P | `q_arxiv` | Término para ArXiv | Académico |
+| Q | `q_core` | Término para CORE | Académico |
+| R | `q_fullweb` | Término para web search (SKILL) | SKILL |
+| S | `q_news` | Término para NewsAPI | Noticias |
+
+**Nota:** Columna J no tiene header. Verificar si es un campo perdido o legacy.
+
+**Reglas del SKILL para queries:**
+- `addQuery`: siempre incluir todos los campos (`type`, `name`, `query`, `date_filter`, `active`, `hist_sweep`, `notes`, `added`, `tier`, `frequency`, `q_openalex`, `q_semantic`, `q_arxiv`, `q_core`, `q_fullweb`, `q_news`)
+- Para scholars: llenar los 5 campos `q_*` incluyendo `q_news`
+- Para government: dejar `q_openalex`, `q_arxiv`, `q_core` vacíos
+- `updateQuery` para editar queries (NO `updateRow`, que es para NewsLog)
+
+---
+
+### ✅ `AcademicQueue` — Cola de papers académicos (RAW)
+**Estado:** Activa — output del pipeline académico
+**Escrita por:** Pipeline 2 (AcademicOrchestrator.gs → proveedores académicos)
+
+**Columnas (12):**
+
+| Col | Campo | Descripción |
+|---|---|---|
+| A | `id` | ID del paper |
+| B | `url` | URL (DOI o landing page) |
+| C | `title` | Título |
+| D | `authors` | Primeros 3 autores |
+| E | `year` | Año de publicación |
+| F | `abstract` | Resumen |
+| G | `source_api` | OpenAlex, SemanticScholar, ArXiv, CORE |
+| H | `query_id` | ID de la query origen |
+| I | `query_name` | Nombre de la query |
+| J | `date_found` | Cuándo se encontró |
+| K | `status` | `pending`, `reviewed`, `relevant`, `discarded` |
+| L | `notes` | Notas de revisión |
+
+**Relación con NewsLog:** Los papers que tras revisión manual son relevantes pueden ser promovidos a NewsLog (vía el SKILL o manualmente) con evaluación completa de capas, importancia y thesis_relevance.
+
+---
+
+### ✅ `NewsResults` — Resultados de noticias (RAW)
+**Estado:** Activa — output del pipeline de noticias (NewsSearch.gs)
+**Escrita por:** Pipeline 3 (NewsSearch.gs → NewsAPI)
+
+**Columnas (13):**
+
+| Col | Campo | Descripción |
+|---|---|---|
+| A | `id` | ID del artículo |
+| B | `url` | URL |
+| C | `title` | Titular |
+| D | `snippet` | Extracto/descripción |
+| E | `source_domain` | Dominio (ej: reuters.com) |
+| F | `news_rank` | Posición en resultados |
+| G | `date_found` | Cuándo se encontró |
+| H | `query_used` | Término usado en NewsAPI |
+| I | `q_id` | ID query origen |
+| J | `q_name` | Nombre query origen |
+| K | `run_id` | ID del run |
+| L | `status` | `pending`, `reviewed`, `relevant`, `discarded` |
+| M | `notes` | Notas |
+
+**Relación con NewsLog:** Similar a AcademicQueue — los artículos de noticias que sean relevantes tras revisión pueden promoverse a NewsLog con evaluación completa. También sirve como fuente de dedup para NewsSearch.gs (evita re-encontrar las mismas noticias).
+
+**API:** Accesible via `getNewsResults` (GET) y `updateNewsRow` (POST) en WebApp.gs.
+
+---
+
+### ✅ `Meta` — Metadatos del sistema
+**Estado:** Activa — usada por los tres pipelines
+
+**Campos actuales:**
+
+| Key | Valor actual | Escrito por | Descripción |
+|---|---|---|---|
+| `last_search_date` | 2026-03-04 | SKILL (`updateMeta`) | Último scan del SKILL |
+| `total_searches` | 203 | SKILL (`updateMeta`) | Contador de scans del SKILL |
+| `last_acad_scan` | 2026-03-07 | AcademicOrchestrator.gs | Último scan académico |
+| `last_news_scan` | 2026-03-08 | NewsSearch.gs | Último scan NewsAPI |
+| `test_ping` | 2026-03-07 | Setup.gs | Test de conectividad |
+| `last_google_scan` | 2026-03-07 | ⚠️ **OBSOLETO** — era GoogleSearch.gs (ahora NewsSearch.gs). Renombrar o eliminar. |
+| `custom_queries` | `[]` | ⚠️ **NO USAR** — el SKILL dice explícitamente: "Never use Meta's custom_queries. Use Queries tab." |
+
+**Acciones recomendadas:**
+- Eliminar fila `last_google_scan` (reemplazada por `last_news_scan`)
+- Eliminar o ignorar `custom_queries` (legacy, el Queries tab es la fuente autoritativa)
+
+---
+
+### ⚠️ `StagingQueue` — Cola temporal (VACÍA)
+**Estado:** Vacía, sin headers
+**Diagnóstico:** Ningún script ni el SKILL interactúan con esta pestaña.
+**Acción recomendada:** **Eliminar.** No tiene función en el sistema actual.
+
+---
+
+## Flujo completo: cómo se conecta todo
+
+### Cuando el usuario dice "news" o "nd":
+
+```
+1. SKILL lee config.txt → obtiene SHEET_API URL
+2. curl SHEET_API?action=getMeta → obtiene last_search_date, total_searches
+3. curl SHEET_API?action=getUrls → obtiene 1,041 URLs para dedup
+4. curl SHEET_API?action=getQueries → obtiene 115 queries activas
+5. SKILL ejecuta web_search por cada query relevante
+6. Claude evalúa cada resultado: importancia, capa, thesis_relevance (3 párrafos)
+7. curl SHEET_API action=append → escribe filas nuevas en NewsLog
+8. curl SHEET_API action=updateMeta → actualiza last_search_date
+```
+
+### Cuando corre el trigger académico (runIncrementalScan):
+
+```
+1. AcademicOrchestrator.gs lee Queries tab (SpreadsheetApp directo)
+2. Toma siguiente batch de 15 queries con q_openalex, q_semantic, etc.
+3. Llama a cada proveedor (OpenAlex, SemanticScholar, ArXiv, CORE)
+4. Escribe papers nuevos en AcademicQueue
+5. Programa trigger para el siguiente batch
+```
+
+### Cuando corre el trigger NewsAPI (runNewsAPI):
+
+```
+1. NewsSearch.gs lee Queries tab → filas con q_news no vacío
+2. Para cada query: llama a newsapi.org/v2/everything
+3. Deduplica contra URLs conocidas (AcademicQueue + NewsResults)
+4. Escribe artículos nuevos en NewsResults
+5. Actualiza last_news_scan en Meta
+```
+
+### Cuando el SKILL usa "news api" (revisa NewsResults pendientes):
+
+```
+1. curl SHEET_API?action=getNewsResults&status=pending&limit=20
+2. Claude evalúa cada artículo: relevancia para la tesis
+3. Para artículos relevantes: evalúa capa, importancia, thesis_relevance
+4. curl SHEET_API action=append → promueve a NewsLog
+5. curl SHEET_API action=updateNewsRow → marca status=reviewed en NewsResults
+```
+
+---
+
+## Resumen de acciones recomendadas
+
+| Prioridad | Acción | Dónde |
+|---|---|---|
+| Alta | Poblar `q_news` para más queries (solo 1 de 115 tiene valor) | Queries tab |
+| Media | Eliminar fila `last_google_scan` | Meta tab |
+| Media | Eliminar fila `custom_queries` | Meta tab |
+| Baja | Eliminar pestaña `StagingQueue` | Sheet |
+| Baja | Verificar columna J vacía en Queries | Queries tab |
+
+---
+
+## Dónde modificar cada cosa
+
+| Si quieres... | Modifica esto |
+|---|---|
+| **Ver/usar el Knowledge Base** | Abrir https://aauml.github.io/thesis/ |
+| **Modificar la webapp (filtros, UI, etc.)** | Editar `index.html` en repo https://github.com/aauml/thesis — deploy automático al pushear |
+| **Agregar un topic/scholar nuevo** | SKILL: "add scholar [name]" o "add topic [desc]" → Queries tab via API |
+| **Cambiar término de búsqueda NewsAPI** | Columna `q_news` en pestaña **Queries** |
+| **Cambiar término de búsqueda académica** | Columnas `q_openalex`, `q_semantic`, `q_arxiv`, `q_core` en **Queries** |
+| **Cambiar término para web search del SKILL** | Columna `q_fullweb` en **Queries** |
+| **Cambiar clasificación de un resultado** | Editar directamente en **NewsLog** (importancia, capa, action_tag, etc.) |
+| **Cuántos papers académicos por query** | `RESULTS_PER_QUERY` en CONFIG de **AcademicOrchestrator.gs** |
+| **Cuántos artículos de news por query** | `RESULTS_PER_QUERY` en NEWS_CONFIG de **NewsSearch.gs** |
+| **Frecuencia del scan NewsAPI** | `removeNewsTrigger()` + `setupNewsTrigger()` en **NewsSearch.gs** |
+| **Pausar monitoring NewsAPI** | `removeNewsTrigger()` en **NewsSearch.gs** |
+| **Pausar un query** | `active` = `no` en **Queries** |
+| **Ver cuándo corrió cada pipeline** | Pestaña **Meta** (last_search_date, last_acad_scan, last_news_scan) |
+| **Ver logs de ejecución** | Apps Script → Ejecuciones (historial) |
+| **Cambiar clave NewsAPI** | Script Properties → `NEWS_API_KEY` |
+| **Agregar nuevo proveedor académico** | Nuevo .gs + entrada en PROVIDERS de **AcademicOrchestrator.gs** |
+| **Agregar acciones o columnas a la SHEET_API** | Modificar `doGet`/`doPost` en **WebApp.gs** + redesplegar |
+| **Redesplegar web app tras cambios** | Deploy → Manage deployments → editar → New version → Deploy (aplica a **WebApp.gs**) |
+| **Resetear sweep histórico** | `startDeepSweep()` en **AcademicOrchestrator.gs** |
+| **Buscar en el KB existente** | SKILL: "what did we find about [topic]?" |
+| **Ver dashboard del KB** | SKILL: "show archive" |
+| **Revisar resultados de NewsAPI pendientes** | SKILL: "news api" |
+
+---
+
+## Auditoría de coordinación (Marzo 2026)
+
+### Estadísticas actuales de NewsLog
+
+| Métrica | Valor |
+|---|---|
+| **Total entradas** | 1,041 |
+| **Columnas** | 21 |
+| **Importancia ALTA** | 350 (33.6%) |
+| **Importancia MEDIA** | 543 (52.2%) |
+| **Importancia BAJA** | 148 (14.2%) |
+
+**Distribución por capa:**
+- Teórica: 721 (+ 11 sin acento)
+- Analítica: 408 (+ 9 sin acento)
+- Evaluativa: 214
+- Metodológica: 80 (+ 2 sin acento)
+- Caso: 71
+
+**Distribución por content_type:**
+- book: 260, report: 252, article: 244, paper: 134, regulation: 49, guidance: 38, court_ruling: 17, news: 12, transcript: 12, podcast: 11, event: 3, presentation: 3, handbook: 3, blog: 2, chapter: 1
+
+---
+
+### Gaps de coordinación encontrados
+
+#### GAP 1: `q_news` casi vacío
+**Problema:** Solo 1 de 115 queries tiene `q_news` poblado ("EU AI Act — Implementation" → "EU AI Act NIST RMF"). Las otras 108 queries activas no están siendo monitoreadas por NewsAPI.
+**Impacto:** El pipeline de noticias (NewsSearch.gs) solo busca un término. Debería cubrir todos los topics activos.
+**Solución:** Poblar `q_news` para las queries activas. Para scholars usar `"Nombre Completo" AI`. Para topics usar el término en inglés. Para government/media adaptar al contexto de noticias.
+
+#### GAP 2: Capas con y sin acentos
+**Problema:** Existen entradas con "Teórica" (721) y "Teorica" (11), "Analítica" (408) y "Analitica" (9), "Metodológica" (80) y "Metodologica" (2). Hay inconsistencia de acentos.
+**Impacto:** Búsquedas y filtros por capa podrían perder entradas si filtran con/sin acento.
+**Solución:** Normalizar las 22 entradas sin acento. Usar `updateByUrl` o editar directamente en el Sheet. El SKILL usa siempre las versiones con acento — asegurarse de que futuros appends sean consistentes.
+
+#### ~~GAP 3: Capa "Caso" no documentada en el SKILL~~ ✅ RESUELTO en SKILL-KB-v4
+**Problema original:** 71 entradas tienen capa "Caso" pero el SKILL-KB-v3 solo documentaba tres capas: Teórica, Analítica, Evaluativa.
+**Resolución:** Capa "Caso" y "Metodológica" agregadas a SKILL-KB-v4 con definición y contexto de uso.
+
+#### ~~GAP 4: Content types no documentados~~ ✅ RESUELTO en SKILL-KB-v4
+**Problema original:** Los tipos `book` (260), `chapter` (1), y `handbook` (3) existían en NewsLog pero no estaban en la lista del SKILL.
+**Resolución:** `book`, `chapter`, `handbook` agregados a la lista de content_type válidos en SKILL-KB-v4.
+
+#### GAP 5: `last_google_scan` obsoleto en Meta
+**Problema:** La pestaña Meta tiene una fila `last_google_scan: 2026-03-07T21:08:28.645Z` que era del antiguo GoogleSearch.gs (renombrado a NewsSearch.gs). Ahora ese pipeline escribe a `last_news_scan`.
+**Impacto:** Confusión — parece que hay un cuarto pipeline "google" que ya no existe.
+**Solución:** Eliminar la fila `last_google_scan` de Meta.
+
+#### GAP 6: `custom_queries` legacy en Meta
+**Problema:** Meta tiene `custom_queries: []`. El SKILL dice explícitamente: "Never use Meta's custom_queries. Use Queries tab."
+**Impacto:** Sin impacto funcional (está vacío), pero genera confusión.
+**Solución:** Eliminar la fila `custom_queries` de Meta.
+
+#### GAP 7: Columna J sin header en Queries
+**Problema:** Entre `added` (col I) y `tier` (col K) hay una columna J sin header. La API la devuelve como `""`.
+**Impacto:** Podría causar desalineación si se agregan filas manualmente o si un script asume posición fija.
+**Solución:** Verificar qué debería ser. Si no tiene función, eliminar la columna. Si es un campo perdido, restaurar su header.
+
+#### ~~GAP 8: SKILL no incluía `q_news` en addQuery~~ ✅ RESUELTO en SKILL-KB-v4
+**Problema original:** SKILL-KB-v3 no mencionaba `q_news` en los campos requeridos de `addQuery`, ni en la lista de columnas de la Queries tab.
+**Resolución:** `q_news` agregado a campos requeridos de `addQuery` en SKILL-KB-v4, con regla: scholars → `"\"Nombre\" AI"`, topics → adaptar al contexto de noticias.
+
+#### GAP 9: `notes` siempre vacío en NewsLog
+**Problema:** La columna `notes` (col T) está vacía en las 1,041 entradas.
+**Impacto:** Ninguno funcional — el campo existe para notas manuales.
+**Observación:** No es un problema, solo una observación. El campo está disponible para uso manual.
+
+---
+
+### Resumen de acciones prioritarias
+
+| # | Prioridad | Acción | Esfuerzo | Estado |
+|---|---|---|---|---|
+| 1 | **ALTA** | Poblar `q_news` para queries activas | ~30 min manual en Sheet | Pendiente |
+| 2 | **ALTA** | ~~Actualizar SKILL para incluir `q_news`~~ | — | ✅ Resuelto (SKILL-KB-v4) |
+| 3 | **MEDIA** | Normalizar acentos en capa (22 entradas) | ~5 min en Sheet | Pendiente |
+| 4 | **MEDIA** | ~~Agregar capa "Caso" al SKILL~~ | — | ✅ Resuelto (SKILL-KB-v4) |
+| 5 | **MEDIA** | ~~Agregar `book`, `chapter`, `handbook` a content_types~~ | — | ✅ Resuelto (SKILL-KB-v4) |
+| 6 | **BAJA** | Eliminar `last_google_scan` de Meta | 1 min | Pendiente |
+| 7 | **BAJA** | Eliminar `custom_queries` de Meta | 1 min | Pendiente |
+| 8 | **BAJA** | Investigar/eliminar columna J vacía en Queries | 2 min | Pendiente |
+| 9 | **BAJA** | Eliminar pestaña StagingQueue | 1 min | Pendiente |

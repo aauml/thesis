@@ -1,0 +1,537 @@
+// =============================================================================
+// PerplexitySearch.gs v1 — Perplexity Sonar search pipeline
+//
+// API: https://api.perplexity.ai/chat/completions
+// Model: sonar (lightweight, web-grounded, cheap for bulk queries)
+// Key: PERPLEXITY_API_KEY in Script Properties
+// Output: PerplexityQueue tab (direct SpreadsheetApp write)
+// Query column: q_fullweb (in Queries tab)
+//
+// PURPOSE:
+//   Replaces Claude's bulk web_search for the q_fullweb query column.
+//   Runs all active q_fullweb queries through Perplexity Sonar, staging
+//   synthesized answers + citation URLs in PerplexityQueue for Claude to
+//   review via `update perplexity`. Claude's web_search role is now limited
+//   to targeted follow-ups (URGENT/FOLLOW-UP items, 5-10 searches max).
+//
+// ARCHITECTURE:
+//   Perplexity Sonar (search + synthesis) → PerplexityQueue (staging)
+//   Claude evaluates staged items          → NewsLog (curated KB)
+//   This mirrors the Academic and News pipelines:
+//     AcademicOrchestrator.gs → AcademicQueue → Claude (`update academic`)
+//     NewsSearch.gs           → NewsResults   → Claude (`update news`)
+//     PerplexitySearch.gs     → PerplexityQueue → Claude (`update perplexity`)
+//
+// EACH ROW IN PerplexityQueue:
+//   One row per query per run. Sonar returns a 2-3 sentence synthesis and
+//   a citations array. Claude reads the synthesis to gauge relevance, then
+//   picks the best citation URL(s) to promote to NewsLog.
+//
+// ENTRY POINTS:
+//   runPerplexitySearch()  — called by weekly trigger (processes one batch)
+//   runPerplexitySweep()   — manual: run all queries in one shot
+//   quickTestPerplexity()  — verify API key and connectivity
+//
+// TRIGGER MANAGEMENT:
+//   setupPerplexityTrigger()  — creates weekly trigger (Sunday 3am)
+//   removePerplexityTrigger() — deletes the trigger (to pause)
+//   resetPerplexityBatch()    — reset batch pointer to 0
+// =============================================================================
+
+var PPLX_CONFIG = {
+  QUEUE_TAB:    'PerplexityQueue',
+  QUEUE_COLS:   ['id', 'url', 'title', 'synthesis', 'citations', 'source_domain',
+                 'date_found', 'query_used', 'q_id', 'q_name', 'run_id',
+                 'status', 'notes', 'tokens_used'],
+
+  // BATCH SETTINGS
+  // Sonar has no strict daily request limit (unlike NewsAPI's 100/day).
+  // BATCH_SIZE=70 keeps each run safely under the Apps Script 6-minute limit.
+  // With ~115 queries: 2 runs to cover all (batch 1: 1-70, batch 2: 71-115).
+  // Raise to 90 only if average API response time drops below ~3 seconds.
+  BATCH_SIZE:   70,
+
+  // Flush rows to the sheet every N queries (don't lose work on crash/timeout)
+  FLUSH_EVERY:  15,
+
+  // Sleep between API calls (ms). 150ms is enough — Sonar itself takes
+  // 1-3 seconds per call, so total per query is ~1.5-3.5 seconds.
+  // Total for 70 queries: ~2-4 minutes, well within 6-minute limit.
+  SLEEP_MS:     150,
+
+  // Sonar model to use. Options:
+  //   sonar          — bulk monitoring (cheap, ~$1/M tokens, default)
+  //   sonar-pro      — targeted deep dives (better, ~$15/M output)
+  //   sonar-reasoning — complex analysis (most expensive, avoid for bulk)
+  MODEL:        'sonar',
+
+  // Max tokens in the Sonar response. 400 is enough for a 2-3 sentence
+  // synthesis. Keep low to control cost on bulk runs.
+  MAX_TOKENS:   400
+};
+
+// System prompt sent to Sonar with every query.
+// Instructs it to return a structured, citable, specific synthesis.
+var PPLX_SYSTEM_PROMPT = 'You are a research assistant monitoring regulatory and academic developments. '
+  + 'Provide a 2-3 sentence synthesis of the most significant and recent developments (2025-2026) on the given topic. '
+  + 'Be specific: include names, institutions, dates, and concrete findings. '
+  + 'Focus on regulatory updates, court decisions, academic publications, and official guidance. '
+  + 'Do not use filler phrases. Lead with the most important finding.';
+
+// =============================================================================
+// PUBLIC ENTRY POINTS
+// =============================================================================
+
+/**
+ * runPerplexitySearch() — called by weekly trigger.
+ * Processes ONE batch (PPLX_CONFIG.BATCH_SIZE queries), then advances pointer.
+ * With BATCH_SIZE=70 and ~115 queries, full coverage takes 2 consecutive runs.
+ * The weekly trigger runs both automatically across consecutive Sundays, or
+ * run manually back-to-back from the editor for an immediate full refresh.
+ */
+function runPerplexitySearch() {
+  _runPerplexity('incremental', false);
+}
+
+/**
+ * runPerplexitySweep() — manual entry point.
+ * Runs ALL active q_fullweb queries regardless of batch state.
+ * Use for a manual full refresh outside the scheduled trigger.
+ */
+function runPerplexitySweep() {
+  _runPerplexity('sweep', true);
+}
+
+/**
+ * quickTestPerplexity() — verify API key and connectivity.
+ * Run once from the GAS editor after setting PERPLEXITY_API_KEY.
+ */
+function quickTestPerplexity() {
+  var apiKey = PropertiesService.getScriptProperties().getProperty('PERPLEXITY_API_KEY');
+  if (!apiKey) {
+    Logger.log('[quickTest] PERPLEXITY_API_KEY not set. Go to Project Settings → Script Properties → add PERPLEXITY_API_KEY.');
+    return;
+  }
+  Logger.log('[quickTest] Calling Sonar with test query...');
+  var result = _callPerplexityAPI('"EU AI Act" AND "NIST AI RMF" interoperability 2025 2026', apiKey);
+  if (!result) {
+    Logger.log('[quickTest] API call failed. Check your key and try again.');
+    return;
+  }
+  Logger.log('[quickTest] SUCCESS');
+  Logger.log('[quickTest] Tokens used: ' + result.tokens);
+  Logger.log('[quickTest] Citations:   ' + result.citations.length);
+  Logger.log('[quickTest] Synthesis:');
+  Logger.log(result.synthesis);
+  Logger.log('[quickTest] First 3 citations:');
+  result.citations.slice(0, 3).forEach(function(url, i) {
+    Logger.log('  [' + (i + 1) + '] ' + url);
+  });
+}
+
+// =============================================================================
+// CORE LOGIC
+// =============================================================================
+
+function _runPerplexity(mode, ignoresBatch) {
+  var props    = PropertiesService.getScriptProperties();
+  var apiKey   = props.getProperty('PERPLEXITY_API_KEY');
+  var sheetApi = props.getProperty('SHEET_API');
+
+  if (!apiKey) {
+    Logger.log('[Perplexity] ERROR: PERPLEXITY_API_KEY not set in Script Properties.');
+    Logger.log('[Perplexity] Go to Project Settings → Script Properties → add PERPLEXITY_API_KEY.');
+    return;
+  }
+  if (!sheetApi) {
+    Logger.log('[Perplexity] ERROR: SHEET_API not set in Script Properties.');
+    return;
+  }
+
+  Logger.log('=== PerplexitySearch v1 START mode=' + mode
+    + (ignoresBatch ? ' (ALL — no batch limit)' : '') + ' ===');
+  Logger.log('Model: ' + PPLX_CONFIG.MODEL);
+
+  // ── Load active queries ──
+  var allQueries = _pplx_getActiveQueries(sheetApi);
+  Logger.log('Active queries with q_fullweb: ' + allQueries.length);
+  if (allQueries.length === 0) {
+    Logger.log('[Perplexity] No active queries have q_fullweb set. Nothing to do.');
+    return;
+  }
+
+  // ── Batch selection ──
+  var queries;
+  var cycleCompleted = ignoresBatch;
+
+  if (ignoresBatch) {
+    queries = allQueries;
+    Logger.log('Running ALL ' + queries.length + ' queries (batch override)');
+  } else {
+    var batchIndex   = parseInt(props.getProperty('pplx_batch_index') || '0', 10);
+    var totalBatches = Math.ceil(allQueries.length / PPLX_CONFIG.BATCH_SIZE);
+    if (batchIndex >= totalBatches) batchIndex = 0;
+
+    var start = batchIndex * PPLX_CONFIG.BATCH_SIZE;
+    var end   = Math.min(start + PPLX_CONFIG.BATCH_SIZE, allQueries.length);
+    queries   = allQueries.slice(start, end);
+
+    Logger.log('Batch ' + (batchIndex + 1) + '/' + totalBatches
+      + ' (queries ' + (start + 1) + '-' + end + ' of ' + allQueries.length + ')');
+
+    var nextBatch = (batchIndex + 1 >= totalBatches) ? 0 : batchIndex + 1;
+    props.setProperty('pplx_batch_index', String(nextBatch));
+    Logger.log('Next run will process batch ' + (nextBatch + 1));
+
+    cycleCompleted = (nextBatch === 0);
+  }
+
+  // ── Ensure tab exists ──
+  _pplx_ensureQueueTab();
+
+  // ── Process queries ──
+  var runDate     = _fmtDate(new Date());
+  var runId       = runDate + '-P' + (ignoresBatch ? 'S' : 'I');
+  var pendingRows = [];
+  var totalAdded  = 0;
+  var totalTokens = 0;
+  var hadError    = false;
+  var apiCalls    = 0;
+
+  for (var qi = 0; qi < queries.length; qi++) {
+    var q    = queries[qi];
+    var term = (q.q_fullweb || '').trim();
+    if (!term) continue;
+
+    Logger.log('[' + (qi + 1) + '/' + queries.length + '] ' + q.name + ' → "' + term + '"');
+
+    var result = _callPerplexityAPI(term, apiKey);
+    apiCalls++;
+
+    if (result === null) {
+      Logger.log('  ⚠ API error or rate limit — stopping batch. Progress saved.');
+      hadError = true;
+      break;
+    }
+
+    totalTokens += result.tokens;
+
+    // Primary URL = first citation. If none, row has empty URL (still useful for synthesis).
+    var primaryUrl = result.citations.length > 0 ? result.citations[0] : '';
+    var rowId = _pplx_makeId(primaryUrl || (term + runDate));
+
+    totalAdded++;
+    pendingRows.push({
+      id:           rowId,
+      url:          primaryUrl,
+      title:        q.name || term,
+      synthesis:    result.synthesis,
+      citations:    JSON.stringify(result.citations),
+      source_domain: primaryUrl ? _pplx_extractDomain(primaryUrl) : '',
+      date_found:   runDate,
+      query_used:   term,
+      q_id:         q.id   || '',
+      q_name:       q.name || '',
+      run_id:       runId,
+      status:       'pending',
+      notes:        '',
+      tokens_used:  result.tokens
+    });
+
+    Logger.log('  → ' + result.tokens + ' tokens | citations: ' + result.citations.length
+      + (primaryUrl ? ' | ' + _pplx_extractDomain(primaryUrl) : ' | (no URL)'));
+
+    // ── Incremental flush ──
+    if (pendingRows.length >= PPLX_CONFIG.FLUSH_EVERY) {
+      _pplx_writeToQueueTab(pendingRows);
+      Logger.log('  [flush] wrote ' + pendingRows.length + ' rows');
+      pendingRows = [];
+    }
+
+    Utilities.sleep(PPLX_CONFIG.SLEEP_MS);
+  }
+
+  // ── Final flush ──
+  if (pendingRows.length > 0) {
+    _pplx_writeToQueueTab(pendingRows);
+    Logger.log('[flush] final ' + pendingRows.length + ' rows written');
+  }
+
+  // ── Summary ──
+  Logger.log('=== PerplexitySearch v1 DONE ===');
+  Logger.log('  API calls:    ' + apiCalls);
+  Logger.log('  Rows added:   ' + totalAdded);
+  Logger.log('  Total tokens: ' + totalTokens);
+  Logger.log('  Est. cost:    ~$' + (totalTokens / 1000000 * 1.5).toFixed(4)
+    + ' (sonar ~$1/M input, $1/M output)');
+
+  if (hadError) {
+    Logger.log('  ⚠ Run ended early due to API error. Remaining queries will run next trigger.');
+  }
+
+  // Only update last_perplexity_scan when a full cycle completes
+  if (!hadError && cycleCompleted) {
+    _pplx_updateLastScan(sheetApi);
+    Logger.log('  ✓ Full cycle complete — last_perplexity_scan updated.');
+  } else if (!cycleCompleted) {
+    Logger.log('  ↷ Cycle not yet complete — last_perplexity_scan NOT updated.');
+  }
+}
+
+// =============================================================================
+// PERPLEXITY API CALL
+// =============================================================================
+
+/**
+ * _callPerplexityAPI(term, apiKey)
+ * Calls Perplexity Sonar via the OpenAI-compatible chat completions endpoint.
+ * Returns { synthesis, citations, tokens } or null on error/rate-limit.
+ */
+function _callPerplexityAPI(term, apiKey) {
+  if (!term) return null;
+
+  var payload = {
+    model:      PPLX_CONFIG.MODEL,
+    messages:   [
+      { role: 'system', content: PPLX_SYSTEM_PROMPT },
+      { role: 'user',   content: term }
+    ],
+    max_tokens: PPLX_CONFIG.MAX_TOKENS
+  };
+
+  try {
+    var resp = UrlFetchApp.fetch('https://api.perplexity.ai/chat/completions', {
+      method:             'post',
+      headers: {
+        'Authorization': 'Bearer ' + apiKey,
+        'Content-Type':  'application/json'
+      },
+      payload:            JSON.stringify(payload),
+      muteHttpExceptions: true
+    });
+
+    var code = resp.getResponseCode();
+
+    if (code === 401) {
+      Logger.log('[Perplexity] 401 UNAUTHORIZED — check PERPLEXITY_API_KEY in Script Properties.');
+      return null;
+    }
+    if (code === 429) {
+      Logger.log('[Perplexity] 429 RATE LIMITED.');
+      return null;
+    }
+    if (code !== 200) {
+      var errText = '';
+      try { errText = JSON.parse(resp.getContentText()).error || resp.getContentText().substring(0, 200); } catch(x) {}
+      Logger.log('[Perplexity] HTTP ' + code + ' for "' + term + '": ' + errText);
+      return null;
+    }
+
+    var data      = JSON.parse(resp.getContentText());
+    var choice    = data.choices && data.choices[0] && data.choices[0].message;
+    var synthesis = choice ? (choice.content || '') : '';
+    var citations = data.citations || [];
+    var usage     = data.usage || {};
+
+    return {
+      synthesis: synthesis.trim(),
+      citations: citations.filter(function(u) { return typeof u === 'string' && u.startsWith('http'); }),
+      tokens:    (usage.total_tokens || 0)
+    };
+
+  } catch(e) {
+    Logger.log('[Perplexity] FETCH ERR for "' + term + '": ' + e.message);
+    return null;
+  }
+}
+
+// =============================================================================
+// TRIGGER MANAGEMENT
+// =============================================================================
+
+/**
+ * setupPerplexityTrigger() — creates a WEEKLY trigger (Sunday 3am).
+ * Weekly cadence balances freshness vs. cost for thesis monitoring.
+ * With ~115 queries at ~$0.001/query, each full cycle costs ~$0.10-0.20.
+ * Note: with BATCH_SIZE=70, two consecutive weekly triggers complete one
+ * full cycle (Sunday 1 = batch 1, Sunday 2 = batch 2, pointer resets).
+ * For faster full coverage, run runPerplexitySearch() twice manually.
+ */
+function setupPerplexityTrigger() {
+  var existing = ScriptApp.getProjectTriggers().filter(function(t) {
+    return t.getHandlerFunction() === 'runPerplexitySearch';
+  });
+  if (existing.length > 0) {
+    Logger.log('[Perplexity] Trigger already exists. Remove it first with removePerplexityTrigger() if you want to recreate.');
+    return;
+  }
+  ScriptApp.newTrigger('runPerplexitySearch')
+    .timeBased()
+    .onWeekDay(ScriptApp.WeekDay.SUNDAY)
+    .atHour(3)
+    .create();
+  Logger.log('[Perplexity] Weekly trigger created (Sunday 3am). Each run processes up to '
+    + PPLX_CONFIG.BATCH_SIZE + ' queries.');
+}
+
+function removePerplexityTrigger() {
+  var removed = 0;
+  ScriptApp.getProjectTriggers().forEach(function(t) {
+    if (t.getHandlerFunction() === 'runPerplexitySearch') {
+      ScriptApp.deleteTrigger(t);
+      removed++;
+    }
+  });
+  Logger.log('[Perplexity] Removed ' + removed + ' trigger(s).');
+}
+
+/**
+ * resetPerplexityBatch() — reset batch pointer to 0.
+ * Use after adding/removing queries, or to force restart from the beginning.
+ */
+function resetPerplexityBatch() {
+  PropertiesService.getScriptProperties().setProperty('pplx_batch_index', '0');
+  Logger.log('[Perplexity] Batch index reset to 0. Next run starts from the first batch.');
+}
+
+// =============================================================================
+// INTERNAL HELPERS
+// =============================================================================
+
+/**
+ * _pplx_getActiveQueries(sheetApi)
+ * Returns all Queries tab rows that are active=yes and have q_fullweb set.
+ */
+function _pplx_getActiveQueries(sheetApi) {
+  try {
+    var resp = UrlFetchApp.fetch(sheetApi + '?action=getQueries', { muteHttpExceptions: true });
+    if (resp.getResponseCode() !== 200) {
+      Logger.log('[Perplexity] getQueries returned HTTP ' + resp.getResponseCode());
+      return [];
+    }
+    var all = JSON.parse(resp.getContentText()).queries || [];
+    return all.filter(function(q) {
+      return q.active === 'yes' && (q.q_fullweb || '').trim() !== '';
+    });
+  } catch(e) {
+    Logger.log('[Perplexity] getQueries err: ' + e.message);
+    return [];
+  }
+}
+
+/**
+ * _pplx_updateLastScan(sheetApi)
+ * Writes current timestamp to Meta tab key last_perplexity_scan.
+ */
+function _pplx_updateLastScan(sheetApi) {
+  try {
+    UrlFetchApp.fetch(sheetApi, {
+      method:             'post',
+      headers:            { 'Content-Type': 'application/json' },
+      payload:            JSON.stringify({
+        action: 'updateMeta',
+        meta:   { last_perplexity_scan: new Date().toISOString() }
+      }),
+      muteHttpExceptions: true
+    });
+  } catch(e) {
+    Logger.log('[Perplexity] updateMeta err: ' + e.message);
+  }
+}
+
+/**
+ * _pplx_ensureQueueTab()
+ * Creates the PerplexityQueue tab with header row if it doesn't exist.
+ * Safe to call on every run — exits silently if the tab already has headers.
+ */
+function _pplx_ensureQueueTab() {
+  var ss    = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName(PPLX_CONFIG.QUEUE_TAB);
+  if (!sheet) {
+    sheet = ss.insertSheet(PPLX_CONFIG.QUEUE_TAB);
+    Logger.log('[Perplexity] Created tab: ' + PPLX_CONFIG.QUEUE_TAB);
+  }
+  var header = sheet.getRange(1, 1, 1, PPLX_CONFIG.QUEUE_COLS.length).getValues()[0];
+  if (header[0] !== 'id') {
+    sheet.getRange(1, 1, 1, PPLX_CONFIG.QUEUE_COLS.length)
+      .setValues([PPLX_CONFIG.QUEUE_COLS])
+      .setFontWeight('bold')
+      .setBackground('#cfe2f3'); // light blue to distinguish from NewsResults (green) and AcademicQueue
+    sheet.setFrozenRows(1);
+    // Make synthesis column wider for readability
+    var synthColIdx = PPLX_CONFIG.QUEUE_COLS.indexOf('synthesis') + 1;
+    if (synthColIdx > 0) sheet.setColumnWidth(synthColIdx, 400);
+    var citColIdx   = PPLX_CONFIG.QUEUE_COLS.indexOf('citations') + 1;
+    if (citColIdx > 0) sheet.setColumnWidth(citColIdx, 300);
+    Logger.log('[Perplexity] Headers written to ' + PPLX_CONFIG.QUEUE_TAB);
+  }
+  return sheet;
+}
+
+/**
+ * _pplx_writeToQueueTab(rows)
+ * Appends an array of row objects to the PerplexityQueue tab.
+ */
+function _pplx_writeToQueueTab(rows) {
+  var sheet  = _pplx_ensureQueueTab();
+  var values = rows.map(function(r) {
+    return PPLX_CONFIG.QUEUE_COLS.map(function(col) {
+      return r[col] !== undefined ? r[col] : '';
+    });
+  });
+  sheet.getRange(sheet.getLastRow() + 1, 1, values.length, PPLX_CONFIG.QUEUE_COLS.length)
+    .setValues(values);
+}
+
+function _pplx_extractDomain(url) {
+  try {
+    var m = url.match(/^https?:\/\/([^\/]+)/);
+    return m ? m[1].replace(/^www\./, '') : '';
+  } catch(e) { return ''; }
+}
+
+function _pplx_makeId(str) {
+  return Utilities.base64Encode(str).replace(/[^a-zA-Z0-9]/g, '').substring(0, 16);
+}
+
+function _fmtDate(d) {
+  return d.toISOString().split('T')[0];
+}
+
+// =============================================================================
+// DEPLOYMENT CHECKLIST
+// =============================================================================
+//
+// STEP 1 — Script Properties (Project Settings → Script Properties):
+//   PERPLEXITY_API_KEY = pplx-xxxxxxxxxxxxxxxxxxxxxxxx
+//   SHEET_API          = https://script.google.com/macros/s/...your-deployment.../exec
+//   (SHEET_API is shared with AcademicOrchestrator and NewsSearch — likely already set)
+//
+// STEP 2 — Verify API key:
+//   Run quickTestPerplexity() from the GAS editor.
+//   Should return SUCCESS with synthesis text and citation URLs.
+//
+// STEP 3 — Create the PerplexityQueue tab:
+//   Run _pplx_ensureQueueTab() once from the GAS editor.
+//   This creates the tab with headers and correct formatting.
+//
+// STEP 4 — Deploy WebApp.gs v30:
+//   The new getPerplexityQueue and updatePerplexityRow actions in WebApp-v30
+//   must be deployed before Claude can review the queue via `update perplexity`.
+//   Deploy → Manage deployments → edit → New version → Deploy.
+//
+// STEP 5 — Populate the queue (two runs to cover all 115 queries):
+//   Run resetPerplexityBatch() first to make sure the pointer is at 0.
+//   Run runPerplexitySearch() — batch 1 (queries 1-70), ~2-4 minutes.
+//   Run runPerplexitySearch() again — batch 2 (queries 71-115), ~1-3 minutes.
+//   Do NOT use runPerplexitySweep() — it ignores batching and will time out.
+//
+// STEP 6 — Set up the weekly trigger:
+//   Run setupPerplexityTrigger() from the GAS editor.
+//   Creates a weekly Sunday 3am trigger for runPerplexitySearch().
+//   The trigger runs automatically from here on.
+//
+// STEP 7 — Review via Claude:
+//   In your Claude session with the SKILL-KB-v6 loaded, type:
+//   update perplexity
+//   Claude will fetch the pending PerplexityQueue rows and process them.

@@ -1,0 +1,47 @@
+// =============================================================================
+// CORE.gs — Proveedor CORE (open access aggregator) v1
+// REQUIERE frase entrecomillada — sin ella devuelve basura
+// Campo en Queries tab: q_core (vacío = no buscar en CORE)
+// =============================================================================
+
+function searchCORE(term, fromYear, opts) {
+  if (!term) return [];
+  var apiKey = (opts && opts.coreKey) ? opts.coreKey : '';
+  if (!apiKey) { Logger.log('[CORE] No API key — skipping'); return []; }
+  var phraseMatch = term.match(/"([^"]+)"/);
+  if (!phraseMatch) {
+    Logger.log('[CORE] Skipping — no quoted phrase in: ' + term);
+    return [];
+  }
+  var phrase = phraseMatch[1];
+  var payload = JSON.stringify({
+    q:       '"' + phrase + '"',
+    filters: [{field:'yearPublished', value:String(fromYear), operator:'gte'}],
+    limit:   3,
+    offset:  0
+  });
+  try {
+    var resp = UrlFetchApp.fetch('https://api.core.ac.uk/v3/search/works', {
+      method:             'post',
+      headers:            {'Authorization':'Bearer '+apiKey, 'Content-Type':'application/json'},
+      payload:            payload,
+      muteHttpExceptions: true
+    });
+    if (resp.getResponseCode() !== 200) {
+      Logger.log('[CORE] HTTP ' + resp.getResponseCode() + ' for phrase: ' + phrase);
+      return [];
+    }
+    return (JSON.parse(resp.getContentText()).results||[]).map(function(r){
+      return {
+        url:      r.doi ? 'https://doi.org/'+r.doi : (r.downloadUrl||'https://core.ac.uk/works/'+r.id),
+        title:    r.title||'',
+        authors:  (r.authors||[]).slice(0,3).map(function(a){return a.name||String(a);}).join('; '),
+        year:     r.yearPublished||'',
+        abstract: (r.abstract||'').substring(0,800)
+      };
+    });
+  } catch(e) {
+    Logger.log('[CORE] ERR: ' + e.message);
+    return [];
+  }
+}

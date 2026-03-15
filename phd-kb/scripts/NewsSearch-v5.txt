@@ -1,0 +1,554 @@
+// =============================================================================
+// NewsSearch.gs v5 — NewsAPI provider (news article monitoring)
+//
+// API: https://newsapi.org/v2/everything
+// Key: NEWS_API_KEY in Script Properties
+// Plan: free dev tier — 100 req/day, articles from past 30 days only
+// Output: NewsResults tab (direct SpreadsheetApp write)
+// Query column: q_news (in Queries tab)
+//
+// CHANGES from v4:
+//   + BUG FIX: last_news_scan only updates when a full batch cycle completes
+//     (nextBatch wraps to 0). Previously it updated after every batch, which
+//     caused each subsequent batch to search only a ~24h window instead of
+//     accumulating the full gap since the last complete cycle.
+//
+// CHANGES from v3:
+//   + BATCH SYSTEM — splits 106+ queries across multiple days to stay under
+//     100 req/day limit. Uses Script Properties to track batch_index.
+//     Sunday night runs batch A, Monday night runs batch B, etc.
+//   + INCREMENTAL WRITES — rows are flushed to the sheet every FLUSH_EVERY
+//     queries (default 10), so results aren't lost if the script hits a limit
+//     or times out mid-run.
+//   + 429 DETECTION — stops the current run immediately on rate limit,
+//     saves progress, picks up from where it left off next run.
+//   + runNewsSweepBatch() — sweep mode also respects batching.
+//
+// CHANGES from v2:
+//   + Post-fetch relevance filter (RELEVANCE_TERMS / _isRelevant)
+//   + Logging of filtered-out count per query
+//
+// CHANGES from v1:
+//   + runNewsSweep()    — manual entry point for full 30-day sweep
+//   + from/to date params sent to NewsAPI (incremental uses last_news_scan)
+//   + dedup now covers NewsLog + AcademicQueue + NewsResults
+//   + [Removed] articles filtered out before writing
+//
+// ENTRY POINTS:
+//   runNewsAPI()         — called by daily trigger (processes one batch)
+//   runNewsSweep()       — manual: sweep all queries (respects batching)
+//   runNewsSweepAll()    — manual: sweep ALL queries ignoring batch (use sparingly)
+//   quickTestNewsAPI()   — verify API key and connectivity
+//
+// TRIGGER MANAGEMENT:
+//   setupNewsTrigger()   — creates DAILY 11pm trigger for runNewsAPI()
+//   removeNewsTrigger()  — deletes the trigger (to pause monitoring)
+//   resetBatchIndex()    — reset batch pointer to 0 (start from first batch)
+// =============================================================================
+
+var NEWS_CONFIG = {
+  RESULTS_TAB:     'NewsResults',
+  RESULTS_PER_Q:   15,   // fetch more, relevance filter trims the noise
+  RESULTS_COLUMNS: ['id','url','title','snippet','source_domain','news_rank',
+                    'date_found','query_used','q_id','q_name','run_id','status','notes'],
+
+  // BATCH SETTINGS
+  // Free tier = 100 req/day. Each run uses ~3 setup calls (getMeta, getUrls,
+  // getQueries), leaving 97 for actual searches. BATCH_SIZE=90 gives a
+  // comfortable margin. With ~106 queries: 2 days for full coverage.
+  // If queries grow past ~180, bump to 3 days automatically.
+  BATCH_SIZE:      90,
+
+  // Flush results to sheet every N queries (don't lose work on crash/timeout)
+  FLUSH_EVERY:     10
+};
+
+// ---------------------------------------------------------------------------
+// POST-FETCH RELEVANCE FILTER
+// After NewsAPI returns results, we drop any article whose title+snippet
+// doesn't contain at least one of these terms (case-insensitive).
+// This eliminates the ~90% noise from broad queries.
+// To disable: set RELEVANCE_FILTER_ENABLED = false.
+// ---------------------------------------------------------------------------
+var RELEVANCE_FILTER_ENABLED = true;
+
+var RELEVANCE_TERMS = [
+  // Core frameworks
+  'AI Act', 'NIST', 'AI RMF', 'risk management framework',
+  // AI regulation / governance
+  'artificial intelligence', 'AI regulation', 'AI governance', 'AI policy',
+  'AI standard', 'AI compliance', 'AI audit', 'AI safety',
+  'AI oversight', 'AI accountability', 'AI transparency',
+  'algorithmic', 'machine learning',
+  // Specific thesis topics
+  'high-risk AI', 'conformity assessment', 'fundamental rights',
+  'Brussels Effect', 'Digital Omnibus',
+  'explainability', 'contestability', 'bias', 'fairness',
+  // Forensic / law enforcement
+  'forensic', 'STRmix', 'probabilistic genotyping', 'DNA evidence',
+  'biometric', 'facial recognition', 'law enforcement AI',
+  // Institutional
+  'CAISI', 'AI Office', 'OMB', 'federal agency',
+  'European Commission', 'EDPB',
+  // Scholars (last names only — catches news mentions)
+  'Kaminski', 'Veale', 'Bradford', 'Wachter', 'Hildebrandt',
+  'Calo', 'Hacker', 'Pasquale', 'Narayanan', 'Finck',
+  'Rozenshtein', 'Kratsios'
+];
+
+/**
+ * _isRelevant(title, snippet)
+ * Returns true if the title+snippet contains at least one RELEVANCE_TERM.
+ */
+function _isRelevant(title, snippet) {
+  if (!RELEVANCE_FILTER_ENABLED) return true;
+  var text = ((title || '') + ' ' + (snippet || '')).toLowerCase();
+  for (var i = 0; i < RELEVANCE_TERMS.length; i++) {
+    if (text.indexOf(RELEVANCE_TERMS[i].toLowerCase()) !== -1) return true;
+  }
+  return false;
+}
+
+// =============================================================================
+// PUBLIC ENTRY POINTS
+// =============================================================================
+
+/**
+ * runNewsAPI() — called by daily trigger.
+ * Processes ONE batch of queries (BATCH_SIZE), then advances the batch pointer.
+ * Next day's trigger picks up the next batch. Cycles back to 0 after the last batch.
+ */
+function runNewsAPI() {
+  _runNews('incremental', false);
+}
+
+/**
+ * runNewsSweep() — run manually from GAS editor.
+ * Sweep mode (30-day window) for ONE batch. Run on consecutive days to cover all.
+ */
+function runNewsSweep() {
+  _runNews('sweep', false);
+}
+
+/**
+ * runNewsSweepAll() — run manually. Processes ALL queries ignoring batch limits.
+ * WARNING: Will hit 100 req/day limit if you have >97 queries.
+ * Only use if you've cleared the daily quota (e.g., fresh day, no other runs).
+ */
+function runNewsSweepAll() {
+  _runNews('sweep', true);
+}
+
+// =============================================================================
+// CORE LOGIC
+// =============================================================================
+
+function _runNews(mode, ignoresBatch) {
+  var props    = PropertiesService.getScriptProperties();
+  var apiKey   = props.getProperty('NEWS_API_KEY');
+  var sheetApi = props.getProperty('SHEET_API');
+
+  if (!apiKey) {
+    Logger.log('[NewsAPI] ERROR: NEWS_API_KEY not set. Get a free key at newsapi.org/register');
+    return;
+  }
+  if (!sheetApi) {
+    Logger.log('[NewsAPI] ERROR: SHEET_API not set in Script Properties.');
+    return;
+  }
+
+  Logger.log('=== NewsAPI v5 START mode=' + mode + (ignoresBatch ? ' (ALL — no batch limit)' : '') + ' ===');
+
+  // ── Date range ──
+  var toDate   = new Date();
+  var fromDate;
+  if (mode === 'sweep') {
+    fromDate = new Date(toDate.getTime() - 29 * 24 * 60 * 60 * 1000);
+    Logger.log('Sweep: ' + _fmtDate(fromDate) + ' → ' + _fmtDate(toDate));
+  } else {
+    var lastScan = _news_getLastScan(sheetApi);
+    if (lastScan) {
+      fromDate = new Date(lastScan);
+      fromDate.setDate(fromDate.getDate() + 1);
+    } else {
+      fromDate = new Date(toDate.getTime() - 7 * 24 * 60 * 60 * 1000);
+    }
+    Logger.log('Incremental: ' + _fmtDate(fromDate) + ' → ' + _fmtDate(toDate));
+  }
+
+  // ── Dedup & queries ──
+  var knownUrls = _news_getKnownUrls(sheetApi);
+  Logger.log('Known URLs (dedup — all 3 tabs): ' + knownUrls.size);
+
+  var allQueries = _news_getActiveQueries(sheetApi);
+  Logger.log('Total queries with q_news: ' + allQueries.length);
+  if (allQueries.length === 0) {
+    Logger.log('[NewsAPI] No active queries have q_news set.');
+    return;
+  }
+
+  // ── Batch selection ──
+  var queries;
+  var cycleCompleted = ignoresBatch; // sweep-all always counts as cycle complete
+
+  if (ignoresBatch) {
+    queries = allQueries;
+    Logger.log('Running ALL ' + queries.length + ' queries (batch override)');
+  } else {
+    var batchIndex   = parseInt(props.getProperty('news_batch_index') || '0', 10);
+    var totalBatches = Math.ceil(allQueries.length / NEWS_CONFIG.BATCH_SIZE);
+    if (batchIndex >= totalBatches) batchIndex = 0; // wrap around if stale
+
+    var start = batchIndex * NEWS_CONFIG.BATCH_SIZE;
+    var end   = Math.min(start + NEWS_CONFIG.BATCH_SIZE, allQueries.length);
+    queries   = allQueries.slice(start, end);
+
+    Logger.log('Batch ' + (batchIndex + 1) + '/' + totalBatches
+      + ' (queries ' + (start + 1) + '-' + end + ' of ' + allQueries.length + ')');
+
+    // Advance batch pointer for next run
+    var nextBatch = (batchIndex + 1 >= totalBatches) ? 0 : batchIndex + 1;
+    props.setProperty('news_batch_index', String(nextBatch));
+    Logger.log('Next run will process batch ' + (nextBatch + 1));
+
+    // Cycle is complete when the pointer wraps back to 0
+    cycleCompleted = (nextBatch === 0);
+  }
+
+  // ── Process queries ──
+  var runDate       = _fmtDate(toDate);
+  var runId         = runDate + '-N' + (mode === 'sweep' ? 'S' : 'I');
+  var pendingRows   = [];
+  var totalAdded    = 0;
+  var totalFiltered = 0;
+  var rateLimited   = false;
+  var apiCalls      = 0;
+
+  for (var qi = 0; qi < queries.length; qi++) {
+    var q    = queries[qi];
+    var term = (q.q_news || '').trim();
+    if (!term) continue;
+
+    Logger.log('[' + (qi + 1) + '/' + queries.length + '] ' + q.name + ' → "' + term + '"');
+
+    try {
+      var results = searchNewsAPI(term, apiKey, fromDate, toDate);
+      apiCalls++;
+
+      if (results === null) {
+        // null signals rate limit (429)
+        Logger.log('  ⚠ RATE LIMITED — stopping this batch. Progress saved.');
+        rateLimited = true;
+        break;
+      }
+
+      var added    = 0;
+      var filtered = 0;
+
+      for (var ri = 0; ri < results.length; ri++) {
+        var r = results[ri];
+        if (!r.url || knownUrls.has(r.url)) continue;
+
+        if (!_isRelevant(r.title, r.snippet)) {
+          filtered++;
+          continue;
+        }
+
+        knownUrls.add(r.url);
+        added++;
+        pendingRows.push({
+          id:            _news_makeId(r.url),
+          url:           r.url,
+          title:         r.title    || '',
+          snippet:       r.snippet  || '',
+          source_domain: r.domain   || '',
+          news_rank:     r.rank     || '',
+          date_found:    r.published || runDate,
+          query_used:    term,
+          q_id:          q.id       || '',
+          q_name:        q.name     || '',
+          run_id:        runId,
+          status:        'pending',
+          notes:         ''
+        });
+      }
+
+      totalAdded    += added;
+      totalFiltered += filtered;
+      Logger.log('  → ' + results.length + ' fetched, +' + added + ' new, ' + filtered + ' filtered');
+
+      // ── Incremental flush ──
+      if (pendingRows.length >= NEWS_CONFIG.FLUSH_EVERY * 2) {
+        _news_writeToResultsTab(pendingRows);
+        Logger.log('  [flush] wrote ' + pendingRows.length + ' rows');
+        pendingRows = [];
+      }
+
+      Utilities.sleep(1100);
+
+    } catch(e) {
+      Logger.log('  [NewsAPI] ERR on "' + term + '": ' + e.message);
+    }
+  }
+
+  // ── Final flush ──
+  if (pendingRows.length > 0) {
+    _news_writeToResultsTab(pendingRows);
+    Logger.log('[flush] wrote final ' + pendingRows.length + ' rows');
+  }
+
+  // ── Summary ──
+  Logger.log('=== NewsAPI v5 DONE ===');
+  Logger.log('  API calls: ' + apiCalls);
+  Logger.log('  New rows:  ' + totalAdded);
+  Logger.log('  Filtered:  ' + totalFiltered);
+  if (rateLimited) {
+    Logger.log('  ⚠ Run was cut short by rate limit. Remaining queries will run in the next batch.');
+  }
+
+  // ── FIX v5: Only update last_news_scan when a FULL CYCLE completes ──
+  // Previously this updated after every batch, which caused batch B and later
+  // batches to have a ~24h search window instead of the full gap.
+  // Now it only updates when nextBatch wrapped to 0 (all batches done).
+  if (mode === 'incremental' && !rateLimited && cycleCompleted) {
+    _news_updateLastScan(sheetApi);
+    Logger.log('  ✓ Full cycle complete — last_news_scan updated.');
+  } else if (mode === 'incremental' && !cycleCompleted) {
+    Logger.log('  ↷ Cycle not yet complete — last_news_scan NOT updated (will update when cycle wraps).');
+  }
+}
+
+// =============================================================================
+// NEWSAPI CALL
+// =============================================================================
+
+/**
+ * searchNewsAPI(term, apiKey, fromDate, toDate)
+ * Calls NewsAPI /v2/everything.
+ * Returns array of results, or NULL if rate-limited (429).
+ * Null signals the caller to stop the batch.
+ */
+function searchNewsAPI(term, apiKey, fromDate, toDate) {
+  if (!term) return [];
+
+  if (!apiKey) {
+    apiKey = PropertiesService.getScriptProperties().getProperty('NEWS_API_KEY');
+    if (!apiKey) { Logger.log('[NewsAPI] NEWS_API_KEY missing'); return []; }
+  }
+
+  var url = 'https://newsapi.org/v2/everything'
+    + '?q='        + encodeURIComponent(term)
+    + '&sortBy=publishedAt'
+    + '&language=en'
+    + '&pageSize='  + NEWS_CONFIG.RESULTS_PER_Q
+    + '&apiKey='    + encodeURIComponent(apiKey);
+
+  if (fromDate) url += '&from=' + _fmtDate(fromDate);
+  if (toDate)   url += '&to='   + _fmtDate(toDate);
+
+  try {
+    var resp = UrlFetchApp.fetch(url, { muteHttpExceptions: true });
+    var code = resp.getResponseCode();
+
+    if (code === 426) {
+      Logger.log('[NewsAPI] 426 — free tier requires server-side calls only.');
+      return [];
+    }
+    if (code === 429) {
+      Logger.log('[NewsAPI] 429 — RATE LIMITED.');
+      return null;  // ← null signals rate limit to caller
+    }
+    if (code !== 200) {
+      var msg = '';
+      try { msg = JSON.parse(resp.getContentText()).message; } catch(x) {}
+      Logger.log('[NewsAPI] HTTP ' + code + ' for "' + term + '": ' + msg);
+      return [];
+    }
+
+    var data     = JSON.parse(resp.getContentText());
+    var articles = data.articles || [];
+
+    return articles
+      .map(function(a, idx) {
+        var link = a.url || '';
+        return {
+          url:       link,
+          title:     a.title       || '',
+          snippet:   a.description || '',
+          domain:    _news_extractDomain(link),
+          rank:      idx + 1,
+          published: a.publishedAt ? a.publishedAt.split('T')[0] : ''
+        };
+      })
+      .filter(function(r) {
+        return r.url
+          && r.url     !== 'https://removed.com'
+          && r.title   !== '[Removed]'
+          && r.snippet !== '[Removed]';
+      });
+
+  } catch(e) {
+    Logger.log('[NewsAPI] FETCH ERR: ' + e.message);
+    return [];
+  }
+}
+
+/**
+ * quickTestNewsAPI() — one-shot test. Run from editor after setting NEWS_API_KEY.
+ */
+function quickTestNewsAPI() {
+  var apiKey = PropertiesService.getScriptProperties().getProperty('NEWS_API_KEY');
+  if (!apiKey) {
+    Logger.log('[quickTest] NEWS_API_KEY not set. Go to Project Settings → Script Properties.');
+    return;
+  }
+  var results = searchNewsAPI('"AI Act" AND "NIST"', apiKey);
+  if (results === null) {
+    Logger.log('[quickTest] Rate limited! Try again tomorrow.');
+    return;
+  }
+  Logger.log('[quickTest] Got ' + results.length + ' results');
+  Logger.log('[quickTest] Relevance filter enabled: ' + RELEVANCE_FILTER_ENABLED);
+  results.slice(0, 5).forEach(function(r) {
+    var relevant = _isRelevant(r.title, r.snippet);
+    Logger.log('  [' + r.rank + '] ' + (relevant ? '✓' : '✗') + ' ' + r.published + ' | ' + r.title);
+    Logger.log('       ' + r.url);
+  });
+}
+
+// =============================================================================
+// TRIGGER MANAGEMENT
+// =============================================================================
+
+/**
+ * setupNewsTrigger() — creates a DAILY trigger at 11pm.
+ * Each day it processes one batch of ~90 queries.
+ * With ~106 queries, full coverage takes ~2 days.
+ */
+function setupNewsTrigger() {
+  var existing = ScriptApp.getProjectTriggers().filter(function(t) {
+    return t.getHandlerFunction() === 'runNewsAPI';
+  });
+  if (existing.length > 0) {
+    Logger.log('[NewsAPI] Trigger already exists. Remove it first with removeNewsTrigger() if you want to recreate.');
+    return;
+  }
+  ScriptApp.newTrigger('runNewsAPI')
+    .timeBased().everyDays(1).atHour(23).create();
+  Logger.log('[NewsAPI] Daily trigger created (11pm). Each run processes ~' + NEWS_CONFIG.BATCH_SIZE + ' queries.');
+}
+
+function removeNewsTrigger() {
+  var removed = 0;
+  ScriptApp.getProjectTriggers().forEach(function(t) {
+    if (t.getHandlerFunction() === 'runNewsAPI') { ScriptApp.deleteTrigger(t); removed++; }
+  });
+  Logger.log('[NewsAPI] Removed ' + removed + ' trigger(s).');
+}
+
+/**
+ * resetBatchIndex() — reset batch pointer to 0.
+ * Use after adding/removing queries, or to force a restart from the beginning.
+ */
+function resetBatchIndex() {
+  PropertiesService.getScriptProperties().setProperty('news_batch_index', '0');
+  Logger.log('[NewsAPI] Batch index reset to 0. Next run starts from the first batch.');
+}
+
+// =============================================================================
+// INTERNAL HELPERS
+// =============================================================================
+
+/**
+ * Dedup across all 3 tabs: NewsLog (via API) + AcademicQueue + NewsResults (direct SpreadsheetApp)
+ */
+function _news_getKnownUrls(sheetApi) {
+  var known = new Set();
+
+  try {
+    var resp = UrlFetchApp.fetch(sheetApi + '?action=getUrls', { muteHttpExceptions: true });
+    if (resp.getResponseCode() === 200) {
+      var data = JSON.parse(resp.getContentText());
+      (data.urls || []).forEach(function(u) { if (u) known.add(String(u)); });
+    }
+  } catch(e) { Logger.log('[NewsAPI] getUrls err: ' + e.message); }
+
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  ['AcademicQueue', NEWS_CONFIG.RESULTS_TAB].forEach(function(tabName) {
+    try {
+      var sheet = ss.getSheetByName(tabName);
+      if (!sheet || sheet.getLastRow() < 2) return;
+      var vals = sheet.getRange(2, 2, sheet.getLastRow() - 1, 1).getValues();
+      vals.forEach(function(row) { if (row[0]) known.add(String(row[0])); });
+    } catch(e) { Logger.log('[NewsAPI] dedup err (' + tabName + '): ' + e.message); }
+  });
+
+  return known;
+}
+
+function _news_getActiveQueries(sheetApi) {
+  try {
+    var resp = UrlFetchApp.fetch(sheetApi + '?action=getQueries', { muteHttpExceptions: true });
+    if (resp.getResponseCode() !== 200) return [];
+    var all = JSON.parse(resp.getContentText()).queries || [];
+    return all.filter(function(q) {
+      return q.active === 'yes' && (q.q_news || '').trim() !== '';
+    });
+  } catch(e) { Logger.log('[NewsAPI] getQueries err: ' + e.message); return []; }
+}
+
+function _news_getLastScan(sheetApi) {
+  try {
+    var resp = UrlFetchApp.fetch(sheetApi + '?action=getMeta', { muteHttpExceptions: true });
+    if (resp.getResponseCode() !== 200) return null;
+    return (JSON.parse(resp.getContentText()) || {}).last_news_scan || null;
+  } catch(e) { return null; }
+}
+
+function _news_updateLastScan(sheetApi) {
+  try {
+    UrlFetchApp.fetch(sheetApi, {
+      method:             'post',
+      headers:            { 'Content-Type': 'application/json' },
+      payload:            JSON.stringify({ action: 'updateMeta', meta: { last_news_scan: new Date().toISOString() } }),
+      muteHttpExceptions: true
+    });
+  } catch(e) { Logger.log('[NewsAPI] updateMeta err: ' + e.message); }
+}
+
+function _news_ensureResultsTab() {
+  var ss    = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName(NEWS_CONFIG.RESULTS_TAB);
+  if (!sheet) {
+    sheet = ss.insertSheet(NEWS_CONFIG.RESULTS_TAB);
+    Logger.log('[NewsAPI] Created tab: ' + NEWS_CONFIG.RESULTS_TAB);
+  }
+  var header = sheet.getRange(1, 1, 1, NEWS_CONFIG.RESULTS_COLUMNS.length).getValues()[0];
+  if (header[0] !== 'id') {
+    sheet.getRange(1, 1, 1, NEWS_CONFIG.RESULTS_COLUMNS.length)
+      .setValues([NEWS_CONFIG.RESULTS_COLUMNS]).setFontWeight('bold').setBackground('#d9ead3');
+    sheet.setFrozenRows(1);
+  }
+  return sheet;
+}
+
+function _news_writeToResultsTab(rows) {
+  var sheet  = _news_ensureResultsTab();
+  var values = rows.map(function(r) {
+    return NEWS_CONFIG.RESULTS_COLUMNS.map(function(col) { return r[col] !== undefined ? r[col] : ''; });
+  });
+  sheet.getRange(sheet.getLastRow() + 1, 1, values.length, NEWS_CONFIG.RESULTS_COLUMNS.length).setValues(values);
+}
+
+function _news_extractDomain(url) {
+  try { var m = url.match(/^https?:\/\/([^\/]+)/); return m ? m[1].replace(/^www\./, '') : ''; }
+  catch(e) { return ''; }
+}
+
+function _news_makeId(url) {
+  return Utilities.base64Encode(url).replace(/[^a-zA-Z0-9]/g, '').substring(0, 16);
+}
+
+function _fmtDate(d) {
+  return d.toISOString().split('T')[0];
+}

@@ -1,0 +1,385 @@
+// =============================================================================
+// WebApp.gs v30 — HTTP API handler (doGet / doPost)
+// Web app deployment serves as SHEET_API for all external callers.
+//
+// GET  actions: getAll, getUrls, getQueries, getMeta, getNewsResults,
+//               getAcademicQueue, getPerplexityQueue
+// POST actions: append, updateRow, updateMeta, updateNewsRow, addQuery,
+//               updateQuery, updateAcademicRow, updatePerplexityRow
+//
+// CHANGES from v29:
+//   + getPerplexityQueue    — reads PerplexityQueue tab with optional status filter
+//   + updatePerplexityRow   — updates status/notes on a PerplexityQueue row by ID
+//   + WA_PERPLEXITYQUEUE    — new constant for the PerplexityQueue tab
+//   + _wa_getAllKnownUrls()  — now includes PerplexityQueue URLs in dedup set
+//
+// CHANGES from v28:
+//   + addQuery     — adds a new row to the Queries tab (auto-assigns ID)
+//   + updateQuery  — updates any field(s) on a Queries tab row by ID
+//   + getAcademicQueue — reads AcademicQueue tab with optional status filter
+//   + updateAcademicRow — updates status/notes on an AcademicQueue row by ID
+//   + _wa_append   — deduplicates by URL across NewsLog + AcademicQueue + NewsResults
+// =============================================================================
+
+var WA_NEWSLOG          = "NewsLog";
+var WA_NEWSRESULTS      = "NewsResults";
+var WA_ACADEMICQUEUE    = "AcademicQueue";
+var WA_PERPLEXITYQUEUE  = "PerplexityQueue";
+var WA_QUERIES          = "Queries";
+var WA_META             = "Meta";
+
+function doGet(e) {
+  var p = (e && e.parameter) || {};
+  var action = p.action || "";
+  try {
+    if (action === "getAll")              return _wa_json(_wa_getAll(p));
+    if (action === "getUrls")             return _wa_json(_wa_getUrls());
+    if (action === "getQueries")          return _wa_json(_wa_getQueries());
+    if (action === "getMeta")             return _wa_json(_wa_getMeta());
+    if (action === "getNewsResults")      return _wa_json(_wa_getNewsResults(p));
+    if (action === "getAcademicQueue")    return _wa_json(_wa_getAcademicQueue(p));
+    if (action === "getPerplexityQueue")  return _wa_json(_wa_getPerplexityQueue(p));
+    return _wa_json({ error: "Unknown action: " + action });
+  } catch (err) {
+    return _wa_json({ error: err.message });
+  }
+}
+
+function doPost(e) {
+  try {
+    var body   = JSON.parse(e.postData.contents);
+    var action = body.action || "";
+    if (action === "append")               return _wa_json(_wa_append(body));
+    if (action === "updateRow")            return _wa_json(_wa_updateRow(body));
+    if (action === "updateMeta")           return _wa_json(_wa_updateMeta(body));
+    if (action === "updateNewsRow")        return _wa_json(_wa_updateNewsRow(body));
+    if (action === "addQuery")             return _wa_json(_wa_addQuery(body));
+    if (action === "updateQuery")          return _wa_json(_wa_updateQuery(body));
+    if (action === "updateAcademicRow")    return _wa_json(_wa_updateAcademicRow(body));
+    if (action === "updatePerplexityRow")  return _wa_json(_wa_updatePerplexityRow(body));
+    return _wa_json({ error: "Unknown action: " + action });
+  } catch (err) {
+    return _wa_json({ error: err.message });
+  }
+}
+
+// =============================================================================
+// CORE UTILITIES
+// =============================================================================
+
+function _wa_json(data) {
+  return ContentService.createTextOutput(JSON.stringify(data))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+function _wa_sheet(name) {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(name);
+  if (!sheet) throw new Error("Sheet not found: " + name);
+  return sheet;
+}
+
+function _wa_headers(sheet) {
+  return sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+}
+
+function _wa_rowsToObjects(sheet, headers) {
+  if (sheet.getLastRow() < 2) return [];
+  var data = sheet.getRange(2, 1, sheet.getLastRow() - 1, headers.length).getValues();
+  return data.map(function(r) {
+    var obj = {};
+    headers.forEach(function(h, i) { obj[h] = r[i]; });
+    return obj;
+  });
+}
+
+// Returns a Set of all URLs across NewsLog + AcademicQueue + NewsResults + PerplexityQueue
+function _wa_getAllKnownUrls() {
+  var ss    = SpreadsheetApp.getActiveSpreadsheet();
+  var known = new Set();
+  [WA_NEWSLOG, WA_ACADEMICQUEUE, WA_NEWSRESULTS, WA_PERPLEXITYQUEUE].forEach(function(tabName) {
+    var sheet = ss.getSheetByName(tabName);
+    if (!sheet || sheet.getLastRow() < 2) return;
+    var headers = _wa_headers(sheet);
+    var urlIdx  = headers.indexOf("url");
+    if (urlIdx < 0) return;
+    sheet.getRange(2, urlIdx + 1, sheet.getLastRow() - 1, 1).getValues()
+      .forEach(function(r) { if (r[0]) known.add(String(r[0])); });
+  });
+  return known;
+}
+
+// =============================================================================
+// GET ACTIONS
+// =============================================================================
+
+function _wa_getAll(p) {
+  var sheet   = _wa_sheet(WA_NEWSLOG);
+  var headers = _wa_headers(sheet);
+  var rows    = _wa_rowsToObjects(sheet, headers).filter(function(r) { return r.id; });
+  var total   = rows.length;
+  var limit   = p.limit  ? parseInt(p.limit)  : 0;
+  var offset  = p.offset ? parseInt(p.offset) : 0;
+  if (p.importance) rows = rows.filter(function(r) { return r.importance === p.importance; });
+  if (p.folder)     rows = rows.filter(function(r) { return r.folder     === p.folder; });
+  if (p.action_tag) rows = rows.filter(function(r) { return r.action_tag === p.action_tag; });
+  if (offset) rows = rows.slice(offset);
+  if (limit)  rows = rows.slice(0, limit);
+  return { rows: rows, total: total };
+}
+
+function _wa_getUrls() {
+  var sheet = _wa_sheet(WA_NEWSLOG);
+  if (sheet.getLastRow() < 2) return { urls: [] };
+  var headers = _wa_headers(sheet);
+  var urlIdx  = headers.indexOf("url");
+  if (urlIdx < 0) return { urls: [] };
+  var vals = sheet.getRange(2, urlIdx + 1, sheet.getLastRow() - 1, 1).getValues();
+  return { urls: vals.map(function(r) { return r[0]; }).filter(Boolean) };
+}
+
+function _wa_getQueries() {
+  var sheet   = _wa_sheet(WA_QUERIES);
+  var headers = _wa_headers(sheet);
+  var queries = _wa_rowsToObjects(sheet, headers);
+  return { queries: queries, total: queries.length };
+}
+
+function _wa_getMeta() {
+  var sheet = _wa_sheet(WA_META);
+  if (sheet.getLastRow() < 1) return {};
+  var data = sheet.getRange(1, 1, sheet.getLastRow(), 2).getValues();
+  var meta = {};
+  data.forEach(function(r) { if (r[0]) meta[String(r[0])] = r[1]; });
+  return meta;
+}
+
+function _wa_getNewsResults(p) {
+  var sheet   = _wa_sheet(WA_NEWSRESULTS);
+  var headers = _wa_headers(sheet);
+  var rows    = _wa_rowsToObjects(sheet, headers).filter(function(r) { return r.id || r.url; });
+  if (p.status) rows = rows.filter(function(r) { return r.status === p.status; });
+  var total = rows.length;
+  var limit = p.limit ? parseInt(p.limit) : 0;
+  if (limit) rows = rows.slice(0, limit);
+  return { rows: rows, total: total };
+}
+
+function _wa_getAcademicQueue(p) {
+  var sheet   = _wa_sheet(WA_ACADEMICQUEUE);
+  var headers = _wa_headers(sheet);
+  var rows    = _wa_rowsToObjects(sheet, headers).filter(function(r) { return r.id || r.url; });
+  if (p.status) rows = rows.filter(function(r) { return r.status === p.status; });
+  var total = rows.length;
+  var limit = p.limit ? parseInt(p.limit) : 0;
+  if (limit) rows = rows.slice(0, limit);
+  return { rows: rows, total: total };
+}
+
+function _wa_getPerplexityQueue(p) {
+  var sheet   = _wa_sheet(WA_PERPLEXITYQUEUE);
+  var headers = _wa_headers(sheet);
+  var rows    = _wa_rowsToObjects(sheet, headers).filter(function(r) { return r.id; });
+  if (p.status)  rows = rows.filter(function(r) { return r.status  === p.status; });
+  if (p.run_id)  rows = rows.filter(function(r) { return r.run_id  === p.run_id; });
+  var total = rows.length;
+  var limit = p.limit ? parseInt(p.limit) : 0;
+  if (limit) rows = rows.slice(0, limit);
+  return { rows: rows, total: total };
+}
+
+// =============================================================================
+// POST ACTIONS
+// =============================================================================
+
+// Append rows to NewsLog — deduplicates by URL across all 4 tabs
+function _wa_append(body) {
+  var rows = body.rows || [];
+  if (!rows.length) return { ok: true, added: 0, skipped: 0 };
+
+  var knownUrls = _wa_getAllKnownUrls();
+  var sheet     = _wa_sheet(WA_NEWSLOG);
+  var headers   = _wa_headers(sheet);
+
+  var toWrite   = [];
+  var skipped   = 0;
+  rows.forEach(function(row) {
+    var url = String(row.url || "");
+    if (!url || knownUrls.has(url)) { skipped++; return; }
+    knownUrls.add(url); // prevent same-batch duplicates
+    toWrite.push(headers.map(function(h) { return row[h] !== undefined ? row[h] : ""; }));
+  });
+
+  if (toWrite.length > 0) {
+    sheet.getRange(sheet.getLastRow() + 1, 1, toWrite.length, headers.length).setValues(toWrite);
+  }
+  return { ok: true, added: toWrite.length, skipped: skipped };
+}
+
+function _wa_updateRow(body) {
+  return _wa_updateInSheet(WA_NEWSLOG, body.id, body.fields || {});
+}
+
+function _wa_updateNewsRow(body) {
+  return _wa_updateInSheet(WA_NEWSRESULTS, body.id, body.fields || {});
+}
+
+// Update status/notes on an AcademicQueue row by ID
+// Accepts: { action: "updateAcademicRow", id: "abc123", status: "promoted", notes: "..." }
+// OR:      { action: "updateAcademicRow", id: "abc123", fields: { status: "promoted" } }
+function _wa_updateAcademicRow(body) {
+  var fields = body.fields || {};
+  if (body.status !== undefined) fields.status = body.status;
+  if (body.notes  !== undefined) fields.notes  = body.notes;
+  var allowed = { status: fields.status, notes: fields.notes };
+  var toUpdate = {};
+  if (allowed.status !== undefined) toUpdate.status = allowed.status;
+  if (allowed.notes  !== undefined) toUpdate.notes  = allowed.notes;
+  return _wa_updateInSheet(WA_ACADEMICQUEUE, body.id, toUpdate);
+}
+
+// Update status/notes on a PerplexityQueue row by ID
+// Accepts: { action: "updatePerplexityRow", id: "abc123", status: "promoted", notes: "..." }
+// OR:      { action: "updatePerplexityRow", id: "abc123", fields: { status: "promoted" } }
+function _wa_updatePerplexityRow(body) {
+  var fields = body.fields || {};
+  if (body.status !== undefined) fields.status = body.status;
+  if (body.notes  !== undefined) fields.notes  = body.notes;
+  var allowed = { status: fields.status, notes: fields.notes };
+  var toUpdate = {};
+  if (allowed.status !== undefined) toUpdate.status = allowed.status;
+  if (allowed.notes  !== undefined) toUpdate.notes  = allowed.notes;
+  return _wa_updateInSheet(WA_PERPLEXITYQUEUE, body.id, toUpdate);
+}
+
+// Generic: find row by id column in tabName, update fields
+function _wa_updateInSheet(tabName, id, fields) {
+  if (!id) return { error: "id required" };
+  var sheet   = _wa_sheet(tabName);
+  var headers = _wa_headers(sheet);
+  var idIdx   = headers.indexOf("id");
+  if (idIdx < 0) return { error: "No id column in " + tabName };
+  if (sheet.getLastRow() < 2) return { error: "Row not found: " + id };
+  var data = sheet.getRange(2, 1, sheet.getLastRow() - 1, headers.length).getValues();
+  for (var i = 0; i < data.length; i++) {
+    if (String(data[i][idIdx]) === String(id)) {
+      Object.keys(fields).forEach(function(key) {
+        var col = headers.indexOf(key);
+        if (col >= 0) sheet.getRange(i + 2, col + 1).setValue(fields[key]);
+      });
+      return { ok: true };
+    }
+  }
+  return { error: "Row not found: " + id };
+}
+
+function _wa_updateMeta(body) {
+  var meta  = body.meta || {};
+  var sheet = _wa_sheet(WA_META);
+  var data  = sheet.getRange(1, 1, Math.max(sheet.getLastRow(), 1), 2).getValues();
+  var keyToRow = {};
+  data.forEach(function(r, i) { if (r[0]) keyToRow[String(r[0])] = i + 1; });
+  Object.keys(meta).forEach(function(key) {
+    if (keyToRow[key]) {
+      sheet.getRange(keyToRow[key], 2).setValue(meta[key]);
+    } else {
+      sheet.appendRow([key, meta[key]]);
+    }
+  });
+  return { ok: true };
+}
+
+// Add a new row to the Queries tab — auto-assigns ID (Q-prefixed, incrementing)
+function _wa_addQuery(body) {
+  var query = body.query || body;
+  var q = {};
+  Object.keys(query).forEach(function(k) { if (k !== "action") q[k] = query[k]; });
+
+  var sheet   = _wa_sheet(WA_QUERIES);
+  var headers = _wa_headers(sheet);
+
+  var nextId = _wa_nextQueryId(sheet, headers);
+  q.id = nextId;
+
+  var row = headers.map(function(h) { return q[h] !== undefined ? q[h] : ""; });
+  sheet.appendRow(row);
+  return { ok: true, id: nextId };
+}
+
+// Update fields on a Queries tab row by ID
+// Accepts flat fields: { action, id, q_news: "...", hist_sweep: "done", ... }
+// OR nested:           { action, id, fields: { q_news: "...", hist_sweep: "done" } }
+function _wa_updateQuery(body) {
+  var id = body.id;
+  if (!id) return { error: "id required" };
+
+  var sheet   = _wa_sheet(WA_QUERIES);
+  var headers = _wa_headers(sheet);
+  var idIdx   = headers.indexOf("id");
+  if (idIdx < 0) return { error: "No id column in Queries tab" };
+  if (sheet.getLastRow() < 2) return { error: "Queries tab is empty" };
+
+  var fields = {};
+  if (body.fields && typeof body.fields === "object") {
+    Object.keys(body.fields).forEach(function(k) { fields[k] = body.fields[k]; });
+  }
+  Object.keys(body).forEach(function(k) {
+    if (k !== "action" && k !== "id" && k !== "fields") {
+      fields[k] = body[k];
+    }
+  });
+
+  if (Object.keys(fields).length === 0) return { error: "No fields to update" };
+
+  var data = sheet.getRange(2, 1, sheet.getLastRow() - 1, headers.length).getValues();
+  for (var i = 0; i < data.length; i++) {
+    if (String(data[i][idIdx]) === String(id)) {
+      Object.keys(fields).forEach(function(key) {
+        var col = headers.indexOf(key);
+        if (col >= 0) sheet.getRange(i + 2, col + 1).setValue(fields[key]);
+      });
+      return { ok: true, id: id };
+    }
+  }
+  return { error: "Query not found: " + id };
+}
+
+// =============================================================================
+// QUERY ID HELPER
+// =============================================================================
+
+function _wa_nextQueryId(sheet, headers) {
+  if (sheet.getLastRow() < 2) return "Q001";
+  var idIdx = headers.indexOf("id");
+  if (idIdx < 0) return "Q001";
+  var ids = sheet.getRange(2, idIdx + 1, sheet.getLastRow() - 1, 1).getValues()
+    .map(function(r) { return String(r[0]); });
+
+  var maxNum = 0;
+  ids.forEach(function(id) {
+    // Handle both integer IDs (1, 2, ... 46) and Q-prefixed (Q047, Q048, ...)
+    var n = parseInt(String(id).replace(/^Q/i, ""), 10);
+    if (!isNaN(n) && n > maxNum) maxNum = n;
+  });
+  var next = maxNum + 1;
+  return "Q" + (next < 100 ? (next < 10 ? "00" + next : "0" + next) : next);
+}
+
+// =============================================================================
+// STATUS VALUES REFERENCE
+// =============================================================================
+//
+// PerplexityQueue.status:
+//   pending    → newly written by PerplexitySearch.gs, not yet reviewed by Claude
+//   promoted   → reviewed, at least one citation promoted to NewsLog
+//   discarded  → reviewed, no relevant developments found
+//   reviewed   → reviewed, noted but no action (borderline / future reference)
+//
+// AcademicQueue.status:
+//   pending    → newly written by AcademicOrchestrator.gs, not yet reviewed
+//   promoted   → reviewed and promoted to NewsLog
+//   discarded  → reviewed, not relevant
+//   reviewed   → reviewed, no action (borderline)
+//
+// NewsResults.status:
+//   pending    → newly written by NewsSearch.gs, not yet reviewed
+//   processed  → reviewed (covers both promoted and discarded)

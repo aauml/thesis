@@ -1,0 +1,204 @@
+// =============================================================================
+// Code.gs — Academic Orchestrator v1
+// Batch architecture: BATCH_SIZE queries per run, schedules next batch via trigger
+// Academic providers: OpenAlex.gs, SemanticScholar.gs, ArXiv.gs, CORE.gs
+// News provider: NewsSearch.gs (runs independently via its own biweekly trigger)
+// =============================================================================
+
+var CONFIG = {
+  RESULTS_PER_QUERY: 3,
+  QUERY_TYPES: ['scholar', 'topic'],
+  QUEUE_TAB: 'AcademicQueue',
+  QUEUE_COLUMNS: ['id','url','title','authors','year','abstract','source_api','query_id','query_name','date_found','status','notes'],
+  BATCH_SIZE: 15,
+  BATCH_GAP_MS: 70 * 1000
+};
+var PROVIDERS = {
+  q_openalex: searchOpenAlex,
+  q_semantic:  searchSemanticScholar,
+  q_arxiv:     searchArXiv,
+  q_core:      searchCORE
+};
+
+function startDeepSweep() {
+  var props = PropertiesService.getScriptProperties();
+  props.setProperty('sweep_index', '0');
+  props.setProperty('sweep_mode', 'deep');
+  props.setProperty('sweep_from_year', '2020');
+  _cleanBatchTriggers();
+  Logger.log('Deep sweep initialized.');
+  runBatch();
+}
+
+function runBatch() {
+  var props    = PropertiesService.getScriptProperties();
+  var sheetApi = props.getProperty('SHEET_API');
+  var coreKey  = props.getProperty('CORE_API_KEY') || '';
+  var ssKey    = props.getProperty('SEMANTIC_API_KEY') || '';
+  var idx      = parseInt(props.getProperty('sweep_index') || '0', 10);
+  var fromYear = parseInt(props.getProperty('sweep_from_year') || String(new Date().getFullYear() - 1), 10);
+
+  Logger.log('=== BATCH START idx=' + idx + ' fromYear=' + fromYear + ' ===');
+
+  var existingUrls = _getExistingUrls(sheetApi);
+  var queueUrls    = _getQueueUrls();
+  var allKnown     = new Set([].concat(Array.from(existingUrls), Array.from(queueUrls)));
+  Logger.log('Known URLs: ' + allKnown.size);
+
+  var queries = _getActiveQueries(sheetApi);
+  Logger.log('Total active queries: ' + queries.length);
+
+  var batch = queries.slice(idx, idx + CONFIG.BATCH_SIZE);
+  Logger.log('Processing ' + batch.length + ' queries (' + idx + '-' + (idx + batch.length - 1) + ')');
+
+  if (batch.length === 0) {
+    Logger.log('All queries done. Sweep complete.');
+    _updateLastScan(sheetApi);
+    _cleanBatchTriggers();
+    return;
+  }
+
+  var newRows = [];
+  var runDate = new Date().toISOString().split('T')[0];
+  var options = { coreKey: coreKey, ssKey: ssKey };
+
+  for (var qi = 0; qi < batch.length; qi++) {
+    var q = batch[qi];
+    Logger.log('[' + (idx + qi + 1) + '/' + queries.length + '] ' + q.name);
+    var providerFields = Object.keys(PROVIDERS);
+    for (var pi = 0; pi < providerFields.length; pi++) {
+      var field = providerFields[pi];
+      var term  = (q[field] || '').trim();
+      if (!term) continue;
+      var providerFn = PROVIDERS[field];
+      try {
+        var results = providerFn(term, fromYear, options);
+        var added = 0;
+        for (var ri = 0; ri < results.length; ri++) {
+          var r = results[ri];
+          if (!r.url || allKnown.has(r.url)) continue;
+          allKnown.add(r.url);
+          added++;
+          newRows.push({
+            id: _makeId(r.url), url: r.url,
+            title: r.title || '', authors: r.authors || '',
+            year: r.year || '', abstract: (r.abstract || '').substring(0, 800),
+            source_api: field.replace('q_', ''),
+            query_id: q.id, query_name: q.name,
+            date_found: runDate, status: 'pending', notes: ''
+          });
+        }
+        if (added > 0) Logger.log('  [' + field + '] +' + added);
+        Utilities.sleep(150);
+      } catch(e) {
+        Logger.log('  [' + field + '] ERR: ' + e.message);
+      }
+    }
+  }
+
+  if (newRows.length > 0) { _writeToQueue(newRows); Logger.log('Wrote ' + newRows.length + ' rows.'); }
+  else { Logger.log('No new rows.'); }
+
+  var nextIdx = idx + batch.length;
+  props.setProperty('sweep_index', String(nextIdx));
+
+  if (nextIdx < queries.length) {
+    ScriptApp.newTrigger('runBatch').timeBased().at(new Date(Date.now() + CONFIG.BATCH_GAP_MS)).create();
+    Logger.log('Next batch at index ' + nextIdx + ' scheduled.');
+  } else {
+    Logger.log('All batches done.');
+    _updateLastScan(sheetApi);
+    _cleanBatchTriggers();
+  }
+}
+
+function startIncrementalScan() {
+  var props    = PropertiesService.getScriptProperties();
+  var lastScan = _getLastAcadScan(props.getProperty('SHEET_API'));
+  var fromYear = lastScan ? new Date(lastScan).getFullYear() : new Date().getFullYear() - 1;
+  props.setProperty('sweep_index', '0');
+  props.setProperty('sweep_mode', 'incremental');
+  props.setProperty('sweep_from_year', String(fromYear));
+  _cleanBatchTriggers();
+  Logger.log('Incremental scan fromYear=' + fromYear);
+  runBatch();
+}
+
+function setupTrigger() {
+  var existing = ScriptApp.getProjectTriggers().filter(function(t) { return t.getHandlerFunction() === 'startIncrementalScan'; });
+  if (existing.length > 0) { Logger.log('Trigger exists.'); return; }
+  ScriptApp.newTrigger('startIncrementalScan').timeBased().everyWeeks(2).onWeekDay(ScriptApp.WeekDay.MONDAY).atHour(6).create();
+  Logger.log('Biweekly trigger created.');
+}
+
+function removeTrigger() {
+  ScriptApp.getProjectTriggers().forEach(function(t) { ScriptApp.deleteTrigger(t); });
+  Logger.log('All triggers removed.');
+}
+
+function _cleanBatchTriggers() {
+  ScriptApp.getProjectTriggers().forEach(function(t) {
+    var fn = t.getHandlerFunction();
+    if (fn === 'runBatch' || fn === 'runDeepSweep' || fn === 'scheduleDeepSweep') ScriptApp.deleteTrigger(t);
+  });
+}
+
+function _getExistingUrls(sheetApi) {
+  var resp = UrlFetchApp.fetch(sheetApi + '?action=getUrls', { muteHttpExceptions: true });
+  if (resp.getResponseCode() !== 200) return new Set();
+  var data = JSON.parse(resp.getContentText());
+  var urls = data.urls || data.rows || [];
+  return new Set(urls.map(function(u) { return typeof u === 'string' ? u : (u.url || ''); }));
+}
+
+function _getActiveQueries(sheetApi) {
+  var resp = UrlFetchApp.fetch(sheetApi + '?action=getQueries', { muteHttpExceptions: true });
+  if (resp.getResponseCode() !== 200) return [];
+  return (JSON.parse(resp.getContentText()).queries || []).filter(function(r) {
+    return r.active === 'yes' && CONFIG.QUERY_TYPES.indexOf(r.type) !== -1;
+  });
+}
+
+function _getLastAcadScan(sheetApi) {
+  var resp = UrlFetchApp.fetch(sheetApi + '?action=getMeta', { muteHttpExceptions: true });
+  if (resp.getResponseCode() !== 200) return null;
+  return (JSON.parse(resp.getContentText()) || {}).last_acad_scan || null;
+}
+
+function _updateLastScan(sheetApi) {
+  UrlFetchApp.fetch(sheetApi, {
+    method: 'post', headers: { 'Content-Type': 'application/json' },
+    payload: JSON.stringify({ action: 'updateMeta', meta: { last_acad_scan: new Date().toISOString() } }),
+    muteHttpExceptions: true
+  });
+}
+
+function _ensureQueueTab() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName(CONFIG.QUEUE_TAB);
+  if (!sheet) sheet = ss.insertSheet(CONFIG.QUEUE_TAB);
+  var header = sheet.getRange(1, 1, 1, CONFIG.QUEUE_COLUMNS.length).getValues()[0];
+  if (header[0] !== 'id') {
+    sheet.getRange(1, 1, 1, CONFIG.QUEUE_COLUMNS.length).setValues([CONFIG.QUEUE_COLUMNS]).setFontWeight('bold').setBackground('#d0e4f7');
+    sheet.setFrozenRows(1);
+  }
+  return sheet;
+}
+
+function _getQueueUrls() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName(CONFIG.QUEUE_TAB);
+  if (!sheet || sheet.getLastRow() < 2) return new Set();
+  var urlCol = CONFIG.QUEUE_COLUMNS.indexOf('url') + 1;
+  return new Set(sheet.getRange(2, urlCol, sheet.getLastRow() - 1, 1).getValues().map(function(r) { return r[0]; }).filter(Boolean));
+}
+
+function _writeToQueue(rows) {
+  var sheet = _ensureQueueTab();
+  var values = rows.map(function(r) { return CONFIG.QUEUE_COLUMNS.map(function(col) { return r[col] || ''; }); });
+  sheet.getRange(sheet.getLastRow() + 1, 1, values.length, CONFIG.QUEUE_COLUMNS.length).setValues(values);
+}
+
+function _makeId(url) {
+  return Utilities.base64Encode(url).replace(/[^a-zA-Z0-9]/g, '').substring(0, 16);
+}

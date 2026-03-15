@@ -1,0 +1,55 @@
+// =============================================================================
+// ArXiv.gs — Proveedor ArXiv v1
+// SOLO cs.CY (Computers and Society) — cs.AI y cs.LG son ruido puro
+// SOLO queries con frase entrecomillada — sin ella devuelve papers de ML irrelevantes
+// NO usar para scholars de derecho (no publican en arxiv)
+// Campo en Queries tab: q_arxiv (vacío = no buscar en ArXiv)
+// =============================================================================
+
+function searchArXiv(term, fromYear, opts) {
+  if (!term) return [];
+  if (!_arxivHasPhrase(term)) {
+    Logger.log('[ArXiv] Skipping — no quoted phrase in: ' + term);
+    return [];
+  }
+  var phrase = term.match(/"([^"]+)"/)[1];
+  var query  = encodeURIComponent(phrase) + '+AND+cat:cs.CY';
+  var url = 'http://export.arxiv.org/api/query'
+    + '?search_query=' + query
+    + '&start=0&max_results=3'
+    + '&sortBy=submittedDate&sortOrder=descending';
+  try {
+    var resp = UrlFetchApp.fetch(url, {muteHttpExceptions:true});
+    if (resp.getResponseCode() !== 200) {
+      Logger.log('[ArXiv] HTTP ' + resp.getResponseCode());
+      return [];
+    }
+    var xml = resp.getContentText();
+    var results = [];
+    xml.split('<entry>').slice(1).forEach(function(entry) {
+      var idM    = entry.match(/<id>(https?:\/\/arxiv\.org\/abs\/[^<]+)<\/id>/);
+      var titleM = entry.match(/<title>([\s\S]*?)<\/title>/);
+      var sumM   = entry.match(/<summary>([\s\S]*?)<\/summary>/);
+      var yearM  = entry.match(/<published>(\d{4})/);
+      var authMs = entry.match(/<n>([^<]+)<\/name>/g);
+      if (!idM) return;
+      var yr = yearM ? parseInt(yearM[1]) : 0;
+      if (yr < fromYear) return;
+      results.push({
+        url:      idM[1].trim(),
+        title:    titleM ? titleM[1].replace(/\s+/g,' ').trim() : '',
+        authors:  authMs ? authMs.slice(0,3).map(function(m){return m.replace(/<\/?name>/g,'');}).join('; ') : '',
+        year:     yr,
+        abstract: sumM ? sumM[1].replace(/\s+/g,' ').trim() : ''
+      });
+    });
+    return results;
+  } catch(e) {
+    Logger.log('[ArXiv] ERR: ' + e.message);
+    return [];
+  }
+}
+
+function _arxivHasPhrase(term) {
+  return /"[^"]+"/.test(term);
+}

@@ -572,7 +572,7 @@
       <!-- Estado actual -->
       <div class="prose">
         <p>Focus en los <strong>cuatro pilares teóricos</strong>: gobernanza comparada (Bradford, Veale), teoría regulatoria (Kaminski, Engler), derecho procesal (Faigman, Wexler), contestabilidad (Selbst, Citron). Q1 en <strong>orientación intensiva</strong> — Kaminski 2023 en curso, Bradford 2020 pendiente, caso de estudio sin decidir.</p>
-        <p>Pipeline KB reparado (76 entradas hace 2 días), pero <strong>249 items en AcademicQueue</strong> sin procesar y <strong>capa de Caso al 7%</strong> — gap crítico para el Cap. 6.</p>
+        <p>KB en <strong>1,459 entradas</strong> (438 ALTA). Todas las queues vaciadas al 15 mar. <strong>Capa de Caso al 7%</strong> — gap crítico para Cap. 6. Pendiente: leer Stoltz (2024) sobre compliance federal con NIST RMF.</p>
       </div>
 
       <!-- Novedades -->
@@ -688,14 +688,16 @@
         <div class="news-item"><span class="news-date">15 mar</span><div>Facial recognition EU → escuelas en Brasil. Accountability gap extraterritorial.</div></div>
       </div>
 
-      <!-- Pipeline status -->
-      <div class="section-label">Estado del pipeline</div>
-      <div class="card">
-        <div class="news-item"><span class="news-date">15 mar</span><div><strong>204 entradas nuevas al NewsLog</strong> (1,255 → 1,459) · todas las queues vaciadas</div></div>
-        <div class="news-item"><span class="news-date">15 mar</span><div>PerplexityQueue: 24 promoted, 10 discarded → <strong>0 pending</strong></div></div>
-        <div class="news-item"><span class="news-date">15 mar</span><div>NewsResults: 99 promoted, 37 discarded → <strong>0 pending</strong></div></div>
-        <div class="news-item"><span class="news-date">15 mar</span><div>AcademicQueue: 58 promoted, 34 discarded, 111 held → <strong>0 pending</strong></div></div>
-        <div class="news-item" style="background:var(--success-bg,#d4edda);border-radius:3px;"><span class="news-date" style="color:var(--success-text,#155724);">✓</span><div><strong>Todas las colas en cero</strong> · PR-009 aplicado</div></div>
+      <!-- Pipeline status — LIVE from API -->
+      <div class="section-label">Estado del pipeline <span id="pipelineRefresh" style="font-size:0.7rem;cursor:pointer;opacity:0.5;" onclick="fetchPipelineStatus()">↻</span></div>
+      <div class="card" id="pipelineCard">
+        <div id="pipelineLive" style="font-size:0.82rem;">
+          <div style="color:var(--text-muted);padding:0.5rem;">Cargando datos del API...</div>
+        </div>
+        <div id="pipelineHistory" style="margin-top:0.5rem;border-top:1px solid var(--border);padding-top:0.5rem;">
+          <div style="font-size:0.72rem;color:var(--text-muted);margin-bottom:0.3rem;">Último procesamiento (15 mar)</div>
+          <div class="news-item"><span class="news-date">15 mar</span><div>204 entradas nuevas (1,255 → 1,459) · 3 queues vaciadas</div></div>
+        </div>
       </div>
 
     </div>
@@ -1033,7 +1035,7 @@
     </div>
 
     <footer>
-      Última actualización: 15 de marzo de 2026 · Thesis Dashboard v4.2 — documento vivo
+      Última actualización: 15 de marzo de 2026 · Thesis Dashboard v5.0 — documento vivo · pipeline status es live
     </footer>
 
   </div><!-- /main -->
@@ -1232,10 +1234,95 @@ function syncToGAS(item) {
 }
 
 // ═══════════════════════════════════════
+// PIPELINE — live status from API
+// ═══════════════════════════════════════
+async function fetchPipelineStatus() {
+  const el = document.getElementById('pipelineLive');
+  if (!el) return;
+  el.innerHTML = '<div style="color:var(--text-muted);padding:0.3rem;">Consultando API...</div>';
+
+  try {
+    // Fetch all three queue counts + metadata in parallel
+    const [acad, perp, news, meta] = await Promise.all([
+      fetch(GAS_API + '?action=getAcademicQueue&status=pending&limit=1').then(r => r.json()).catch(() => null),
+      fetch(GAS_API + '?action=getPerplexityQueue&status=pending&limit=1').then(r => r.json()).catch(() => null),
+      fetch(GAS_API + '?action=getNewsResults&status=pending&limit=1').then(r => r.json()).catch(() => null),
+      fetch(GAS_API + '?action=getMeta').then(r => r.json()).catch(() => null),
+    ]);
+
+    // Count pending — API returns rows array, count them
+    // With limit=1, we get at most 1 row, but we can check if there are any
+    const acadPending = acad?.rows?.length || 0;
+    const perpPending = perp?.rows?.length || 0;
+    const newsPending = news?.rows?.length || 0;
+    const totalPending = acadPending + perpPending + newsPending;
+
+    // Format last scan dates from meta
+    const lastSearch = meta?.meta?.last_search_date ? new Date(meta.meta.last_search_date).toLocaleDateString('es-ES', {day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}) : '—';
+    const lastAcad = meta?.meta?.last_acad_scan ? new Date(meta.meta.last_acad_scan).toLocaleDateString('es-ES', {day:'numeric',month:'short'}) : '—';
+    const lastNews = meta?.meta?.last_news_scan ? new Date(meta.meta.last_news_scan).toLocaleDateString('es-ES', {day:'numeric',month:'short'}) : '—';
+    const lastPerp = meta?.meta?.last_perplexity_scan ? new Date(meta.meta.last_perplexity_scan).toLocaleDateString('es-ES', {day:'numeric',month:'short'}) : '—';
+
+    // Determine if any queue needs attention (has pending items)
+    const hasWork = totalPending > 0;
+    const statusColor = hasWork ? 'var(--warn-text,#856404)' : 'var(--success-text,#155724)';
+    const statusBg = hasWork ? 'var(--warn-bg,#fff3cd)' : 'var(--success-bg,#d4edda)';
+    const statusIcon = hasWork ? '⚠' : '✓';
+    const statusText = hasWork
+      ? `${totalPending > 0 ? totalPending + '+ items pendientes' : 'Items pendientes'} — ejecutar <code>update</code>`
+      : 'Todas las colas en cero';
+
+    // Build queue rows
+    const queueRows = [
+      { name: 'AcademicQueue', pending: acadPending > 0, lastScan: lastAcad },
+      { name: 'PerplexityQueue', pending: perpPending > 0, lastScan: lastPerp },
+      { name: 'NewsResults', pending: newsPending > 0, lastScan: lastNews },
+    ];
+
+    let html = '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.4rem;margin-bottom:0.5rem;">';
+    for (const q of queueRows) {
+      const dot = q.pending ? '🔴' : '🟢';
+      html += `<div style="background:var(--card-bg);border:1px solid var(--border);border-radius:4px;padding:0.4rem 0.6rem;font-size:0.78rem;">
+        <div>${dot} <strong>${q.name.replace('Queue','').replace('Results','')}</strong></div>
+        <div style="color:var(--text-muted);font-size:0.7rem;">Scan: ${q.lastScan}</div>
+      </div>`;
+    }
+    html += '</div>';
+
+    // Status bar
+    html += `<div style="background:${statusBg};border-radius:3px;padding:0.4rem 0.6rem;font-size:0.82rem;">
+      <span style="color:${statusColor};">${statusIcon}</span> <strong>${statusText}</strong>
+      <span style="float:right;font-size:0.7rem;color:var(--text-muted);">Actualizado: ${new Date().toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'})}</span>
+    </div>`;
+
+    el.innerHTML = html;
+
+    // Cache result
+    localStorage.setItem(LS_PREFIX + 'pipeline', JSON.stringify({
+      ts: Date.now(), acadPending, perpPending, newsPending, lastSearch, lastAcad, lastNews, lastPerp
+    }));
+
+  } catch(e) {
+    // Try cached data
+    const cached = localStorage.getItem(LS_PREFIX + 'pipeline');
+    if (cached) {
+      const c = JSON.parse(cached);
+      const age = Math.round((Date.now() - c.ts) / 60000);
+      el.innerHTML = `<div style="color:var(--text-muted);padding:0.3rem;font-size:0.78rem;">
+        Datos en cache (hace ${age} min) · API no disponible
+      </div>`;
+    } else {
+      el.innerHTML = '<div style="color:var(--text-muted);padding:0.3rem;">API no disponible</div>';
+    }
+  }
+}
+
+// ═══════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════
 document.addEventListener('DOMContentLoaded', () => {
   renderOps();
+  fetchPipelineStatus(); // Live queue status on every page load
 });
 
 // ── PWA ──

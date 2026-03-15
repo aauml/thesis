@@ -1083,23 +1083,39 @@ function toggleAllDec(open) {
 
 // ═══════════════════════════════════════
 // OPERATIVO — interactive checklist with undo
+// Version bump forces localStorage refresh on deploy
 // ═══════════════════════════════════════
+const OPS_VERSION = 2; // bump when DEFAULT_OPS change
 const DEFAULT_OPS = [
-  { id: 'op-academic', text: 'AcademicQueue: 249 items — ejecutar update academic', done: false, ts: null },
-  { id: 'op-perplexity', text: 'PerplexityQueue: 84 items stuck', done: false, ts: null },
-  { id: 'op-news', text: 'NewsResults: 137 items pendientes', done: false, ts: null },
+  { id: 'op-academic', text: 'AcademicQueue: ~207 items — ejecutar update academic (por URL, no ID)', done: false, ts: null },
+  { id: 'op-perplexity', text: 'PerplexityQueue: ~34 items pendientes', done: false, ts: null },
+  { id: 'op-news', text: 'NewsResults: ~136 items pendientes', done: false, ts: null },
   { id: 'op-email', text: 'Obtener email institucional USAL', done: false, ts: null },
   { id: 'op-inscripcion', text: 'Inscripción formal programa doctoral', done: false, ts: null },
   { id: 'op-obsidian', text: 'Expandir stubs de pilares teóricos', done: false, ts: null },
   { id: 'op-tanner', text: 'Agregar Tanner et al. (2026) al KB', done: false, ts: null },
+  { id: 'op-bug001', text: 'PM-BUG-001: documentar schema API del KB para phd-pm', done: false, ts: null },
 ];
 
 function loadOps() {
+  const ver = parseInt(localStorage.getItem(LS_PREFIX + 'ops_ver') || '0');
+  if (ver < OPS_VERSION) {
+    // Merge: keep user-added items + completed state, update defaults
+    const old = JSON.parse(localStorage.getItem(LS_PREFIX + 'ops') || '[]');
+    const oldMap = Object.fromEntries(old.map(o => [o.id, o]));
+    const merged = DEFAULT_OPS.map(d => oldMap[d.id] ? { ...d, done: oldMap[d.id].done, ts: oldMap[d.id].ts } : { ...d });
+    // Preserve user-added items (ids not in defaults)
+    const defaultIds = new Set(DEFAULT_OPS.map(d => d.id));
+    old.filter(o => !defaultIds.has(o.id)).forEach(o => merged.push(o));
+    saveOps(merged);
+    return merged;
+  }
   const saved = localStorage.getItem(LS_PREFIX + 'ops');
   return saved ? JSON.parse(saved) : JSON.parse(JSON.stringify(DEFAULT_OPS));
 }
 function saveOps(ops) {
   localStorage.setItem(LS_PREFIX + 'ops', JSON.stringify(ops));
+  localStorage.setItem(LS_PREFIX + 'ops_ver', String(OPS_VERSION));
 }
 
 function renderOps() {

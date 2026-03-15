@@ -1,0 +1,14 @@
+{
+  "name": "Thesis Dashboard",
+  "short_name": "Thesis",
+  "description": "Dashboard de tesis doctoral — EU AI Act ↔ NIST AI RMF",
+  "start_url": "/thesis/dashboard.html",
+  "scope": "/thesis/",
+  "display": "standalone",
+  "background_color": "#fdfdfd",
+  "theme_color": "#1a3a5c",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

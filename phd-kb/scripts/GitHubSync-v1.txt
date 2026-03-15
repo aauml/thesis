@@ -28,6 +28,11 @@ const GITHUB_REPO = 'thesis';
 const GITHUB_BRANCH = 'main';
 const DRIVE_FOLDER_NAME = 'thesis-repo';
 
+// If you want the repo inside an existing Drive folder, set its ID here.
+// Get the ID from the folder URL: https://drive.google.com/drive/folders/FOLDER_ID
+// Leave empty to create in Drive root.
+const DRIVE_PARENT_FOLDER_ID = '1KvWGLwbXxrNzpmBuFU6od4HJeH-IGXBY'; // 09_Sistema
+
 // Files/folders to skip (regex patterns)
 const SKIP_PATTERNS = [
   /^\.git/,           // .git folder
@@ -193,6 +198,17 @@ function encodeURIPath_(path) {
 // ─────────────────────────────────────────────
 
 function getOrCreateDriveFolder_(name) {
+  // If a parent folder ID is configured, look/create inside it
+  if (DRIVE_PARENT_FOLDER_ID) {
+    const parent = DriveApp.getFolderById(DRIVE_PARENT_FOLDER_ID);
+    const folders = parent.getFoldersByName(name);
+    if (folders.hasNext()) {
+      return folders.next();
+    }
+    Logger.log('Creating Drive folder: ' + name + ' inside ' + parent.getName());
+    return parent.createFolder(name);
+  }
+  // Otherwise, use Drive root
   const folders = DriveApp.getFoldersByName(name);
   if (folders.hasNext()) {
     return folders.next();

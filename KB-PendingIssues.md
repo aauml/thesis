@@ -68,15 +68,18 @@ _Actualizar al cierre de cada sesión. Este archivo es la memoria técnica del s
 | 2026-03-13 | Duplicate function names resuelto: `_advanceNextRunDate`, `_isQueryDue`, `_fmtDate` eliminadas de PerplexitySearch-v3. Solo viven en AcademicOrchestrator. |
 | 2026-03-15 | AcademicQueue first full review: 200 pending → 24 promoted, 156 discarded, 17 reviewed, 3 skipped (dupes). ArXiv queries return massive noise (quantum physics, biology) — needs query refinement or pre-staging filters. |
 | 2026-03-15 | Confirmado: `action=append` dedup contra 4 tabs incluye la queue de origen. Para promover desde AcademicQueue usar `action=promoteToNewsLog` (ya documentado, pero se re-confirmó con AcademicQueue). |
+| 2026-03-15 | ArXiv_v2.gs creado: inyecta filtro de categorías (cs.AI, cs.CY, cs.LG, etc.) automáticamente en todas las queries arXiv. Reemplaza ArXiv.gs (v1). Versiones activas actualizadas: ArXiv_v2 (pendiente deploy). |
 
 ---
 
 ### BUG-004 — AcademicOrchestrator arXiv noise: massive off-topic returns
-- **Estado:** Abierto
+- **Estado:** ✅ Fix preparado — pendiente deploy
 - **Descripción:** ArXiv queries retornan papers completamente off-topic (quantum physics, coral larvae, Hawking radiation) para queries de AI Act, Forensic AI, etc. La query construction en `q_arxiv` no filtra por categoría o subject. De 200 items pendientes, 79 fueron obviamente off-topic por keywords, y ~77 adicionales fueron tangenciales.
 - **Impacto:** Alto — la mayoría de los items en AcademicQueue son noise, desperdiciando tiempo de evaluación.
-- **Fix posible:** (1) Añadir `cat:cs.*` o filtro de categoría a las queries arXiv en AcademicOrchestrator, (2) Implementar pre-screening por abstract keywords antes de staging, (3) Revisar `q_arxiv` fields en Queries tab para queries más precisas.
+- **Fix:** `ArXiv_v2.gs` — inyecta filtro de categorías automáticamente en todas las queries. Categorías permitidas: cs.AI, cs.CY, cs.LG, cs.CR, cs.HC, cs.CL, cs.SE, stat.ML, eess.SP, q-bio.QM. Si `q_arxiv` ya contiene `cat:`, no se inyecta (permite overrides manuales). Archivo disponible en repo (`ArXiv_v2.gs`) y en outputs.
+- **Deploy:** Usuario debe copiar contenido de `ArXiv_v2.gs` al editor GAS, reemplazando `ArXiv.gs`. No requiere redesploy del WebApp (es script interno del AcademicOrchestrator).
 - **Fecha detectado:** 2026-03-15
+- **Fecha fix preparado:** 2026-03-15
 
 ---
 

@@ -48,6 +48,11 @@ These are hard rules derived from past bugs. Violating any of these means repeat
 - **Root cause:** No había regla explícita de siempre actualizar el dashboard al cerrar sesión.
 - **Rule:** Toda sesión que modifique estado del KB, queues, decisiones, o tareas DEBE actualizar y pushear `dashboard.html` antes de cerrar. Sin excepciones.
 
+### PR-011 — Dashboard pipeline status is live; scheduled task handles daily queue review
+- **Derived from:** Sesión 5, 2026-03-15. User requested automatic daily updates.
+- **Architecture:** Dashboard v5.0 fetches queue counts from SHEET_API on every page load (client-side JS). Scheduled task `thesis-queue-review` runs daily at 9am to process any pending items and push dashboard updates.
+- **Rule:** Dashboard HTML sections that show pipeline status are now dynamic (fetched from API). Static sections (KB stats, capa bars, thematic news) still need manual update when items are promoted. The scheduled task handles both: queue processing + dashboard push.
+
 ### PR-010 — NewsResults: use URL for updateNewsRow, never ID (same issue as PR-005)
 - **Derived from:** Queue emptying session 2026-03-15 (sesión 5)
 - **Root cause:** ALL 136 NewsResults rows had the identical ID `aHR0cHM6Ly9uZXdz` because all Google News RSS URLs start with `https://news.google.com/...` and `base64(url)[:16]` truncates identically. `updateNewsRow` by ID only updates one row.
@@ -80,6 +85,7 @@ These are hard rules derived from past bugs. Violating any of these means repeat
 
 | Date | Session Type | Key Actions | Lessons Added |
 |------|-------------|-------------|---------------|
+| 2026-03-15 | automation | Dashboard v5.0 live API fetch + scheduled daily queue review task | PR-011 |
 | 2026-03-15 | queue-empty | 370 items processed, 3 queues → 0, NewsResults ID bug found | PR-009, PR-010 |
 | 2026-03-15 | dashboard-fix | Operativo defaults + ops versioning, standing rule dashboard | PR-007, PR-008 |
 | 2026-03-15 | kb-review | Queue review: 45 items to NewsLog, SKILL-KB v14, PR-005/PR-006 | PR-005, PR-006 |
@@ -89,4 +95,4 @@ These are hard rules derived from past bugs. Violating any of these means repeat
 
 ---
 
-_Última actualización: 2026-03-15 (sesión 5)_
+_Última actualización: 2026-03-15 (sesión 5, final)_

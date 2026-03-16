@@ -3,7 +3,7 @@
 // Moving it to pwa/sw.js would restrict its scope to /thesis/pwa/
 // and it wouldn't be able to cache /thesis/dashboard.html.
 
-const CACHE = 'thesis-v4';
+const CACHE = 'thesis-v5';
 const ASSETS = [
   '/thesis/dashboard.html',
   '/thesis/pwa/manifest.json',

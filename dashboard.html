@@ -479,32 +479,41 @@
       .layout { flex-direction: column; }
       .sidebar {
         width: 100%; height: auto; position: sticky; top: 0;
-        flex-direction: column; border-right: none; border-bottom: 1px solid var(--border);
-        overflow-y: visible; z-index: 20;
+        flex-direction: column; border-right: none;
+        border-bottom: 1px solid var(--border);
+        overflow: visible; z-index: 20;
       }
-      .sb-header { padding: 0.7rem 1rem 0.3rem; display: flex; align-items: baseline; gap: 0.6rem; }
-      .sb-title { font-size: 0.9rem; }
-      .sb-meta { font-size: 0.62rem; }
-      .sb-nav { padding: 0; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+      .sb-header {
+        padding: 0.55rem 1rem 0.2rem;
+        display: flex; align-items: baseline; gap: 0.5rem;
+      }
+      .sb-title { font-size: 0.85rem; }
+      .sb-meta { font-size: 0.6rem; }
       .sb-section-label { display: none; }
-      .sb-nav { display: flex; flex-direction: row; gap: 0; }
+      .sb-nav {
+        display: flex; flex-direction: row; flex-wrap: nowrap;
+        overflow-x: auto; -webkit-overflow-scrolling: touch;
+        padding: 0; gap: 0; flex: none;
+        border-top: 1px solid var(--border-light);
+      }
       .sb-item {
-        flex-shrink: 0; padding: 0.5rem 0.8rem; font-size: 0.72rem;
-        white-space: nowrap; border-radius: 0;
+        flex: 0 0 auto; padding: 0.45rem 0.75rem; font-size: 0.7rem;
+        white-space: nowrap; border-radius: 0; border-bottom: 2px solid transparent;
       }
       .sb-item.active {
-        background: var(--accent); color: white;
+        background: none; color: var(--accent); font-weight: 600;
         border-radius: 0; margin-right: 0;
         border-bottom: 2px solid var(--accent);
       }
-      .sb-icon { font-size: 0.82rem; width: 16px; }
-      .sb-badge { font-size: 0.52rem; padding: 0.02rem 0.3rem; }
+      .sb-item:hover { background: var(--accent-soft); }
+      .sb-icon { font-size: 0.78rem; width: 14px; }
+      .sb-badge { font-size: 0.5rem; padding: 0.02rem 0.25rem; }
       .sb-phase { display: none; }
       .sb-quickadd { display: none; }
-      .main { margin-left: 0; padding: 1rem; max-width: 100%; }
+      .main { margin-left: 0; padding: 0.75rem; max-width: 100%; }
       .grid-2 { grid-template-columns: 1fr; }
       .kb-grid { grid-template-columns: repeat(2, 1fr); }
-      .kpi-strip { gap: 0.35rem; }
+      .kpi-strip { gap: 0.3rem; flex-wrap: wrap; }
       .kpi { min-width: 70px; }
       /* Map responsive */
       .map-found-grid { grid-template-columns: 1fr; }

@@ -1088,7 +1088,7 @@ function toggleAllDec(open) {
 // OPERATIVO — interactive checklist with undo
 // Version bump forces localStorage refresh on deploy
 // ═══════════════════════════════════════
-const OPS_VERSION = 3; // bump when DEFAULT_OPS change
+const OPS_VERSION = 4; // bump when DEFAULT_OPS change — v4: removed deprecated queue items
 const DEFAULT_OPS = [
   { id: 'op-queues', text: 'Queues vaciadas: 0 academic, 0 perplexity, 0 news', done: true, ts: '15 mar 2026' },
   { id: 'op-email', text: 'Obtener email institucional USAL', done: false, ts: null },
@@ -1100,6 +1100,9 @@ const DEFAULT_OPS = [
   { id: 'op-finck', text: 'Leer Finck (2026) — EU AI Act Article-by-Article Commentary (OUP)', done: false, ts: null },
 ];
 
+// IDs that were removed from defaults — don't preserve them from old localStorage
+const DEPRECATED_OPS = new Set(['op-academic', 'op-perplexity', 'op-news']);
+
 function loadOps() {
   const ver = parseInt(localStorage.getItem(LS_PREFIX + 'ops_ver') || '0');
   if (ver < OPS_VERSION) {
@@ -1107,9 +1110,9 @@ function loadOps() {
     const old = JSON.parse(localStorage.getItem(LS_PREFIX + 'ops') || '[]');
     const oldMap = Object.fromEntries(old.map(o => [o.id, o]));
     const merged = DEFAULT_OPS.map(d => oldMap[d.id] ? { ...d, done: oldMap[d.id].done, ts: oldMap[d.id].ts } : { ...d });
-    // Preserve user-added items (ids not in defaults)
+    // Preserve user-added items (ids not in defaults AND not deprecated)
     const defaultIds = new Set(DEFAULT_OPS.map(d => d.id));
-    old.filter(o => !defaultIds.has(o.id)).forEach(o => merged.push(o));
+    old.filter(o => !defaultIds.has(o.id) && !DEPRECATED_OPS.has(o.id)).forEach(o => merged.push(o));
     saveOps(merged);
     return merged;
   }

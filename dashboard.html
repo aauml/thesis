@@ -440,16 +440,7 @@
     .map-case-badge { font-size: 0.6rem; font-weight: 600; text-transform: uppercase; color: #854f0b; }
     .map-case-detail { font-size: 0.68rem; color: #633806; }
 
-    /* Responsive: analítica scroll horizontal en mobile */
-    @media (max-width: 700px) {
-      .map-found-grid { grid-template-columns: 1fr; }
-      .map-ana-layout {
-        display: flex; overflow-x: auto; -webkit-overflow-scrolling: touch;
-        gap: 0.4rem; padding-bottom: 0.3rem;
-      }
-      .map-ana-layout > * { flex-shrink: 0; min-width: 140px; }
-      .map-eva-grid { grid-template-columns: repeat(2, 1fr); }
-    }
+    /* Responsive: map on mobile (handled within 768px query below) */
 
     /* ═══════════════════════════════════════
        DECISIONES
@@ -485,12 +476,45 @@
        RESPONSIVE
     ═══════════════════════════════════════ */
     @media (max-width: 768px) {
-      .sidebar { width: 100%; height: auto; position: relative; }
-      .main { margin-left: 0; padding: 1rem; }
+      .layout { flex-direction: column; }
+      .sidebar {
+        width: 100%; height: auto; position: sticky; top: 0;
+        flex-direction: column; border-right: none; border-bottom: 1px solid var(--border);
+        overflow-y: visible; z-index: 20;
+      }
+      .sb-header { padding: 0.7rem 1rem 0.3rem; display: flex; align-items: baseline; gap: 0.6rem; }
+      .sb-title { font-size: 0.9rem; }
+      .sb-meta { font-size: 0.62rem; }
+      .sb-nav { padding: 0; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+      .sb-section-label { display: none; }
+      .sb-nav { display: flex; flex-direction: row; gap: 0; }
+      .sb-item {
+        flex-shrink: 0; padding: 0.5rem 0.8rem; font-size: 0.72rem;
+        white-space: nowrap; border-radius: 0;
+      }
+      .sb-item.active {
+        background: var(--accent); color: white;
+        border-radius: 0; margin-right: 0;
+        border-bottom: 2px solid var(--accent);
+      }
+      .sb-icon { font-size: 0.82rem; width: 16px; }
+      .sb-badge { font-size: 0.52rem; padding: 0.02rem 0.3rem; }
+      .sb-phase { display: none; }
+      .sb-quickadd { display: none; }
+      .main { margin-left: 0; padding: 1rem; max-width: 100%; }
       .grid-2 { grid-template-columns: 1fr; }
       .kb-grid { grid-template-columns: repeat(2, 1fr); }
       .kpi-strip { gap: 0.35rem; }
       .kpi { min-width: 70px; }
+      /* Map responsive */
+      .map-found-grid { grid-template-columns: 1fr; }
+      .map-ana-layout {
+        display: flex; overflow-x: auto; -webkit-overflow-scrolling: touch;
+        gap: 0.4rem; padding-bottom: 0.3rem;
+      }
+      .map-ana-layout > * { flex-shrink: 0; min-width: 140px; }
+      .map-eva-grid { grid-template-columns: repeat(2, 1fr); }
+      .map-question { font-size: 0.72rem; }
     }
   </style>
 </head>

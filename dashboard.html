@@ -479,6 +479,8 @@
     .corr-table th.col-header { background: #e1f5ee; color: #0f6e56; writing-mode: horizontal-tb; min-width: 60px; }
     .corr-table td { cursor: default; }
     .corr-table .c-pending { color: var(--text-muted); }
+    .corr-table .c-expect { color: var(--accent-mid); font-size: 0.9rem; }
+    .corr-table .c-empty { color: #e0e0e0; }
     .corr-table .c-full { color: #2d7a3f; font-weight: 700; }
     .corr-table .c-partial { color: #a05c00; font-weight: 700; }
     .corr-table .c-none { color: #b03030; }
@@ -1017,63 +1019,63 @@
             <tbody>
               <tr>
                 <th class="row-header">Art. 9 · <span style="font-weight:400;">Sistema de gestión de riesgos</span></th>
-                <td class="c-pending" title="Pendiente — Cap. 5">·</td>
-                <td class="c-pending" title="Pendiente — Cap. 5">·</td>
-                <td class="c-pending" title="Pendiente — Cap. 5">·</td>
-                <td class="c-pending" title="Pendiente — Cap. 5">·</td>
+                <td class="c-expect" title="Políticas de gestión de riesgo ↔ GOVERN">●</td>
+                <td class="c-expect" title="Identificación y categorización de riesgos ↔ MAP">●</td>
+                <td class="c-expect" title="Evaluación y métricas de riesgo ↔ MEASURE">●</td>
+                <td class="c-expect" title="Mitigación y respuesta a riesgos ↔ MANAGE">●</td>
               </tr>
               <tr>
                 <th class="row-header">Art. 10 · <span style="font-weight:400;">Datos y gobernanza de datos</span></th>
-                <td class="c-pending" title="Pendiente — Cap. 5">·</td>
-                <td class="c-pending" title="Pendiente — Cap. 5">·</td>
-                <td class="c-pending" title="Pendiente — Cap. 5">·</td>
-                <td class="c-pending" title="Pendiente — Cap. 5">·</td>
+                <td class="c-expect" title="Políticas de gobernanza de datos ↔ GOVERN">●</td>
+                <td class="c-expect" title="Contexto y categorización de datos ↔ MAP">●</td>
+                <td class="c-expect" title="Métricas de calidad de datos ↔ MEASURE">●</td>
+                <td class="c-empty" title="Conexión débil"></td>
               </tr>
               <tr>
                 <th class="row-header">Art. 11 · <span style="font-weight:400;">Documentación técnica</span></th>
-                <td class="c-pending" title="Pendiente — Cap. 5">·</td>
-                <td class="c-pending" title="Pendiente — Cap. 5">·</td>
-                <td class="c-pending" title="Pendiente — Cap. 5">·</td>
-                <td class="c-pending" title="Pendiente — Cap. 5">·</td>
+                <td class="c-expect" title="Políticas de documentación ↔ GOVERN">●</td>
+                <td class="c-expect" title="Documentar contexto del sistema ↔ MAP">●</td>
+                <td class="c-empty" title="Conexión débil"></td>
+                <td class="c-empty" title="Conexión débil"></td>
               </tr>
               <tr>
                 <th class="row-header">Art. 12 · <span style="font-weight:400;">Registro de actividades (logs)</span></th>
-                <td class="c-pending" title="Pendiente — Cap. 5">·</td>
-                <td class="c-pending" title="Pendiente — Cap. 5">·</td>
-                <td class="c-pending" title="Pendiente — Cap. 5">·</td>
-                <td class="c-pending" title="Pendiente — Cap. 5">·</td>
+                <td class="c-expect" title="Políticas de logging ↔ GOVERN">●</td>
+                <td class="c-empty" title="Conexión débil"></td>
+                <td class="c-expect" title="Monitoreo y métricas operativas ↔ MEASURE">●</td>
+                <td class="c-expect" title="Trazabilidad y respuesta ↔ MANAGE">●</td>
               </tr>
               <tr>
                 <th class="row-header">Art. 13 · <span style="font-weight:400;">Transparencia e información</span></th>
-                <td class="c-pending" title="Pendiente — Cap. 5">·</td>
-                <td class="c-pending" title="Pendiente — Cap. 5">·</td>
-                <td class="c-pending" title="Pendiente — Cap. 5">·</td>
-                <td class="c-pending" title="Pendiente — Cap. 5">·</td>
+                <td class="c-expect" title="Políticas de transparencia ↔ GOVERN">●</td>
+                <td class="c-expect" title="Información de contexto a usuarios ↔ MAP">●</td>
+                <td class="c-empty" title="Conexión débil"></td>
+                <td class="c-empty" title="Conexión débil"></td>
               </tr>
               <tr>
                 <th class="row-header">Art. 14 · <span style="font-weight:400;">Supervisión humana</span></th>
-                <td class="c-pending" title="Pendiente — Cap. 5">·</td>
-                <td class="c-pending" title="Pendiente — Cap. 5">·</td>
-                <td class="c-pending" title="Pendiente — Cap. 5">·</td>
-                <td class="c-pending" title="Pendiente — Cap. 5">·</td>
+                <td class="c-expect" title="Roles y responsabilidades de supervisión ↔ GOVERN">●</td>
+                <td class="c-empty" title="Conexión débil"></td>
+                <td class="c-empty" title="Conexión débil"></td>
+                <td class="c-expect" title="Intervención y override humano ↔ MANAGE">●</td>
               </tr>
               <tr>
                 <th class="row-header">Art. 15 · <span style="font-weight:400;">Precisión, robustez, ciberseguridad</span></th>
-                <td class="c-pending" title="Pendiente — Cap. 5">·</td>
-                <td class="c-pending" title="Pendiente — Cap. 5">·</td>
-                <td class="c-pending" title="Pendiente — Cap. 5">·</td>
-                <td class="c-pending" title="Pendiente — Cap. 5">·</td>
+                <td class="c-empty" title="Conexión débil"></td>
+                <td class="c-expect" title="Categorización de amenazas ↔ MAP">●</td>
+                <td class="c-expect" title="Testing y evaluación técnica ↔ MEASURE">●</td>
+                <td class="c-expect" title="Respuesta a incidentes ↔ MANAGE">●</td>
               </tr>
               <tr>
                 <th class="row-header">Arts. 16–18 · <span style="font-weight:400;">Obligaciones proveedor/deployer</span></th>
-                <td class="c-pending" title="Pendiente — Cap. 5">·</td>
-                <td class="c-pending" title="Pendiente — Cap. 5">·</td>
-                <td class="c-pending" title="Pendiente — Cap. 5">·</td>
-                <td class="c-pending" title="Pendiente — Cap. 5">·</td>
+                <td class="c-expect" title="Responsabilidades organizacionales ↔ GOVERN">●</td>
+                <td class="c-empty" title="Conexión débil"></td>
+                <td class="c-empty" title="Conexión débil"></td>
+                <td class="c-expect" title="Gestión de cumplimiento ↔ MANAGE">●</td>
               </tr>
             </tbody>
             <caption>
-              ✅ Correspondencia · ⚠️ Parcial · ❌ Sin correspondencia · <span style="font-size:0.85rem;">·</span> Pendiente (Cap. 5, Q3 2026)<br>
+              ● Intersección esperada · vacío = conexión débil · Pendiente de análisis formal (Cap. 5, Q3 2026)<br>
               Filas: requisitos RIA para sistemas de alto riesgo · Columnas: funciones NIST AI RMF
             </caption>
           </table>

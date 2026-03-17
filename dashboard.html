@@ -469,6 +469,45 @@
     }
 
     /* ═══════════════════════════════════════
+       CORRESPONDENCE MATRIX TABLE
+    ═══════════════════════════════════════ */
+    .corr-table { width: 100%; border-collapse: collapse; font-size: 0.72rem; margin-top: 0.5rem; }
+    .corr-table th, .corr-table td { border: 1px solid var(--border); padding: 0.35rem 0.4rem; text-align: center; }
+    .corr-table th { background: var(--bg-card); font-weight: 600; color: var(--accent); font-size: 0.68rem; }
+    .corr-table th.row-header { text-align: left; background: #e1f5ee; color: #0f6e56; min-width: 80px; }
+    .corr-table th.col-header { background: #f3ecf7; color: #7f3f98; writing-mode: horizontal-tb; }
+    .corr-table td { cursor: default; }
+    .corr-table .c-pending { color: var(--text-muted); }
+    .corr-table .c-full { color: #2d7a3f; font-weight: 700; }
+    .corr-table .c-partial { color: #a05c00; font-weight: 700; }
+    .corr-table .c-none { color: #b03030; }
+    .corr-table caption { caption-side: bottom; font-size: 0.65rem; color: var(--text-muted); padding-top: 0.4rem; text-align: left; }
+
+    /* KB compact stats */
+    .kb-stats-line { display: flex; gap: 1rem; flex-wrap: wrap; font-size: 0.85rem; margin-bottom: 1rem; padding: 0.6rem 0.8rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 5px; }
+    .kb-stat { display: flex; align-items: center; gap: 0.3rem; }
+    .kb-stat-num { font-weight: 700; color: var(--accent); }
+    .kb-stat-num.alta { color: var(--danger-text); }
+    .kb-stat-label { font-size: 0.72rem; color: var(--text-muted); }
+
+    /* Pipeline alerts */
+    .pipeline-alert { display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 0.75rem; border-radius: 5px; font-size: 0.82rem; margin-bottom: 0.75rem; }
+    .pipeline-alert.alert-ok { background: var(--success-bg); border: 1px solid var(--success-border); color: var(--success-text); }
+    .pipeline-alert.alert-warn { background: var(--warn-bg); border: 1px solid var(--warn-border); color: var(--warn-text); }
+    .pipeline-queues { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.4rem; margin-bottom: 0.75rem; }
+    .pipeline-q { padding: 0.45rem 0.6rem; border: 1px solid var(--border); border-radius: 4px; font-size: 0.78rem; }
+    .pipeline-q strong { font-size: 0.75rem; }
+    .pipeline-q .pq-meta { font-size: 0.68rem; color: var(--text-muted); }
+
+    /* Actividad actual */
+    .actividad { background: var(--info-bg); border: 1px solid var(--info-border); border-radius: 5px; padding: 0.55rem 0.8rem; font-size: 0.82rem; color: var(--info-text); margin-bottom: 1rem; }
+    .actividad strong { color: var(--accent); }
+
+    /* News links */
+    .news-item a { color: inherit; text-decoration: none; }
+    .news-item a:hover { text-decoration: underline; }
+
+    /* ═══════════════════════════════════════
        FOOTER
     ═══════════════════════════════════════ */
     footer {
@@ -612,16 +651,31 @@
         <p>KB en <strong>1,459 entradas</strong> (438 ALTA). Todas las queues vaciadas al 15 mar. <strong>Capa de Caso al 7%</strong> — gap crítico para Cap. 6. Pendiente: leer Stoltz (2024) sobre compliance federal con NIST RMF.</p>
       </div>
 
-      <!-- Novedades -->
+      <!-- Actividad actual -->
+      <div class="actividad">
+        <strong>Actividad actual:</strong> Leyendo Kaminski (2023) "Regulating the Risks of AI" — ficha pendiente en Obsidian · Bradford caps. 1–3 en cola
+      </div>
+
+      <!-- Novedades por tema -->
       <div class="section-label">Novedades · feb / mar 2026</div>
+
       <div class="card">
-        <div class="news-item"><span class="news-date">13 mar</span><div><span class="news-tag tag-act">AI Act</span>Consejo UE propone simplificar reglas del AI Act para reducir carga regulatoria</div></div>
-        <div class="news-item"><span class="news-date">13 mar</span><div><span class="news-tag tag-act">AI Act</span>"€31bn cost on Europe's Innovators" — crítica al costo de cumplimiento</div></div>
-        <div class="news-item"><span class="news-date">10 mar</span><div><span class="news-tag tag-nist">NIST</span>BABL AI documenta lanzamiento de AI Agent Standards Initiative</div></div>
-        <div class="news-item"><span class="news-date">09 mar</span><div><span class="news-tag tag-conv">Contest.</span>"The EU AI Act's Replayability Test" — si no puedes reconstruir, no puedes impugnar</div></div>
-        <div class="news-item"><span class="news-date">26 feb</span><div><span class="news-tag tag-act">AI Act</span>Primera ola obligaciones — mayoría de startups declara no estar lista</div></div>
-        <div class="news-item"><span class="news-date">24 feb</span><div><span class="news-tag tag-act">AI Act</span>Directrices de alto riesgo retrasadas otra vez (Euractiv)</div></div>
-        <div class="news-item"><span class="news-date">17 feb</span><div><span class="news-tag tag-nist">NIST</span>NIST anuncia AI Agent Standards Initiative — interoperabilidad de agentes</div></div>
+        <div class="card-title" style="font-size:0.82rem; color:var(--warn-text);">Implementación AI Act</div>
+        <div class="news-item"><span class="news-date">13 mar</span><div><span class="news-tag tag-act">AI Act</span><a href="https://www.euractiv.com/section/artificial-intelligence/news/council-wants-to-simplify-ai-act-rules/" target="_blank">Consejo UE propone simplificar reglas del AI Act para reducir carga regulatoria</a></div></div>
+        <div class="news-item"><span class="news-date">13 mar</span><div><span class="news-tag tag-act">AI Act</span><a href="https://www.euronews.com/next/2025/03/13/ai-act-compliance-cost" target="_blank">"€31bn cost on Europe's Innovators" — crítica al costo de cumplimiento</a></div></div>
+        <div class="news-item"><span class="news-date">26 feb</span><div><span class="news-tag tag-act">AI Act</span><a href="https://www.euractiv.com/section/artificial-intelligence/news/most-startups-not-ready-ai-act/" target="_blank">Primera ola obligaciones — mayoría de startups declara no estar lista</a></div></div>
+        <div class="news-item"><span class="news-date">24 feb</span><div><span class="news-tag tag-act">AI Act</span><a href="https://www.euractiv.com/section/artificial-intelligence/news/high-risk-ai-guidelines-delayed/" target="_blank">Directrices de alto riesgo retrasadas otra vez (Euractiv)</a></div></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title" style="font-size:0.82rem; color:var(--info-text);">NIST y estándares US</div>
+        <div class="news-item"><span class="news-date">10 mar</span><div><span class="news-tag tag-nist">NIST</span><a href="https://babl.ai/nist-ai-agent-standards-initiative/" target="_blank">BABL AI documenta lanzamiento de AI Agent Standards Initiative</a></div></div>
+        <div class="news-item"><span class="news-date">17 feb</span><div><span class="news-tag tag-nist">NIST</span><a href="https://www.nist.gov/artificial-intelligence/ai-agent-standards" target="_blank">NIST anuncia AI Agent Standards Initiative — interoperabilidad de agentes</a></div></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title" style="font-size:0.82rem; color:#6040a0;">Contestabilidad y due process</div>
+        <div class="news-item"><span class="news-date">09 mar</span><div><span class="news-tag tag-conv">Contest.</span><a href="https://verfassungsblog.de/eu-ai-act-replayability-test/" target="_blank">"The EU AI Act's Replayability Test" — si no puedes reconstruir, no puedes impugnar</a></div></div>
       </div>
 
       <!-- Operativo -->
@@ -649,92 +703,81 @@
         </a>
       </div>
 
-      <div style="font-size:0.78rem; color:var(--text-muted); margin-bottom:1rem;">
-        Actualizado: 15 de marzo de 2026 · 1,459 entradas · Cobertura: feb–mar 2026
-      </div>
-
-      <!-- Stats grid -->
-      <div class="kb-grid">
-        <div class="kb-card"><div class="kb-num">1,459</div><div class="kb-lbl">Total</div></div>
-        <div class="kb-card alta"><div class="kb-num">438</div><div class="kb-lbl">Alta</div></div>
-        <div class="kb-card media"><div class="kb-num">809</div><div class="kb-lbl">Media</div></div>
-        <div class="kb-card baja"><div class="kb-num">212</div><div class="kb-lbl">Baja</div></div>
-      </div>
-
-      <div class="grid-2" style="margin-bottom:1rem;">
-        <!-- By layer -->
-        <div class="card">
-          <div class="card-title">Distribución por capa</div>
-          <div class="bar-row"><span class="bar-label">Teórica</span><div class="bar-track"><div class="bar-fill" style="width:100%"></div></div><span class="bar-val">881</span></div>
-          <div class="bar-row"><span class="bar-label">Analítica</span><div class="bar-track"><div class="bar-fill" style="width:74%"></div></div><span class="bar-val">655</span></div>
-          <div class="bar-row"><span class="bar-label">Evaluativa</span><div class="bar-track"><div class="bar-fill" style="width:30%"></div></div><span class="bar-val">264</span></div>
-          <div class="bar-row"><span class="bar-label">Caso</span><div class="bar-track"><div class="bar-fill low" style="width:12%"></div></div><span class="bar-val">104</span></div>
-          <div class="bar-row"><span class="bar-label">Metod.</span><div class="bar-track"><div class="bar-fill" style="width:10%"></div></div><span class="bar-val">84</span></div>
-        </div>
-        <!-- By type -->
-        <div class="card">
-          <div class="card-title">Por tipo de contenido</div>
-          <div class="bar-row"><span class="bar-label">article</span><div class="bar-track"><div class="bar-fill" style="width:27%"></div></div><span class="bar-val">362</span></div>
-          <div class="bar-row"><span class="bar-label">report</span><div class="bar-track"><div class="bar-fill" style="width:21%"></div></div><span class="bar-val">282</span></div>
-          <div class="bar-row"><span class="bar-label">book</span><div class="bar-track"><div class="bar-fill" style="width:20%"></div></div><span class="bar-val">262</span></div>
-          <div class="bar-row"><span class="bar-label">paper</span><div class="bar-track"><div class="bar-fill" style="width:15%"></div></div><span class="bar-val">205</span></div>
-          <div class="bar-row"><span class="bar-label">guidance</span><div class="bar-track"><div class="bar-fill" style="width:5%"></div></div><span class="bar-val">63</span></div>
-          <div class="bar-row"><span class="bar-label">regulation</span><div class="bar-track"><div class="bar-fill" style="width:4%"></div></div><span class="bar-val">59</span></div>
+      <!-- Pipeline status — LIVE (top priority) -->
+      <div id="kbPipelineStatus">
+        <div id="pipelineLive" style="font-size:0.82rem;">
+          <div style="color:var(--text-muted);padding:0.3rem;">Consultando pipeline...</div>
         </div>
       </div>
 
-      <!-- Gaps -->
+      <!-- Compact stats line -->
+      <div class="kb-stats-line">
+        <div class="kb-stat"><span class="kb-stat-num">1,459</span> <span class="kb-stat-label">total</span></div>
+        <div class="kb-stat"><span class="kb-stat-num alta">438</span> <span class="kb-stat-label">alta</span></div>
+        <div class="kb-stat"><span class="kb-stat-num">809</span> <span class="kb-stat-label">media</span></div>
+        <div class="kb-stat"><span class="kb-stat-num">212</span> <span class="kb-stat-label">baja</span></div>
+        <div style="margin-left:auto; font-size:0.7rem; color:var(--text-muted); align-self:center;">Actualizado: 17 mar 2026</div>
+      </div>
+
+      <!-- Distribution by layer (compact) -->
+      <div class="card" style="margin-bottom:0.75rem;">
+        <div class="card-title">Distribución por capa</div>
+        <div class="bar-row"><span class="bar-label">Teórica</span><div class="bar-track"><div class="bar-fill" style="width:100%"></div></div><span class="bar-val">881</span></div>
+        <div class="bar-row"><span class="bar-label">Analítica</span><div class="bar-track"><div class="bar-fill" style="width:74%"></div></div><span class="bar-val">655</span></div>
+        <div class="bar-row"><span class="bar-label">Evaluativa</span><div class="bar-track"><div class="bar-fill" style="width:30%"></div></div><span class="bar-val">264</span></div>
+        <div class="bar-row"><span class="bar-label">Caso</span><div class="bar-track"><div class="bar-fill low" style="width:12%"></div></div><span class="bar-val">104</span></div>
+        <div class="bar-row"><span class="bar-label">Metod.</span><div class="bar-track"><div class="bar-fill" style="width:10%"></div></div><span class="bar-val">84</span></div>
+      </div>
+
+      <!-- Gaps — actionable -->
       <div class="section-label">Análisis de gaps</div>
-      <div class="callout callout-warn"><strong>Gap crítico — Capa Caso (12%):</strong> 101 entradas, subiendo desde 92. US v. Ortiz (probabilistic genotyping) y DEKRA conformity assessment añadidos. Antes de Q3: auditorías GAO/OIG sobre PATTERN o STRmix, PIA del BOP, testimonios, reportes NIJ.</div>
-      <div class="callout callout-warn"><strong>Colas pendientes:</strong> 207 en AcademicQueue · 34 en PerplexityQueue · 136 en NewsResults. Ejecutar <code>update</code> para procesar siguiente batch.</div>
-      <div class="callout callout-success"><strong>Fortaleza — Teórica (856):</strong> Los 4 pilares bien cubiertos. Hildebrandt, Calo, Ostrom/IAD, gobernanza algorítmica ES añadidos hoy.</div>
-      <div class="callout callout-success"><strong>Hallazgos ALTA recientes:</strong> NIST COSAIS, Carnegie entity-based regulation, CETS 225 ratificado por EEUU, Selbst «American's Guide to EU AI Act», AI Omnibus renegociación.</div>
+      <div class="callout callout-warn">
+        <strong>Gap crítico — Capa Caso (7%):</strong> 104 entradas. Necesita triplicarse para Cap. 6.<br>
+        <em>Sugerencias:</em> (1) Buscar auditorías GAO/OIG sobre PATTERN o STRmix; (2) Localizar PIA del BOP; (3) Buscar testimonios ante Congreso sobre forensic AI; (4) Reportes NIJ sobre probabilistic genotyping; (5) Leer Stoltz (2024) — compliance federal con NIST RMF.
+      </div>
+      <div class="callout callout-warn">
+        <strong>Gap moderado — Metodológica (6%):</strong> 84 entradas.<br>
+        <em>Sugerencias:</em> (1) Buscar artículos sobre crosswalk methodology en regulación; (2) Fuentes sobre estudio de caso instrumental (Yin, Gerring) en contexto legal-tech; (3) Precedentes de equivalencia funcional regulatoria.
+      </div>
+      <div class="callout callout-success"><strong>Fortaleza — Teórica (60%):</strong> Los 4 pilares bien cubiertos. Hildebrandt, Calo, Ostrom/IAD, gobernanza algorítmica ES añadidos.</div>
+      <div class="callout callout-success"><strong>Hallazgos ALTA recientes:</strong> NIST COSAIS, Carnegie entity-based regulation, CETS 225, Selbst «American's Guide to EU AI Act», AI Omnibus.</div>
 
       <!-- Thematic news -->
       <div class="section-label">Novedades temáticas · feb / mar 2026</div>
 
       <div class="card">
-        <div class="card-title" style="color:var(--warn-text);">⚠ Implementación AI Act bajo presión</div>
-        <div class="news-item"><span class="news-date">15 mar</span><div><strong>★ High-risk AI guidelines retrasadas otra vez</strong> — Comisión confirma. Gap de estándares persiste: oportunidad para argumento de interoperabilidad NIST.</div></div>
-        <div class="news-item"><span class="news-date">15 mar</span><div><strong>★ AI Omnibus</strong> — Parlamento quiere renegociar requisitos del AI Act. Monitorear cambios arts. 8–15.</div></div>
-        <div class="news-item"><span class="news-date">15 mar</span><div>★ Primer delegated act bajo Art. 97 adoptado (ene 2026). CEN/CENELEC con retraso en estándares armonizados.</div></div>
-        <div class="news-item"><span class="news-date">15 mar</span><div>Startups no listas para enforcement. Refuerza brecha cumplimiento documentable vs. real.</div></div>
+        <div class="card-title" style="font-size:0.82rem; color:var(--warn-text);">Implementación AI Act bajo presión</div>
+        <div class="news-item"><span class="news-date">15 mar</span><div><strong>★</strong> High-risk AI guidelines retrasadas otra vez — gap de estándares persiste: oportunidad para argumento de interoperabilidad NIST.</div></div>
+        <div class="news-item"><span class="news-date">15 mar</span><div><strong>★</strong> AI Omnibus — Parlamento quiere renegociar requisitos. Monitorear cambios arts. 8–15.</div></div>
+        <div class="news-item"><span class="news-date">15 mar</span><div>Primer delegated act bajo Art. 97 (ene 2026). CEN/CENELEC con retraso en estándares armonizados.</div></div>
       </div>
 
       <div class="card">
-        <div class="card-title" style="color:var(--info-text);">🇺🇸 NIST evoluciona + cambios OMB</div>
-        <div class="news-item"><span class="news-date">15 mar</span><div><strong>★ NIST COSAIS</strong> — Control Overlays for Securing AI Systems. NIST se acerca a controles prescriptivos tipo AI Act.</div></div>
-        <div class="news-item"><span class="news-date">15 mar</span><div><strong>★ OMB M-24-10 rescindida → M-25-21</strong> — brecha de gobernanza EU-US se amplía. Tesis más relevante.</div></div>
-        <div class="news-item"><span class="news-date">15 mar</span><div>★ NIST AI Agent Standards Initiative — extensión del RMF para sistemas agentic. Industria pide flexibilidad.</div></div>
-        <div class="news-item"><span class="news-date">15 mar</span><div>★ Carnegie propone regulación entity-based como alternativa US al modelo EU.</div></div>
+        <div class="card-title" style="font-size:0.82rem; color:var(--info-text);">NIST evoluciona + cambios OMB</div>
+        <div class="news-item"><span class="news-date">15 mar</span><div><strong>★</strong> NIST COSAIS — Control Overlays for Securing AI Systems. NIST se acerca a controles prescriptivos tipo AI Act.</div></div>
+        <div class="news-item"><span class="news-date">15 mar</span><div><strong>★</strong> OMB M-24-10 rescindida → M-25-21 — brecha de gobernanza EU-US se amplía.</div></div>
+        <div class="news-item"><span class="news-date">15 mar</span><div>Carnegie propone regulación entity-based como alternativa US al modelo EU.</div></div>
       </div>
 
       <div class="card">
-        <div class="card-title" style="color:var(--success-text);">📐 Convergencia y comparación</div>
-        <div class="news-item"><span class="news-date">15 mar</span><div><strong>★ EC-Council: comparación AI Act / NIST RMF / ISO 42001</strong> — primer crosswalk practitioner de los 3 frameworks.</div></div>
-        <div class="news-item"><span class="news-date">15 mar</span><div><strong>★ CETS 225 ratificado por EEUU</strong> — primer tratado vinculante de IA. Contradice narrativa "US solo hace voluntario".</div></div>
-        <div class="news-item"><span class="news-date">15 mar</span><div><strong>★ Selbst & Kaminski "American's Guide to EU AI Act"</strong> — mapeo legal EU-US. Fuente directamente relevante.</div></div>
-        <div class="news-item"><span class="news-date">15 mar</span><div>Alcance extraterritorial del AI Act analizado (National Law Review). Impacto en agencias federales US.</div></div>
+        <div class="card-title" style="font-size:0.82rem; color:var(--success-text);">Convergencia y comparación</div>
+        <div class="news-item"><span class="news-date">15 mar</span><div><strong>★</strong> EC-Council: comparación AI Act / NIST RMF / ISO 42001 — primer crosswalk practitioner.</div></div>
+        <div class="news-item"><span class="news-date">15 mar</span><div><strong>★</strong> CETS 225 ratificado por EEUU — primer tratado vinculante de IA.</div></div>
+        <div class="news-item"><span class="news-date">15 mar</span><div><strong>★</strong> Selbst & Kaminski "American's Guide to EU AI Act" — mapeo legal EU-US.</div></div>
       </div>
 
       <div class="card">
-        <div class="card-title" style="color:var(--danger-text);">⚖ Caso de estudio y forensic AI</div>
-        <div class="news-item"><span class="news-date">15 mar</span><div><strong>★ US v. Ortiz</strong> — Daubert challenge a probabilistic genotyping. Tensión trade secret vs. due process.</div></div>
-        <div class="news-item"><span class="news-date">15 mar</span><div>★ National security como escudo contra AI accountability (Tech Policy Press). Impacto en caso DOJ.</div></div>
+        <div class="card-title" style="font-size:0.82rem; color:var(--danger-text);">Caso de estudio y forensic AI</div>
+        <div class="news-item"><span class="news-date">15 mar</span><div><strong>★</strong> US v. Ortiz — Daubert challenge a probabilistic genotyping. Trade secret vs. due process.</div></div>
+        <div class="news-item"><span class="news-date">15 mar</span><div>National security como escudo contra AI accountability (Tech Policy Press).</div></div>
         <div class="news-item"><span class="news-date">15 mar</span><div>DEKRA: conformity assessment para biometría de alto riesgo bajo AI Act.</div></div>
-        <div class="news-item"><span class="news-date">15 mar</span><div>Facial recognition EU → escuelas en Brasil. Accountability gap extraterritorial.</div></div>
       </div>
 
-      <!-- Pipeline status — LIVE from API -->
-      <div class="section-label">Estado del pipeline <span id="pipelineRefresh" style="font-size:0.7rem;cursor:pointer;opacity:0.5;" onclick="fetchPipelineStatus()">↻</span></div>
-      <div class="card" id="pipelineCard">
-        <div id="pipelineLive" style="font-size:0.82rem;">
-          <div style="color:var(--text-muted);padding:0.5rem;">Cargando datos del API...</div>
-        </div>
-        <div id="pipelineHistory" style="margin-top:0.5rem;border-top:1px solid var(--border);padding-top:0.5rem;">
-          <div style="font-size:0.72rem;color:var(--text-muted);margin-bottom:0.3rem;">Último procesamiento (15 mar)</div>
-          <div class="news-item"><span class="news-date">15 mar</span><div>204 entradas nuevas (1,255 → 1,459) · 3 queues vaciadas</div></div>
-        </div>
+      <!-- Processing history -->
+      <div class="section-label">Historial de procesamiento</div>
+      <div class="card">
+        <div class="news-item"><span class="news-date">15 mar</span><div>204 entradas nuevas (1,255 → 1,459) · 3 queues vaciadas · 370 items procesados</div></div>
+        <div class="news-item"><span class="news-date">13 mar</span><div>76 entradas nuevas (1,176 → 1,255) · Bug www.* corregido · 198 items evaluados</div></div>
       </div>
 
     </div>
@@ -960,55 +1003,73 @@
 
         <div class="map-arrow">▼</div>
 
-        <!-- CAPA ANALÍTICA -->
-        <div class="map-analytical">
-          <div class="map-ana-layout">
-
-            <!-- RIA -->
-            <div class="map-pillar map-ria">
-              <div class="map-pillar-title">RIA (UE)</div>
-              <div class="map-pillar-item">Art. 9 — Gestión de riesgos</div>
-              <div class="map-pillar-item">Art. 10 — Gobernanza datos</div>
-              <div class="map-pillar-item">Art. 11 — Documentación</div>
-              <div class="map-pillar-item">Art. 12 — Registro logs</div>
-              <div class="map-pillar-item">Art. 13 — Transparencia</div>
-              <div class="map-pillar-item">Art. 14 — Supervisión humana</div>
-              <div class="map-pillar-item">Art. 15 — Robustez/ciber</div>
-              <div class="map-pillar-item">Arts. 16–18 — Obligaciones</div>
-            </div>
-
-            <!-- Matriz de puntos -->
-            <div class="map-matrix">
-              <div class="map-mtx-label">MATRIZ</div>
-              <div class="map-mtx-table">
-                <div class="mtx-dot mtx-on"></div><div class="mtx-dot mtx-on"></div><div class="mtx-dot mtx-off"></div><div class="mtx-dot mtx-off"></div>
-                <div class="mtx-dot mtx-on"></div><div class="mtx-dot mtx-on"></div><div class="mtx-dot mtx-off"></div><div class="mtx-dot mtx-off"></div>
-                <div class="mtx-dot mtx-on"></div><div class="mtx-dot mtx-off"></div><div class="mtx-dot mtx-off"></div><div class="mtx-dot mtx-off"></div>
-                <div class="mtx-dot mtx-off"></div><div class="mtx-dot mtx-off"></div><div class="mtx-dot mtx-on"></div><div class="mtx-dot mtx-off"></div>
-                <div class="mtx-dot mtx-on"></div><div class="mtx-dot mtx-on"></div><div class="mtx-dot mtx-off"></div><div class="mtx-dot mtx-off"></div>
-                <div class="mtx-dot mtx-on"></div><div class="mtx-dot mtx-off"></div><div class="mtx-dot mtx-off"></div><div class="mtx-dot mtx-on"></div>
-                <div class="mtx-dot mtx-off"></div><div class="mtx-dot mtx-off"></div><div class="mtx-dot mtx-on"></div><div class="mtx-dot mtx-on"></div>
-                <div class="mtx-dot mtx-on"></div><div class="mtx-dot mtx-off"></div><div class="mtx-dot mtx-off"></div><div class="mtx-dot mtx-off"></div>
-              </div>
-              <div class="map-mtx-cols">G · M · Me · Ma</div>
-            </div>
-
-            <!-- NIST -->
-            <div class="map-pillar map-nist">
-              <div class="map-pillar-title">NIST AI RMF</div>
-              <div class="map-pillar-item">GOVERN</div>
-              <div class="map-pillar-item">MAP</div>
-              <div class="map-pillar-item">MEASURE</div>
-              <div class="map-pillar-item">MANAGE</div>
-            </div>
-
-          </div>
-
-          <!-- Leyenda -->
-          <div class="map-legend">
-            <span><div class="lg-dot mtx-on"></div> correspondencia (pendiente clasificar)</span>
-            <span><div class="lg-dot mtx-off"></div> sin correspondencia</span>
-          </div>
+        <!-- CAPA ANALÍTICA — Matriz de correspondencia -->
+        <div class="map-analytical" style="width:100%;">
+          <div style="font-size:0.72rem; font-weight:600; text-transform:uppercase; letter-spacing:0.04em; color:var(--text-muted); margin-bottom:0.4rem;">Matriz de correspondencia RIA × NIST AI RMF</div>
+          <table class="corr-table">
+            <thead>
+              <tr>
+                <th style="background:var(--bg-card);"></th>
+                <th class="col-header">Art. 9<br><span style="font-weight:400;font-size:0.6rem;">Gestión riesgos</span></th>
+                <th class="col-header">Art. 10<br><span style="font-weight:400;font-size:0.6rem;">Datos</span></th>
+                <th class="col-header">Art. 11<br><span style="font-weight:400;font-size:0.6rem;">Doc. técnica</span></th>
+                <th class="col-header">Art. 12<br><span style="font-weight:400;font-size:0.6rem;">Registro</span></th>
+                <th class="col-header">Art. 13<br><span style="font-weight:400;font-size:0.6rem;">Transparencia</span></th>
+                <th class="col-header">Art. 14<br><span style="font-weight:400;font-size:0.6rem;">Supervisión</span></th>
+                <th class="col-header">Art. 15<br><span style="font-weight:400;font-size:0.6rem;">Robustez</span></th>
+                <th class="col-header">Arts. 16–18<br><span style="font-weight:400;font-size:0.6rem;">Obligaciones</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th class="row-header">GOVERN</th>
+                <td class="c-pending" title="Pendiente de análisis — Cap. 5">❓</td>
+                <td class="c-pending" title="Pendiente de análisis — Cap. 5">❓</td>
+                <td class="c-pending" title="Pendiente de análisis — Cap. 5">❓</td>
+                <td class="c-pending" title="Pendiente de análisis — Cap. 5">❓</td>
+                <td class="c-pending" title="Pendiente de análisis — Cap. 5">❓</td>
+                <td class="c-pending" title="Pendiente de análisis — Cap. 5">❓</td>
+                <td class="c-pending" title="Pendiente de análisis — Cap. 5">❓</td>
+                <td class="c-pending" title="Pendiente de análisis — Cap. 5">❓</td>
+              </tr>
+              <tr>
+                <th class="row-header">MAP</th>
+                <td class="c-pending" title="Pendiente de análisis — Cap. 5">❓</td>
+                <td class="c-pending" title="Pendiente de análisis — Cap. 5">❓</td>
+                <td class="c-pending" title="Pendiente de análisis — Cap. 5">❓</td>
+                <td class="c-pending" title="Pendiente de análisis — Cap. 5">❓</td>
+                <td class="c-pending" title="Pendiente de análisis — Cap. 5">❓</td>
+                <td class="c-pending" title="Pendiente de análisis — Cap. 5">❓</td>
+                <td class="c-pending" title="Pendiente de análisis — Cap. 5">❓</td>
+                <td class="c-pending" title="Pendiente de análisis — Cap. 5">❓</td>
+              </tr>
+              <tr>
+                <th class="row-header">MEASURE</th>
+                <td class="c-pending" title="Pendiente de análisis — Cap. 5">❓</td>
+                <td class="c-pending" title="Pendiente de análisis — Cap. 5">❓</td>
+                <td class="c-pending" title="Pendiente de análisis — Cap. 5">❓</td>
+                <td class="c-pending" title="Pendiente de análisis — Cap. 5">❓</td>
+                <td class="c-pending" title="Pendiente de análisis — Cap. 5">❓</td>
+                <td class="c-pending" title="Pendiente de análisis — Cap. 5">❓</td>
+                <td class="c-pending" title="Pendiente de análisis — Cap. 5">❓</td>
+                <td class="c-pending" title="Pendiente de análisis — Cap. 5">❓</td>
+              </tr>
+              <tr>
+                <th class="row-header">MANAGE</th>
+                <td class="c-pending" title="Pendiente de análisis — Cap. 5">❓</td>
+                <td class="c-pending" title="Pendiente de análisis — Cap. 5">❓</td>
+                <td class="c-pending" title="Pendiente de análisis — Cap. 5">❓</td>
+                <td class="c-pending" title="Pendiente de análisis — Cap. 5">❓</td>
+                <td class="c-pending" title="Pendiente de análisis — Cap. 5">❓</td>
+                <td class="c-pending" title="Pendiente de análisis — Cap. 5">❓</td>
+                <td class="c-pending" title="Pendiente de análisis — Cap. 5">❓</td>
+                <td class="c-pending" title="Pendiente de análisis — Cap. 5">❓</td>
+              </tr>
+            </tbody>
+            <caption>
+              ✅ Correspondencia · ⚠️ Parcial · ❌ Sin correspondencia · ❓ Pendiente de análisis (Cap. 5, Q3 2026)
+            </caption>
+          </table>
         </div>
 
         <div class="map-arrow">hallazgos del análisis ▼</div>
@@ -1072,7 +1133,7 @@
     </div>
 
     <footer>
-      Última actualización: 15 de marzo de 2026 · Thesis Dashboard v5.0 — documento vivo · pipeline status es live
+      Última actualización: 17 de marzo de 2026 · Thesis Dashboard v5.1 — documento vivo · pipeline status es live
     </footer>
 
   </div><!-- /main -->
@@ -1288,13 +1349,26 @@ function syncToGAS(item) {
 // ═══════════════════════════════════════
 // PIPELINE — live status from API
 // ═══════════════════════════════════════
+function timeAgo(dateStr) {
+  if (!dateStr) return '—';
+  const d = new Date(dateStr);
+  const now = new Date();
+  const diffMs = now - d;
+  const diffH = Math.floor(diffMs / 3600000);
+  const diffD = Math.floor(diffMs / 86400000);
+  if (diffD > 1) return `hace ${diffD} días`;
+  if (diffD === 1) return 'ayer';
+  if (diffH > 1) return `hace ${diffH}h`;
+  if (diffH === 1) return 'hace 1h';
+  return 'hace minutos';
+}
+
 async function fetchPipelineStatus() {
   const el = document.getElementById('pipelineLive');
   if (!el) return;
   el.innerHTML = '<div style="color:var(--text-muted);padding:0.3rem;">Consultando API...</div>';
 
   try {
-    // Fetch all three queue counts + metadata in parallel
     const [acad, perp, news, meta] = await Promise.all([
       fetch(GAS_API + '?action=getAcademicQueue&status=pending&limit=1').then(r => r.json()).catch(() => null),
       fetch(GAS_API + '?action=getPerplexityQueue&status=pending&limit=1').then(r => r.json()).catch(() => null),
@@ -1302,60 +1376,64 @@ async function fetchPipelineStatus() {
       fetch(GAS_API + '?action=getMeta').then(r => r.json()).catch(() => null),
     ]);
 
-    // Count pending — API returns rows array, count them
-    // With limit=1, we get at most 1 row, but we can check if there are any
     const acadPending = acad?.rows?.length || 0;
     const perpPending = perp?.rows?.length || 0;
     const newsPending = news?.rows?.length || 0;
     const totalPending = acadPending + perpPending + newsPending;
 
-    // Format last scan dates from meta
-    const lastSearch = meta?.meta?.last_search_date ? new Date(meta.meta.last_search_date).toLocaleDateString('es-ES', {day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}) : '—';
-    const lastAcad = meta?.meta?.last_acad_scan ? new Date(meta.meta.last_acad_scan).toLocaleDateString('es-ES', {day:'numeric',month:'short'}) : '—';
-    const lastNews = meta?.meta?.last_news_scan ? new Date(meta.meta.last_news_scan).toLocaleDateString('es-ES', {day:'numeric',month:'short'}) : '—';
-    const lastPerp = meta?.meta?.last_perplexity_scan ? new Date(meta.meta.last_perplexity_scan).toLocaleDateString('es-ES', {day:'numeric',month:'short'}) : '—';
+    const lastAcad = meta?.meta?.last_acad_scan || null;
+    const lastNews = meta?.meta?.last_news_scan || null;
+    const lastPerp = meta?.meta?.last_perplexity_scan || null;
+    const lastProcess = meta?.meta?.last_search_date || null;
 
-    // Determine if any queue needs attention (has pending items)
     const hasWork = totalPending > 0;
-    const statusColor = hasWork ? 'var(--warn-text,#856404)' : 'var(--success-text,#155724)';
-    const statusBg = hasWork ? 'var(--warn-bg,#fff3cd)' : 'var(--success-bg,#d4edda)';
-    const statusIcon = hasWork ? '⚠' : '✓';
-    const statusText = hasWork
-      ? `${totalPending > 0 ? totalPending + '+ items pendientes' : 'Items pendientes'} — ejecutar <code>update</code>`
-      : 'Todas las colas en cero';
 
-    // Build queue rows
+    // Queue cards
     const queueRows = [
-      { name: 'AcademicQueue', pending: acadPending > 0, lastScan: lastAcad },
-      { name: 'PerplexityQueue', pending: perpPending > 0, lastScan: lastPerp },
-      { name: 'NewsResults', pending: newsPending > 0, lastScan: lastNews },
+      { name: 'Academic', pending: acadPending > 0, lastScan: lastAcad },
+      { name: 'Perplexity', pending: perpPending > 0, lastScan: lastPerp },
+      { name: 'News', pending: newsPending > 0, lastScan: lastNews },
     ];
 
-    let html = '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.4rem;margin-bottom:0.5rem;">';
+    let html = '<div class="pipeline-queues">';
     for (const q of queueRows) {
       const dot = q.pending ? '🔴' : '🟢';
-      html += `<div style="background:var(--card-bg);border:1px solid var(--border);border-radius:4px;padding:0.4rem 0.6rem;font-size:0.78rem;">
-        <div>${dot} <strong>${q.name.replace('Queue','').replace('Results','')}</strong></div>
-        <div style="color:var(--text-muted);font-size:0.7rem;">Scan: ${q.lastScan}</div>
+      html += `<div class="pipeline-q">
+        <div>${dot} <strong>${q.name}</strong></div>
+        <div class="pq-meta">Scan: ${timeAgo(q.lastScan)}</div>
       </div>`;
     }
     html += '</div>';
 
-    // Status bar
-    html += `<div style="background:${statusBg};border-radius:3px;padding:0.4rem 0.6rem;font-size:0.82rem;">
-      <span style="color:${statusColor};">${statusIcon}</span> <strong>${statusText}</strong>
-      <span style="float:right;font-size:0.7rem;color:var(--text-muted);">Actualizado: ${new Date().toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'})}</span>
-    </div>`;
+    // Alert bar
+    if (hasWork) {
+      html += `<div class="pipeline-alert alert-warn">
+        <span>⚠</span> <strong>${totalPending}+ items pendientes en queues</strong>
+        <span style="margin-left:auto;font-size:0.72rem;">Último procesamiento: ${timeAgo(lastProcess)}</span>
+      </div>`;
+    } else {
+      html += `<div class="pipeline-alert alert-ok">
+        <span>✓</span> <strong>Todas las colas en cero</strong>
+        <span style="margin-left:auto;font-size:0.72rem;">Procesado: ${timeAgo(lastProcess)} · Consultado: ${new Date().toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'})}</span>
+      </div>`;
+    }
 
     el.innerHTML = html;
 
-    // Cache result
+    // Update sidebar badge
+    const badge = document.getElementById('badge-kb');
+    if (badge) {
+      badge.textContent = hasWork ? '!' : '✓';
+      badge.style.background = hasWork ? '#e07040' : '#b8e0c4';
+      badge.style.color = hasWork ? 'white' : '#2d7a3f';
+    }
+
+    // Cache
     localStorage.setItem(LS_PREFIX + 'pipeline', JSON.stringify({
-      ts: Date.now(), acadPending, perpPending, newsPending, lastSearch, lastAcad, lastNews, lastPerp
+      ts: Date.now(), acadPending, perpPending, newsPending, lastProcess
     }));
 
   } catch(e) {
-    // Try cached data
     const cached = localStorage.getItem(LS_PREFIX + 'pipeline');
     if (cached) {
       const c = JSON.parse(cached);

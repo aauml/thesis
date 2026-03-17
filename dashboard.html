@@ -474,8 +474,9 @@
     .corr-table { width: 100%; border-collapse: collapse; font-size: 0.72rem; margin-top: 0.5rem; }
     .corr-table th, .corr-table td { border: 1px solid var(--border); padding: 0.35rem 0.4rem; text-align: center; }
     .corr-table th { background: var(--bg-card); font-weight: 600; color: var(--accent); font-size: 0.68rem; }
-    .corr-table th.row-header { text-align: left; background: #e1f5ee; color: #0f6e56; min-width: 80px; }
-    .corr-table th.col-header { background: #f3ecf7; color: #7f3f98; writing-mode: horizontal-tb; }
+    .corr-table th.row-header { text-align: left; background: #f3ecf7; color: #7f3f98; min-width: 180px; font-size: 0.7rem; line-height: 1.35; }
+    .corr-table th.row-header span { color: #9070b0; }
+    .corr-table th.col-header { background: #e1f5ee; color: #0f6e56; writing-mode: horizontal-tb; min-width: 60px; }
     .corr-table td { cursor: default; }
     .corr-table .c-pending { color: var(--text-muted); }
     .corr-table .c-full { color: #2d7a3f; font-weight: 700; }
@@ -1006,65 +1007,74 @@
           <table class="corr-table">
             <thead>
               <tr>
-                <th style="background:var(--bg-card);"></th>
-                <th class="col-header">Art. 9<br><span style="font-weight:400;font-size:0.6rem;">Gestión riesgos</span></th>
-                <th class="col-header">Art. 10<br><span style="font-weight:400;font-size:0.6rem;">Datos</span></th>
-                <th class="col-header">Art. 11<br><span style="font-weight:400;font-size:0.6rem;">Doc. técnica</span></th>
-                <th class="col-header">Art. 12<br><span style="font-weight:400;font-size:0.6rem;">Registro</span></th>
-                <th class="col-header">Art. 13<br><span style="font-weight:400;font-size:0.6rem;">Transparencia</span></th>
-                <th class="col-header">Art. 14<br><span style="font-weight:400;font-size:0.6rem;">Supervisión</span></th>
-                <th class="col-header">Art. 15<br><span style="font-weight:400;font-size:0.6rem;">Robustez</span></th>
-                <th class="col-header">Arts. 16–18<br><span style="font-weight:400;font-size:0.6rem;">Obligaciones</span></th>
+                <th style="background:var(--bg-card); min-width:160px;"></th>
+                <th class="col-header" style="background:#e1f5ee; color:#0f6e56;">GOVERN<br><span style="font-weight:400;font-size:0.58rem;">Cultura, políticas, roles</span></th>
+                <th class="col-header" style="background:#e1f5ee; color:#0f6e56;">MAP<br><span style="font-weight:400;font-size:0.58rem;">Contexto, categorización</span></th>
+                <th class="col-header" style="background:#e1f5ee; color:#0f6e56;">MEASURE<br><span style="font-weight:400;font-size:0.58rem;">Métricas, evaluación</span></th>
+                <th class="col-header" style="background:#e1f5ee; color:#0f6e56;">MANAGE<br><span style="font-weight:400;font-size:0.58rem;">Respuesta, mitigación</span></th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <th class="row-header">GOVERN</th>
-                <td class="c-pending" title="Pendiente de análisis — Cap. 5">❓</td>
-                <td class="c-pending" title="Pendiente de análisis — Cap. 5">❓</td>
-                <td class="c-pending" title="Pendiente de análisis — Cap. 5">❓</td>
-                <td class="c-pending" title="Pendiente de análisis — Cap. 5">❓</td>
-                <td class="c-pending" title="Pendiente de análisis — Cap. 5">❓</td>
-                <td class="c-pending" title="Pendiente de análisis — Cap. 5">❓</td>
-                <td class="c-pending" title="Pendiente de análisis — Cap. 5">❓</td>
-                <td class="c-pending" title="Pendiente de análisis — Cap. 5">❓</td>
+                <th class="row-header">Art. 9 · <span style="font-weight:400;">Sistema de gestión de riesgos</span></th>
+                <td class="c-pending" title="Pendiente — Cap. 5">❓</td>
+                <td class="c-pending" title="Pendiente — Cap. 5">❓</td>
+                <td class="c-pending" title="Pendiente — Cap. 5">❓</td>
+                <td class="c-pending" title="Pendiente — Cap. 5">❓</td>
               </tr>
               <tr>
-                <th class="row-header">MAP</th>
-                <td class="c-pending" title="Pendiente de análisis — Cap. 5">❓</td>
-                <td class="c-pending" title="Pendiente de análisis — Cap. 5">❓</td>
-                <td class="c-pending" title="Pendiente de análisis — Cap. 5">❓</td>
-                <td class="c-pending" title="Pendiente de análisis — Cap. 5">❓</td>
-                <td class="c-pending" title="Pendiente de análisis — Cap. 5">❓</td>
-                <td class="c-pending" title="Pendiente de análisis — Cap. 5">❓</td>
-                <td class="c-pending" title="Pendiente de análisis — Cap. 5">❓</td>
-                <td class="c-pending" title="Pendiente de análisis — Cap. 5">❓</td>
+                <th class="row-header">Art. 10 · <span style="font-weight:400;">Datos y gobernanza de datos</span></th>
+                <td class="c-pending" title="Pendiente — Cap. 5">❓</td>
+                <td class="c-pending" title="Pendiente — Cap. 5">❓</td>
+                <td class="c-pending" title="Pendiente — Cap. 5">❓</td>
+                <td class="c-pending" title="Pendiente — Cap. 5">❓</td>
               </tr>
               <tr>
-                <th class="row-header">MEASURE</th>
-                <td class="c-pending" title="Pendiente de análisis — Cap. 5">❓</td>
-                <td class="c-pending" title="Pendiente de análisis — Cap. 5">❓</td>
-                <td class="c-pending" title="Pendiente de análisis — Cap. 5">❓</td>
-                <td class="c-pending" title="Pendiente de análisis — Cap. 5">❓</td>
-                <td class="c-pending" title="Pendiente de análisis — Cap. 5">❓</td>
-                <td class="c-pending" title="Pendiente de análisis — Cap. 5">❓</td>
-                <td class="c-pending" title="Pendiente de análisis — Cap. 5">❓</td>
-                <td class="c-pending" title="Pendiente de análisis — Cap. 5">❓</td>
+                <th class="row-header">Art. 11 · <span style="font-weight:400;">Documentación técnica</span></th>
+                <td class="c-pending" title="Pendiente — Cap. 5">❓</td>
+                <td class="c-pending" title="Pendiente — Cap. 5">❓</td>
+                <td class="c-pending" title="Pendiente — Cap. 5">❓</td>
+                <td class="c-pending" title="Pendiente — Cap. 5">❓</td>
               </tr>
               <tr>
-                <th class="row-header">MANAGE</th>
-                <td class="c-pending" title="Pendiente de análisis — Cap. 5">❓</td>
-                <td class="c-pending" title="Pendiente de análisis — Cap. 5">❓</td>
-                <td class="c-pending" title="Pendiente de análisis — Cap. 5">❓</td>
-                <td class="c-pending" title="Pendiente de análisis — Cap. 5">❓</td>
-                <td class="c-pending" title="Pendiente de análisis — Cap. 5">❓</td>
-                <td class="c-pending" title="Pendiente de análisis — Cap. 5">❓</td>
-                <td class="c-pending" title="Pendiente de análisis — Cap. 5">❓</td>
-                <td class="c-pending" title="Pendiente de análisis — Cap. 5">❓</td>
+                <th class="row-header">Art. 12 · <span style="font-weight:400;">Registro de actividades (logs)</span></th>
+                <td class="c-pending" title="Pendiente — Cap. 5">❓</td>
+                <td class="c-pending" title="Pendiente — Cap. 5">❓</td>
+                <td class="c-pending" title="Pendiente — Cap. 5">❓</td>
+                <td class="c-pending" title="Pendiente — Cap. 5">❓</td>
+              </tr>
+              <tr>
+                <th class="row-header">Art. 13 · <span style="font-weight:400;">Transparencia e información</span></th>
+                <td class="c-pending" title="Pendiente — Cap. 5">❓</td>
+                <td class="c-pending" title="Pendiente — Cap. 5">❓</td>
+                <td class="c-pending" title="Pendiente — Cap. 5">❓</td>
+                <td class="c-pending" title="Pendiente — Cap. 5">❓</td>
+              </tr>
+              <tr>
+                <th class="row-header">Art. 14 · <span style="font-weight:400;">Supervisión humana</span></th>
+                <td class="c-pending" title="Pendiente — Cap. 5">❓</td>
+                <td class="c-pending" title="Pendiente — Cap. 5">❓</td>
+                <td class="c-pending" title="Pendiente — Cap. 5">❓</td>
+                <td class="c-pending" title="Pendiente — Cap. 5">❓</td>
+              </tr>
+              <tr>
+                <th class="row-header">Art. 15 · <span style="font-weight:400;">Precisión, robustez, ciberseguridad</span></th>
+                <td class="c-pending" title="Pendiente — Cap. 5">❓</td>
+                <td class="c-pending" title="Pendiente — Cap. 5">❓</td>
+                <td class="c-pending" title="Pendiente — Cap. 5">❓</td>
+                <td class="c-pending" title="Pendiente — Cap. 5">❓</td>
+              </tr>
+              <tr>
+                <th class="row-header">Arts. 16–18 · <span style="font-weight:400;">Obligaciones proveedor/deployer</span></th>
+                <td class="c-pending" title="Pendiente — Cap. 5">❓</td>
+                <td class="c-pending" title="Pendiente — Cap. 5">❓</td>
+                <td class="c-pending" title="Pendiente — Cap. 5">❓</td>
+                <td class="c-pending" title="Pendiente — Cap. 5">❓</td>
               </tr>
             </tbody>
             <caption>
-              ✅ Correspondencia · ⚠️ Parcial · ❌ Sin correspondencia · ❓ Pendiente de análisis (Cap. 5, Q3 2026)
+              ✅ Correspondencia · ⚠️ Parcial · ❌ Sin correspondencia · ❓ Pendiente (Cap. 5, Q3 2026)<br>
+              Filas: requisitos RIA para sistemas de alto riesgo · Columnas: funciones NIST AI RMF
             </caption>
           </table>
         </div>

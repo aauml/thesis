@@ -656,26 +656,22 @@
         <strong>Actividad actual:</strong> Leyendo Kaminski (2023) "Regulating the Risks of AI" — ficha pendiente en Obsidian · Bradford caps. 1–3 en cola
       </div>
 
-      <!-- Novedades por tema -->
-      <div class="section-label">Novedades · feb / mar 2026</div>
-
-      <div class="card">
-        <div class="card-title" style="font-size:0.82rem; color:var(--warn-text);">Implementación AI Act</div>
-        <div class="news-item"><span class="news-date">13 mar</span><div><span class="news-tag tag-act">AI Act</span>Consejo UE propone simplificar reglas del AI Act para reducir carga regulatoria</div></div>
-        <div class="news-item"><span class="news-date">13 mar</span><div><span class="news-tag tag-act">AI Act</span>"€31bn cost on Europe's Innovators" — crítica al costo de cumplimiento</div></div>
-        <div class="news-item"><span class="news-date">26 feb</span><div><span class="news-tag tag-act">AI Act</span>Primera ola obligaciones — mayoría de startups declara no estar lista</div></div>
-        <div class="news-item"><span class="news-date">24 feb</span><div><span class="news-tag tag-act">AI Act</span>Directrices de alto riesgo retrasadas otra vez (Euractiv)</div></div>
+      <!-- Desarrollos clave — persistent, curated -->
+      <div class="section-label">Desarrollos clave</div>
+      <div class="card" style="border-left: 3px solid var(--accent-mid);">
+        <div style="font-size:0.72rem; color:var(--text-muted); margin-bottom:0.5rem;">Cambios regulatorios y hallazgos importantes para tener siempre en mente.</div>
+        <div class="news-item"><span class="news-date"><span class="news-tag tag-nist">NIST</span></span><div><strong>OMB M-24-10 rescindida → M-25-21:</strong> brecha de gobernanza EU-US se amplía. Agencias federales sin mandato claro de AI impact assessment.</div></div>
+        <div class="news-item"><span class="news-date"><span class="news-tag tag-conv">Conv.</span></span><div><strong>CETS 225 en vigor (nov 2025):</strong> primer tratado vinculante de IA ratificado por EEUU. Puente entre frameworks voluntarios y obligaciones.</div></div>
+        <div class="news-item"><span class="news-date"><span class="news-tag tag-act">AI Act</span></span><div><strong>EO 14110 revocada → EO 14179:</strong> marco ejecutivo de IA de Biden reemplazado. Impacto en postura federal ante regulación.</div></div>
+        <div class="news-item"><span class="news-date"><span class="news-tag tag-act">AI Act</span></span><div><strong>Directrices de alto riesgo retrasadas:</strong> gap de estándares armonizados persiste — oportunidad para argumento de interoperabilidad NIST.</div></div>
+        <div class="news-item"><span class="news-date"><span class="news-tag tag-nist">NIST</span></span><div><strong>NIST COSAIS:</strong> Control Overlays for Securing AI Systems. NIST se acerca a controles prescriptivos tipo AI Act.</div></div>
+        <div class="news-item"><span class="news-date"><span class="news-tag tag-acad">Acad.</span></span><div><strong>Ningún sistema DOJ tiene AI Impact Assessment publicado</strong> pese a requisitos OMB — hallazgo clave para Cap. 6.</div></div>
       </div>
 
-      <div class="card">
-        <div class="card-title" style="font-size:0.82rem; color:var(--info-text);">NIST y estándares US</div>
-        <div class="news-item"><span class="news-date">10 mar</span><div><span class="news-tag tag-nist">NIST</span>BABL AI documenta lanzamiento de AI Agent Standards Initiative</div></div>
-        <div class="news-item"><span class="news-date">17 feb</span><div><span class="news-tag tag-nist">NIST</span>NIST anuncia AI Agent Standards Initiative — interoperabilidad de agentes</div></div>
-      </div>
-
-      <div class="card">
-        <div class="card-title" style="font-size:0.82rem; color:#6040a0;">Contestabilidad y due process</div>
-        <div class="news-item"><span class="news-date">09 mar</span><div><span class="news-tag tag-conv">Contest.</span>"The EU AI Act's Replayability Test" — si no puedes reconstruir, no puedes impugnar</div></div>
+      <!-- Novedades recientes — dynamic from NewsLog API -->
+      <div class="section-label">Novedades recientes <span style="font-weight:400; text-transform:none; letter-spacing:0; font-size:0.65rem;">· últimos 7 días desde NewsLog</span></div>
+      <div id="recentNewsContainer">
+        <div style="color:var(--text-muted); font-size:0.78rem; padding:0.5rem;">Cargando noticias recientes...</div>
       </div>
 
       <!-- Operativo -->
@@ -1133,7 +1129,7 @@
     </div>
 
     <footer>
-      Última actualización: 17 de marzo de 2026 · Thesis Dashboard v5.1 — documento vivo · pipeline status es live
+      Última actualización: 17 de marzo de 2026 · Thesis Dashboard v5.2 — documento vivo · pipeline + novedades son live
     </footer>
 
   </div><!-- /main -->
@@ -1385,10 +1381,10 @@ async function fetchPipelineStatus() {
     const newsPending = news?.rows?.length || 0;
     const totalPending = acadPending + perpPending + newsPending;
 
-    const lastAcad = meta?.meta?.last_acad_scan || null;
-    const lastNews = meta?.meta?.last_news_scan || null;
-    const lastPerp = meta?.meta?.last_perplexity_scan || null;
-    const lastProcess = meta?.meta?.last_search_date || null;
+    const lastAcad = meta?.last_acad_scan || null;
+    const lastNews = meta?.last_news_scan || null;
+    const lastPerp = meta?.last_perplexity_scan || null;
+    const lastProcess = meta?.last_search_date || null;
 
     const hasWork = totalPending > 0;
 
@@ -1456,11 +1452,80 @@ async function fetchPipelineStatus() {
 }
 
 // ═══════════════════════════════════════
+// NOVEDADES RECIENTES — from NewsLog API
+// ═══════════════════════════════════════
+async function fetchRecentNews() {
+  const container = document.getElementById('recentNewsContainer');
+  if (!container) return;
+
+  try {
+    // Fetch recent entries from NewsLog (last ~50, we'll filter by date client-side)
+    const resp = await fetch(GAS_API + '?action=getAll&limit=50');
+    const data = await resp.json();
+    const rows = data?.rows || [];
+
+    if (rows.length === 0) {
+      container.innerHTML = '<div style="color:var(--text-muted); font-size:0.78rem; padding:0.5rem;">No hay entradas recientes en el NewsLog.</div>';
+      return;
+    }
+
+    // Filter: last 7 days based on date_found or date_published
+    const now = new Date();
+    const sevenDaysAgo = new Date(now.getTime() - 7 * 86400000);
+    const recent = rows.filter(r => {
+      const d = new Date(r.date_found || r.date_published);
+      return !isNaN(d.getTime()) && d >= sevenDaysAgo;
+    });
+
+    // If nothing in 7 days, expand to 14 or show most recent 10
+    const toShow = recent.length > 0 ? recent.slice(0, 15) : rows.slice(0, 10);
+    const label = recent.length > 0 ? '' : '<div style="font-size:0.68rem; color:var(--text-muted); margin-bottom:0.4rem;">Sin entradas en los últimos 7 días — mostrando las más recientes:</div>';
+
+    // Group by topic tag (capa or action_tag)
+    const tagMap = {
+      'analítica': { label: 'AI Act / NIST', cls: 'tag-act' },
+      'teórica': { label: 'Teórica', cls: 'tag-acad' },
+      'caso': { label: 'Caso', cls: 'tag-conv' },
+      'evaluativa': { label: 'Evaluativa', cls: 'tag-nist' },
+      'metodológica': { label: 'Metod.', cls: 'tag-acad' },
+    };
+
+    let html = label + '<div class="card">';
+    for (const row of toShow) {
+      const dateStr = row.date_found || row.date_published || '';
+      const d = new Date(dateStr);
+      const shortDate = !isNaN(d.getTime()) ? d.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' }) : '';
+      const capa = (row.capa || '').toLowerCase();
+      const tag = tagMap[capa] || { label: 'KB', cls: 'tag-acad' };
+      const importance = (row.importance || '').toUpperCase();
+      const star = importance === 'ALTA' ? '<strong>★</strong> ' : '';
+      const title = row.title || '(sin título)';
+      // PR-012: only use URL if it comes from the API data — never fabricate
+      const hasUrl = row.url && row.url.startsWith('http');
+      const titleHtml = hasUrl
+        ? `<a href="${row.url}" target="_blank" rel="noopener">${star}${title}</a>`
+        : `${star}${title}`;
+
+      html += `<div class="news-item">
+        <span class="news-date">${shortDate}</span>
+        <div><span class="news-tag ${tag.cls}">${tag.label}</span>${titleHtml}</div>
+      </div>`;
+    }
+    html += '</div>';
+    container.innerHTML = html;
+
+  } catch(e) {
+    container.innerHTML = '<div style="color:var(--text-muted); font-size:0.78rem; padding:0.5rem;">No se pudo cargar noticias — API no disponible.</div>';
+  }
+}
+
+// ═══════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════
 document.addEventListener('DOMContentLoaded', () => {
   renderOps();
   fetchPipelineStatus(); // Live queue status on every page load
+  fetchRecentNews(); // Dynamic news from NewsLog
 
   // KB stats — relative "Actualizado" timestamp
   const KB_LAST_UPDATE = '2026-03-15T22:00:00-07:00'; // last KB processing date

@@ -669,8 +669,8 @@
         <div class="news-item"><span class="news-date"><span class="news-tag tag-acad">Acad.</span></span><div><strong>Ningún sistema DOJ tiene AI Impact Assessment publicado</strong> pese a requisitos OMB — hallazgo clave para Cap. 6.</div></div>
       </div>
 
-      <!-- Novedades recientes — dynamic from NewsLog API -->
-      <div class="section-label">Novedades recientes <span style="font-weight:400; text-transform:none; letter-spacing:0; font-size:0.65rem;">· últimos 7 días desde NewsLog</span></div>
+      <!-- Novedades recientes — dynamic from NewsLog API (rolling 30 days) -->
+      <div class="section-label">Novedades recientes <span style="font-weight:400; text-transform:none; letter-spacing:0; font-size:0.65rem;">· últimos 30 días desde NewsLog</span></div>
       <div id="recentNewsContainer">
         <div style="color:var(--text-muted); font-size:0.78rem; padding:0.5rem;">Cargando noticias recientes...</div>
       </div>
@@ -1459,61 +1459,105 @@ async function fetchRecentNews() {
   const container = document.getElementById('recentNewsContainer');
   if (!container) return;
 
+  const tagMap = {
+    'analítica': { label: 'AI Act / NIST', cls: 'tag-act' },
+    'teórica': { label: 'Teórica', cls: 'tag-acad' },
+    'caso': { label: 'Caso', cls: 'tag-conv' },
+    'evaluativa': { label: 'Evaluativa', cls: 'tag-nist' },
+    'metodológica': { label: 'Metod.', cls: 'tag-acad' },
+  };
+
+  function renderNewsItem(row) {
+    const dateStr = row.date_found || row.date_published || '';
+    const d = new Date(dateStr);
+    const shortDate = !isNaN(d.getTime()) ? d.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' }) : '';
+    const capas = (row.capa || '').toLowerCase().split(',').map(c => c.trim());
+    const capa = capas[0] || '';
+    const tag = tagMap[capa] || { label: 'KB', cls: 'tag-acad' };
+    const importance = (row.importance || '').toUpperCase();
+    const star = importance === 'ALTA' ? '<strong>★</strong> ' : '';
+    const title = row.title || '(sin título)';
+    // PR-012: only use URL if it comes from the API data — never fabricate
+    const hasUrl = row.url && row.url.startsWith('http');
+    const titleHtml = hasUrl
+      ? `<a href="${row.url}" target="_blank" rel="noopener">${star}${title}</a>`
+      : `${star}${title}`;
+    return `<div class="news-item">
+      <span class="news-date">${shortDate}</span>
+      <div><span class="news-tag ${tag.cls}">${tag.label}</span>${titleHtml}</div>
+    </div>`;
+  }
+
   try {
-    // Fetch recent entries from NewsLog (last ~50, we'll filter by date client-side)
-    const resp = await fetch(GAS_API + '?action=getAll&limit=50');
+    // Fetch recent entries — enough to cover 30 days
+    const resp = await fetch(GAS_API + '?action=getAll&limit=80');
     const data = await resp.json();
     const rows = data?.rows || [];
 
     if (rows.length === 0) {
-      container.innerHTML = '<div style="color:var(--text-muted); font-size:0.78rem; padding:0.5rem;">No hay entradas recientes en el NewsLog.</div>';
+      container.innerHTML = '<div style="color:var(--text-muted); font-size:0.78rem; padding:0.5rem;">No hay entradas en el NewsLog.</div>';
       return;
     }
 
-    // Filter: last 7 days based on date_found or date_published
     const now = new Date();
-    const sevenDaysAgo = new Date(now.getTime() - 7 * 86400000);
-    const recent = rows.filter(r => {
-      const d = new Date(r.date_found || r.date_published);
-      return !isNaN(d.getTime()) && d >= sevenDaysAgo;
-    });
+    const sevenAgo = new Date(now.getTime() - 7 * 86400000);
+    const thirtyAgo = new Date(now.getTime() - 30 * 86400000);
 
-    // If nothing in 7 days, expand to 14 or show most recent 10
-    const toShow = recent.length > 0 ? recent.slice(0, 15) : rows.slice(0, 10);
-    const label = recent.length > 0 ? '' : '<div style="font-size:0.68rem; color:var(--text-muted); margin-bottom:0.4rem;">Sin entradas en los últimos 7 días — mostrando las más recientes:</div>';
+    // Sort most recent first by date_found
+    const sorted = rows
+      .map(r => ({ ...r, _date: new Date(r.date_found || r.date_published || 0) }))
+      .filter(r => !isNaN(r._date.getTime()))
+      .sort((a, b) => b._date - a._date);
 
-    // Group by topic tag (capa or action_tag)
-    const tagMap = {
-      'analítica': { label: 'AI Act / NIST', cls: 'tag-act' },
-      'teórica': { label: 'Teórica', cls: 'tag-acad' },
-      'caso': { label: 'Caso', cls: 'tag-conv' },
-      'evaluativa': { label: 'Evaluativa', cls: 'tag-nist' },
-      'metodológica': { label: 'Metod.', cls: 'tag-acad' },
-    };
+    // Split into two buckets
+    const thisWeek = sorted.filter(r => r._date >= sevenAgo);
+    const olderMonth = sorted.filter(r => r._date < sevenAgo && r._date >= thirtyAgo);
 
-    let html = label + '<div class="card">';
-    for (const row of toShow) {
-      const dateStr = row.date_found || row.date_published || '';
-      const d = new Date(dateStr);
-      const shortDate = !isNaN(d.getTime()) ? d.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' }) : '';
-      const capa = (row.capa || '').toLowerCase();
-      const tag = tagMap[capa] || { label: 'KB', cls: 'tag-acad' };
-      const importance = (row.importance || '').toUpperCase();
-      const star = importance === 'ALTA' ? '<strong>★</strong> ' : '';
-      const title = row.title || '(sin título)';
-      // PR-012: only use URL if it comes from the API data — never fabricate
-      const hasUrl = row.url && row.url.startsWith('http');
-      const titleHtml = hasUrl
-        ? `<a href="${row.url}" target="_blank" rel="noopener">${star}${title}</a>`
-        : `${star}${title}`;
-
-      html += `<div class="news-item">
-        <span class="news-date">${shortDate}</span>
-        <div><span class="news-tag ${tag.cls}">${tag.label}</span>${titleHtml}</div>
-      </div>`;
+    // If nothing in the last 30 days, show most recent available
+    if (thisWeek.length === 0 && olderMonth.length === 0) {
+      const fallback = sorted.slice(0, 12);
+      let html = '<div style="font-size:0.68rem; color:var(--text-muted); margin-bottom:0.4rem;">Sin entradas en los últimos 30 días — mostrando las más recientes:</div>';
+      html += '<div class="card">' + fallback.map(renderNewsItem).join('') + '</div>';
+      container.innerHTML = html;
+      return;
     }
-    html += '</div>';
+
+    let html = '';
+
+    // Section 1: This week (always visible)
+    if (thisWeek.length > 0) {
+      html += '<div class="card">';
+      html += '<div style="font-size:0.68rem; font-weight:600; color:var(--accent); margin-bottom:0.3rem;">Esta semana · ' + thisWeek.length + ' entradas</div>';
+      html += thisWeek.map(renderNewsItem).join('');
+      html += '</div>';
+    } else {
+      html += '<div style="font-size:0.78rem; color:var(--text-muted); padding:0.3rem 0 0.5rem;">Sin entradas esta semana.</div>';
+    }
+
+    // Section 2: Rest of the month (collapsible)
+    if (olderMonth.length > 0) {
+      html += `<details class="news-expand">
+        <summary style="cursor:pointer; font-size:0.75rem; font-weight:600; color:var(--accent-mid); padding:0.4rem 0; user-select:none;">
+          Ver más del mes · ${olderMonth.length} entradas anteriores ▸
+        </summary>
+        <div class="card" style="margin-top:0.3rem;">
+          ${olderMonth.map(renderNewsItem).join('')}
+        </div>
+      </details>`;
+    }
+
     container.innerHTML = html;
+
+    // Toggle arrow on expand
+    const details = container.querySelector('details.news-expand');
+    if (details) {
+      details.addEventListener('toggle', function() {
+        const sum = this.querySelector('summary');
+        if (sum) sum.textContent = this.open
+          ? `Ocultar · ${olderMonth.length} entradas anteriores ▾`
+          : `Ver más del mes · ${olderMonth.length} entradas anteriores ▸`;
+      });
+    }
 
   } catch(e) {
     container.innerHTML = '<div style="color:var(--text-muted); font-size:0.78rem; padding:0.5rem;">No se pudo cargar noticias — API no disponible.</div>';

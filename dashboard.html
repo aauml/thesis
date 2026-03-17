@@ -247,6 +247,10 @@
     .kb-lbl { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; }
     .kb-card.alta { border-color: var(--danger-border); background: var(--danger-bg); }
     .kb-card.alta .kb-num { color: var(--danger-text); }
+    .kb-card.media { border-color: #e8a040; background: #fff6e6; }
+    .kb-card.media .kb-num { color: #b06800; }
+    .kb-card.baja { border-color: #c0c0c0; background: #f5f5f5; }
+    .kb-card.baja .kb-num { color: #777; }
 
     /* ═══════════════════════════════════════
        TIMELINE
@@ -653,8 +657,8 @@
       <div class="kb-grid">
         <div class="kb-card"><div class="kb-num">1,459</div><div class="kb-lbl">Total</div></div>
         <div class="kb-card alta"><div class="kb-num">438</div><div class="kb-lbl">Alta</div></div>
-        <div class="kb-card"><div class="kb-num">809</div><div class="kb-lbl">Media</div></div>
-        <div class="kb-card"><div class="kb-num">212</div><div class="kb-lbl">Baja</div></div>
+        <div class="kb-card media"><div class="kb-num">809</div><div class="kb-lbl">Media</div></div>
+        <div class="kb-card baja"><div class="kb-num">212</div><div class="kb-lbl">Baja</div></div>
       </div>
 
       <div class="grid-2" style="margin-bottom:1rem;">
@@ -1092,6 +1096,18 @@ function switchView(id, btn) {
   document.getElementById('view-' + id).classList.add('active');
   if (btn) btn.classList.add('active');
 }
+
+// ═══════════════════════════════════════
+// KB BADGE — cuenta callout-warn en vista KB
+// ═══════════════════════════════════════
+(function updateKbBadge() {
+  const kb = document.getElementById('view-kb');
+  const badge = document.getElementById('badge-kb');
+  if (!kb || !badge) return;
+  const count = kb.querySelectorAll('.callout-warn').length;
+  badge.textContent = count;
+  badge.style.display = count > 0 ? '' : 'none';
+})();
 
 // ═══════════════════════════════════════
 // TIMELINE

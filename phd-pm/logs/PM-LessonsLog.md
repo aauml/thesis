@@ -84,6 +84,16 @@ These are hard rules derived from past bugs. Violating any of these means repeat
 | 2026-03-15 | NewsResults IDs all identical (136 rows, 1 ID) | base64 truncation of Google News URLs | PR-010 | Yes — use URL |
 | 2026-03-15 | Queues dejados con ~377 items pendientes | Solo se corrió 1 batch por cola en lugar de vaciarlas | PR-009 | Yes — 3 colas en cero |
 | 2026-03-17 | Novedades links apuntan a URLs inexistentes | Claude fabricó URLs plausibles en vez de usar datos reales del NewsLog | PR-012 | Yes — links removidos |
+| 2026-03-17 | Obsidian vault tenía archivos de infraestructura (phd-kb, phd-pm, pwa, dashboard.html) | GitHubSync copió todo el repo al vault sin filtrar | PR-013 | Yes — borrados del vault |
+
+### PR-013 — Obsidian vault = solo material de trabajo, no infraestructura
+- **Derived from:** Sesión 2026-03-17. El vault de Obsidian en iCloud contenía copias de phd-kb/, phd-pm/, pwa/, dashboard.html, index.html, sw.js.
+- **Root cause:** El sync de GitHub a Drive (y luego a Obsidian) copió todo el repo sin discriminar.
+- **Rule:** El vault de Obsidian solo debe contener material de trabajo del doctorando: fichas de lectura, notas permanentes, stubs, clippings. NUNCA archivos de infraestructura (scripts, configs, HTML del dashboard). Esos viven en el repo de GitHub exclusivamente.
+
+### PR-014 — Montar iCloud Obsidian al inicio de cada sesión
+- **Derived from:** Sesión 2026-03-17. El vault de Obsidian vive en iCloud (`~/Library/Mobile Documents/iCloud~md~obsidian/Documents/Tesis iCloud`).
+- **Rule:** Al inicio de cada sesión, montar el directorio iCloud de Obsidian usando `request_cowork_directory` con path `~/Library/Mobile Documents/iCloud~md~obsidian/Documents`. Esto da acceso al vault para leer fichas, evaluar entregas, y actualizar estados. Sin este mount, no se puede hacer el ciclo de aprendizaje (Asignada → En curso → Completada → Revisada).
 
 ---
 
@@ -91,6 +101,7 @@ These are hard rules derived from past bugs. Violating any of these means repeat
 
 | Date | Session Type | Key Actions | Lessons Added |
 |------|-------------|-------------|---------------|
+| 2026-03-17 | restructuring | Dashboard v6.1, vault files, iCloud cleanup, Operativo standalone, KPIs dinámicos, session log | PR-013, PR-014 |
 | 2026-03-15 | automation | Dashboard v5.0 live API fetch + scheduled daily queue review task | PR-011 |
 | 2026-03-15 | queue-empty | 370 items processed, 3 queues → 0, NewsResults ID bug found | PR-009, PR-010 |
 | 2026-03-15 | dashboard-fix | Operativo defaults + ops versioning, standing rule dashboard | PR-007, PR-008 |

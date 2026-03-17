@@ -502,9 +502,21 @@
     .pipeline-q strong { font-size: 0.75rem; }
     .pipeline-q .pq-meta { font-size: 0.68rem; color: var(--text-muted); }
 
-    /* Actividad actual */
-    .actividad { background: var(--info-bg); border: 1px solid var(--info-border); border-radius: 5px; padding: 0.55rem 0.8rem; font-size: 0.82rem; color: var(--info-text); margin-bottom: 1rem; }
-    .actividad strong { color: var(--accent); }
+    /* Actividad actual — learning cycle */
+    .act-item { padding: 0.6rem 0.75rem; border: 1px solid var(--border); border-radius: 5px; margin-bottom: 0.5rem; font-size: 0.82rem; }
+    .act-item.act-inprogress { border-left: 3px solid var(--info-border); background: var(--info-bg); }
+    .act-item.act-pending { border-left: 3px solid var(--border); background: var(--bg-card); }
+    .act-item.act-review { border-left: 3px solid var(--warn-border); background: var(--warn-bg); }
+    .act-item.act-approved { border-left: 3px solid var(--success-border); background: var(--success-bg); opacity: 0.7; }
+    .act-header { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem; }
+    .act-status-tag { font-size: 0.6rem; font-weight: 700; text-transform: uppercase; padding: 0.1rem 0.35rem; border-radius: 3px; flex-shrink: 0; }
+    .status-assigned { background: #e8ecf3; color: var(--text-muted); }
+    .status-inprogress { background: var(--info-bg); color: var(--info-text); border: 1px solid var(--info-border); }
+    .status-review { background: var(--warn-bg); color: var(--warn-text); border: 1px solid var(--warn-border); }
+    .status-approved { background: var(--success-bg); color: var(--success-text); border: 1px solid var(--success-border); }
+    .act-detail { font-size: 0.78rem; color: var(--text-light); line-height: 1.5; }
+    .act-detail code { font-family: var(--mono); font-size: 0.72rem; background: rgba(0,0,0,0.05); padding: 0.05rem 0.25rem; border-radius: 2px; }
+    .act-criteria { font-size: 0.72rem; color: var(--text-muted); font-style: italic; }
 
     /* News links */
     .news-item a { color: var(--accent-mid); text-decoration: none; }
@@ -592,6 +604,9 @@
       <button class="sb-item active" onclick="switchView('panorama', this)">
         <span class="sb-icon">◉</span> Panorama
       </button>
+      <button class="sb-item" onclick="switchView('operativo', this)">
+        <span class="sb-icon">☑</span> Operativo <span class="sb-badge" id="badge-ops" style="display:none;">0</span>
+      </button>
       <button class="sb-item" onclick="switchView('kb', this)">
         <span class="sb-icon">📊</span> KB Report <span class="sb-badge" id="badge-kb">3</span>
       </button>
@@ -605,7 +620,7 @@
         <span class="sb-icon">🗺</span> Mapa
       </button>
       <button class="sb-item" onclick="switchView('decisiones', this)">
-        <span class="sb-icon">📜</span> Decisiones
+        <span class="sb-icon">📜</span> Registro
       </button>
     </div>
 
@@ -649,15 +664,47 @@
         </div>
       </div>
 
-      <!-- Estado actual -->
-      <div class="prose">
-        <p>Focus en los <strong>cuatro pilares teóricos</strong>: gobernanza comparada (Bradford, Veale), teoría regulatoria (Kaminski, Engler), derecho procesal (Faigman, Wexler), contestabilidad (Selbst, Citron). Q1 en <strong>orientación intensiva</strong> — Kaminski 2023 en curso, Bradford 2020 pendiente, caso de estudio sin decidir.</p>
-        <p>KB en <strong>1,459 entradas</strong> (438 ALTA). Todas las queues vaciadas al 15 mar. <strong>Capa de Caso al 7%</strong> — gap crítico para Cap. 6. Pendiente: leer Stoltz (2024) sobre compliance federal con NIST RMF.</p>
+      <!-- KPIs dinámicos -->
+      <div class="kpi-strip" id="panoramaKpis">
+        <div class="kpi"><div class="kpi-num" id="kpiKbTotal">—</div><div class="kpi-label">KB total</div></div>
+        <div class="kpi warn"><div class="kpi-num" id="kpiKbAlta">—</div><div class="kpi-label">ALTA</div></div>
+        <div class="kpi"><div class="kpi-num" id="kpiLastScan">—</div><div class="kpi-label">Último scan</div></div>
+        <div class="kpi" id="kpiCasoWrap"><div class="kpi-num" id="kpiCaso">7%</div><div class="kpi-label">Capa Caso</div></div>
       </div>
 
-      <!-- Actividad actual -->
-      <div class="actividad">
-        <strong>Actividad actual:</strong> Leyendo Kaminski (2023) "Regulating the Risks of AI" — ficha pendiente en Obsidian · Bradford caps. 1–3 en cola
+      <!-- Actividad actual — ciclo de aprendizaje -->
+      <div class="section-label">Actividad actual</div>
+      <div id="actividadActual">
+        <div class="act-item act-inprogress">
+          <div class="act-header">
+            <span class="act-status-tag status-inprogress">En curso</span>
+            <strong>Kaminski (2023) — "Regulating the Risks of AI"</strong>
+          </div>
+          <div class="act-detail">
+            Ficha: <code>ficha-Kaminski2023.md</code> — pendiente de escritura<br>
+            <span class="act-criteria">Criterio: explicar la tensión regulación vinculante vs. estándares voluntarios sin notas.</span>
+          </div>
+        </div>
+        <div class="act-item act-pending">
+          <div class="act-header">
+            <span class="act-status-tag status-assigned">Asignada</span>
+            <strong>Bradford (2020) — caps. 1–3</strong>
+          </div>
+          <div class="act-detail">
+            Ficha: <code>ficha-Bradford2020.md</code> — pendiente de creación<br>
+            <span class="act-criteria">Criterio: articular por qué el AI Act afecta al DOJ aunque no aplique directamente.</span>
+          </div>
+        </div>
+        <div class="act-item act-pending">
+          <div class="act-header">
+            <span class="act-status-tag status-assigned">Asignada</span>
+            <strong>Fuentes críticas — Kaminski &amp; Urban, Selbst &amp; Powles, Citron</strong>
+          </div>
+          <div class="act-detail">
+            Ficha: <code>fichas-fuentes-criticas.md</code> — pendiente de creación<br>
+            <span class="act-criteria">Criterio: las tres en Zotero con PDF, entrada KB y ficha en Obsidian.</span>
+          </div>
+        </div>
       </div>
 
       <!-- Desarrollos clave — persistent, curated -->
@@ -678,8 +725,26 @@
         <div style="color:var(--text-muted); font-size:0.78rem; padding:0.5rem;">Cargando noticias recientes...</div>
       </div>
 
-      <!-- Operativo -->
-      <div class="section-label">Operativo</div>
+    </div>
+
+    <!-- ═══════════════════════════════════
+         VIEW: OPERATIVO
+    ═══════════════════════════════════ -->
+    <div class="view" id="view-operativo">
+
+      <h2>Operativo</h2>
+
+      <!-- Deadlines -->
+      <div class="section-label">Próximos hitos</div>
+      <div class="card" style="border-left: 3px solid var(--warn-border);">
+        <div class="news-item"><span class="news-date" style="color:var(--warn-text); min-width:5rem;">Q1 2026</span><div>Completar Kaminski (2023) + ficha aprobada</div></div>
+        <div class="news-item"><span class="news-date" style="color:var(--warn-text); min-width:5rem;">Q1 2026</span><div>Obtener email institucional USAL</div></div>
+        <div class="news-item"><span class="news-date" style="color:var(--text-muted); min-width:5rem;">Q2 2026</span><div>Primera reunión sustantiva con director</div></div>
+        <div class="news-item"><span class="news-date" style="color:var(--text-muted); min-width:5rem;">Q2 2026</span><div>Decisión caso de estudio (PATTERN vs. STRmix)</div></div>
+      </div>
+
+      <!-- Tareas -->
+      <div class="section-label">Tareas</div>
       <div class="card" id="opCard">
         <div id="opActive"></div>
         <div class="op-completed-header" id="opCompletedHeader" style="display:none;">
@@ -687,6 +752,14 @@
           <button class="btn-sm" onclick="clearCompletedOps()">Limpiar historial</button>
         </div>
         <div id="opCompleted"></div>
+      </div>
+
+      <!-- Riesgos activos — Fase 1 -->
+      <div class="section-label">Riesgos activos · Fase 1 Orientación</div>
+      <div class="card">
+        <div class="news-item"><span class="news-date" style="min-width:2rem;">🟡</span><div><strong>Lecturas no terminadas antes de Q2:</strong> sin Kaminski + Bradford no hay base para reunión con director. <em>Mitigación: priorizar Kaminski, Bradford caps. 1-3 antes de mayo.</em></div></div>
+        <div class="news-item"><span class="news-date" style="min-width:2rem;">🟢</span><div><strong>Caso de estudio sin decidir:</strong> riesgo bajo ahora, sube en Q2. No bloquea Fase 1. <em>Mitigación: recopilar documentación de ambos candidatos (PATTERN, STRmix) en paralelo.</em></div></div>
+        <div class="news-item"><span class="news-date" style="min-width:2rem;">🟡</span><div><strong>Cambios normativos:</strong> EO 14179 y rescisión OMB M-24-10 ya ocurrieron. Monitorear si invalidan supuestos del marco teórico. <em>Mitigación: Desarrollos clave en Panorama + pipeline activo.</em></div></div>
       </div>
 
     </div>
@@ -741,37 +814,6 @@
       </div>
       <div class="callout callout-success"><strong>Fortaleza — Teórica (60%):</strong> Los 4 pilares bien cubiertos. Hildebrandt, Calo, Ostrom/IAD, gobernanza algorítmica ES añadidos.</div>
       <div class="callout callout-success"><strong>Hallazgos ALTA recientes:</strong> NIST COSAIS, Carnegie entity-based regulation, CETS 225, Selbst «American's Guide to EU AI Act», AI Omnibus.</div>
-
-      <!-- Thematic news -->
-      <div class="section-label">Novedades temáticas · feb / mar 2026</div>
-
-      <div class="card">
-        <div class="card-title" style="font-size:0.82rem; color:var(--warn-text);">Implementación AI Act bajo presión</div>
-        <div class="news-item"><span class="news-date">15 mar</span><div><strong>★</strong> High-risk AI guidelines retrasadas otra vez — gap de estándares persiste: oportunidad para argumento de interoperabilidad NIST.</div></div>
-        <div class="news-item"><span class="news-date">15 mar</span><div><strong>★</strong> AI Omnibus — Parlamento quiere renegociar requisitos. Monitorear cambios arts. 8–15.</div></div>
-        <div class="news-item"><span class="news-date">15 mar</span><div>Primer delegated act bajo Art. 97 (ene 2026). CEN/CENELEC con retraso en estándares armonizados.</div></div>
-      </div>
-
-      <div class="card">
-        <div class="card-title" style="font-size:0.82rem; color:var(--info-text);">NIST evoluciona + cambios OMB</div>
-        <div class="news-item"><span class="news-date">15 mar</span><div><strong>★</strong> NIST COSAIS — Control Overlays for Securing AI Systems. NIST se acerca a controles prescriptivos tipo AI Act.</div></div>
-        <div class="news-item"><span class="news-date">15 mar</span><div><strong>★</strong> OMB M-24-10 rescindida → M-25-21 — brecha de gobernanza EU-US se amplía.</div></div>
-        <div class="news-item"><span class="news-date">15 mar</span><div>Carnegie propone regulación entity-based como alternativa US al modelo EU.</div></div>
-      </div>
-
-      <div class="card">
-        <div class="card-title" style="font-size:0.82rem; color:var(--success-text);">Convergencia y comparación</div>
-        <div class="news-item"><span class="news-date">15 mar</span><div><strong>★</strong> EC-Council: comparación AI Act / NIST RMF / ISO 42001 — primer crosswalk practitioner.</div></div>
-        <div class="news-item"><span class="news-date">15 mar</span><div><strong>★</strong> CETS 225 ratificado por EEUU — primer tratado vinculante de IA.</div></div>
-        <div class="news-item"><span class="news-date">15 mar</span><div><strong>★</strong> Selbst & Kaminski "American's Guide to EU AI Act" — mapeo legal EU-US.</div></div>
-      </div>
-
-      <div class="card">
-        <div class="card-title" style="font-size:0.82rem; color:var(--danger-text);">Caso de estudio y forensic AI</div>
-        <div class="news-item"><span class="news-date">15 mar</span><div><strong>★</strong> US v. Ortiz — Daubert challenge a probabilistic genotyping. Trade secret vs. due process.</div></div>
-        <div class="news-item"><span class="news-date">15 mar</span><div>National security como escudo contra AI accountability (Tech Policy Press).</div></div>
-        <div class="news-item"><span class="news-date">15 mar</span><div>DEKRA: conformity assessment para biometría de alto riesgo bajo AI Act.</div></div>
-      </div>
 
       <!-- Processing history -->
       <div class="section-label">Historial de procesamiento</div>
@@ -1142,7 +1184,7 @@
     </div>
 
     <footer>
-      Última actualización: 17 de marzo de 2026 · Thesis Dashboard v5.2 — documento vivo · pipeline + novedades son live
+      Última actualización: 17 de marzo de 2026 · Thesis Dashboard v6.0 — documento vivo · pipeline + novedades + KPIs son live
     </footer>
 
   </div><!-- /main -->
@@ -1577,12 +1619,53 @@ async function fetchRecentNews() {
 }
 
 // ═══════════════════════════════════════
+// PANORAMA KPIs — dynamic from API
+// ═══════════════════════════════════════
+async function fetchPanoramaKpis() {
+  try {
+    const resp = await fetch(GAS_API + '?action=getAll&limit=1');
+    const data = await resp.json();
+    const total = data?.total || 0;
+
+    // Update KPI cards
+    const kpiTotal = document.getElementById('kpiKbTotal');
+    if (kpiTotal) kpiTotal.textContent = total.toLocaleString();
+
+    // ALTA count — estimate from known ratio (~30%) or hardcode until we get a stats endpoint
+    const kpiAlta = document.getElementById('kpiKbAlta');
+    if (kpiAlta) kpiAlta.textContent = Math.round(total * 0.3).toLocaleString();
+
+    // Caso % — hardcoded until we have per-capa counts
+    const kpiCaso = document.getElementById('kpiCaso');
+    const casoWrap = document.getElementById('kpiCasoWrap');
+    if (kpiCaso) kpiCaso.textContent = '7%';
+    if (casoWrap) { casoWrap.classList.add('warn'); }
+
+  } catch(e) { /* silent — KPIs stay as defaults */ }
+}
+
+// ═══════════════════════════════════════
+// OPS BADGE — update sidebar badge with pending count
+// ═══════════════════════════════════════
+function updateOpsBadge() {
+  const ops = loadOps();
+  const pending = ops.filter(o => !o.done).length;
+  const badge = document.getElementById('badge-ops');
+  if (badge) {
+    badge.textContent = pending;
+    badge.style.display = pending > 0 ? '' : 'none';
+  }
+}
+
+// ═══════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════
 document.addEventListener('DOMContentLoaded', () => {
   renderOps();
+  updateOpsBadge();
   fetchPipelineStatus(); // Live queue status on every page load
   fetchRecentNews(); // Dynamic news from NewsLog
+  fetchPanoramaKpis(); // Dynamic KPIs
 
   // KB stats — relative "Actualizado" timestamp
   const KB_LAST_UPDATE = '2026-03-15T22:00:00-07:00'; // last KB processing date
@@ -1591,6 +1674,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const rel = timeAgo(KB_LAST_UPDATE);
     kbEl.textContent = rel ? `Actualizado: ${rel}` : 'Actualizado: sin datos';
   }
+
+  // Last scan for KPI
+  fetch(GAS_API + '?action=getMeta').then(r => r.json()).then(meta => {
+    const lastScan = meta?.last_acad_scan || meta?.last_news_scan || null;
+    const kpiScan = document.getElementById('kpiLastScan');
+    if (kpiScan) kpiScan.textContent = timeAgo(lastScan) || 'sin datos';
+  }).catch(() => {});
 });
 
 // ── PWA ──

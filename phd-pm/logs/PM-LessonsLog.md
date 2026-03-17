@@ -48,6 +48,11 @@ These are hard rules derived from past bugs. Violating any of these means repeat
 - **Root cause:** No había regla explícita de siempre actualizar el dashboard al cerrar sesión.
 - **Rule:** Toda sesión que modifique estado del KB, queues, decisiones, o tareas DEBE actualizar y pushear `dashboard.html` antes de cerrar. Sin excepciones.
 
+### PR-012 — Never fabricate URLs for dashboard links
+- **Derived from:** Dashboard v5.1 update, 2026-03-17. Novedades section had links to news articles.
+- **Root cause:** Claude generated plausible-looking URLs (euractiv.com, euronews.com, verfassungsblog.de, babl.ai, nist.gov) that don't actually exist. User caught them immediately.
+- **Rule:** NEVER invent URLs. If a news item came from the NewsLog, use the actual URL from the Sheet. If the URL is not available, leave the item as plain text without a link. Only add `<a href>` when the URL has been verified from a data source (NewsLog, KB, or confirmed via web search).
+
 ### PR-011 — Dashboard pipeline status is live; scheduled task handles daily queue review
 - **Derived from:** Sesión 5, 2026-03-15. User requested automatic daily updates.
 - **Architecture:** Dashboard v5.0 fetches queue counts from SHEET_API on every page load (client-side JS). Scheduled task `thesis-queue-review` runs daily at 9am to process any pending items and push dashboard updates.
@@ -78,6 +83,7 @@ These are hard rules derived from past bugs. Violating any of these means repeat
 | 2026-03-15 | Dashboard desactualizado reportado dos veces | No había regla explícita de actualizar dashboard al cierre | PR-008 | Yes — standing rule |
 | 2026-03-15 | NewsResults IDs all identical (136 rows, 1 ID) | base64 truncation of Google News URLs | PR-010 | Yes — use URL |
 | 2026-03-15 | Queues dejados con ~377 items pendientes | Solo se corrió 1 batch por cola en lugar de vaciarlas | PR-009 | Yes — 3 colas en cero |
+| 2026-03-17 | Novedades links apuntan a URLs inexistentes | Claude fabricó URLs plausibles en vez de usar datos reales del NewsLog | PR-012 | Yes — links removidos |
 
 ---
 

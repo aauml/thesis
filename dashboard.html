@@ -661,21 +661,21 @@
 
       <div class="card">
         <div class="card-title" style="font-size:0.82rem; color:var(--warn-text);">Implementación AI Act</div>
-        <div class="news-item"><span class="news-date">13 mar</span><div><span class="news-tag tag-act">AI Act</span><a href="https://www.euractiv.com/section/artificial-intelligence/news/council-wants-to-simplify-ai-act-rules/" target="_blank">Consejo UE propone simplificar reglas del AI Act para reducir carga regulatoria</a></div></div>
-        <div class="news-item"><span class="news-date">13 mar</span><div><span class="news-tag tag-act">AI Act</span><a href="https://www.euronews.com/next/2025/03/13/ai-act-compliance-cost" target="_blank">"€31bn cost on Europe's Innovators" — crítica al costo de cumplimiento</a></div></div>
-        <div class="news-item"><span class="news-date">26 feb</span><div><span class="news-tag tag-act">AI Act</span><a href="https://www.euractiv.com/section/artificial-intelligence/news/most-startups-not-ready-ai-act/" target="_blank">Primera ola obligaciones — mayoría de startups declara no estar lista</a></div></div>
-        <div class="news-item"><span class="news-date">24 feb</span><div><span class="news-tag tag-act">AI Act</span><a href="https://www.euractiv.com/section/artificial-intelligence/news/high-risk-ai-guidelines-delayed/" target="_blank">Directrices de alto riesgo retrasadas otra vez (Euractiv)</a></div></div>
+        <div class="news-item"><span class="news-date">13 mar</span><div><span class="news-tag tag-act">AI Act</span>Consejo UE propone simplificar reglas del AI Act para reducir carga regulatoria</div></div>
+        <div class="news-item"><span class="news-date">13 mar</span><div><span class="news-tag tag-act">AI Act</span>"€31bn cost on Europe's Innovators" — crítica al costo de cumplimiento</div></div>
+        <div class="news-item"><span class="news-date">26 feb</span><div><span class="news-tag tag-act">AI Act</span>Primera ola obligaciones — mayoría de startups declara no estar lista</div></div>
+        <div class="news-item"><span class="news-date">24 feb</span><div><span class="news-tag tag-act">AI Act</span>Directrices de alto riesgo retrasadas otra vez (Euractiv)</div></div>
       </div>
 
       <div class="card">
         <div class="card-title" style="font-size:0.82rem; color:var(--info-text);">NIST y estándares US</div>
-        <div class="news-item"><span class="news-date">10 mar</span><div><span class="news-tag tag-nist">NIST</span><a href="https://babl.ai/nist-ai-agent-standards-initiative/" target="_blank">BABL AI documenta lanzamiento de AI Agent Standards Initiative</a></div></div>
-        <div class="news-item"><span class="news-date">17 feb</span><div><span class="news-tag tag-nist">NIST</span><a href="https://www.nist.gov/artificial-intelligence/ai-agent-standards" target="_blank">NIST anuncia AI Agent Standards Initiative — interoperabilidad de agentes</a></div></div>
+        <div class="news-item"><span class="news-date">10 mar</span><div><span class="news-tag tag-nist">NIST</span>BABL AI documenta lanzamiento de AI Agent Standards Initiative</div></div>
+        <div class="news-item"><span class="news-date">17 feb</span><div><span class="news-tag tag-nist">NIST</span>NIST anuncia AI Agent Standards Initiative — interoperabilidad de agentes</div></div>
       </div>
 
       <div class="card">
         <div class="card-title" style="font-size:0.82rem; color:#6040a0;">Contestabilidad y due process</div>
-        <div class="news-item"><span class="news-date">09 mar</span><div><span class="news-tag tag-conv">Contest.</span><a href="https://verfassungsblog.de/eu-ai-act-replayability-test/" target="_blank">"The EU AI Act's Replayability Test" — si no puedes reconstruir, no puedes impugnar</a></div></div>
+        <div class="news-item"><span class="news-date">09 mar</span><div><span class="news-tag tag-conv">Contest.</span>"The EU AI Act's Replayability Test" — si no puedes reconstruir, no puedes impugnar</div></div>
       </div>
 
       <!-- Operativo -->
@@ -716,7 +716,7 @@
         <div class="kb-stat"><span class="kb-stat-num alta">438</span> <span class="kb-stat-label">alta</span></div>
         <div class="kb-stat"><span class="kb-stat-num">809</span> <span class="kb-stat-label">media</span></div>
         <div class="kb-stat"><span class="kb-stat-num">212</span> <span class="kb-stat-label">baja</span></div>
-        <div style="margin-left:auto; font-size:0.7rem; color:var(--text-muted); align-self:center;">Actualizado: 17 mar 2026</div>
+        <div style="margin-left:auto; font-size:0.7rem; color:var(--text-muted); align-self:center;" id="kbStatsUpdated">Actualizado: cargando...</div>
       </div>
 
       <!-- Distribution by layer (compact) -->
@@ -1461,6 +1461,14 @@ async function fetchPipelineStatus() {
 document.addEventListener('DOMContentLoaded', () => {
   renderOps();
   fetchPipelineStatus(); // Live queue status on every page load
+
+  // KB stats — relative "Actualizado" timestamp
+  const KB_LAST_UPDATE = '2026-03-15T22:00:00-07:00'; // last KB processing date
+  const kbEl = document.getElementById('kbStatsUpdated');
+  if (kbEl) {
+    const rel = timeAgo(KB_LAST_UPDATE);
+    kbEl.textContent = rel ? `Actualizado: ${rel}` : 'Actualizado: sin datos';
+  }
 });
 
 // ── PWA ──

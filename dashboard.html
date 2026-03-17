@@ -504,8 +504,9 @@
     .actividad strong { color: var(--accent); }
 
     /* News links */
-    .news-item a { color: inherit; text-decoration: none; }
-    .news-item a:hover { text-decoration: underline; }
+    .news-item a { color: var(--accent-mid); text-decoration: none; }
+    .news-item a:hover { text-decoration: underline; color: var(--accent); }
+    .news-item a::after { content: ' ↗'; font-size: 0.6rem; opacity: 0.5; }
 
     /* ═══════════════════════════════════════
        FOOTER

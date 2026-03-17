@@ -1350,17 +1350,21 @@ function syncToGAS(item) {
 // PIPELINE — live status from API
 // ═══════════════════════════════════════
 function timeAgo(dateStr) {
-  if (!dateStr) return '—';
+  if (!dateStr) return null;
   const d = new Date(dateStr);
+  if (isNaN(d.getTime())) return null;
   const now = new Date();
   const diffMs = now - d;
+  if (diffMs < 0) return 'justo ahora';
+  const diffMin = Math.floor(diffMs / 60000);
   const diffH = Math.floor(diffMs / 3600000);
   const diffD = Math.floor(diffMs / 86400000);
   if (diffD > 1) return `hace ${diffD} días`;
   if (diffD === 1) return 'ayer';
   if (diffH > 1) return `hace ${diffH}h`;
   if (diffH === 1) return 'hace 1h';
-  return 'hace minutos';
+  if (diffMin > 1) return `hace ${diffMin} min`;
+  return 'justo ahora';
 }
 
 async function fetchPipelineStatus() {
@@ -1395,12 +1399,16 @@ async function fetchPipelineStatus() {
       { name: 'News', pending: newsPending > 0, lastScan: lastNews },
     ];
 
+    const consultado = timeAgo(new Date().toISOString()) || 'justo ahora';
+    const procesado = timeAgo(lastProcess) || 'sin datos';
+
     let html = '<div class="pipeline-queues">';
     for (const q of queueRows) {
       const dot = q.pending ? '🔴' : '🟢';
+      const scanText = timeAgo(q.lastScan) || 'sin datos';
       html += `<div class="pipeline-q">
         <div>${dot} <strong>${q.name}</strong></div>
-        <div class="pq-meta">Scan: ${timeAgo(q.lastScan)}</div>
+        <div class="pq-meta">Último scan: ${scanText}</div>
       </div>`;
     }
     html += '</div>';
@@ -1409,12 +1417,12 @@ async function fetchPipelineStatus() {
     if (hasWork) {
       html += `<div class="pipeline-alert alert-warn">
         <span>⚠</span> <strong>${totalPending}+ items pendientes en queues</strong>
-        <span style="margin-left:auto;font-size:0.72rem;">Último procesamiento: ${timeAgo(lastProcess)}</span>
+        <span style="margin-left:auto;font-size:0.72rem;">Procesado: ${procesado} · Consultado: justo ahora</span>
       </div>`;
     } else {
       html += `<div class="pipeline-alert alert-ok">
         <span>✓</span> <strong>Todas las colas en cero</strong>
-        <span style="margin-left:auto;font-size:0.72rem;">Procesado: ${timeAgo(lastProcess)} · Consultado: ${new Date().toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'})}</span>
+        <span style="margin-left:auto;font-size:0.72rem;">Procesado: ${procesado} · Consultado: justo ahora</span>
       </div>`;
     }
 

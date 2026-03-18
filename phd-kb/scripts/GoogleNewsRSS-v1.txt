@@ -194,6 +194,7 @@ function _runGNR(mode, ignoresBatch) {
 
   if (eligibleQueries.length === 0) {
     Logger.log('[GNR] No queries are due today.');
+    if (mode === 'incremental') _gnr_updateLastScan(sheetApi); // always update meta even with 0 queries
     return;
   }
 

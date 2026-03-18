@@ -1293,62 +1293,37 @@ async function fetchPipelineStatus() {
 
     const hasWork = totalPending > 0;
 
-    // Expected scan intervals (hours): Academic=biweekly, Perplexity=weekly, News=daily
-    const SCAN_INTERVALS = { Academic: 336, Perplexity: 168, News: 24 };
+    // Scan frequency labels (for display only — triggers run on their own schedule)
+    const SCAN_FREQ = { Academic: 'bisemanal', Perplexity: 'semanal', News: 'diario' };
 
-    // Calculate next scan time and human-readable countdown
-    function nextScanInfo(lastScan, intervalH) {
-      if (!lastScan) return { text: 'sin datos', overdue: true };
-      const last = new Date(lastScan);
-      if (isNaN(last.getTime())) return { text: 'sin datos', overdue: true };
-      const next = new Date(last.getTime() + intervalH * 3600000);
-      const now = new Date();
-      const diffMs = next - now;
-      if (diffMs <= 0) {
-        // Overdue — show how late
-        const lateMs = Math.abs(diffMs);
-        const lateH = Math.floor(lateMs / 3600000);
-        const lateD = Math.floor(lateH / 24);
-        const overText = lateD > 0 ? `${lateD}d ${lateH % 24}h atrasado` : `${lateH}h atrasado`;
-        return { text: overText, overdue: true };
-      }
-      // Upcoming
-      const h = Math.floor(diffMs / 3600000);
-      const m = Math.floor((diffMs % 3600000) / 60000);
-      const d = Math.floor(h / 24);
-      let text;
-      if (d > 0) text = `en ${d}d ${h % 24}h`;
-      else if (h > 0) text = `en ${h}h ${m}min`;
-      else text = `en ${m}min`;
-      return { text, overdue: false };
-    }
-
-    // Queue cards
+    // Queue cards with semaphore: 🟢 = ok, 🟡 = pendientes (auto), 🔴 = error
     const queueRows = [
-      { name: 'Academic', count: acadPending, lastScan: lastAcad, interval: SCAN_INTERVALS.Academic },
-      { name: 'Perplexity', count: perpPending, lastScan: lastPerp, interval: SCAN_INTERVALS.Perplexity },
-      { name: 'News', count: newsPending, lastScan: lastNews, interval: SCAN_INTERVALS.News },
+      { name: 'Academic', count: acadPending, freq: SCAN_FREQ.Academic, lastScan: lastAcad },
+      { name: 'Perplexity', count: perpPending, freq: SCAN_FREQ.Perplexity, lastScan: lastPerp },
+      { name: 'News', count: newsPending, freq: SCAN_FREQ.News, lastScan: lastNews },
     ];
 
     const procesado = timeAgo(lastProcess) || 'sin datos';
+    let apiError = false; // would be true if API call failed — currently always false
 
     let html = '<div class="pipeline-queues">';
     for (const q of queueRows) {
       const hasPending = q.count > 0;
-      const dot = hasPending ? '🔴' : '🟢';
-      const nsi = nextScanInfo(q.lastScan, q.interval);
-      const countLabel = hasPending ? ` · <strong style="color:var(--danger-text);">${q.count}</strong> pendientes` : '';
+      // Semaphore: green=ok, amber=pending (processing automatically), red=error
+      const dot = apiError ? '🔴' : hasPending ? '🟡' : '🟢';
+      const countLabel = hasPending ? ` · <strong style="color:var(--warn-text);">${q.count}</strong> pendientes` : '';
+      const lastScanText = timeAgo(q.lastScan) || 'sin datos';
       html += `<div class="pipeline-q">
         <div>${dot} <strong>${q.name}</strong>${countLabel}</div>
-        <div class="pq-meta">Siguiente scan: ${nsi.text}</div>
+        <div class="pq-meta">Frecuencia: ${q.freq} · último: ${lastScanText}</div>
       </div>`;
     }
     html += '</div>';
 
-    // Alert bar — only for pending items in queues
+    // Alert bar
     if (hasWork) {
       html += `<div class="pipeline-alert alert-warn">
-        <span>⚠</span> <strong>${totalPending} items pendientes en queues</strong>
+        <strong>${totalPending} items en cola</strong> — se procesan automáticamente
         <span style="margin-left:auto;font-size:0.72rem;">Procesado: ${procesado} · Consultado: justo ahora</span>
       </div>`;
     } else {
@@ -1360,12 +1335,12 @@ async function fetchPipelineStatus() {
 
     el.innerHTML = html;
 
-    // Update sidebar badge — only for pending queue items
+    // Update sidebar badge — amber for pending, green for clear
     const badge = document.getElementById('badge-kb');
     if (badge) {
-      badge.textContent = hasWork ? '!' : '✓';
-      badge.style.background = hasWork ? '#e07040' : '#b8e0c4';
-      badge.style.color = hasWork ? 'white' : '#2d7a3f';
+      badge.textContent = hasWork ? totalPending : '✓';
+      badge.style.background = hasWork ? '#e8d060' : '#b8e0c4';
+      badge.style.color = hasWork ? '#5a4500' : '#2d7a3f';
     }
 
     // Cache

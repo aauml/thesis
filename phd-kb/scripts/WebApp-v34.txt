@@ -1,0 +1,739 @@
+/**
+ * WebApp.gs — Thesis KB API
+ * Version: 34
+ * Date: 2026-03-17
+ *
+ * Changes from v33:
+ *   - NEW: getStats (GET) — lightweight aggregated statistics for dashboard.
+ *     Returns total, breakdown by importance (ALTA/MEDIA/BAJA), breakdown by
+ *     capa (Teórica/Analítica/Evaluativa/Caso/Metodológica), and last scan
+ *     timestamps from Meta tab. Reads only importance+capa columns for efficiency.
+ *
+ * Previous (v33):
+ *   - addInboxItem, getInbox, updateInboxItem for Dashboard Inbox system.
+ *
+ * SETUP: Create an "Inbox" tab in the spreadsheet with headers (row 1):
+ *   id | text | ts | source | status | processed_ts | session_notes
+ *   Status values: pending (default), processed, archived
+ *
+ * NOTE FOR SKILL: When promoting items FROM a staging queue (PerplexityQueue,
+ * AcademicQueue, NewsResults) to NewsLog, use action=promoteToNewsLog, NOT
+ * action=append. The append action deduplicates against all 4 tabs, so any
+ * URL already in a staging queue will be skipped. promoteToNewsLog deduplicates
+ * against NewsLog only, which is the correct behavior for queue promotion.
+ */
+
+// ─────────────────────────────────────────────
+// HELPERS
+// ─────────────────────────────────────────────
+
+function jsonResponse(obj) {
+  return ContentService
+    .createTextOutput(JSON.stringify(obj))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+function getSheetHeaders(sheet) {
+  const lastCol = sheet.getLastColumn();
+  if (lastCol < 1) return [];
+  return sheet.getRange(1, 1, 1, lastCol).getValues()[0];
+}
+
+function sheetToObjects(sheet, filterFn) {
+  const lastRow = sheet.getLastRow();
+  if (lastRow < 2) return [];
+  const headers = getSheetHeaders(sheet);
+  const data = sheet.getRange(2, 1, lastRow - 1, headers.length).getValues();
+  const results = [];
+  for (let i = 0; i < data.length; i++) {
+    const obj = {};
+    headers.forEach((h, j) => { obj[h] = data[i][j]; });
+    obj.__rowNum = i + 2; // 1-indexed sheet row
+    if (!filterFn || filterFn(obj)) results.push(obj);
+  }
+  return results;
+}
+
+function getUrlSet(sheet) {
+  const lastRow = sheet.getLastRow();
+  if (lastRow < 2) return new Set();
+  const headers = getSheetHeaders(sheet);
+  const urlCol = headers.indexOf('url');
+  if (urlCol === -1) return new Set();
+  const vals = sheet.getRange(2, urlCol + 1, lastRow - 1, 1).getValues();
+  return new Set(vals.flat().filter(u => u).map(u => normalizeUrl(String(u))));
+}
+
+function normalizeUrl(url) {
+  return url.trim().toLowerCase()
+    .replace(/^https?:\/\//, '')  // strip protocol
+    .replace(/^www\./, '')        // strip www. so www.domain.com == domain.com
+    .replace(/\/$/, '');          // strip trailing slash
+}
+
+
+// ─────────────────────────────────────────────
+// doGet — READ ACTIONS
+// ─────────────────────────────────────────────
+
+function doGet(e) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  const action = e.parameter.action || '';
+
+  try {
+    switch (action) {
+
+      // ── getMeta ──────────────────────────────
+      case 'getMeta': {
+        const sheet = ss.getSheetByName('Meta');
+        const data = sheet.getDataRange().getValues();
+        const meta = {};
+        data.forEach(row => { if (row[0]) meta[row[0]] = row[1]; });
+        return jsonResponse(meta);
+      }
+
+      // ── getAll (NewsLog) ─────────────────────
+      case 'getAll': {
+        const sheet = ss.getSheetByName('NewsLog');
+        const limit = parseInt(e.parameter.limit) || 2000;
+        const offset = parseInt(e.parameter.offset) || 0;
+        const filterImportance = e.parameter.importance || '';
+        const filterFolder = e.parameter.folder || '';
+        const filterActionTag = e.parameter.action_tag || '';
+        const filterSearch = e.parameter.search || '';
+
+        let rows = sheetToObjects(sheet, obj => {
+          if (filterImportance && obj.importance !== filterImportance) return false;
+          if (filterFolder && obj.folder !== filterFolder) return false;
+          if (filterActionTag && obj.action_tag !== filterActionTag) return false;
+          if (filterSearch) {
+            const q = filterSearch.toLowerCase();
+            const haystack = [obj.title, obj.scholar, obj.capa_detail, obj.source,
+                              obj.thesis_relevance, obj.notes].join(' ').toLowerCase();
+            if (!haystack.includes(q)) return false;
+          }
+          return true;
+        });
+
+        const total = rows.length;
+        const sliced = rows.slice(offset, offset + limit).map(r => {
+          delete r.__rowNum; return r;
+        });
+        return jsonResponse({ rows: sliced, total });
+      }
+
+      // ── getUrls (NewsLog only — for dedup) ──
+      case 'getUrls': {
+        const sheet = ss.getSheetByName('NewsLog');
+        const lastRow = sheet.getLastRow();
+        if (lastRow < 2) return jsonResponse({ urls: [] });
+        const headers = getSheetHeaders(sheet);
+        const urlCol = headers.indexOf('url');
+        if (urlCol === -1) return jsonResponse({ urls: [] });
+        const vals = sheet.getRange(2, urlCol + 1, lastRow - 1, 1).getValues();
+        // Return normalized URLs so client-side dedup handles http/https and www variants
+        const urls = vals.flat().filter(u => u).map(u => normalizeUrl(String(u)));
+        return jsonResponse({ urls });
+      }
+
+      // ── getQueries ───────────────────────────
+      case 'getQueries': {
+        const sheet = ss.getSheetByName('Queries');
+        const filterActive = e.parameter.active || '';
+        const rows = sheetToObjects(sheet, obj => {
+          if (filterActive && String(obj.active).toLowerCase() !== filterActive.toLowerCase()) return false;
+          return true;
+        }).map(r => { delete r.__rowNum; return r; });
+        return jsonResponse({ queries: rows, total: rows.length });
+      }
+
+      // ── getNewsResults ───────────────────────
+      case 'getNewsResults': {
+        const sheet = ss.getSheetByName('NewsResults');
+        if (!sheet) return jsonResponse({ rows: [], total: 0 });
+        const filterStatus = e.parameter.status || '';
+        const limit = parseInt(e.parameter.limit) || 200;
+        const rows = sheetToObjects(sheet, obj => {
+          if (filterStatus && obj.status !== filterStatus) return false;
+          return true;
+        }).slice(0, limit).map(r => { delete r.__rowNum; return r; });
+        return jsonResponse({ rows, total: rows.length });
+      }
+
+      // ── getAcademicQueue ─────────────────────
+      case 'getAcademicQueue': {
+        const sheet = ss.getSheetByName('AcademicQueue');
+        if (!sheet) return jsonResponse({ rows: [], total: 0 });
+        const filterStatus = e.parameter.status || '';
+        const limit = parseInt(e.parameter.limit) || 200;
+        const rows = sheetToObjects(sheet, obj => {
+          if (filterStatus && obj.status !== filterStatus) return false;
+          return true;
+        }).slice(0, limit).map(r => { delete r.__rowNum; return r; });
+        return jsonResponse({ rows, total: rows.length });
+      }
+
+      // ── getPerplexityQueue ───────────────────
+      case 'getPerplexityQueue': {
+        const sheet = ss.getSheetByName('PerplexityQueue');
+        if (!sheet) return jsonResponse({ rows: [], total: 0 });
+        const filterStatus = e.parameter.status || '';
+        const filterRunId = e.parameter.run_id || '';
+        const limit = parseInt(e.parameter.limit) || 200;
+        const rows = sheetToObjects(sheet, obj => {
+          if (filterStatus && obj.status !== filterStatus) return false;
+          if (filterRunId && obj.run_id !== filterRunId) return false;
+          return true;
+        }).slice(0, limit).map(r => { delete r.__rowNum; return r; });
+        return jsonResponse({ rows, total: rows.length });
+      }
+
+      // ── getInbox ─────────────────────────────
+      // Returns Inbox items. Default: only pending. Use ?status=all for everything.
+      // Claude reads this at session start to process user-added tasks/notes.
+      case 'getInbox': {
+        const sheet = ss.getSheetByName('Inbox');
+        if (!sheet) return jsonResponse({ rows: [], total: 0 });
+        const filterStatus = e.parameter.status || 'pending';
+        const limit = parseInt(e.parameter.limit) || 100;
+        const rows = sheetToObjects(sheet, obj => {
+          if (filterStatus !== 'all' && obj.status !== filterStatus) return false;
+          return true;
+        }).slice(0, limit).map(r => { delete r.__rowNum; return r; });
+        return jsonResponse({ rows, total: rows.length });
+      }
+
+      // ── getStats (lightweight aggregated counts for dashboard) ──
+      case 'getStats': {
+        const sheet = ss.getSheetByName('NewsLog');
+        const lastRow = sheet.getLastRow();
+        if (lastRow < 2) return jsonResponse({ total: 0, by_importance: {}, by_capa: {} });
+
+        const headers = getSheetHeaders(sheet);
+        const impCol = headers.indexOf('importance');
+        const capaCol = headers.indexOf('capa');
+
+        // Read only the two columns we need
+        const impVals = impCol !== -1
+          ? sheet.getRange(2, impCol + 1, lastRow - 1, 1).getValues().flat()
+          : [];
+        const capaVals = capaCol !== -1
+          ? sheet.getRange(2, capaCol + 1, lastRow - 1, 1).getValues().flat()
+          : [];
+
+        const total = lastRow - 1;
+
+        // Count by importance
+        const byImp = {};
+        impVals.forEach(v => {
+          const k = String(v).trim().toUpperCase();
+          if (k) byImp[k] = (byImp[k] || 0) + 1;
+        });
+
+        // Count by capa (multi-valued field, comma-separated)
+        const capas = ['Teórica', 'Analítica', 'Evaluativa', 'Caso', 'Metodológica'];
+        const byCapa = {};
+        capas.forEach(c => { byCapa[c] = 0; });
+        capaVals.forEach(v => {
+          const val = String(v).toLowerCase();
+          capas.forEach(c => {
+            if (val.includes(c.toLowerCase())) byCapa[c]++;
+          });
+        });
+
+        // Last scan timestamps from Meta
+        let meta = {};
+        try {
+          const metaSheet = ss.getSheetByName('Meta');
+          const metaData = metaSheet.getDataRange().getValues();
+          metaData.forEach(row => { if (row[0]) meta[row[0]] = row[1]; });
+        } catch(e) {}
+
+        return jsonResponse({
+          total,
+          by_importance: byImp,
+          by_capa: byCapa,
+          last_acad_scan: meta.last_acad_scan || null,
+          last_news_scan: meta.last_news_scan || null,
+          last_perplexity_scan: meta.last_perplexity_scan || null,
+          last_search_date: meta.last_search_date || null
+        });
+      }
+
+      default:
+        return jsonResponse({ error: 'Unknown action: ' + action });
+    }
+  } catch (err) {
+    return jsonResponse({ error: err.message, stack: err.stack });
+  }
+}
+
+
+// ─────────────────────────────────────────────
+// doPost — WRITE ACTIONS
+// ─────────────────────────────────────────────
+
+function doPost(e) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  let data;
+  try {
+    data = JSON.parse(e.postData.contents);
+  } catch (err) {
+    return jsonResponse({ error: 'Invalid JSON: ' + err.message });
+  }
+
+  const action = data.action || '';
+
+  try {
+    switch (action) {
+
+      // ── append (NewsLog — with cross-tab dedup) ──
+      // Use this for direct Claude searches that don't go through staging queues.
+      // For promoting from PerplexityQueue/AcademicQueue/NewsResults, use promoteToNewsLog.
+      case 'append': {
+        const nlSheet = ss.getSheetByName('NewsLog');
+        const aqSheet = ss.getSheetByName('AcademicQueue');
+        const nrSheet = ss.getSheetByName('NewsResults');
+        const pqSheet = ss.getSheetByName('PerplexityQueue');
+
+        // Build dedup set across all 4 tabs
+        const knownUrls = new Set([
+          ...getUrlSet(nlSheet),
+          ...getUrlSet(aqSheet),
+          ...getUrlSet(nrSheet),
+          ...getUrlSet(pqSheet),
+        ]);
+
+        const headers = getSheetHeaders(nlSheet);
+        const rows = data.rows || [];
+        let added = 0;
+        let skipped = 0;
+
+        for (const row of rows) {
+          const normUrl = normalizeUrl(String(row.url || ''));
+          if (!normUrl || knownUrls.has(normUrl)) {
+            skipped++;
+            continue;
+          }
+          nlSheet.appendRow(headers.map(h => row[h] !== undefined ? row[h] : ''));
+          knownUrls.add(normUrl);
+          added++;
+        }
+
+        return jsonResponse({ ok: true, added, skipped });
+      }
+
+      // ── promoteToNewsLog (bypass cross-tab dedup — for promoting from staging queues) ──
+      // Deduplicates against NewsLog only. Use this when promoting items from
+      // PerplexityQueue, AcademicQueue, or NewsResults so their existing queue URLs
+      // don't cause false-positive skips.
+      case 'promoteToNewsLog': {
+        const nlSheet = ss.getSheetByName('NewsLog');
+        const headers = getSheetHeaders(nlSheet);
+        const rows = data.rows || [];
+
+        // Only dedup against NewsLog itself to avoid true duplicates
+        const nlUrls = getUrlSet(nlSheet);
+        let added = 0;
+        let skipped = 0;
+
+        for (const row of rows) {
+          const normUrl = normalizeUrl(String(row.url || ''));
+          if (!normUrl || nlUrls.has(normUrl)) {
+            skipped++;
+            continue;
+          }
+          nlSheet.appendRow(headers.map(h => row[h] !== undefined ? row[h] : ''));
+          nlUrls.add(normUrl);
+          added++;
+        }
+
+        return jsonResponse({ ok: true, added, skipped });
+      }
+
+      // ── updateMeta ───────────────────────────
+      case 'updateMeta': {
+        const sheet = ss.getSheetByName('Meta');
+        const meta = data.meta || {};
+        const existingData = sheet.getDataRange().getValues();
+        const keyToRow = {};
+        existingData.forEach((row, i) => { if (row[0]) keyToRow[row[0]] = i + 1; });
+
+        for (const [key, val] of Object.entries(meta)) {
+          if (keyToRow[key]) {
+            sheet.getRange(keyToRow[key], 2).setValue(val);
+          } else {
+            sheet.appendRow([key, val]);
+          }
+        }
+        return jsonResponse({ ok: true });
+      }
+
+      // ── updateRow (NewsLog — by id) ───────────
+      case 'updateRow': {
+        const sheet = ss.getSheetByName('NewsLog');
+        const id = data.id;
+        const fields = data.fields || data;
+        if (!id) return jsonResponse({ error: 'id required' });
+
+        const headers = getSheetHeaders(sheet);
+        const idCol = headers.indexOf('id');
+        if (idCol === -1) return jsonResponse({ error: 'No id column in NewsLog' });
+
+        const lastRow = sheet.getLastRow();
+        if (lastRow < 2) return jsonResponse({ error: 'No data rows' });
+
+        const idVals = sheet.getRange(2, idCol + 1, lastRow - 1, 1).getValues().flat();
+        const rowIdx = idVals.indexOf(id);
+        if (rowIdx === -1) return jsonResponse({ error: 'Row not found for id: ' + id });
+
+        const sheetRow = rowIdx + 2;
+        for (const [key, val] of Object.entries(fields)) {
+          if (key === 'id' || key === 'action') continue;
+          const colIdx = headers.indexOf(key);
+          if (colIdx !== -1) sheet.getRange(sheetRow, colIdx + 1).setValue(val);
+        }
+        return jsonResponse({ ok: true });
+      }
+
+      // ── updateByUrl (NewsLog — by URL) ────────
+      case 'updateByUrl': {
+        const sheet = ss.getSheetByName('NewsLog');
+        const url = data.url;
+        const fields = data.fields || data;
+        if (!url) return jsonResponse({ error: 'url required' });
+
+        const headers = getSheetHeaders(sheet);
+        const urlCol = headers.indexOf('url');
+        if (urlCol === -1) return jsonResponse({ error: 'No url column in NewsLog' });
+
+        const lastRow = sheet.getLastRow();
+        if (lastRow < 2) return jsonResponse({ error: 'No data rows' });
+
+        const urlNorm = normalizeUrl(url);
+        const urlVals = sheet.getRange(2, urlCol + 1, lastRow - 1, 1).getValues().flat();
+        const rowIdx = urlVals.findIndex(u => normalizeUrl(String(u)) === urlNorm);
+        if (rowIdx === -1) return jsonResponse({ error: 'Row not found for url: ' + url });
+
+        const sheetRow = rowIdx + 2;
+        for (const [key, val] of Object.entries(fields)) {
+          if (key === 'url' || key === 'action') continue;
+          const colIdx = headers.indexOf(key);
+          if (colIdx !== -1) sheet.getRange(sheetRow, colIdx + 1).setValue(val);
+        }
+        return jsonResponse({ ok: true });
+      }
+
+      // ── updateNewsRow ─────────────────────────
+      case 'updateNewsRow': {
+        const sheet = ss.getSheetByName('NewsResults');
+        if (!sheet) return jsonResponse({ error: 'NewsResults tab not found' });
+
+        const id = data.id;
+        const url = data.url || '';
+        const fields = data.fields || data;
+        if (!id && !url) return jsonResponse({ error: 'id or url required' });
+
+        const headers = getSheetHeaders(sheet);
+        const lastRow = sheet.getLastRow();
+        if (lastRow < 2) return jsonResponse({ error: 'No data rows' });
+
+        let sheetRow = -1;
+
+        // Match by URL first (more reliable), then fall back to id
+        if (url) {
+          const urlCol = headers.indexOf('url');
+          if (urlCol !== -1) {
+            const urlNorm = normalizeUrl(url);
+            const urlVals = sheet.getRange(2, urlCol + 1, lastRow - 1, 1).getValues().flat();
+            const rowIdx = urlVals.findIndex(u => normalizeUrl(String(u)) === urlNorm);
+            if (rowIdx !== -1) sheetRow = rowIdx + 2;
+          }
+        }
+        if (sheetRow === -1 && id) {
+          const idCol = headers.indexOf('id');
+          if (idCol !== -1) {
+            const idVals = sheet.getRange(2, idCol + 1, lastRow - 1, 1).getValues().flat();
+            const rowIdx = idVals.indexOf(id);
+            if (rowIdx !== -1) sheetRow = rowIdx + 2;
+          }
+        }
+        if (sheetRow === -1) return jsonResponse({ error: 'Row not found' });
+
+        for (const [key, val] of Object.entries(fields)) {
+          if (key === 'id' || key === 'url' || key === 'action') continue;
+          const colIdx = headers.indexOf(key);
+          if (colIdx !== -1) sheet.getRange(sheetRow, colIdx + 1).setValue(val);
+        }
+        return jsonResponse({ ok: true });
+      }
+
+      // ── updateAcademicRow ─────────────────────
+      case 'updateAcademicRow': {
+        const sheet = ss.getSheetByName('AcademicQueue');
+        if (!sheet) return jsonResponse({ error: 'AcademicQueue tab not found' });
+
+        const id = data.id;
+        const url = data.url || '';
+        const fields = data.fields || {};
+        const status = data.status;
+        const notes = data.notes;
+
+        if (!id && !url) return jsonResponse({ error: 'id or url required' });
+
+        const headers = getSheetHeaders(sheet);
+        const lastRow = sheet.getLastRow();
+        if (lastRow < 2) return jsonResponse({ error: 'No data rows' });
+
+        let sheetRow = -1;
+
+        // Match by URL + status=pending first: ensures duplicate-URL rows are
+        // processed one at a time (each call advances to the next pending row)
+        if (url) {
+          const urlCol = headers.indexOf('url');
+          const statusCol = headers.indexOf('status');
+          if (urlCol !== -1) {
+            const urlNorm = normalizeUrl(url);
+            const allRows = sheet.getRange(2, 1, lastRow - 1, headers.length).getValues();
+            const rowIdx = allRows.findIndex(r =>
+              normalizeUrl(String(r[urlCol])) === urlNorm &&
+              (statusCol === -1 || String(r[statusCol]).toLowerCase() === 'pending')
+            );
+            if (rowIdx !== -1) sheetRow = rowIdx + 2;
+          }
+        }
+        // Fall back to id if no pending-URL match found
+        if (sheetRow === -1 && id) {
+          const idCol = headers.indexOf('id');
+          if (idCol !== -1) {
+            const idVals = sheet.getRange(2, idCol + 1, lastRow - 1, 1).getValues().flat();
+            const rowIdx = idVals.indexOf(id);
+            if (rowIdx !== -1) sheetRow = rowIdx + 2;
+          }
+        }
+        if (sheetRow === -1) return jsonResponse({ error: 'Row not found' });
+
+        if (status !== undefined) {
+          const col = headers.indexOf('status');
+          if (col !== -1) sheet.getRange(sheetRow, col + 1).setValue(status);
+        }
+        if (notes !== undefined) {
+          const col = headers.indexOf('notes');
+          if (col !== -1) sheet.getRange(sheetRow, col + 1).setValue(notes);
+        }
+        for (const [key, val] of Object.entries(fields)) {
+          if (key === 'id' || key === 'url' || key === 'action') continue;
+          const colIdx = headers.indexOf(key);
+          if (colIdx !== -1) sheet.getRange(sheetRow, colIdx + 1).setValue(val);
+        }
+        return jsonResponse({ ok: true });
+      }
+
+      // ── updatePerplexityRow ───────────────────
+      case 'updatePerplexityRow': {
+        const sheet = ss.getSheetByName('PerplexityQueue');
+        if (!sheet) return jsonResponse({ error: 'PerplexityQueue tab not found' });
+
+        const id = data.id;
+        const url = data.url || '';
+        const status = data.status;
+        const notes = data.notes;
+        const fields = data.fields || {};
+
+        if (!id && !url) return jsonResponse({ error: 'id or url required' });
+
+        const headers = getSheetHeaders(sheet);
+        const lastRow = sheet.getLastRow();
+        if (lastRow < 2) return jsonResponse({ error: 'No data rows' });
+
+        let sheetRow = -1;
+
+        // Match by URL + status=pending: handles duplicate-URL rows (same URL, different
+        // run_ids). Each successive call to updatePerplexityRow with the same URL will
+        // advance to the next pending row, processing duplicates one at a time.
+        if (url) {
+          const urlCol = headers.indexOf('url');
+          const statusCol = headers.indexOf('status');
+          if (urlCol !== -1) {
+            const urlNorm = normalizeUrl(url);
+            const allRows = sheet.getRange(2, 1, lastRow - 1, headers.length).getValues();
+            const rowIdx = allRows.findIndex(r =>
+              normalizeUrl(String(r[urlCol])) === urlNorm &&
+              (statusCol === -1 || String(r[statusCol]).toLowerCase() === 'pending')
+            );
+            if (rowIdx !== -1) sheetRow = rowIdx + 2;
+          }
+        }
+        // Fall back to id if no pending-URL match found
+        if (sheetRow === -1 && id) {
+          const idCol = headers.indexOf('id');
+          if (idCol !== -1) {
+            const idVals = sheet.getRange(2, idCol + 1, lastRow - 1, 1).getValues().flat();
+            const rowIdx = idVals.indexOf(id);
+            if (rowIdx !== -1) sheetRow = rowIdx + 2;
+          }
+        }
+        if (sheetRow === -1) return jsonResponse({ error: 'Row not found' });
+
+        if (status !== undefined) {
+          const col = headers.indexOf('status');
+          if (col !== -1) sheet.getRange(sheetRow, col + 1).setValue(status);
+        }
+        if (notes !== undefined) {
+          const col = headers.indexOf('notes');
+          if (col !== -1) sheet.getRange(sheetRow, col + 1).setValue(notes);
+        }
+        for (const [key, val] of Object.entries(fields)) {
+          if (key === 'id' || key === 'url' || key === 'action') continue;
+          const colIdx = headers.indexOf(key);
+          if (colIdx !== -1) sheet.getRange(sheetRow, colIdx + 1).setValue(val);
+        }
+        return jsonResponse({ ok: true });
+      }
+
+      // ── addInboxItem ──────────────────────────
+      // Receives tasks/notes from Dashboard Quick Add (hybrid persistence).
+      // Dashboard sends: { action: "addInboxItem", item: { text, ts, source } }
+      case 'addInboxItem': {
+        let sheet = ss.getSheetByName('Inbox');
+        // Auto-create the Inbox tab if it doesn't exist
+        if (!sheet) {
+          sheet = ss.insertSheet('Inbox');
+          sheet.appendRow(['id', 'text', 'ts', 'source', 'status', 'processed_ts', 'session_notes']);
+        }
+
+        const item = data.item || {};
+        if (!item.text) return jsonResponse({ error: 'text required' });
+
+        // Auto-assign ID: INB001, INB002, etc.
+        const lastRow = sheet.getLastRow();
+        let nextId = 'INB001';
+        if (lastRow >= 2) {
+          const headers = getSheetHeaders(sheet);
+          const idCol = headers.indexOf('id');
+          if (idCol !== -1) {
+            const idVals = sheet.getRange(2, idCol + 1, lastRow - 1, 1).getValues()
+              .flat().filter(v => /^INB\d+$/.test(String(v)));
+            if (idVals.length > 0) {
+              const maxNum = Math.max(...idVals.map(v => parseInt(v.slice(3))));
+              nextId = 'INB' + String(maxNum + 1).padStart(3, '0');
+            }
+          }
+        }
+
+        sheet.appendRow([
+          nextId,
+          item.text || '',
+          item.ts || new Date().toISOString(),
+          item.source || 'dashboard',
+          'pending',
+          '',  // processed_ts
+          ''   // session_notes
+        ]);
+
+        return jsonResponse({ ok: true, id: nextId });
+      }
+
+      // ── updateInboxItem ─────────────────────────
+      // Claude uses this to mark items as processed after integrating them.
+      // Send: { action: "updateInboxItem", id: "INB001", status: "processed", session_notes: "Added to operativo" }
+      case 'updateInboxItem': {
+        const sheet = ss.getSheetByName('Inbox');
+        if (!sheet) return jsonResponse({ error: 'Inbox tab not found' });
+
+        const id = data.id;
+        if (!id) return jsonResponse({ error: 'id required' });
+
+        const headers = getSheetHeaders(sheet);
+        const idCol = headers.indexOf('id');
+        if (idCol === -1) return jsonResponse({ error: 'No id column' });
+
+        const lastRow = sheet.getLastRow();
+        if (lastRow < 2) return jsonResponse({ error: 'No data rows' });
+
+        const idVals = sheet.getRange(2, idCol + 1, lastRow - 1, 1).getValues().flat();
+        const rowIdx = idVals.indexOf(id);
+        if (rowIdx === -1) return jsonResponse({ error: 'Item not found: ' + id });
+
+        const sheetRow = rowIdx + 2;
+        // Update status
+        if (data.status) {
+          const col = headers.indexOf('status');
+          if (col !== -1) sheet.getRange(sheetRow, col + 1).setValue(data.status);
+        }
+        // Update processed_ts
+        const ptsCol = headers.indexOf('processed_ts');
+        if (ptsCol !== -1) sheet.getRange(sheetRow, ptsCol + 1).setValue(new Date().toISOString());
+        // Update session_notes
+        if (data.session_notes) {
+          const col = headers.indexOf('session_notes');
+          if (col !== -1) sheet.getRange(sheetRow, col + 1).setValue(data.session_notes);
+        }
+
+        return jsonResponse({ ok: true });
+      }
+
+      // ── addQuery ──────────────────────────────
+      case 'addQuery': {
+        const sheet = ss.getSheetByName('Queries');
+        const q = data.query || {};
+
+        // Auto-assign next ID
+        const lastRow = sheet.getLastRow();
+        let nextId = 'Q001';
+        if (lastRow >= 2) {
+          const headers = getSheetHeaders(sheet);
+          const idCol = headers.indexOf('id');
+          if (idCol !== -1) {
+            const idVals = sheet.getRange(2, idCol + 1, lastRow - 1, 1).getValues()
+              .flat().filter(v => /^Q\d+$/.test(String(v)));
+            if (idVals.length > 0) {
+              const maxNum = Math.max(...idVals.map(v => parseInt(v.slice(1))));
+              nextId = 'Q' + String(maxNum + 1).padStart(3, '0');
+            }
+          }
+        }
+
+        const headers = getSheetHeaders(sheet);
+        const newRow = headers.map(h => {
+          if (h === 'id') return nextId;
+          return q[h] !== undefined ? q[h] : '';
+        });
+        sheet.appendRow(newRow);
+        return jsonResponse({ ok: true, id: nextId });
+      }
+
+      // ── updateQuery ───────────────────────────
+      case 'updateQuery': {
+        const sheet = ss.getSheetByName('Queries');
+        const id = data.id;
+        const fields = data.fields || data;
+        if (!id) return jsonResponse({ error: 'id required' });
+
+        const headers = getSheetHeaders(sheet);
+        const idCol = headers.indexOf('id');
+        if (idCol === -1) return jsonResponse({ error: 'No id column in Queries' });
+
+        const lastRow = sheet.getLastRow();
+        if (lastRow < 2) return jsonResponse({ error: 'No data rows' });
+
+        const idVals = sheet.getRange(2, idCol + 1, lastRow - 1, 1).getValues().flat();
+        const rowIdx = idVals.indexOf(id);
+        if (rowIdx === -1) return jsonResponse({ error: 'Query not found: ' + id });
+
+        const sheetRow = rowIdx + 2;
+        for (const [key, val] of Object.entries(fields)) {
+          if (key === 'id' || key === 'action' || key === 'fields') continue;
+          const colIdx = headers.indexOf(key);
+          if (colIdx !== -1) sheet.getRange(sheetRow, colIdx + 1).setValue(val);
+        }
+        return jsonResponse({ ok: true });
+      }
+
+      default:
+        return jsonResponse({ error: 'Unknown action: ' + action });
+    }
+  } catch (err) {
+    return jsonResponse({ error: err.message, stack: err.stack });
+  }
+}

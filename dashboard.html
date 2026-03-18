@@ -1331,30 +1331,22 @@ async function fetchPipelineStatus() {
     ];
 
     const procesado = timeAgo(lastProcess) || 'sin datos';
-    let overdueCount = 0;
 
     let html = '<div class="pipeline-queues">';
     for (const q of queueRows) {
-      const dot = q.count > 0 ? '🔴' : '🟢';
+      const hasPending = q.count > 0;
+      const dot = hasPending ? '🔴' : '🟢';
       const nsi = nextScanInfo(q.lastScan, q.interval);
-      if (nsi.overdue) overdueCount++;
-      const scanStyle = nsi.overdue ? 'color:var(--danger-text);font-weight:600;' : '';
-      const icon = nsi.overdue ? '⚠ ' : '';
-      const countLabel = q.count > 0 ? ` · <strong>${q.count}</strong> pendientes` : '';
+      const countLabel = hasPending ? ` · <strong style="color:var(--danger-text);">${q.count}</strong> pendientes` : '';
       html += `<div class="pipeline-q">
         <div>${dot} <strong>${q.name}</strong>${countLabel}</div>
-        <div class="pq-meta" style="${scanStyle}">${icon}Siguiente scan: ${nsi.text}</div>
+        <div class="pq-meta">Siguiente scan: ${nsi.text}</div>
       </div>`;
     }
     html += '</div>';
 
-    // Alert bar — prioritize overdue triggers over queue status
-    if (overdueCount > 0) {
-      html += `<div class="pipeline-alert alert-warn">
-        <span>⚠</span> <strong>${overdueCount} trigger${overdueCount > 1 ? 's' : ''} atrasado${overdueCount > 1 ? 's' : ''}</strong> — verificar GAS triggers
-        <span style="margin-left:auto;font-size:0.72rem;">Procesado: ${procesado} · Consultado: justo ahora</span>
-      </div>`;
-    } else if (hasWork) {
+    // Alert bar — only for pending items in queues
+    if (hasWork) {
       html += `<div class="pipeline-alert alert-warn">
         <span>⚠</span> <strong>${totalPending} items pendientes en queues</strong>
         <span style="margin-left:auto;font-size:0.72rem;">Procesado: ${procesado} · Consultado: justo ahora</span>
@@ -1368,13 +1360,12 @@ async function fetchPipelineStatus() {
 
     el.innerHTML = html;
 
-    // Update sidebar badge — overdue triggers take priority
+    // Update sidebar badge — only for pending queue items
     const badge = document.getElementById('badge-kb');
     if (badge) {
-      const needsAttention = hasWork || overdueCount > 0;
-      badge.textContent = needsAttention ? '!' : '✓';
-      badge.style.background = needsAttention ? '#e07040' : '#b8e0c4';
-      badge.style.color = needsAttention ? 'white' : '#2d7a3f';
+      badge.textContent = hasWork ? '!' : '✓';
+      badge.style.background = hasWork ? '#e07040' : '#b8e0c4';
+      badge.style.color = hasWork ? 'white' : '#2d7a3f';
     }
 
     // Cache

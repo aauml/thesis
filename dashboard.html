@@ -296,47 +296,6 @@
     .pd-criteria { display: block; font-size: 0.76rem; color: var(--text-muted); font-style: italic; margin-top: 0.2rem; }
 
     /* ═══════════════════════════════════════
-       READINGS (Hoja de Ruta)
-    ═══════════════════════════════════════ */
-    .reading {
-      padding: 0.55rem 0; border-bottom: 1px solid #f0f0f0;
-    }
-    .reading:last-child { border-bottom: none; }
-    .reading-name { font-weight: 600; font-size: 0.85rem; color: var(--accent); }
-    .reading-desc { font-size: 0.78rem; color: var(--text-light); margin-top: 0.1rem; }
-    .reading-badge {
-      display: inline-block; font-size: 0.6rem; font-weight: 700;
-      padding: 0.05rem 0.3rem; border-radius: 3px; margin-left: 0.3rem;
-    }
-    .badge-active { background: var(--success-bg); color: var(--success-text); }
-    .badge-next { background: #fff3e0; color: #a05c00; }
-    .reading-eval { font-size: 0.72rem; color: var(--text-muted); font-style: italic; display: block; margin-top: 0.15rem; }
-
-    /* ═══════════════════════════════════════
-       VAULT
-    ═══════════════════════════════════════ */
-    .vault-folder { margin-bottom: 1rem; }
-    .vault-folder-name {
-      font-weight: 700; color: var(--accent); font-size: 0.85rem;
-      margin-bottom: 0.35rem; display: flex; align-items: center; gap: 0.4rem;
-    }
-    .vault-hint { font-size: 0.65rem; font-weight: normal; color: var(--text-muted); }
-    .vault-row {
-      display: flex; align-items: center; gap: 0.4rem; padding: 0.3rem 0.4rem;
-      font-size: 0.82rem; border-bottom: 1px solid #f0f0f0;
-    }
-    .vault-row:last-child { border-bottom: none; }
-    .vault-icon { flex-shrink: 0; font-size: 0.85rem; }
-    .v-status {
-      margin-left: auto; font-size: 0.6rem; font-weight: 700;
-      text-transform: uppercase; padding: 0.05rem 0.3rem; border-radius: 3px;
-    }
-    .v-stub { background: #f0f0f0; color: var(--text-muted); }
-    .v-new { background: var(--info-bg); color: var(--info-text); }
-    .v-expand { background: #fff3e0; color: #a05c00; }
-    .v-done { background: var(--success-bg); color: var(--success-text); }
-
-    /* ═══════════════════════════════════════
        MAPA CONCEPTUAL v6
     ═══════════════════════════════════════ */
     .map-container { display: flex; flex-direction: column; gap: 0.6rem; align-items: center; }
@@ -599,9 +558,6 @@
       <button class="sb-item" onclick="switchView('progreso', this)">
         <span class="sb-icon">📈</span> Progreso
       </button>
-      <button class="sb-item" onclick="switchView('vault', this)">
-        <span class="sb-icon">📁</span> Vault
-      </button>
       <button class="sb-item" onclick="switchView('mapa', this)">
         <span class="sb-icon">🗺</span> Mapa
       </button>
@@ -713,17 +669,20 @@
 
       <h2>Operativo</h2>
 
-      <!-- Deadlines -->
-      <div class="section-label">Próximos hitos</div>
+      <!-- Milestones -->
+      <div class="section-label">Milestones</div>
       <div class="card" style="border-left: 3px solid var(--warn-border);">
+        <div style="font-size:0.68rem; color:var(--text-muted); margin-bottom:0.4rem;">Hitos que persisten entre sesiones. No marcar como completados hasta que realmente ocurran.</div>
         <div class="news-item"><span class="news-date" style="color:var(--warn-text); min-width:5rem;">Q1 2026</span><div>Completar Kaminski (2023) + ficha aprobada</div></div>
         <div class="news-item"><span class="news-date" style="color:var(--warn-text); min-width:5rem;">Q1 2026</span><div>Obtener email institucional USAL</div></div>
         <div class="news-item"><span class="news-date" style="color:var(--text-muted); min-width:5rem;">Q2 2026</span><div>Primera reunión sustantiva con director</div></div>
         <div class="news-item"><span class="news-date" style="color:var(--text-muted); min-width:5rem;">Q2 2026</span><div>Decisión caso de estudio (PATTERN vs. STRmix)</div></div>
+        <div class="news-item"><span class="news-date" style="color:var(--text-muted); min-width:5rem;">Q2 2026</span><div>Inscripción formal programa doctoral</div></div>
       </div>
 
-      <!-- Tareas -->
+      <!-- Tareas de sesión -->
       <div class="section-label">Tareas</div>
+      <div style="font-size:0.68rem; color:var(--text-muted); margin-bottom:0.4rem;">Acciones concretas para próximas sesiones. Se limpian al completar.</div>
       <div class="card" id="opCard">
         <div id="opActive"></div>
         <div class="op-completed-header" id="opCompletedHeader" style="display:none;">
@@ -898,82 +857,6 @@
         <div class="pd-obj"><div class="pd-icon build">⚙</div><div><strong>Defensa de la tesis</strong> — presentación, anticipar preguntas del tribunal.</div></div>
       </div>
 
-      <!-- Hoja de Ruta / Lecturas -->
-      <div class="section-label" style="margin-top:1.5rem;">Hoja de Ruta — Lecturas</div>
-      <div class="card">
-        <div class="reading">
-          <div class="reading-name">Kaminski (2023) · "Regulating the Risks of AI" <span class="reading-badge badge-active">En curso</span></div>
-          <div class="reading-desc">Tensión regulación vinculante vs. estándares voluntarios. Argumento central del Cap. 2.</div>
-          <div class="reading-eval">Criterio: puedas explicar la tensión sin notas.</div>
-        </div>
-        <div class="reading">
-          <div class="reading-name">Bradford (2020) · caps. 1–3 <span class="reading-badge badge-next">Próxima</span></div>
-          <div class="reading-desc">Efecto Bruselas: cómo la regulación UE influye en estándares globales → AI Act como exportación.</div>
-          <div class="reading-eval">Criterio: ficha articulando por qué el AI Act afecta al DOJ.</div>
-        </div>
-        <div class="reading">
-          <div class="reading-name">Fuentes críticas · Kaminski &amp; Urban, Selbst &amp; Powles, Citron <span class="reading-badge badge-next">Próxima</span></div>
-          <div class="reading-desc">Base del pilar de contestabilidad algorítmica. Evaluador del mapa conceptual.</div>
-          <div class="reading-eval">Criterio: las tres en Zotero con PDF y entrada KB.</div>
-        </div>
-      </div>
-
-    </div>
-
-    <!-- ═══════════════════════════════════
-         VIEW: VAULT
-    ═══════════════════════════════════ -->
-    <div class="view" id="view-vault">
-
-      <h2>Vault — Obsidian</h2>
-      <div style="font-size:0.78rem; color:var(--text-muted); margin-bottom:1rem;">12 notas · 25 clippings · 7 propuestas</div>
-
-      <div class="vault-folder">
-        <div class="vault-folder-name">02_Permanent <span class="vault-hint">12 notas + 7 propuestas</span></div>
-
-        <div style="font-size:0.65rem; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:var(--text-muted); margin:0.5rem 0 0.25rem;">Existentes</div>
-        <div class="vault-row"><span class="vault-icon">📄</span> mapa de tesis.md <span class="v-status v-done">MOC</span></div>
-        <div class="vault-row"><span class="vault-icon">📄</span> preguntas para defensa.md <span class="v-status v-done">21 Q</span></div>
-        <div class="vault-row"><span class="vault-icon">📄</span> Introduccion.md <span class="v-status v-done">semilla</span></div>
-        <div class="vault-row"><span class="vault-icon">📄</span> marco teorico.md <span class="v-status v-done">esquema</span></div>
-        <div class="vault-row"><span class="vault-icon">📄</span> pilares.md <span class="v-status v-done">índice</span></div>
-        <div class="vault-row"><span class="vault-icon">📄</span> categorias.md <span class="v-status v-done">evaluativo</span></div>
-        <div class="vault-row"><span class="vault-icon">📄</span> gobernanza de IA comparada.md <span class="v-status v-expand">expandir</span></div>
-        <div class="vault-row"><span class="vault-icon">📝</span> derecho comparado.md <span class="v-status v-stub">stub</span></div>
-        <div class="vault-row"><span class="vault-icon">📝</span> derecho procesal y prueba electrónica.md <span class="v-status v-stub">stub</span></div>
-        <div class="vault-row"><span class="vault-icon">📝</span> contestabilidad algorítmica.md <span class="v-status v-stub">stub</span></div>
-        <div class="vault-row"><span class="vault-icon">📝</span> metodología de derecho comparado.md <span class="v-status v-stub">stub</span></div>
-        <div class="vault-row"><span class="vault-icon">📄</span> ai governance study guide.md <span class="v-status v-done">guía</span></div>
-
-        <div style="font-size:0.65rem; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:var(--text-muted); margin:0.7rem 0 0.25rem;">Propuestas — crear conforme avance</div>
-        <div class="vault-row"><span class="vault-icon">✨</span> ficha-Kaminski2023.md <span class="v-status v-new">crear Q1</span></div>
-        <div class="vault-row"><span class="vault-icon">✨</span> ficha-Bradford2020.md <span class="v-status v-new">crear Q1</span></div>
-        <div class="vault-row"><span class="vault-icon">✨</span> caso-PATTERN.md <span class="v-status v-new">crear Q1</span></div>
-        <div class="vault-row"><span class="vault-icon">✨</span> matriz-correspondencia.md <span class="v-status v-new">crear Q3</span></div>
-        <div class="vault-row"><span class="vault-icon">✨</span> protocolo-documentacion.md <span class="v-status v-new">crear Q3</span></div>
-        <div class="vault-row"><span class="vault-icon">✨</span> cap1-introduccion-borrador.md <span class="v-status v-new">crear Q4</span></div>
-        <div class="vault-row"><span class="vault-icon">✨</span> fichas-fuentes-criticas.md <span class="v-status v-new">crear Q1</span></div>
-      </div>
-
-      <div class="vault-folder">
-        <div class="vault-folder-name">01_Bibliografia</div>
-        <div class="vault-row" style="text-decoration:line-through; color:var(--text-muted);"><span class="vault-icon">✓</span> Gorwa-AI And Global Governance (2023)</div>
-      </div>
-
-      <div class="vault-folder">
-        <div class="vault-folder-name">00_Inbox <span class="vault-hint">1 archivo</span></div>
-        <div class="vault-row"><span class="vault-icon">🎨</span> mapa visual de tesis.canvas</div>
-      </div>
-
-      <div class="vault-folder">
-        <div class="vault-folder-name">Clippings <span class="vault-hint">25 web clippings</span></div>
-      </div>
-
-      <div class="vault-folder">
-        <div class="vault-folder-name">09_sistema</div>
-        <div class="vault-row"><span class="vault-icon">⚙</span> claude-revisor-academico.md</div>
-      </div>
-
     </div>
 
     <!-- ═══════════════════════════════════
@@ -1136,46 +1019,24 @@
     ═══════════════════════════════════ -->
     <div class="view" id="view-decisiones">
 
-      <h2>Registro</h2>
+      <h2>Registro de Decisiones</h2>
+      <div style="font-size:0.72rem; color:var(--text-muted); margin-bottom:0.75rem;">Solo decisiones sustantivas de investigación. Infraestructura y sesiones → PM-SessionLog en repo.</div>
 
-      <!-- Session Log -->
-      <div class="section-label">Log de sesiones</div>
-      <div class="card" style="font-size:0.78rem; line-height:1.6;">
-        <div style="display:flex; gap:0.6rem; padding:0.2rem 0; border-bottom:1px solid #f0f0f0;"><span style="flex-shrink:0; font-weight:600; color:var(--accent); min-width:5rem;">17 mar</span><div>Dashboard v6.0 — Operativo standalone, KPIs dinámicos, ciclo de aprendizaje, archivos vault creados, matriz transpuesta, novedades 30 días con expand, meta API fix, PR-012 enforced.</div></div>
-        <div style="display:flex; gap:0.6rem; padding:0.2rem 0; border-bottom:1px solid #f0f0f0;"><span style="flex-shrink:0; font-weight:600; color:var(--accent); min-width:5rem;">15 mar</span><div>Dashboard v4→v5.1 — sidebar layout, advisor, KB pipeline live, operativo interactivo, Quick Add + GAS sync, colas vaciadas (370 items), SKILL-KB v14.</div></div>
-        <div style="display:flex; gap:0.6rem; padding:0.2rem 0; border-bottom:1px solid #f0f0f0;"><span style="flex-shrink:0; font-weight:600; color:var(--accent); min-width:5rem;">14 mar</span><div>Dashboard v2→v3.3 — timeline, KB Report analítico, Vault con propuestas, rediseño a Thesis Dashboard.</div></div>
-        <div style="display:flex; gap:0.6rem; padding:0.2rem 0;"><span style="flex-shrink:0; font-weight:600; color:var(--accent); min-width:5rem;">13 mar</span><div>Pipeline KB reparado — bug www.* corregido, 76 entradas nuevas, GAS triggers auditados, infraestructura estable.</div></div>
-      </div>
-
-      <!-- Decisiones -->
-      <div class="section-label">Decisiones</div>
       <div class="dec-controls">
         <button class="btn-sm" onclick="toggleAllDec(true)">Expandir todo</button>
         <button class="btn-sm" onclick="toggleAllDec(false)">Contraer todo</button>
       </div>
 
-      <details class="dec"><summary><span class="dec-date">2026-03-15</span><span class="dec-preview">Revisión de colas KB: 45 items al NewsLog, trigger diario activo, SKILL-KB v14 con corrección de documentación.</span><span class="dec-toggle">▸</span></summary><div class="dec-body">Sesión de revisión completa de las tres colas del KB: (1) AcademicQueue: 7 promovidos (Hildebrandt, Calo, Allen, Ostrom/IAD, gobernanza algorítmica ES), 18 descartados (ruido ArXiv: física cuántica, astronomía), 15 retenidos; (2) PerplexityQueue: 32 evaluados — 17 nuevos al NewsLog incluyendo COSAIS de NIST, OMB M-24-10/M-25-21, US v. Ortiz (probabilistic genotyping), CETS 225, Selbst «American's Guide to EU AI Act», Carnegie entity-based regulation; (3) NewsResults: 21 promovidos incluyendo comparación EU AI Act/NIST RMF/ISO 42001, retraso guidelines high-risk, AI Omnibus renegociación, NIST Agent Standards Initiative, national security como escudo contra accountability; (4) Trigger diario syncGitHubToDrive configurado (6–7am GMT-7); (5) SKILL-KB actualizado a v14: updateAcademicRow ya soportaba URL como lookup key, pero el SKILL documentaba uso por ID (no único por truncación base64). Corregido. 40/40 operaciones completadas. Pendiente: ~207 academic, ~34 perplexity, ~136 news items.</div></details>
-
-      <details class="dec"><summary><span class="dec-date">2026-03-15</span><span class="dec-preview">GitHubSync operativo: Drive API habilitada, 53 archivos sincronizados a 09_Sistema.</span><span class="dec-toggle">▸</span></summary><div class="dec-body">Infraestructura GitHubSync completada: (1) GitHubSync.gs v1 y WebApp.gs v33 instalados en GAS vía Monaco API; (2) Google Drive API habilitada en GCP project thesis-kb-deploy (era la causa del «server error» — API no estaba activa); (3) OAuth scopes actualizados (drive añadido a appsscript.json); (4) Primera sincronización exitosa: 53 archivos del repo aauml/thesis → carpeta thesis-repo dentro de 09_Sistema en Drive; (5) WebApp v33 desplegada (Version 41) con sistema Inbox (addInboxItem, getInbox, updateInboxItem); (6) Pendiente: trigger diario opcional para sync automático.</div></details>
-
-      <details class="dec"><summary><span class="dec-date">2026-03-15</span><span class="dec-preview">Dashboard v4: sidebar layout, advisor, interactividad, Quick Add con GAS sync.</span><span class="dec-toggle">▸</span></summary><div class="dec-body">Rediseño completo del dashboard a layout con sidebar. Cambios: (1) navegación por sidebar con 6 vistas — Panorama, KB Report, Progreso, Vault, Mapa, Decisiones; (2) nueva sección «Advisor» en Panorama — quotes y contexto rotativo según fase actual; (3) Quick Add en sidebar con persistencia híbrida localStorage + Google Apps Script; (4) Operativo con undo — items completados van a sección colapsable, se pueden restaurar; (5) KB Stats movidos de Panorama a KB Report; (6) fase actual visible en sidebar; (7) badges de alerta en la navegación.</div></details>
-
-      <details class="dec"><summary><span class="dec-date">2026-03-15</span><span class="dec-preview">Dashboard v3.3: KB Report ampliado; Vault con propuestas; selección timeline.</span><span class="dec-toggle">▸</span></summary><div class="dec-body">Iteración v3.3: (1) KB Intelligence Report convertido en informe analítico completo — análisis de gaps + noticias agrupadas en 4 clusters temáticos; (2) Vault con 7 notas propuestas; (3) Cap. 1 en Q4; (4) CSS de selección timeline corregido.</div></details>
+      <details class="dec"><summary><span class="dec-date">2026-03-18</span><span class="dec-preview">Dashboard simplificado: Vault eliminado, Session Log movido a repo, Registro filtrado, Hoja de Ruta desduplicada.</span><span class="dec-toggle">▸</span></summary><div class="dec-body">Reestructuración: (1) Vista Vault eliminada — inventario estático que duplicaba Obsidian; (2) Session Log eliminado del dashboard — ya existe en PM-SessionLog, evita duplicación y tokens; (3) Registro filtrado: solo decisiones de investigación; (4) Hoja de Ruta eliminada de Progreso — duplicaba Actividad Actual en Panorama; (5) Operativo reorganizado con milestones separados de tareas.</div></details>
 
       <details class="dec"><summary><span class="dec-date">2026-03-15</span><span class="dec-preview">Protocolo de actualización del dashboard: frecuencia y responsabilidades.</span><span class="dec-toggle">▸</span></summary><div class="dec-body">El dashboard se actualiza al cierre de cada sesión donde ocurra algo relevante. Claude actualiza sin pedir confirmación para cambios menores. Para cambios al Mapa Conceptual o estructura de capítulos, confirmar antes.</div></details>
 
-      <details class="dec"><summary><span class="dec-date">2026-03-14</span><span class="dec-preview">Timeline visual con 6 nodos y caja de Siguientes Pasos.</span><span class="dec-toggle">▸</span></summary><div class="dec-body">Añadida sección «Progreso» con timeline horizontal (Q1–Q4 2026, 2027, 2028) y «Siguientes Pasos» con 5 items derivados del análisis integral.</div></details>
-
-      <details class="dec"><summary><span class="dec-date">2026-03-14</span><span class="dec-preview">PM Log rediseñado como Thesis Dashboard. Tono experto-mentor.</span><span class="dec-toggle">▸</span></summary><div class="dec-body">Rediseño completo: renombrado a «Thesis Dashboard», tono experto-mentor, nuevas secciones: Briefing, KB Report, Hoja de Ruta, Obsidian Digest. Registro movido al final.</div></details>
-
-      <details class="dec"><summary><span class="dec-date">2026-03-13</span><span class="dec-preview">Infraestructura GAS auditada: triggers confirmados, duplicate warning resuelto.</span><span class="dec-toggle">▸</span></summary><div class="dec-body">Auditoría GAS: triggers correctos. Fix: PerplexitySearch-v3 con funciones duplicadas eliminadas.</div></details>
-
-      <details class="dec"><summary><span class="dec-date">2026-03-13</span><span class="dec-preview">Pipeline KB reparado: 76 entradas nuevas. Bug www.* corregido.</span><span class="dec-toggle">▸</span></summary><div class="dec-body">198 items evaluados en PerplexityQueue — 170 promovidos. Bug de deduplicación www.* corregido. 76 entradas nuevas (1,176→1,255). AcademicQueue: 249 pendientes.</div></details>
+      <details class="dec"><summary><span class="dec-date">2026-03-14</span><span class="dec-preview">Thesis Dashboard creado. Tono experto-mentor, sidebar, KB Report live, Advisor.</span><span class="dec-toggle">▸</span></summary><div class="dec-body">PM Log rediseñado como Thesis Dashboard con sidebar, 6 vistas, Advisor contextual, KB Report con pipeline live, Operativo interactivo con Quick Add + GAS sync, timeline de progreso Q1–2028.</div></details>
 
     </div>
 
     <footer>
-      Última actualización: 17 de marzo de 2026 · Thesis Dashboard v6.0 — documento vivo · pipeline + novedades + KPIs son live
+      Última actualización: 18 de marzo de 2026 · Thesis Dashboard v7.0 — documento vivo · pipeline + novedades + KPIs son live
     </footer>
 
   </div><!-- /main -->
@@ -1241,11 +1102,8 @@ function toggleAllDec(open) {
 // OPERATIVO — interactive checklist with undo
 // Version bump forces localStorage refresh on deploy
 // ═══════════════════════════════════════
-const OPS_VERSION = 4; // bump when DEFAULT_OPS change — v4: removed deprecated queue items
+const OPS_VERSION = 5; // v5: milestones moved to static HTML, tasks are session-level only
 const DEFAULT_OPS = [
-  { id: 'op-queues', text: 'Queues vaciadas: 0 academic, 0 perplexity, 0 news', done: true, ts: '15 mar 2026' },
-  { id: 'op-email', text: 'Obtener email institucional USAL', done: false, ts: null },
-  { id: 'op-inscripcion', text: 'Inscripción formal programa doctoral', done: false, ts: null },
   { id: 'op-obsidian', text: 'Expandir stubs de pilares teóricos', done: false, ts: null },
   { id: 'op-tanner', text: 'Agregar Tanner et al. (2026) al KB', done: false, ts: null },
   { id: 'op-bug001', text: 'PM-BUG-001: documentar schema API del KB para phd-pm', done: false, ts: null },
@@ -1254,7 +1112,7 @@ const DEFAULT_OPS = [
 ];
 
 // IDs that were removed from defaults — don't preserve them from old localStorage
-const DEPRECATED_OPS = new Set(['op-academic', 'op-perplexity', 'op-news']);
+const DEPRECATED_OPS = new Set(['op-academic', 'op-perplexity', 'op-news', 'op-queues', 'op-email', 'op-inscripcion']);
 
 function loadOps() {
   const ver = parseInt(localStorage.getItem(LS_PREFIX + 'ops_ver') || '0');

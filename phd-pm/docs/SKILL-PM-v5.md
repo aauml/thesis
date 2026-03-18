@@ -99,24 +99,7 @@ Esta regla aplica a TODOS los archivos en `phd-pm/`.
 
 ---
 
-## 5. OBSIDIAN VAULT
-
-**Ubicación:** `~/Library/Mobile Documents/iCloud~md~obsidian/Documents/Tesis iCloud`
-
-**Estructura de carpetas:**
-| Carpeta | Propósito | Estado actual |
-|---------|-----------|---------------|
-| 00_Inbox | Notas de trabajo activas, ideas, stubs | 18 notas |
-| 01_Bibliografia | Notas de lectura de fuentes | 1 nota (Gorwa 2023) |
-| 02_Permanent | Notas maduras, referencia canónica | Vacía — receptora |
-| 03_Sintesis | Documentos de síntesis | Vacía — receptora |
-| 04_Thesis | Borradores de capítulos | Vacía — receptora |
-| 09_sistema | Logs y archivos de sistema | Subcarpeta de Obsidian (no usar para archivos PM) |
-| Clippings | Web clippings de Obsidian | ~30 clippings |
-
----
-
-## 6. PROTOCOLO DE SESIÓN
+## 5. PROTOCOLO DE SESIÓN
 
 ### Session Startup Protocol
 
@@ -175,7 +158,7 @@ git push
 
 ---
 
-## 7. THESIS DASHBOARD
+## 6. THESIS DASHBOARD
 
 **URL:** https://aauml.github.io/thesis/dashboard.html
 **Archivo:** `dashboard.html` en repo `aauml/thesis`
@@ -266,7 +249,7 @@ Tipos de `.ns-icon`: `.ns-read` (verde, lectura), `.ns-decide` (naranja, decisi�
 
 ---
 
-## 8. KB INTELLIGENCE REPORT
+## 7. KB INTELLIGENCE REPORT
 
 Se actualiza automáticamente con cada sesión de `news` o `update` del KB. Para generarlo:
 
@@ -299,11 +282,14 @@ Al redactar contenido académico: (1) consultar KB, (2) priorizar fuentes del KB
 
 ---
 
-## 9. OBSIDIAN DIGEST
+## 8. OBSIDIAN DIGEST
+
+**Vault:** `~/Library/Mobile Documents/iCloud~md~obsidian/Documents/Tesis iCloud`
+Carpetas: 00_Inbox → 01_Bibliografia → 02_Permanent → 03_Sintesis → 04_Thesis (+ Clippings, 09_sistema). Montaje y permisos: ver PR-014 en LessonsLog.
 
 Al generar el digest para el Dashboard:
 
-1. Montar el vault: `~/Library/Mobile Documents/iCloud~md~obsidian/Documents/Tesis iCloud`
+1. Montar el vault (ver ruta arriba)
 2. Leer todas las notas de `00_Inbox`, `01_Bibliografia`, `02_Permanent`, `03_Sintesis`, `04_Thesis`
 3. Para cada nota, evaluar:
    - ¿Tiene contenido propio o es solo un stub con referencias?
@@ -315,7 +301,7 @@ Al generar el digest para el Dashboard:
 
 ---
 
-## 10. REDACCIÓN ACADÉMICA
+## 9. REDACCIÓN ACADÉMICA
 
 Aplicar siempre el skill `spanish-academic-writing` para contenido final. Principios clave:
 
@@ -334,7 +320,7 @@ Aplicar siempre el skill `spanish-academic-writing` para contenido final. Princi
 
 ---
 
-## 11. ORQUESTACIÓN MULTI-LLM
+## 10. ORQUESTACIÓN MULTI-LLM
 
 Cuando la tarea requiera búsqueda en múltiples fuentes externas, consultar el skill `phd-orchestration` (SKILL.md en Knowledge del proyecto) y generar prompts con contexto de la tesis pre-inyectado. No todas las tareas lo requieren — evaluar primero.
 
@@ -347,7 +333,7 @@ Referencia rápida de roles:
 
 ---
 
-## 12. ESTADO ACTUAL DEL PROYECTO
+## 11. ESTADO ACTUAL DEL PROYECTO
 
 _(Actualizar en cada sesión donde cambie)_
 
@@ -370,7 +356,7 @@ _(Actualizar en cada sesión donde cambie)_
 
 ---
 
-## 13. MAPA CONCEPTUAL (referencia rápida)
+## 12. MAPA CONCEPTUAL (referencia rápida)
 
 El mapa completo vive en el Dashboard como modal. Resumen de capas:
 
@@ -386,7 +372,7 @@ El mapa completo vive en el Dashboard como modal. Resumen de capas:
 
 ---
 
-## 14. LO QUE NO DEBES HACER
+## 13. LO QUE NO DEBES HACER
 
 - Inventar información no respaldada por PDFs o inputs
 - Asumir que outputs de otras herramientas son correctos sin verificar
@@ -404,7 +390,7 @@ El mapa completo vive en el Dashboard como modal. Resumen de capas:
 
 ---
 
-## 15. VERSIONAMIENTO
+## 14. VERSIONAMIENTO
 
 | Versión | Fecha | Cambios |
 |---------|-------|---------|

@@ -147,11 +147,6 @@
     .callout-success { background: var(--success-bg); border: 1px solid var(--success-border); color: var(--success-text); }
     .callout-info { background: var(--info-bg); border: 1px solid var(--info-border); color: var(--info-text); }
 
-    /* Grids */
-    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-    .grid-2.wide-left { grid-template-columns: 1.4fr 0.6fr; }
-
-
     /* Bar charts */
     .bar-row { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.4rem; }
     .bar-label { width: 80px; font-weight: 600; color: var(--accent); font-size: 0.75rem; }
@@ -225,20 +220,6 @@
       color: var(--text-muted); cursor: pointer; font-family: var(--sans);
     }
     .btn-sm:hover { background: #f0f0f0; color: var(--text); }
-
-    /* ═══════════════════════════════════════
-       KB REPORT
-    ═══════════════════════════════════════ */
-    .kb-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.6rem; margin-bottom: 1rem; }
-    .kb-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 5px; padding: 0.6rem; text-align: center; }
-    .kb-num { font-size: 1.25rem; font-weight: 700; color: var(--accent); }
-    .kb-lbl { font-size: 0.65rem; color: var(--text-muted); text-transform: uppercase; }
-    .kb-card.alta { border-color: var(--danger-border); background: var(--danger-bg); }
-    .kb-card.alta .kb-num { color: var(--danger-text); }
-    .kb-card.media { border-color: #e8a040; background: #fff6e6; }
-    .kb-card.media .kb-num { color: #b06800; }
-    .kb-card.baja { border-color: #c0c0c0; background: #f5f5f5; }
-    .kb-card.baja .kb-num { color: #777; }
 
     /* ═══════════════════════════════════════
        TIMELINE
@@ -517,8 +498,6 @@
       .sb-phase { display: none; }
       .sb-quickadd { display: none; }
       .main { margin-left: 0; padding: 0.75rem; max-width: 100%; }
-      .grid-2 { grid-template-columns: 1fr; }
-      .kb-grid { grid-template-columns: repeat(2, 1fr); }
       /* Map responsive */
       .map-found-grid { grid-template-columns: 1fr; }
       .map-ana-layout {
@@ -594,17 +573,8 @@
 
       <h2>Panorama</h2>
 
-      <!-- Advisor -->
-      <div class="advisor">
-        <div class="advisor-header">Advisor · Q1 Orientación</div>
-        <div class="advisor-quote">
-          The distinction between binding regulation and voluntary standards is not merely procedural — it reflects fundamentally different theories of how to govern risk in the face of uncertainty.
-        </div>
-        <div class="advisor-source">— Kaminski (2023), "Regulating the Risks of AI" · lectura en curso</div>
-        <div class="advisor-tip">
-          <strong>Contexto para hoy:</strong> Estás construyendo el argumento central del Cap. 2 — la tensión hard law vs. soft law. Kaminski te da el marco; Bradford te dará el mecanismo (Efecto Bruselas). La pregunta que necesitas responder antes de avanzar: ¿por qué el AI Act <em>afecta</em> al DOJ aunque no les aplique directamente? Bradford caps. 1–3 tiene esa respuesta.
-        </div>
-      </div>
+      <!-- Advisor — rendered from ADVISOR_CONFIG in JS -->
+      <div id="advisorContainer"></div>
 
 
       <!-- Actividad actual — ciclo de aprendizaje -->
@@ -669,15 +639,13 @@
 
       <h2>Operativo</h2>
 
-      <!-- Milestones -->
+      <!-- Milestones — solo administrativos/institucionales. Las lecturas y fichas están en Panorama → Actividad Actual. -->
       <div class="section-label">Milestones</div>
       <div class="card" style="border-left: 3px solid var(--warn-border);">
-        <div style="font-size:0.68rem; color:var(--text-muted); margin-bottom:0.4rem;">Hitos que persisten entre sesiones. No marcar como completados hasta que realmente ocurran.</div>
-        <div class="news-item"><span class="news-date" style="color:var(--warn-text); min-width:5rem;">Q1 2026</span><div>Completar Kaminski (2023) + ficha aprobada</div></div>
         <div class="news-item"><span class="news-date" style="color:var(--warn-text); min-width:5rem;">Q1 2026</span><div>Obtener email institucional USAL</div></div>
+        <div class="news-item"><span class="news-date" style="color:var(--text-muted); min-width:5rem;">Q2 2026</span><div>Inscripción formal programa doctoral</div></div>
         <div class="news-item"><span class="news-date" style="color:var(--text-muted); min-width:5rem;">Q2 2026</span><div>Primera reunión sustantiva con director</div></div>
         <div class="news-item"><span class="news-date" style="color:var(--text-muted); min-width:5rem;">Q2 2026</span><div>Decisión caso de estudio (PATTERN vs. STRmix)</div></div>
-        <div class="news-item"><span class="news-date" style="color:var(--text-muted); min-width:5rem;">Q2 2026</span><div>Inscripción formal programa doctoral</div></div>
       </div>
 
       <!-- Tareas de sesión -->
@@ -743,13 +711,6 @@
       <div id="gapAnalysis">
         <div style="color:var(--text-muted); font-size:0.8rem; padding:0.3rem;">Cargando análisis...</div>
       </div>
-      <!-- Processing history -->
-      <div class="section-label">Historial de procesamiento</div>
-      <div class="card">
-        <div class="news-item"><span class="news-date">15 mar</span><div>204 entradas nuevas (1,255 → 1,459) · 3 queues vaciadas · 370 items procesados</div></div>
-        <div class="news-item"><span class="news-date">13 mar</span><div>76 entradas nuevas (1,176 → 1,255) · Bug www.* corregido · 198 items evaluados</div></div>
-      </div>
-
     </div>
 
     <!-- ═══════════════════════════════════
@@ -800,20 +761,9 @@
       <!-- Period panels -->
       <div class="period-detail active" id="pd-q1">
         <div class="pd-header"><h3>Q1 2026 · Enero – Abril</h3><span class="pd-phase-tag">Orientación</span></div>
-        <!-- Progress bar -->
-        <div style="margin-bottom:0.75rem;">
-          <div style="display:flex; justify-content:space-between; font-size:0.7rem; color:var(--text-muted); margin-bottom:0.2rem;">
-            <span>Avance: 1 de 4 objetivos</span><span style="font-weight:600; color:var(--accent);">25%</span>
-          </div>
-          <div style="height:6px; background:#e8ecf3; border-radius:3px; overflow:hidden;">
-            <div style="height:100%; width:25%; background:var(--accent-mid); border-radius:3px;"></div>
-          </div>
-          <div style="font-size:0.68rem; color:var(--text-muted); margin-top:0.2rem;">Infraestructura ✓ · Kaminski en curso · Bradford pendiente · Caso pendiente</div>
-        </div>
-        <div class="pd-obj"><div class="pd-icon read">↦</div><div><strong>Completar Kaminski (2023)</strong> — lectura prioritaria. <span style="font-size:0.68rem; color:var(--text-muted);">📓 ficha-Kaminski2023.md</span> <span class="pd-status active">En curso</span><span class="pd-criteria">Hecho cuando: puedas explicar la tensión regulación vinculante vs. estándares voluntarios sin notas.</span></div></div>
-        <div class="pd-obj"><div class="pd-icon read">↦</div><div><strong>Iniciar Bradford (2020)</strong> caps. 1–3 — Efecto Bruselas. <span style="font-size:0.68rem; color:var(--text-muted);">📓 ficha-Bradford2020.md</span> <span class="pd-status pending">Pendiente</span><span class="pd-criteria">Hecho cuando: ficha articulando por qué el AI Act afecta al DOJ.</span></div></div>
-        <div class="pd-obj"><div class="pd-icon decide">◆</div><div><strong>Caso de estudio</strong> — PATTERN vs. STRmix. <span style="font-size:0.68rem; color:var(--text-muted);">📓 caso-PATTERN.md</span> <span class="pd-status pending">Pendiente</span><span class="pd-criteria">Hecho cuando: decisión consensuada con director, documentada en Registro.</span></div></div>
-        <div class="pd-obj"><div class="pd-icon read">!</div><div><strong>Fuentes críticas</strong> — Kaminski &amp; Urban, Selbst &amp; Powles, Citron. <span style="font-size:0.68rem; color:var(--text-muted);">📓 fichas-fuentes-criticas.md</span> <span class="pd-status pending">Pendiente</span><span class="pd-criteria">Hecho cuando: las tres en Zotero con PDF y entrada KB.</span></div></div>
+        <!-- Dynamic progress bar — calculated from Actividad Actual in Panorama -->
+        <div id="q1ProgressBar" style="margin-bottom:0.75rem;"></div>
+        <div style="font-size:0.78rem; color:var(--text-muted); padding:0.4rem 0;">Detalle de objetivos y criterios → ver <strong style="cursor:pointer; color:var(--accent-mid);" onclick="switchView('panorama', document.querySelector('.sb-item'))">Panorama · Actividad Actual</strong></div>
       </div>
 
       <div class="period-detail" id="pd-q2">
@@ -1598,7 +1548,66 @@ async function fetchKbStats() {
 // ═══════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════
+// ADVISOR — data-driven config (Claude updates this at session close)
+// ═══════════════════════════════════════
+const ADVISOR_CONFIG = {
+  phase: 'Q1 Orientación',
+  quote: 'The distinction between binding regulation and voluntary standards is not merely procedural — it reflects fundamentally different theories of how to govern risk in the face of uncertainty.',
+  source: 'Kaminski (2023), "Regulating the Risks of AI" · lectura en curso',
+  tip: 'Estás construyendo el argumento central del Cap. 2 — la tensión hard law vs. soft law. Kaminski te da el marco; Bradford te dará el mecanismo (Efecto Bruselas). La pregunta que necesitas responder antes de avanzar: ¿por qué el AI Act <em>afecta</em> al DOJ aunque no les aplique directamente? Bradford caps. 1–3 tiene esa respuesta.',
+};
+
+function renderAdvisor() {
+  const el = document.getElementById('advisorContainer');
+  if (!el) return;
+  const c = ADVISOR_CONFIG;
+  el.innerHTML = `<div class="advisor">
+    <div class="advisor-header">Advisor · ${c.phase}</div>
+    <div class="advisor-quote">${c.quote}</div>
+    <div class="advisor-source">— ${c.source}</div>
+    <div class="advisor-tip"><strong>Contexto para hoy:</strong> ${c.tip}</div>
+  </div>`;
+}
+
+// ═══════════════════════════════════════
+// Q1 PROGRESS BAR — calculated from Actividad Actual status
+// ═══════════════════════════════════════
+function renderQ1Progress() {
+  const el = document.getElementById('q1ProgressBar');
+  if (!el) return;
+  const items = document.querySelectorAll('#actividadActual .act-item');
+  const total = items.length;
+  if (total === 0) { el.innerHTML = ''; return; }
+  let done = 0;
+  let inprogress = 0;
+  const labels = [];
+  items.forEach(item => {
+    const name = item.querySelector('strong')?.textContent || '';
+    const shortName = name.split('—')[0].trim();
+    if (item.classList.contains('act-approved')) { done++; labels.push(shortName + ' ✓'); }
+    else if (item.classList.contains('act-inprogress')) { inprogress++; labels.push(shortName + ' ◉'); }
+    else { labels.push(shortName + ' ○'); }
+  });
+  // Count infrastructure as +1 done (already completed, not tracked as act-item)
+  const totalWithInfra = total + 1;
+  const doneWithInfra = done + 1;
+  const pct = Math.round((doneWithInfra / totalWithInfra) * 100);
+  el.innerHTML = `
+    <div style="display:flex; justify-content:space-between; font-size:0.7rem; color:var(--text-muted); margin-bottom:0.2rem;">
+      <span>Avance: ${doneWithInfra} de ${totalWithInfra} objetivos</span><span style="font-weight:600; color:var(--accent);">${pct}%</span>
+    </div>
+    <div style="height:6px; background:#e8ecf3; border-radius:3px; overflow:hidden;">
+      <div style="height:100%; width:${pct}%; background:var(--accent-mid); border-radius:3px;"></div>
+    </div>
+    <div style="font-size:0.68rem; color:var(--text-muted); margin-top:0.2rem;">Infraestructura ✓ · ${labels.join(' · ')}</div>`;
+}
+
+// ═══════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════
 document.addEventListener('DOMContentLoaded', () => {
+  renderAdvisor();
+  renderQ1Progress();
   renderOps();
   updateOpsBadge();
   fetchPipelineStatus(); // Live queue status on every page load

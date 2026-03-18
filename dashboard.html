@@ -1293,29 +1293,54 @@ async function fetchPipelineStatus() {
 
     const hasWork = totalPending > 0;
 
-    // Scan frequency labels (for display only — triggers run on their own schedule)
-    const SCAN_FREQ = { Academic: 'bisemanal', Perplexity: 'semanal', News: 'diario' };
+    // Calculate next trigger run based on fixed schedules (local timezone)
+    // News: daily 11pm, Perplexity: Sunday 3am, Academic: every other Monday 6am
+    function nextTriggerRun(type) {
+      const now = new Date();
+      let next;
+      if (type === 'News') {
+        // Daily at 11pm local
+        next = new Date(now); next.setHours(23, 0, 0, 0);
+        if (next <= now) next.setDate(next.getDate() + 1);
+      } else if (type === 'Perplexity') {
+        // Sunday 3am local
+        next = new Date(now); next.setHours(3, 0, 0, 0);
+        const daysUntilSun = (7 - next.getDay()) % 7;
+        next.setDate(next.getDate() + (daysUntilSun === 0 && next <= now ? 7 : daysUntilSun));
+      } else {
+        // Academic: biweekly Monday 6am local (approximate — next Monday then +14d cycle)
+        next = new Date(now); next.setHours(6, 0, 0, 0);
+        const daysUntilMon = (8 - next.getDay()) % 7;
+        next.setDate(next.getDate() + (daysUntilMon === 0 && next <= now ? 7 : daysUntilMon));
+      }
+      // Format countdown
+      const diffMs = next - now;
+      const h = Math.floor(diffMs / 3600000);
+      const m = Math.floor((diffMs % 3600000) / 60000);
+      const d = Math.floor(h / 24);
+      if (d > 0) return `en ${d}d ${h % 24}h`;
+      if (h > 0) return `en ${h}h ${m}min`;
+      return `en ${m}min`;
+    }
 
     // Queue cards with semaphore: 🟢 = ok, 🟡 = pendientes (auto), 🔴 = error
     const queueRows = [
-      { name: 'Academic', count: acadPending, freq: SCAN_FREQ.Academic, lastScan: lastAcad },
-      { name: 'Perplexity', count: perpPending, freq: SCAN_FREQ.Perplexity, lastScan: lastPerp },
-      { name: 'News', count: newsPending, freq: SCAN_FREQ.News, lastScan: lastNews },
+      { name: 'Academic', count: acadPending },
+      { name: 'Perplexity', count: perpPending },
+      { name: 'News', count: newsPending },
     ];
 
     const procesado = timeAgo(lastProcess) || 'sin datos';
-    let apiError = false; // would be true if API call failed — currently always false
 
     let html = '<div class="pipeline-queues">';
     for (const q of queueRows) {
       const hasPending = q.count > 0;
-      // Semaphore: green=ok, amber=pending (processing automatically), red=error
-      const dot = apiError ? '🔴' : hasPending ? '🟡' : '🟢';
+      const dot = hasPending ? '🟡' : '🟢';
       const countLabel = hasPending ? ` · <strong style="color:var(--warn-text);">${q.count}</strong> pendientes` : '';
-      const lastScanText = timeAgo(q.lastScan) || 'sin datos';
+      const nextRun = nextTriggerRun(q.name);
       html += `<div class="pipeline-q">
         <div>${dot} <strong>${q.name}</strong>${countLabel}</div>
-        <div class="pq-meta">Frecuencia: ${q.freq} · último: ${lastScanText}</div>
+        <div class="pq-meta">Siguiente scan: ${nextRun}</div>
       </div>`;
     }
     html += '</div>';

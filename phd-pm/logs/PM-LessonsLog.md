@@ -91,9 +91,18 @@ These are hard rules derived from past bugs. Violating any of these means repeat
 - **Root cause:** El sync de GitHub a Drive (y luego a Obsidian) copió todo el repo sin discriminar.
 - **Rule:** El vault de Obsidian solo debe contener material de trabajo del doctorando: fichas de lectura, notas permanentes, stubs, clippings. NUNCA archivos de infraestructura (scripts, configs, HTML del dashboard). Esos viven en el repo de GitHub exclusivamente.
 
-### PR-014 — Montar iCloud Obsidian al inicio de cada sesión
-- **Derived from:** Sesión 2026-03-17. El vault de Obsidian vive en iCloud (`~/Library/Mobile Documents/iCloud~md~obsidian/Documents/Tesis iCloud`).
-- **Rule:** Al inicio de cada sesión, montar el directorio iCloud de Obsidian usando `request_cowork_directory` con path `~/Library/Mobile Documents/iCloud~md~obsidian/Documents`. Esto da acceso al vault para leer fichas, evaluar entregas, y actualizar estados. Sin este mount, no se puede hacer el ciclo de aprendizaje (Asignada → En curso → Completada → Revisada).
+### PR-014 — Montar iCloud Obsidian al inicio de cada sesión (y en Dispatch)
+- **Derived from:** Sesión 2026-03-17. El vault de Obsidian vive en iCloud.
+- **Paths:**
+  - Mount: `~/Library/Mobile Documents/iCloud~md~obsidian/Documents`
+  - VM path after mount: `/sessions/*/mnt/iCloud~md~obsidian--Documents/Tesis iCloud/`
+  - Vault root: `Tesis iCloud/` (fichas activas en raíz, Pilares/, Referencia/, Bibliografia/)
+- **Rule:** Al inicio de CADA sesión (interactiva o Dispatch):
+  1. `request_cowork_directory` con path `~/Library/Mobile Documents/iCloud~md~obsidian/Documents`
+  2. `allow_cowork_file_delete` si se necesita borrar/reorganizar archivos del vault
+  3. Verificar acceso: `ls` del vault para confirmar que se ve `Tesis iCloud/`
+- **Razón:** Sin este mount no se pueden leer fichas, evaluar entregas, actualizar estados, ni hacer el ciclo de aprendizaje. Los permisos de borrado no persisten entre sesiones.
+- **Para Dispatch:** Cualquier tarea programada que toque el vault debe incluir el mount como primer paso en su prompt.
 
 ---
 

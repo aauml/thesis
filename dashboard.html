@@ -1275,15 +1275,15 @@ async function fetchPipelineStatus() {
 
   try {
     const [acad, perp, news, meta] = await Promise.all([
-      fetch(GAS_API + '?action=getAcademicQueue&status=pending&limit=1').then(r => r.json()).catch(() => null),
-      fetch(GAS_API + '?action=getPerplexityQueue&status=pending&limit=1').then(r => r.json()).catch(() => null),
-      fetch(GAS_API + '?action=getNewsResults&status=pending&limit=1').then(r => r.json()).catch(() => null),
+      fetch(GAS_API + '?action=getAcademicQueue&status=pending&limit=200').then(r => r.json()).catch(() => null),
+      fetch(GAS_API + '?action=getPerplexityQueue&status=pending&limit=200').then(r => r.json()).catch(() => null),
+      fetch(GAS_API + '?action=getNewsResults&status=pending&limit=200').then(r => r.json()).catch(() => null),
       fetch(GAS_API + '?action=getMeta').then(r => r.json()).catch(() => null),
     ]);
 
-    const acadPending = acad?.rows?.length || 0;
-    const perpPending = perp?.rows?.length || 0;
-    const newsPending = news?.rows?.length || 0;
+    const acadPending = acad?.total || acad?.rows?.length || 0;
+    const perpPending = perp?.total || perp?.rows?.length || 0;
+    const newsPending = news?.total || news?.rows?.length || 0;
     const totalPending = acadPending + perpPending + newsPending;
 
     const lastAcad = meta?.last_acad_scan || null;
@@ -1325,9 +1325,9 @@ async function fetchPipelineStatus() {
 
     // Queue cards
     const queueRows = [
-      { name: 'Academic', pending: acadPending > 0, lastScan: lastAcad, interval: SCAN_INTERVALS.Academic },
-      { name: 'Perplexity', pending: perpPending > 0, lastScan: lastPerp, interval: SCAN_INTERVALS.Perplexity },
-      { name: 'News', pending: newsPending > 0, lastScan: lastNews, interval: SCAN_INTERVALS.News },
+      { name: 'Academic', count: acadPending, lastScan: lastAcad, interval: SCAN_INTERVALS.Academic },
+      { name: 'Perplexity', count: perpPending, lastScan: lastPerp, interval: SCAN_INTERVALS.Perplexity },
+      { name: 'News', count: newsPending, lastScan: lastNews, interval: SCAN_INTERVALS.News },
     ];
 
     const procesado = timeAgo(lastProcess) || 'sin datos';
@@ -1335,13 +1335,14 @@ async function fetchPipelineStatus() {
 
     let html = '<div class="pipeline-queues">';
     for (const q of queueRows) {
-      const dot = q.pending ? '🔴' : '🟢';
+      const dot = q.count > 0 ? '🔴' : '🟢';
       const nsi = nextScanInfo(q.lastScan, q.interval);
       if (nsi.overdue) overdueCount++;
       const scanStyle = nsi.overdue ? 'color:var(--danger-text);font-weight:600;' : '';
       const icon = nsi.overdue ? '⚠ ' : '';
+      const countLabel = q.count > 0 ? ` · <strong>${q.count}</strong> pendientes` : '';
       html += `<div class="pipeline-q">
-        <div>${dot} <strong>${q.name}</strong></div>
+        <div>${dot} <strong>${q.name}</strong>${countLabel}</div>
         <div class="pq-meta" style="${scanStyle}">${icon}Siguiente scan: ${nsi.text}</div>
       </div>`;
     }
@@ -1355,7 +1356,7 @@ async function fetchPipelineStatus() {
       </div>`;
     } else if (hasWork) {
       html += `<div class="pipeline-alert alert-warn">
-        <span>⚠</span> <strong>${totalPending}+ items pendientes en queues</strong>
+        <span>⚠</span> <strong>${totalPending} items pendientes en queues</strong>
         <span style="margin-left:auto;font-size:0.72rem;">Procesado: ${procesado} · Consultado: justo ahora</span>
       </div>`;
     } else {

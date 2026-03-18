@@ -1548,19 +1548,91 @@ async function fetchKbStats() {
 // ═══════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════
-// ADVISOR — data-driven config (Claude updates this at session close)
+// ADVISOR — daily rotation from curated entries (Claude adds new entries at session close)
 // ═══════════════════════════════════════
-const ADVISOR_CONFIG = {
-  phase: 'Q1 Orientación',
-  quote: 'The distinction between binding regulation and voluntary standards is not merely procedural — it reflects fundamentally different theories of how to govern risk in the face of uncertainty.',
-  source: 'Kaminski (2023), "Regulating the Risks of AI" · lectura en curso',
-  tip: 'Estás construyendo el argumento central del Cap. 2 — la tensión hard law vs. soft law. Kaminski te da el marco; Bradford te dará el mecanismo (Efecto Bruselas). La pregunta que necesitas responder antes de avanzar: ¿por qué el AI Act <em>afecta</em> al DOJ aunque no les aplique directamente? Bradford caps. 1–3 tiene esa respuesta.',
-};
+const ADVISOR_ENTRIES = [
+  {
+    phase: 'Q1 · Teoría regulatoria',
+    quote: 'The distinction between binding regulation and voluntary standards is not merely procedural — it reflects fundamentally different theories of how to govern risk in the face of uncertainty.',
+    source: 'Kaminski (2023), "Regulating the Risks of AI"',
+    tip: 'La tensión hard law vs. soft law es el argumento central del Cap. 2. Kaminski te da el marco teórico; Bradford te dará el mecanismo de transmisión (Efecto Bruselas). Pregunta clave: ¿por qué el NIST AI RMF no puede ignorar al AI Act aunque sea voluntario?',
+  },
+  {
+    phase: 'Q1 · Efecto Bruselas',
+    quote: 'When the EU regulates, the world follows — not because of coercion, but because of market gravity.',
+    source: 'Bradford (2020), "The Brussels Effect" · caps. 1–3 pendientes',
+    tip: 'Bradford explica por qué el AI Act <em>afecta</em> al DOJ aunque no les aplique directamente. Las empresas que venden al mercado europeo adaptan sus prácticas globalmente. Si el DOJ usa sistemas de IA de esos proveedores, el AI Act ya está en su cadena de suministro.',
+  },
+  {
+    phase: 'Q1 · Contestabilidad algorítmica',
+    quote: 'The right to contest an automated decision is meaningless without the ability to understand and challenge the system that produced it.',
+    source: 'Kaminski & Urban — Contestabilidad · pilar teórico 4',
+    tip: 'La contestabilidad es el puente entre derecho procesal y gobernanza de IA. Sin ella, el due process se vacía. Tu tesis necesita demostrar que el NIST AI RMF puede (o no) garantizar las condiciones mínimas para que una decisión algorítmica sea impugnable.',
+  },
+  {
+    phase: 'Q1 · Caso DOJ',
+    quote: 'No DOJ system has a published AI Impact Assessment — despite OMB requirements.',
+    source: 'Hallazgo propio · Cap. 6',
+    tip: 'Este gap entre el mandato normativo y la práctica real es la justificación empírica de tu tesis. Si las agencias federales no cumplen ni sus propios requisitos de AI impact assessment, ¿cómo van a demostrar cumplimiento sustancial con el RIA? El caso de estudio necesita documentar este vacío.',
+  },
+  {
+    phase: 'Q1 · Derecho procesal',
+    quote: 'La prueba electrónica no es solo un medio probatorio — es un desafío epistemológico para el proceso judicial.',
+    source: 'Bueno de Mata · director de tesis · eje procesal',
+    tip: 'Tu director es catedrático de Derecho Procesal. El eje procesal (contestabilidad + prueba electrónica) es lo que diferencia tu tesis de un mero análisis comparativo de regulación. Cuando escribas, conecta siempre con las implicaciones procesales.',
+  },
+  {
+    phase: 'Q1 · Metodología',
+    quote: 'Cumplimiento documentable ≠ cumplimiento real.',
+    source: 'Supuesto epistemológico de la tesis',
+    tip: 'Este es el nodo puente de tu metodología. El derecho comparado funcional (Zweigert & Kötz) te permite comparar <em>funciones equivalentes</em> entre NIST y RIA sin asumir equivalencia normativa. El caso instrumental (Yin) ancla el análisis en evidencia concreta.',
+  },
+  {
+    phase: 'Q1 · Matriz de correspondencia',
+    quote: 'Every cell in the correspondence matrix is a hypothesis about whether NIST controls can satisfy RIA requirements.',
+    source: 'Diseño metodológico · Cap. 5, Q3 2026',
+    tip: 'La matriz RIA × NIST es el artefacto central de la tesis. Cada celda con ● es una hipótesis de correspondencia. Cada celda vacía es un gap potencial. Tu trabajo en Q3 será llenar esta matriz con evidencia del caso de estudio, no con suposiciones.',
+  },
+  {
+    phase: 'Q1 · Gobernanza comparada',
+    quote: 'AI governance is not a binary choice between regulation and innovation — it is a design problem.',
+    source: 'Gorwa (2023), "AI and Global Governance"',
+    tip: 'La gobernanza comparada (Bradford, Veale, Gorwa) te da el contexto geopolítico: por qué la UE regula con fuerza vinculante mientras EEUU prefiere frameworks voluntarios. Tu tesis se sitúa en esa tensión — el NIST AI RMF como puente potencial.',
+  },
+  {
+    phase: 'Q1 · NIST AI RMF',
+    quote: 'GOVERN → MAP → MEASURE → MANAGE: four functions, one cycle of continuous risk management.',
+    source: 'NIST AI 100-1 · AI Risk Management Framework',
+    tip: 'El RMF no es una checklist — es un ciclo. GOVERN establece la cultura y los roles, MAP identifica los contextos de riesgo, MEASURE evalúa, y MANAGE responde. Tu Cap. 4 necesita articular este ciclo antes de comparar con los artículos del RIA.',
+  },
+  {
+    phase: 'Q1 · Cambios normativos',
+    quote: 'La rescisión de EO 14110 y OMB M-24-10 amplía la brecha de gobernanza EU-US — y refuerza tu argumento.',
+    source: 'Desarrollos clave · seguimiento normativo',
+    tip: 'EO 14179 reemplazó el marco de Biden. M-25-21 rescindió los mandatos de AI impact assessment. El CETS 225 entró en vigor. Estos cambios no invalidan tu tesis — la fortalecen: demuestran que el vacío federal es real y que un puente NIST↔RIA es más necesario que nunca.',
+  },
+  {
+    phase: 'Q1 · Lecturas pendientes',
+    quote: 'No se puede construir un argumento comparativo sin conocer ambos lados del puente.',
+    source: 'Orientación PM',
+    tip: 'Kaminski te da la tensión regulatoria. Bradford te da el mecanismo de transmisión. Las fuentes críticas (Selbst & Powles, Citron) te dan la contestabilidad. Sin estas tres patas, el marco teórico del Cap. 2 cojea. Prioriza terminar Kaminski esta semana.',
+  },
+  {
+    phase: 'Q1 · CETS 225',
+    quote: 'El Convenio Marco del Consejo de Europa es el primer tratado vinculante de IA ratificado por EEUU.',
+    source: 'CETS 225, en vigor nov 2025',
+    tip: 'CETS 225 es un dato clave para tu argumento: EEUU aceptó obligaciones vinculantes de gobernanza de IA a nivel internacional. Esto debilita la narrativa de que el enfoque estadounidense es puramente voluntario. Es evidencia directa para el Cap. 2.',
+  },
+];
 
 function renderAdvisor() {
   const el = document.getElementById('advisorContainer');
   if (!el) return;
-  const c = ADVISOR_CONFIG;
+  // Pick entry based on day of year — same all day, different tomorrow
+  const now = new Date();
+  const startOfYear = new Date(now.getFullYear(), 0, 0);
+  const dayOfYear = Math.floor((now - startOfYear) / 86400000);
+  const c = ADVISOR_ENTRIES[dayOfYear % ADVISOR_ENTRIES.length];
   el.innerHTML = `<div class="advisor">
     <div class="advisor-header">Advisor · ${c.phase}</div>
     <div class="advisor-quote">${c.quote}</div>

@@ -1293,29 +1293,67 @@ async function fetchPipelineStatus() {
 
     const hasWork = totalPending > 0;
 
+    // Expected scan intervals (hours)
+    const SCAN_INTERVALS = { Academic: 24, Perplexity: 168, News: 24 };
+
+    // Calculate next scan time and human-readable countdown
+    function nextScanInfo(lastScan, intervalH) {
+      if (!lastScan) return { text: 'sin datos', overdue: true };
+      const last = new Date(lastScan);
+      if (isNaN(last.getTime())) return { text: 'sin datos', overdue: true };
+      const next = new Date(last.getTime() + intervalH * 3600000);
+      const now = new Date();
+      const diffMs = next - now;
+      if (diffMs <= 0) {
+        // Overdue — show how late
+        const lateMs = Math.abs(diffMs);
+        const lateH = Math.floor(lateMs / 3600000);
+        const lateD = Math.floor(lateH / 24);
+        const overText = lateD > 0 ? `${lateD}d ${lateH % 24}h atrasado` : `${lateH}h atrasado`;
+        return { text: overText, overdue: true };
+      }
+      // Upcoming
+      const h = Math.floor(diffMs / 3600000);
+      const m = Math.floor((diffMs % 3600000) / 60000);
+      const d = Math.floor(h / 24);
+      let text;
+      if (d > 0) text = `en ${d}d ${h % 24}h`;
+      else if (h > 0) text = `en ${h}h ${m}min`;
+      else text = `en ${m}min`;
+      return { text, overdue: false };
+    }
+
     // Queue cards
     const queueRows = [
-      { name: 'Academic', pending: acadPending > 0, lastScan: lastAcad },
-      { name: 'Perplexity', pending: perpPending > 0, lastScan: lastPerp },
-      { name: 'News', pending: newsPending > 0, lastScan: lastNews },
+      { name: 'Academic', pending: acadPending > 0, lastScan: lastAcad, interval: SCAN_INTERVALS.Academic },
+      { name: 'Perplexity', pending: perpPending > 0, lastScan: lastPerp, interval: SCAN_INTERVALS.Perplexity },
+      { name: 'News', pending: newsPending > 0, lastScan: lastNews, interval: SCAN_INTERVALS.News },
     ];
 
-    const consultado = timeAgo(new Date().toISOString()) || 'justo ahora';
     const procesado = timeAgo(lastProcess) || 'sin datos';
+    let overdueCount = 0;
 
     let html = '<div class="pipeline-queues">';
     for (const q of queueRows) {
       const dot = q.pending ? '🔴' : '🟢';
-      const scanText = timeAgo(q.lastScan) || 'sin datos';
+      const nsi = nextScanInfo(q.lastScan, q.interval);
+      if (nsi.overdue) overdueCount++;
+      const scanStyle = nsi.overdue ? 'color:var(--danger-text);font-weight:600;' : '';
+      const icon = nsi.overdue ? '⚠ ' : '';
       html += `<div class="pipeline-q">
         <div>${dot} <strong>${q.name}</strong></div>
-        <div class="pq-meta">Último scan: ${scanText}</div>
+        <div class="pq-meta" style="${scanStyle}">${icon}Siguiente scan: ${nsi.text}</div>
       </div>`;
     }
     html += '</div>';
 
-    // Alert bar
-    if (hasWork) {
+    // Alert bar — prioritize overdue triggers over queue status
+    if (overdueCount > 0) {
+      html += `<div class="pipeline-alert alert-warn">
+        <span>⚠</span> <strong>${overdueCount} trigger${overdueCount > 1 ? 's' : ''} atrasado${overdueCount > 1 ? 's' : ''}</strong> — verificar GAS triggers
+        <span style="margin-left:auto;font-size:0.72rem;">Procesado: ${procesado} · Consultado: justo ahora</span>
+      </div>`;
+    } else if (hasWork) {
       html += `<div class="pipeline-alert alert-warn">
         <span>⚠</span> <strong>${totalPending}+ items pendientes en queues</strong>
         <span style="margin-left:auto;font-size:0.72rem;">Procesado: ${procesado} · Consultado: justo ahora</span>
@@ -1329,12 +1367,13 @@ async function fetchPipelineStatus() {
 
     el.innerHTML = html;
 
-    // Update sidebar badge
+    // Update sidebar badge — overdue triggers take priority
     const badge = document.getElementById('badge-kb');
     if (badge) {
-      badge.textContent = hasWork ? '!' : '✓';
-      badge.style.background = hasWork ? '#e07040' : '#b8e0c4';
-      badge.style.color = hasWork ? 'white' : '#2d7a3f';
+      const needsAttention = hasWork || overdueCount > 0;
+      badge.textContent = needsAttention ? '!' : '✓';
+      badge.style.background = needsAttention ? '#e07040' : '#b8e0c4';
+      badge.style.color = needsAttention ? 'white' : '#2d7a3f';
     }
 
     // Cache

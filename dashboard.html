@@ -1293,8 +1293,8 @@ async function fetchPipelineStatus() {
 
     const hasWork = totalPending > 0;
 
-    // Expected scan intervals (hours)
-    const SCAN_INTERVALS = { Academic: 24, Perplexity: 168, News: 24 };
+    // Expected scan intervals (hours): Academic=biweekly, Perplexity=weekly, News=daily
+    const SCAN_INTERVALS = { Academic: 336, Perplexity: 168, News: 24 };
 
     // Calculate next scan time and human-readable countdown
     function nextScanInfo(lastScan, intervalH) {

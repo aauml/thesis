@@ -151,18 +151,6 @@
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
     .grid-2.wide-left { grid-template-columns: 1.4fr 0.6fr; }
 
-    /* KPI cards */
-    .kpi-strip { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1.25rem; }
-    .kpi {
-      flex: 1; min-width: 90px; background: var(--bg-card); border: 1px solid var(--border);
-      border-radius: 5px; padding: 0.55rem; text-align: center;
-    }
-    .kpi-num { font-size: 1.2rem; font-weight: 700; color: var(--accent); }
-    .kpi-label { font-size: 0.62rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; }
-    .kpi.warn { border-color: var(--warn-border); background: var(--warn-bg); }
-    .kpi.warn .kpi-num { color: var(--warn-text); }
-    .kpi.good { border-color: var(--success-border); background: var(--success-bg); }
-    .kpi.good .kpi-num { color: var(--success-text); }
 
     /* Bar charts */
     .bar-row { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.4rem; }
@@ -572,8 +560,6 @@
       .main { margin-left: 0; padding: 0.75rem; max-width: 100%; }
       .grid-2 { grid-template-columns: 1fr; }
       .kb-grid { grid-template-columns: repeat(2, 1fr); }
-      .kpi-strip { gap: 0.3rem; flex-wrap: wrap; }
-      .kpi { min-width: 70px; }
       /* Map responsive */
       .map-found-grid { grid-template-columns: 1fr; }
       .map-ana-layout {
@@ -664,13 +650,6 @@
         </div>
       </div>
 
-      <!-- KPIs dinámicos -->
-      <div class="kpi-strip" id="panoramaKpis">
-        <div class="kpi"><div class="kpi-num" id="kpiKbTotal">—</div><div class="kpi-label">KB total</div></div>
-        <div class="kpi warn"><div class="kpi-num" id="kpiKbAlta">—</div><div class="kpi-label">ALTA</div></div>
-        <div class="kpi"><div class="kpi-num" id="kpiLastScan">—</div><div class="kpi-label">Último scan</div></div>
-        <div class="kpi" id="kpiCasoWrap"><div class="kpi-num" id="kpiCaso">7%</div><div class="kpi-label">Capa Caso</div></div>
-      </div>
 
       <!-- Actividad actual — ciclo de aprendizaje -->
       <div class="section-label">Actividad actual</div>
@@ -1229,6 +1208,7 @@ function switchView(id, btn) {
   document.querySelectorAll('.sb-item').forEach(b => b.classList.remove('active'));
   document.getElementById('view-' + id).classList.add('active');
   if (btn) btn.classList.add('active');
+  try { localStorage.setItem('dash-active-view', id); } catch(e) {}
 }
 
 // ═══════════════════════════════════════
@@ -1640,31 +1620,6 @@ async function fetchRecentNews() {
   }
 }
 
-// ═══════════════════════════════════════
-// PANORAMA KPIs — dynamic from API
-// ═══════════════════════════════════════
-async function fetchPanoramaKpis() {
-  try {
-    const resp = await fetch(GAS_API + '?action=getAll&limit=1');
-    const data = await resp.json();
-    const total = data?.total || 0;
-
-    // Update KPI cards
-    const kpiTotal = document.getElementById('kpiKbTotal');
-    if (kpiTotal) kpiTotal.textContent = total.toLocaleString();
-
-    // ALTA count — estimate from known ratio (~30%) or hardcode until we get a stats endpoint
-    const kpiAlta = document.getElementById('kpiKbAlta');
-    if (kpiAlta) kpiAlta.textContent = Math.round(total * 0.3).toLocaleString();
-
-    // Caso % — hardcoded until we have per-capa counts
-    const kpiCaso = document.getElementById('kpiCaso');
-    const casoWrap = document.getElementById('kpiCasoWrap');
-    if (kpiCaso) kpiCaso.textContent = '7%';
-    if (casoWrap) { casoWrap.classList.add('warn'); }
-
-  } catch(e) { /* silent — KPIs stay as defaults */ }
-}
 
 // ═══════════════════════════════════════
 // OPS BADGE — update sidebar badge with pending count
@@ -1687,7 +1642,6 @@ document.addEventListener('DOMContentLoaded', () => {
   updateOpsBadge();
   fetchPipelineStatus(); // Live queue status on every page load
   fetchRecentNews(); // Dynamic news from NewsLog
-  fetchPanoramaKpis(); // Dynamic KPIs
 
   // KB stats — relative "Actualizado" timestamp
   const KB_LAST_UPDATE = '2026-03-15T22:00:00-07:00'; // last KB processing date
@@ -1697,12 +1651,14 @@ document.addEventListener('DOMContentLoaded', () => {
     kbEl.textContent = rel ? `Actualizado: ${rel}` : 'Actualizado: sin datos';
   }
 
-  // Last scan for KPI
-  fetch(GAS_API + '?action=getMeta').then(r => r.json()).then(meta => {
-    const lastScan = meta?.last_acad_scan || meta?.last_news_scan || null;
-    const kpiScan = document.getElementById('kpiLastScan');
-    if (kpiScan) kpiScan.textContent = timeAgo(lastScan) || 'sin datos';
-  }).catch(() => {});
+  // Restore last active view on refresh
+  const savedView = localStorage.getItem('dash-active-view');
+  if (savedView) {
+    const btn = document.querySelector(`.sb-item[onclick*="'${savedView}'"]`);
+    if (btn && document.getElementById('view-' + savedView)) {
+      switchView(savedView, btn);
+    }
+  }
 });
 
 // ── PWA ──

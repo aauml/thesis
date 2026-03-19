@@ -89,11 +89,27 @@ _Registro técnico del proyecto phd-pm. Actualizar al cierre de cada sesión. Al
 | PM-SessionLog | v5 | Esta entrada |
 | KB Queries tab | Q120-Q124 | 5 nuevos queries |
 
+**Cambios adicionales (misma sesión, continuación):**
+- **Dashboard v8.1:** 25 lecturas con links verificados (7 URLs corregidos). Vista Progreso eliminada, timeline integrado en Plan Lecturas.
+- **SKILL-PM v6:** Nuevo §16 (Plan de Lecturas — protocolo operativo), §14 actualizado, version bump.
+- **PM-LessonsLog:** PR-017 (sweep protocol 3 niveles).
+- **Scheduled task `monthly-kb-reading-sweep`:** Corre 1ro de cada mes 9am. Ejecuta Level 2 sweep completo.
+
+**Componentes actualizados (adicionales):**
+
+| Componente | Versión | Cambio |
+|-----------|---------|--------|
+| Dashboard | v8.1 | Links verificados, Progreso eliminado |
+| SKILL-PM | v6 | §16 reading plan protocol |
+| PM-LessonsLog | — | PR-017 |
+| Scheduled task | monthly-kb-reading-sweep | Nivel 2 mensual |
+
 **Pendiente para próxima sesión:**
 - Agregar al KB las fuentes encontradas en búsqueda web: Instrucción CGPJ 2/2026, R.D. 729/2023, Adan Domènech (2026), U.S. v. Ortiz, GAO-23-105139 PATTERN, propuesta FRE 707
 - Hacer primer sweep con los queries nuevos (Q120-Q124)
 - Evaluar las 67 MEDIA candidatas a upgrade ALTA
 - Montar vault Obsidian (PR-014) y verificar estado de fichas
+- **Run now** del scheduled task `monthly-kb-reading-sweep` para pre-aprobar permisos
 
 ---
 

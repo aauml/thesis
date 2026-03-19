@@ -120,13 +120,38 @@ These are hard rules derived from past bugs. Violating any of these means repeat
 - **Derived from:** Sesión 2026-03-18. Analysis of director's specialty (Bueno de Mata, catedrático D. Procesal).
 - **Rule:** The procedural law angle must appear in: C2 (pilar teórico), C3 (Art. 14 supervisión humana → admissibility), C5 (comparative: does NIST have contestability equivalent?), C6 (case: Daubert/Frye challenges), C7 (conclusions: procedural gaps). When reviewing readings or producing content, always ask: "¿dónde está el ángulo procesal?"
 
+### PR-017 — Reading plan sweep protocol: 3 levels
+- **Derived from:** Sesión 2026-03-18. User asked how the PM will ensure nothing slips through.
+- **Architecture:** Scheduled task `monthly-kb-reading-sweep` runs 1st of each month at 9am. Interactive sessions do Level 1 check. User can request Level 2/3 anytime.
+- **Level 1 — Quick check (EVERY PM session, part of Session Startup Protocol):**
+  1. `getStats` → compare totals with last SessionLog entry
+  2. If new entries: evaluate relevance to current quarter's readings
+  3. Check: what month are we in? What should user be reading NOW per the plan?
+  4. Report: "KB has X new entries since last session. Y relevant. Current reading: [title]. Gaps: [status]."
+- **Level 2 — Monthly sweep (scheduled task + on demand):**
+  1. Full `getAll` (ALTA + MEDIA) download and analysis
+  2. MEDIA→ALTA evaluation for key authors (Kaminski, Bradford, Veale, Wachter, Hildebrandt, Wexler, Selbst, Pasquale, Yeung, Hacker, Finck, Buckleton, Bueno de Mata)
+  3. Gap check: Cap. 4 NIST (<60 = critical), PATTERN case, Spanish procedural law, Equity criterion
+  4. Query health: Q120-Q124 producing? Need reformulation?
+  5. Web search for new publications by top authors + regulatory updates
+  6. Update dashboard reading plan + gap tracker if changes found
+  7. Add new sources to KB, add new queries if gaps persist
+- **Level 3 — Quarterly review (at each C# transition in the plan):**
+  1. Everything from Level 2
+  2. Did user complete N1 readings of previous quarter? (check Obsidian fichas)
+  3. Adjust next quarter's readings based on actual progress
+  4. Recalculate bibliography projection
+  5. Verify procedural law thread (PR-016) present in upcoming quarter
+  6. Recommend level changes (N2→N1 if source proved more important than expected)
+- **Key principle:** The KB is the memory. The dashboard is the interface. The scheduled task is the trigger. The SessionLog tracks state between sessions. None of these can be skipped.
+
 ---
 
 ## Session History
 
 | Date | Session Type | Key Actions | Lessons Added |
 |------|-------------|-------------|---------------|
-| 2026-03-18 | reading-plan | KB analysis (1468 entries), Plan de Lecturas in Dashboard v8.0, 5 queries added (Q120-Q124), gap analysis, non-text resources | PR-015, PR-016 |
+| 2026-03-18 | reading-plan | KB analysis (1468 entries), Plan de Lecturas in Dashboard v8.1, 5 queries (Q120-Q124), sweep protocol, SKILL-PM v6, scheduled task | PR-015, PR-016, PR-017 |
 | 2026-03-17 | restructuring | Dashboard v6.1, vault files, iCloud cleanup, Operativo standalone, KPIs dinámicos, session log | PR-013, PR-014 |
 | 2026-03-15 | automation | Dashboard v5.0 live API fetch + scheduled daily queue review task | PR-011 |
 | 2026-03-15 | queue-empty | 370 items processed, 3 queues → 0, NewsResults ID bug found | PR-009, PR-010 |
@@ -138,4 +163,4 @@ These are hard rules derived from past bugs. Violating any of these means repeat
 
 ---
 
-_Última actualización: 2026-03-18 (sesión reading-plan)_
+_Última actualización: 2026-03-18 (sesión reading-plan, cont.)_

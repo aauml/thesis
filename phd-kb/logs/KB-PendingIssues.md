@@ -86,20 +86,19 @@ _Actualizar al cierre de cada sesión. Este archivo es la memoria técnica del s
 - **Fecha fix preparado:** 2026-03-15
 
 ### TASK-006 — Integrar Supabase como destino de escritura post-evaluación
-- **Estado:** En progreso (fase 2 de 4)
-- **Descripción:** Proyecto Supabase `phd-kb` creado (ID: `wtwuvrtmadnlezkbesqp`, región: us-west-1, org: ademas.ai). Tabla `evaluated_items` con 27 columnas: 21 NewsLog + `embedding` (pgvector 384d, gte-small), `source_pipeline`, `migrated_from_sheet`, `pk` (UUID), `created_at`, `updated_at`. Índices: ivfflat para búsqueda semántica, btree para importance/capa/tier/action_tag/folder/run_id/created_at. Constraint `unique_url` para dedup. RLS habilitado con políticas open para anon key. Función `search_evaluated_items` para búsqueda semántica.
+- **Estado:** Operativo (fase 3 de 4)
+- **Descripción:** Supabase es ahora el **destino primario** de items evaluados. NewsLog recibe solo filas de verificación (title, url, importance, source_pipeline, notes="✓ Supabase"). Datos completos solo en Supabase.
 - **Progreso:**
   1. ✅ Tabla creada, RLS configurado, función de búsqueda semántica creada
   2. ✅ Backfill completado: 1,489 items migrados desde NewsLog
-  3. ✅ SKILL-KB-v15 actualizado con dual-write protocol
+  3. ✅ SKILL-KB-v16: Supabase-only con batch writes (~20 items) + verification log en Sheet
   4. ✅ Edge function `generate-embeddings` desplegada (gte-small, 384d)
-  5. ✅ Embeddings: ~634+ generados, resto en proceso
+  5. ✅ Embeddings: 1,489/1,489 completados
   6. ✅ SKILL-PM-v7 actualizado con Supabase en §8 y §12
+  7. ✅ Dashboard: indicador Supabase live en KB Report + decisión actualizada
 - **Próximos pasos:**
-  1. Completar generación de embeddings para los ~855 items restantes
-  2. Verificar búsqueda semántica end-to-end
-  3. Primera sesión `update` con dual-write activo (Sheet + Supabase)
-  4. Eventualmente modificar WebApp para que Apps Script escriba directo a Supabase post-evaluación
+  1. Primera sesión `update` con protocolo v16 (Supabase-primary + verification log)
+  2. Eventualmente modificar WebApp para que Apps Script escriba directo a Supabase post-evaluación
 - **Coordinación:** Decisión compartida KB ↔ PM. PM registra en Dashboard y actualiza §12 (infraestructura).
 - **Prioridad:** Media — no bloquea operaciones actuales, pero habilita búsqueda semántica sobre corpus curado
 - **Fecha creado:** 2026-03-19
@@ -136,6 +135,6 @@ _Actualizar al cierre de cada sesión. Este archivo es la memoria técnica del s
 - **Prioridad 5:** Resolver BUG-001 (84 stuck en PerplexityQueue) — script Python de limpieza
 - **Prioridad 6:** TASK-001 — limpiar 3 entradas TEST en NewsLog
 - **Prioridad 7:** TASK-008 — Update Colorado AI Act entries with new June 30 enforcement date
-- **Prioridad 8:** TASK-006 — Completar embeddings (~855 restantes), verificar semantic search, primera sesión con dual-write activo
+- **Prioridad 8:** TASK-006 — Primera sesión `update` con SKILL-KB-v16 (Supabase-primary + verification log)
 
 _Última actualización: 2026-03-19_

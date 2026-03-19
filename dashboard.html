@@ -702,39 +702,10 @@
       <div id="advisorContainer"></div>
 
 
-      <!-- Actividad actual — sincronizado con Plan de Lecturas §16 -->
-      <div class="section-label">Actividad actual <span style="font-weight:400; text-transform:none; letter-spacing:0; font-size:0.65rem;">· C1 Mar–Abr 2026 · <a href="#" onclick="switchView('lecturas', document.querySelectorAll('.sb-item')[4]); return false;" style="color:var(--accent-mid);">ver plan completo</a></span></div>
+      <!-- Actividad actual — dynamic from reading_plan (en_curso + siguiente) -->
+      <div class="section-label">Actividad actual <span style="font-weight:400; text-transform:none; letter-spacing:0; font-size:0.65rem;">· <a href="#" onclick="switchView('lecturas', document.querySelectorAll('.sb-item')[4]); return false;" style="color:var(--accent-mid);">ver plan completo</a></span></div>
       <div id="actividadActual">
-        <div class="act-item act-inprogress">
-          <div class="act-header">
-            <span class="act-status-tag status-inprogress">En curso</span>
-            <strong><a href="https://www.bu.edu/bulawreview/files/2023/11/KAMINSKI.pdf" target="_blank">Kaminski (2023) — «Regulating the Risks of AI»</a></strong> <span style="font-size:0.6rem; color:var(--accent-mid);">N1</span>
-          </div>
-          <div class="act-detail">
-            Ficha: <code>ficha-Kaminski2023.md</code> — pendiente de escritura<br>
-            <span class="act-criteria">Lente: regulación basada en riesgo, crítica al enfoque sectorial de EE.UU. Conectar con Art. 9 RIA.</span>
-          </div>
-        </div>
-        <div class="act-item act-pending">
-          <div class="act-header">
-            <span class="act-status-tag status-assigned">En paralelo</span>
-            <strong><a href="https://www.nist.gov/itl/ai-risk-management-framework/nist-ai-rmf-playbook" target="_blank">NIST AI RMF Playbook</a></strong> <span style="font-size:0.6rem; color:var(--accent-mid);">N3</span>
-          </div>
-          <div class="act-detail">
-            Recurso web interactivo del NIST: contrastar enfoque prescriptivo (RIA) vs. voluntario (NIST) mientras lees Kaminski.<br>
-            <span class="act-criteria">Criterio: articular las 4 funciones NIST (GOVERN/MAP/MEASURE/MANAGE) en palabras propias.</span>
-          </div>
-        </div>
-        <div class="act-item act-pending">
-          <div class="act-header">
-            <span class="act-status-tag status-assigned">Siguiente</span>
-            <strong><a href="https://global.oup.com/academic/product/the-brussels-effect-9780190088583" target="_blank">Bradford (2020) — «The Brussels Effect» caps. 1–3</a></strong> <span style="font-size:0.6rem; color:var(--accent-mid);">N1</span>
-          </div>
-          <div class="act-detail">
-            Ficha: <code>ficha-Bradford2020.md</code> — pendiente de creación<br>
-            <span class="act-criteria">Lente: mecanismo de transmisión regulatoria y si el AI Act replica el patrón. → Cap. 2</span>
-          </div>
-        </div>
+        <div style="color:var(--text-muted); font-size:0.72rem; padding:0.5rem;">Cargando actividad actual...</div>
       </div>
 
       <!-- Desarrollos clave — persistent, curated -->
@@ -761,44 +732,10 @@
         <div class="news-item"><span class="news-date"><span class="news-tag tag-acad">Acad.</span></span><div><strong>Ningún sistema DOJ tiene AI Impact Assessment publicado</strong> pese a requisitos OMB — hallazgo clave para Cap. 6. Refuerza supuesto epistemológico: cumplimiento documentable ≠ cumplimiento real.</div></div>
       </div>
 
-      <!-- Interpretación PM — analytical layer -->
+      <!-- Interpretación PM — dynamic from pm_advisories -->
       <div class="section-label">Interpretación del Director</div>
-      <div class="card" style="border-left: 3px solid var(--warn-border); background: linear-gradient(135deg, var(--bg-card) 0%, rgba(255,193,7,0.03) 100%);">
-        <div style="font-size:0.72rem; color:var(--text-muted); margin-bottom:0.5rem;">Análisis y recomendaciones del PM basadas en los desarrollos recientes y el estado del KB. <em>Actualizado: 19 mar 2026.</em></div>
-
-        <div class="news-item" style="padding-bottom:0.5rem; border-bottom:1px solid var(--border);">
-          <span class="news-date" style="min-width:2rem;">📊</span>
-          <div>
-            <strong>Lectura del momento regulatorio:</strong> Estamos ante una convergencia paradójica. Trump empuja preempción federal (framework único US) al mismo tiempo que la UE retrasa implementación con el Digital Omnibus. Resultado neto: la ventana para argumentar interoperabilidad NIST↔RIA se <em>fortalece</em>. Un interlocutor federal US consolidado + plazos EU más flexibles = más tiempo y un target más claro para el puente.
-          </div>
-        </div>
-
-        <div class="news-item" style="padding-bottom:0.5rem; border-bottom:1px solid var(--border);">
-          <span class="news-date" style="min-width:2rem;">📖</span>
-          <div>
-            <strong>Lecturas prioritarias ajustadas:</strong>
-            <ol style="margin:0.3rem 0 0 1.2rem; font-size:0.72rem; line-height:1.5;">
-              <li><strong>Kaminski &amp; Selbst (2025)</strong> "An American's Guide to the EU AI Act" — <em>URGENTE.</em> Es exactamente el puente comparativo que hace la tesis. Leer antes que Bradford.</li>
-              <li><strong>Stoltz (2025)</strong> "The Road to Compliance: Executive Federal Agencies and the NIST Risk Management Framework" — evidencia empírica de adopción NIST en agencias federales.</li>
-              <li><strong>Kaminski (2023)</strong> "Regulating the Risks of AI" — EN CURSO, seguir.</li>
-              <li><strong>Bradford (2020)</strong> caps. 1-3 — replanificar para después de Kaminski &amp; Selbst.</li>
-            </ol>
-          </div>
-        </div>
-
-        <div class="news-item" style="padding-bottom:0.5rem; border-bottom:1px solid var(--border);">
-          <span class="news-date" style="min-width:2rem;">⚠️</span>
-          <div>
-            <strong>Vigilancia activa:</strong> El Trump EO de preempción es un draft — monitorear si se convierte en legislación (AMERICA AI Act). Si pasa, el Cap. 5 necesita una sección nueva sobre preempción federal como condición habilitante de interoperabilidad. El Digital Omnibus entra en trílogos — los plazos finales impactan el timeline del Cap. 3.
-          </div>
-        </div>
-
-        <div class="news-item">
-          <span class="news-date" style="min-width:2rem;">🔍</span>
-          <div>
-            <strong>Gap crítico detectado:</strong> Derecho procesal español (4 items ALTA vs. 15 necesarios). Ninguna fuente nueva ha entrado en el pipeline. Considerar búsqueda manual en Dialnet/CENDOJ para prueba electrónica + IA en el proceso penal español. Sin esto, el Cap. 2 §2.3 queda débil.
-          </div>
-        </div>
+      <div id="advisoriesContainer">
+        <div style="color:var(--text-muted); font-size:0.72rem; padding:0.5rem;">Cargando advisories del PM...</div>
       </div>
 
       <!-- Novedades recientes — dynamic from Supabase (ALTA items) -->
@@ -1066,7 +1003,7 @@
     <div class="view" id="view-lecturas">
 
       <h2>Plan de Lecturas Doctoral</h2>
-      <div style="font-size:0.72rem; color:var(--text-muted); margin-bottom:0.4rem;">Basado en análisis del KB (1,490 entradas, 443 ALTA). Se actualiza con cada sweep del corpus. <strong>Última revisión: 18 marzo 2026 (sweep mensual).</strong></div>
+      <div style="font-size:0.72rem; color:var(--text-muted); margin-bottom:0.4rem;">Basado en análisis del KB. Se actualiza con cada sweep del corpus y decisiones del PM. <strong id="planStats">Cargando desde Supabase...</strong></div>
 
       <!-- Nivel legend -->
       <div class="lec-legend">
@@ -1089,16 +1026,16 @@
         </div>
       </details>
 
-      <!-- ── YEAR TABS ── -->
-      <div class="lec-year-tabs">
-        <button class="lec-ytab active" onclick="showLecYear('y0',this)">Año 0 (2026)</button>
-        <button class="lec-ytab" onclick="showLecYear('y1',this)">Año 1 (2027)</button>
-        <button class="lec-ytab" onclick="showLecYear('y2',this)">Año 2 (2028)</button>
-        <button class="lec-ytab" onclick="showLecYear('y34',this)">Años 3-4</button>
+      <!-- ── DYNAMIC READING PLAN ── -->
+      <div id="readingPlanDynamic">
+        <div style="color:var(--text-muted); font-size:0.72rem; padding:0.5rem;">Cargando plan de lecturas desde Supabase...</div>
       </div>
 
-      <!-- ═══════════════ AÑO 0 (2026) ═══════════════ -->
-      <div class="lec-year active" id="lec-y0">
+      <!-- Hardcoded years removed — now loaded dynamically from Supabase reading_plan table -->
+      <!-- See fetchReadingPlan() in JS -->
+      <!-- Keeping gap tracker and bibliography below as static reference -->
+      <div style="display:none;"><!-- START REMOVED STATIC PLAN -->
+      <div class="lec-year active" id="lec-y0-static">
         <div class="lec-year-header">
           <h3>Año 0 — Orientación</h3>
           <span class="lec-year-meta">Objetivo: familiarización con los pilares teóricos. Producto: fichas de comprensión propia en Obsidian.</span>
@@ -1312,6 +1249,7 @@
           </div>
         </div>
       </div>
+      </div><!-- END REMOVED STATIC PLAN -->
 
       <!-- ── GAP TRACKER ── -->
       <div class="lec-gaps">
@@ -1719,7 +1657,7 @@ async function fetchPipelineStatus() {
 }
 
 // ═══════════════════════════════════════
-// NOVEDADES RECIENTES — from Supabase (ALTA items, expandable analysis)
+// NOVEDADES RECIENTES — from Supabase (ALTA items, 7-day window)
 // ═══════════════════════════════════════
 async function fetchRecentNews() {
   const container = document.getElementById('recentNewsContainer');
@@ -1747,10 +1685,7 @@ async function fetchRecentNews() {
       ? `<a href="${row.url}" target="_blank" rel="noopener">${star}${title}</a>`
       : `${star}${title}`;
 
-    // Expandable thesis_relevance (first paragraph as preview)
     const relevance = row.thesis_relevance || '';
-    const firstPara = relevance.split('\n\n')[0] || '';
-    const hasMore = relevance.length > firstPara.length + 10;
     const analysisHtml = relevance
       ? `<details class="news-analysis" style="margin-top:0.3rem;">
           <summary style="cursor:pointer; font-size:0.7rem; color:var(--accent-mid);">Análisis PM ▸</summary>
@@ -1767,9 +1702,8 @@ async function fetchRecentNews() {
   }
 
   try {
-    // Fetch recent ALTA items from Supabase (last 30, most recent first)
     const rows = await supabaseQuery(
-      'evaluated_items?select=title,url,importance,capa,thesis_relevance,created_at&importance=eq.ALTA&order=created_at.desc&limit=30'
+      'evaluated_items?select=title,url,importance,capa,thesis_relevance,created_at&importance=eq.ALTA&order=created_at.desc&limit=50'
     );
 
     if (!rows || rows.length === 0) {
@@ -1777,41 +1711,268 @@ async function fetchRecentNews() {
       return;
     }
 
-    // Show top 8 with expandable analysis, rest collapsible
-    const top = rows.slice(0, 8);
-    const rest = rows.slice(8);
+    // Split by 7-day window
+    const now = new Date();
+    const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+    const recent = rows.filter(r => new Date(r.created_at) >= sevenDaysAgo);
+    const older = rows.filter(r => new Date(r.created_at) < sevenDaysAgo);
 
     let html = '<div class="card">';
-    html += '<div style="font-size:0.68rem; font-weight:600; color:var(--accent); margin-bottom:0.3rem;">Últimas incorporaciones ALTA · desde Supabase</div>';
-    html += top.map(renderNewsItem).join('');
+    if (recent.length > 0) {
+      html += '<div style="font-size:0.68rem; font-weight:600; color:var(--accent); margin-bottom:0.3rem;">Últimos 7 días · ' + recent.length + ' items ALTA</div>';
+      html += recent.map(renderNewsItem).join('');
+    } else {
+      html += '<div style="font-size:0.72rem; color:var(--text-muted); padding:0.3rem 0;">Sin entradas nuevas en los últimos 7 días.</div>';
+    }
     html += '</div>';
 
-    if (rest.length > 0) {
+    if (older.length > 0) {
       html += `<details class="news-expand">
         <summary style="cursor:pointer; font-size:0.75rem; font-weight:600; color:var(--accent-mid); padding:0.4rem 0; user-select:none;">
-          Ver más · ${rest.length} entradas anteriores ▸
+          Ver anteriores · ${older.length} entradas ▸
         </summary>
         <div class="card" style="margin-top:0.3rem;">
-          ${rest.map(renderNewsItem).join('')}
+          ${older.map(renderNewsItem).join('')}
         </div>
       </details>`;
     }
 
     container.innerHTML = html;
 
-    // Toggle arrow on expand
     const details = container.querySelector('details.news-expand');
     if (details) {
       details.addEventListener('toggle', function() {
         const sum = this.querySelector('summary');
         if (sum) sum.textContent = this.open
-          ? `Ocultar · ${rest.length} entradas anteriores ▾`
-          : `Ver más · ${rest.length} entradas anteriores ▸`;
+          ? `Ocultar · ${older.length} entradas anteriores ▾`
+          : `Ver anteriores · ${older.length} entradas ▸`;
       });
     }
 
   } catch(e) {
     container.innerHTML = '<div style="color:var(--text-muted); font-size:0.78rem; padding:0.5rem;">No se pudo cargar noticias — API no disponible.</div>';
+  }
+}
+
+// ═══════════════════════════════════════
+// PM ADVISORIES — from Supabase pm_advisories table
+// ═══════════════════════════════════════
+async function fetchAdvisories() {
+  const container = document.getElementById('advisoriesContainer');
+  if (!container) return;
+
+  const iconMap = {
+    'regulatory_interpretation': '📊',
+    'reading_added': '📖',
+    'gap_alert': '🔍',
+    'plan_change': '🔄',
+    'weekly_review': '📋'
+  };
+
+  try {
+    const rows = await supabaseQuery(
+      'pm_advisories?select=*&status=eq.active&order=priority.asc,created_at.desc'
+    );
+
+    if (!rows || rows.length === 0) {
+      container.innerHTML = '<div class="card" style="border-left:3px solid var(--warn-border);"><div style="font-size:0.72rem; color:var(--text-muted);">Sin advisories activos. El PM no ha detectado cambios que requieran acción.</div></div>';
+      return;
+    }
+
+    let html = '<div class="card" style="border-left: 3px solid var(--warn-border); background: linear-gradient(135deg, var(--bg-card) 0%, rgba(255,193,7,0.03) 100%);">';
+    html += '<div style="font-size:0.72rem; color:var(--text-muted); margin-bottom:0.5rem;">Análisis y recomendaciones del PM basadas en desarrollos recientes y estado del KB. <em>Fuente: Supabase (live).</em></div>';
+
+    rows.forEach((r, i) => {
+      const icon = iconMap[r.type] || '📌';
+      const border = i < rows.length - 1 ? 'border-bottom:1px solid var(--border);' : '';
+      const priorityTag = r.priority === 'high' ? ' <span style="font-size:0.6rem; color:var(--warn-text); font-weight:600;">ALTA</span>' : '';
+
+      // Render content — support newlines and numbered lists
+      const contentHtml = r.content.split('\n').map(line => {
+        if (line.match(/^\d+\.\s/)) {
+          return '<div style="margin-left:1.2rem; margin-bottom:0.15rem;">' + line + '</div>';
+        }
+        return line ? '<p style="margin:0 0 0.3rem 0;">' + line + '</p>' : '';
+      }).join('');
+
+      html += `<div class="news-item" style="padding-bottom:0.5rem; ${border}">
+        <span class="news-date" style="min-width:2rem;">${icon}</span>
+        <div>
+          <strong>${r.title}</strong>${priorityTag}
+          <div style="font-size:0.72rem; color:var(--text-secondary); margin-top:0.2rem; line-height:1.5;">
+            ${contentHtml}
+          </div>
+          <div style="font-size:0.6rem; color:var(--text-muted); margin-top:0.2rem;">${new Date(r.created_at).toLocaleDateString('es-ES', { day:'numeric', month:'short', year:'numeric' })}</div>
+        </div>
+      </div>`;
+    });
+
+    html += '</div>';
+    container.innerHTML = html;
+
+  } catch(e) {
+    container.innerHTML = '<div style="color:var(--text-muted); font-size:0.78rem;">No se pudo cargar advisories del PM.</div>';
+  }
+}
+
+// ═══════════════════════════════════════
+// ACTIVIDAD ACTUAL — from reading_plan (en_curso + siguiente)
+// ═══════════════════════════════════════
+async function fetchActividadActual() {
+  const container = document.getElementById('actividadActual');
+  if (!container) return;
+
+  const statusMap = {
+    'en_curso': { label: 'En curso', cls: 'status-inprogress', itemCls: 'act-inprogress' },
+    'siguiente': { label: 'Siguiente', cls: 'status-assigned', itemCls: 'act-pending' },
+  };
+
+  try {
+    const rows = await supabaseQuery(
+      'reading_plan?select=*&or=(status.eq.en_curso,status.eq.siguiente)&order=position.asc'
+    );
+
+    if (!rows || rows.length === 0) {
+      container.innerHTML = '<div style="color:var(--text-muted); font-size:0.72rem;">Sin lecturas activas.</div>';
+      return;
+    }
+
+    let html = '';
+    rows.forEach(r => {
+      const sm = statusMap[r.status] || statusMap['siguiente'];
+      const urlHtml = r.url ? `<a href="${r.url}" target="_blank">${r.title}</a>` : r.title;
+      html += `<div class="act-item ${sm.itemCls}">
+        <div class="act-header">
+          <span class="act-status-tag ${sm.cls}">${sm.label}</span>
+          <strong>${urlHtml}</strong> <span style="font-size:0.6rem; color:var(--accent-mid);">${r.level}</span>
+        </div>
+        <div class="act-detail">
+          ${r.notes ? r.notes + '<br>' : ''}
+          ${r.lens ? '<span class="act-criteria">Lente: ' + r.lens + '</span>' : ''}
+          ${r.chapters ? '<br><span class="lec-chapter">→ ' + r.chapters + '</span>' : ''}
+        </div>
+      </div>`;
+    });
+
+    container.innerHTML = html;
+
+  } catch(e) {
+    // Keep existing static content as fallback
+    console.warn('fetchActividadActual error:', e);
+  }
+}
+
+// ═══════════════════════════════════════
+// PLAN DE LECTURAS — from reading_plan table
+// ═══════════════════════════════════════
+async function fetchReadingPlan() {
+  const planContainer = document.getElementById('readingPlanDynamic');
+  if (!planContainer) return;
+
+  const yearLabels = {
+    0: { title: 'Año 0 — Orientación', meta: 'Objetivo: familiarización con los pilares teóricos. Producto: fichas de comprensión propia en Obsidian.', id: 'y0' },
+    1: { title: 'Año 1 — Marco teórico y revisión de literatura', meta: 'Se pasa de orientación a producción. Cada lectura N1 genera ficha de 1-2 pp. que alimenta directamente la redacción.', id: 'y1' },
+    2: { title: 'Año 2 — Instrumentos y caso de estudio', meta: 'Lecturas N1 disminuyen. Foco en construcción de instrumentos (matriz, protocolo) y aplicación al caso. N2 y N3 dominan.', id: 'y2' },
+    3: { title: 'Años 3-4 — Redacción e integración', meta: 'Lecturas N1 excepcionales — solo para fuentes nuevas de alto impacto. Redacción, revisión con el director, y actualización normativa.', id: 'y34' },
+  };
+
+  const quarterLabels = {
+    'C1': { tag: 'C1 · Ene – Abr 2026', title: 'Pilares fundamentales' },
+    'C2': { tag: 'C2 · May – Ago 2026', title: 'Marcos normativos + eje procesal' },
+    'C3': { tag: 'C3 · Sep – Dic 2026', title: 'Derecho procesal y contestabilidad + caso exploratorio' },
+    'C4': { tag: 'C4 · Ene – Abr 2027', title: 'Gobernanza IA comparada + Regulación responsiva' },
+    'C5': { tag: 'C5 · May – Ago 2027', title: 'Análisis normativo RIA + NIST profundo' },
+    'C6': { tag: 'C6 · Sep – Dic 2027', title: 'Contestabilidad profunda + preparación caso' },
+    'C7': { tag: 'C7 · Ene – Abr 2028', title: 'Construcción de la matriz de correspondencia' },
+    'C8': { tag: 'C8 · May – Ago 2028', title: 'Protocolo de documentación + aplicación al caso' },
+    'C9': { tag: 'C9 · Sep – Dic 2028', title: 'Refinamiento y análisis' },
+  };
+
+  const levelClasses = { 'N1': 'lec-n1', 'N2': 'lec-n2', 'N3': 'lec-n3', 'N4': 'lec-n4', 'NR': 'lec-nr' };
+  const statusLabels = {
+    'en_curso': '<span class="lec-status lec-st-progress">EN CURSO</span>',
+    'siguiente': '<span class="lec-status lec-st-progress">SIGUIENTE</span>',
+    'completado': '<span class="lec-status" style="background:#d4edda; color:#155724;">COMPLETADO</span>',
+  };
+
+  try {
+    const rows = await supabaseQuery('reading_plan?select=*&order=target_year.asc,target_quarter.asc,position.asc');
+    if (!rows || rows.length === 0) {
+      planContainer.innerHTML = '<div style="color:var(--text-muted);">No hay lecturas en el plan.</div>';
+      return;
+    }
+
+    // Group by year then quarter
+    const grouped = {};
+    rows.forEach(r => {
+      const y = r.target_year >= 3 ? 3 : r.target_year;
+      if (!grouped[y]) grouped[y] = {};
+      if (!grouped[y][r.target_quarter]) grouped[y][r.target_quarter] = [];
+      grouped[y][r.target_quarter].push(r);
+    });
+
+    // Build year tabs
+    let tabsHtml = '<div class="lec-year-tabs">';
+    Object.keys(yearLabels).forEach(y => {
+      const yi = parseInt(y);
+      if (!grouped[yi]) return;
+      const active = yi === 0 ? ' active' : '';
+      tabsHtml += `<button class="lec-ytab${active}" onclick="showLecYear('${yearLabels[yi].id}',this)">${yearLabels[yi].title.split('—')[0].trim()} (${yi < 3 ? 2026 + yi : '2029+'})</button>`;
+    });
+    tabsHtml += '</div>';
+
+    // Build year content
+    let yearsHtml = '';
+    Object.keys(yearLabels).forEach(y => {
+      const yi = parseInt(y);
+      if (!grouped[yi]) return;
+      const active = yi === 0 ? ' active' : '';
+      const yl = yearLabels[yi];
+
+      yearsHtml += `<div class="lec-year${active}" id="lec-${yl.id}">
+        <div class="lec-year-header"><h3>${yl.title}</h3><span class="lec-year-meta">${yl.meta}</span></div>`;
+
+      Object.keys(grouped[yi]).sort().forEach(q => {
+        const ql = quarterLabels[q] || { tag: q, title: '' };
+        const items = grouped[yi][q];
+
+        yearsHtml += `<div class="lec-q">
+          <div class="lec-q-header"><span class="lec-q-tag">${ql.tag}</span><span class="lec-q-title">${ql.title}</span></div>`;
+
+        items.forEach(r => {
+          const lvlCls = levelClasses[r.level] || 'lec-n3';
+          const lvlLabel = r.level === 'NR' ? '🎧' : r.level;
+          const statusHtml = statusLabels[r.status] || '';
+          const urlHtml = r.url ? `<a href="${r.url}" target="_blank">${r.title}</a>` : r.title;
+          const sourceTag = r.source === 'pm_advisory' ? ' <span style="font-size:0.55rem; background:var(--warn-bg); color:var(--warn-text); padding:0.1rem 0.3rem; border-radius:3px;">PM</span>' : '';
+
+          yearsHtml += `<div class="lec-item"><span class="lec-lvl ${lvlCls}">${lvlLabel}</span><div>
+            <strong>${urlHtml}</strong> ${statusHtml}${sourceTag}
+            ${r.lens ? ' — <em>' + r.lens + '</em>' : ''}
+            ${r.chapters ? '<br><span class="lec-chapter">→ ' + r.chapters + '</span>' : ''}
+          </div></div>`;
+        });
+
+        yearsHtml += '</div>';
+      });
+
+      yearsHtml += '</div>';
+    });
+
+    planContainer.innerHTML = tabsHtml + yearsHtml;
+
+    // Stats
+    const totalReadings = rows.length;
+    const byLevel = {};
+    rows.forEach(r => { byLevel[r.level] = (byLevel[r.level] || 0) + 1; });
+    const statsEl = document.getElementById('planStats');
+    if (statsEl) {
+      statsEl.textContent = `${totalReadings} lecturas · N1: ${byLevel['N1']||0} · N2: ${byLevel['N2']||0} · N3: ${byLevel['N3']||0} · N4: ${byLevel['N4']||0} · 🎧: ${byLevel['NR']||0} · Fuente: Supabase (live)`;
+    }
+
+  } catch(e) {
+    planContainer.innerHTML = '<div style="color:var(--text-muted);">Error cargando plan de lecturas.</div>';
+    console.warn('fetchReadingPlan error:', e);
   }
 }
 
@@ -2139,9 +2300,12 @@ document.addEventListener('DOMContentLoaded', () => {
   renderOps();
   updateOpsBadge();
   fetchPipelineStatus(); // Live queue status on every page load
-  fetchRecentNews(); // Dynamic news from NewsLog
+  fetchRecentNews(); // Dynamic news from Supabase (7-day window)
   fetchKbStats(); // KB stats + gaps from Supabase (primary)
   fetchSupabaseStatus(); // Supabase connectivity + embedding count
+  fetchAdvisories(); // PM advisories from Supabase
+  fetchActividadActual(); // Current readings from reading_plan
+  fetchReadingPlan(); // Full reading plan from Supabase
 
   // Restore last active view on refresh
   const savedView = localStorage.getItem('dash-active-view');

@@ -70,7 +70,7 @@ These are hard rules derived from past bugs. Violating any of these means repeat
 | 2026-03-13 | update perplexity | 198 items processed, BUG-003 discovered | PR-003, PR-004, PR-005 |
 | 2026-03-15 | update academic | 200 items processed (24 promoted, 156 discarded), ArXiv_v2.gs created | PR-001, PR-002, PR-006, PR-007 |
 | 2026-03-15 | infrastructure | Migrated all files from Drive to GitHub repo, created folder structure, SKILL-KB-v13 | PR-008 |
-| 2026-03-19 | infrastructure | Supabase proyecto phd-kb creado. Tabla evaluated_items (21 cols NewsLog + pgvector + metadata). Decisión arquitectónica KB ↔ PM: Sheets = control plane + staging, Supabase = almacén evaluado. | — |
+| 2026-03-19 | infrastructure | Supabase proyecto phd-kb creado. Tabla evaluated_items (21 cols + pgvector 384d + metadata). Backfill 1,489 items. Edge function generate-embeddings desplegada (gte-small). RLS + search_evaluated_items. SKILL-KB-v15 dual-write. SKILL-PM-v7 con Supabase en §8/§12. | — |
 
 ---
 

@@ -106,8 +106,8 @@ _Actualizar al cierre de cada sesión. Este archivo es la memoria técnica del s
 ---
 
 ### TASK-007 — Análisis detallado del TRUMP AMERICA AI Act (discussion draft)
-- **Estado:** Pendiente
-- **Descripción:** Sen. Blackburn publicó el discussion draft (~300 páginas) el 2026-03-19. Requiere análisis detallado de: (1) provisiones NIST/risk management, (2) alcance de preemption federal, (3) duty of care vs EU AI Act obligations, (4) implicaciones para interoperabilidad tesis. Mapear contra Arts. 9-15 y funciones MAP/MEASURE/MANAGE/GOVERN.
+- **Estado:** ✅ Completado 2026-03-19
+- **Descripción:** Análisis de mapeo producido: 10 provisiones del bill mapeadas contra Arts. 9-15 RIA y funciones NIST RMF. Documento en `phd-pm/docs/TASK007_TRUMP_AI_Act_Analisis.docx`. Hallazgos: 4 coincidencias sustanciales, 2 complementos, 2 coincidencias parciales, 2 diferencias. Rol NIST/CAISI legislativamente mandatado es el hallazgo más relevante. Texto completo (~300 pp) pendiente de análisis línea por línea.
 - **Impacto:** ALTO — evento de monitoreo crítico para la tesis. Si se promulga, transforma el argumento de interoperabilidad.
 - **Prioridad:** URGENTE
 - **Fecha detectado:** 2026-03-19
@@ -125,8 +125,8 @@ _Actualizar al cierre de cada sesión. Este archivo es la memoria técnica del s
 - **Fecha detectado:** 2026-03-19
 
 ### TASK-010 — Backfill run 210 items to Supabase + update meta
-- **Estado:** Pendiente
-- **Descripción:** 5 items from run 2026-03-19-210 written to Sheet with `notes="supabase_write_failed"` because Supabase was unreachable (DNS cache overflow). Need to: (1) write these 5 items to Supabase, (2) update Sheet meta `total_searches=210`, (3) clear `supabase_write_failed` from notes.
+- **Estado:** ✅ Completado 2026-03-19
+- **Descripción:** 5 items backfilled to Supabase (HTTP 201). Meta updated to total_searches=210.
 - **Prioridad:** Media — data is safe in Sheet, just needs Supabase sync
 - **Fecha detectado:** 2026-03-19
 
@@ -134,14 +134,13 @@ _Actualizar al cierre de cada sesión. Este archivo es la memoria técnica del s
 
 ## Próxima sesión
 
-- **Prioridad 1:** TASK-007 — Análisis TRUMP AMERICA AI Act (~300 pages) — mapear provisiones NIST contra Arts. 9-15
-- **Prioridad 2:** TASK-009 — Post March 26 plenary vote: check Digital Omnibus outcome
-- **Prioridad 3:** TASK-010 — Backfill 5 items to Supabase + update meta to 210
-- **Prioridad 4:** BUG-004 — Reducir noise en AcademicQueue (filtros arXiv o pre-screening)
-- **Prioridad 5:** BUG-003 — re-evaluar 77 entradas degradadas (priorizar ALTA, usar synthesis de PerplexityQueue)
-- **Prioridad 6:** Resolver BUG-001 (84 stuck en PerplexityQueue) — script Python de limpieza
-- **Prioridad 7:** TASK-001 — limpiar 3 entradas TEST en NewsLog
-- **Prioridad 8:** TASK-008 — Update Colorado AI Act entries with new June 30 enforcement date
-- **Prioridad 9:** TASK-006 — Primera sesión con Supabase-primary writes verified end-to-end
+- **Prioridad 1:** TASK-009 — Post March 26 plenary vote: check Digital Omnibus outcome
+- **Prioridad 2:** TASK-007 follow-up — Análisis línea por línea del texto completo (~300 pp) cuando esté disponible en formato procesable
+- **Prioridad 3:** BUG-004 — Reducir noise en AcademicQueue (filtros arXiv o pre-screening)
+- **Prioridad 4:** BUG-003 — re-evaluar 77 entradas degradadas (priorizar ALTA, usar synthesis de PerplexityQueue)
+- **Prioridad 5:** Resolver BUG-001 (84 stuck en PerplexityQueue) — script Python de limpieza
+- **Prioridad 6:** TASK-001 — limpiar 3 entradas TEST en NewsLog
+- **Prioridad 7:** TASK-008 — Update Colorado AI Act entries with new June 30 enforcement date
+- **Prioridad 8:** TASK-006 — Verificar Supabase end-to-end en sesión con queues activas
 
 _Última actualización: 2026-03-19_

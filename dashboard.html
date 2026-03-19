@@ -1787,10 +1787,20 @@ async function fetchAdvisories() {
       const border = i < rows.length - 1 ? 'border-bottom:1px solid var(--border);' : '';
       const priorityTag = r.priority === 'high' ? ' <span style="font-size:0.6rem; color:var(--warn-text); font-weight:600;">ALTA</span>' : '';
 
-      // Render content — support newlines and numbered lists
+      // Render content — support newlines, numbered lists, bold, links, and action tags
       const contentHtml = r.content.split('\n').map(line => {
+        // Convert **bold** to <strong>
+        line = line.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+        // Convert URLs to clickable links
+        line = line.replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener" style="color:var(--accent-mid);">ver fuente ↗</a>');
+        // Highlight action tags
+        line = line.replace(/✅ AGREGADO/g, '<span style="color:#155724; font-weight:600;">✅ AGREGADO</span>');
+        line = line.replace(/📌 RECOMENDADO/g, '<span style="color:var(--warn-text); font-weight:600;">📌 RECOMENDADO</span>');
+        line = line.replace(/📌 PENDIENTE/g, '<span style="color:var(--warn-text); font-weight:600;">📌 PENDIENTE</span>');
+        line = line.replace(/📋 Impacto en el plan:/g, '<span style="font-weight:600;">📋 Impacto en el plan:</span>');
+
         if (line.match(/^\d+\.\s/)) {
-          return '<div style="margin-left:1.2rem; margin-bottom:0.15rem;">' + line + '</div>';
+          return '<div style="margin-left:1.2rem; margin-bottom:0.25rem; line-height:1.5;">' + line + '</div>';
         }
         return line ? '<p style="margin:0 0 0.3rem 0;">' + line + '</p>' : '';
       }).join('');

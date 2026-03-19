@@ -70,6 +70,9 @@ _Actualizar al cierre de cada sesión. Este archivo es la memoria técnica del s
 | 2026-03-15 | Confirmado: `action=append` dedup contra 4 tabs incluye la queue de origen. Para promover desde AcademicQueue usar `action=promoteToNewsLog` (ya documentado, pero se re-confirmó con AcademicQueue). |
 | 2026-03-15 | ArXiv_v2.gs creado: inyecta filtro de categorías (cs.AI, cs.CY, cs.LG, etc.) automáticamente en todas las queries arXiv. Reemplaza ArXiv.gs (v1). Versiones activas actualizadas: ArXiv_v2 (pendiente deploy). |
 | 2026-03-19 | Supabase proyecto `phd-kb` creado (ID: wtwuvrtmadnlezkbesqp). Tabla `evaluated_items` con 21 cols NewsLog + pgvector embedding + metadata. Reemplazará NewsLog tab como destino de datos evaluados. Sheets se mantiene como control plane (Queries) y staging. Decisión coordinada KB ↔ PM. |
+| 2026-03-19 | TRUMP AMERICA AI Act (discussion draft, ~300 pages) es el evento de monitoreo más crítico para la tesis. Requiere análisis detallado urgente — mapear provisiones NIST/risk management contra Arts. 9-15. Si se promulga, transforma el argumento de interoperabilidad. TASK-007 creado. |
+| 2026-03-19 | Colorado AI Act enforcement date moved to June 30, 2026 (SB25B-004). NIST RMF affirmative defense unchanged. TASK-008 para actualizar entradas existentes. |
+| 2026-03-19 | Digital Omnibus: IMCO/LIBE votaron 101-9-8 el Mar 18. Plenary vote March 26. Fixed dates Dec 2027 (Annex III), Aug 2028 (Annex I). TASK-009 para monitorear. |
 
 ---
 
@@ -103,13 +106,36 @@ _Actualizar al cierre de cada sesión. Este archivo es la memoria técnica del s
 
 ---
 
+### TASK-007 — Análisis detallado del TRUMP AMERICA AI Act (discussion draft)
+- **Estado:** Pendiente
+- **Descripción:** Sen. Blackburn publicó el discussion draft (~300 páginas) el 2026-03-19. Requiere análisis detallado de: (1) provisiones NIST/risk management, (2) alcance de preemption federal, (3) duty of care vs EU AI Act obligations, (4) implicaciones para interoperabilidad tesis. Mapear contra Arts. 9-15 y funciones MAP/MEASURE/MANAGE/GOVERN.
+- **Impacto:** ALTO — evento de monitoreo crítico para la tesis. Si se promulga, transforma el argumento de interoperabilidad.
+- **Prioridad:** URGENTE
+- **Fecha detectado:** 2026-03-19
+
+### TASK-008 — Actualizar entrada Colorado AI Act con nueva fecha enforcement
+- **Estado:** Pendiente
+- **Descripción:** Colorado AI Act enforcement date moved from Feb 1, 2026 to June 30, 2026 via SB25B-004. Existing NewsLog entries about Colorado AI Act need notes updated to reflect the delay. NIST RMF affirmative defense provisions unchanged.
+- **Prioridad:** Baja
+- **Fecha detectado:** 2026-03-19
+
+### TASK-009 — Monitorear voto plenario Digital Omnibus (March 26, 2026)
+- **Estado:** Pendiente
+- **Descripción:** IMCO/LIBE adoptaron posición conjunta 101-9-8 el 2026-03-18. Voto plenario scheduled for March 26. Después: trilogues con Council. Rastrear resultado y posiciones del Council.
+- **Prioridad:** URGENTE — run `update claude` on or after March 27
+- **Fecha detectado:** 2026-03-19
+
+---
+
 ## Próxima sesión
 
-- **Prioridad 1:** BUG-004 — Reducir noise en AcademicQueue (filtros arXiv o pre-screening)
-- **Prioridad 2:** BUG-003 — re-evaluar 77 entradas degradadas (priorizar ALTA, usar synthesis de PerplexityQueue)
-- **Prioridad 3:** Resolver BUG-001 (84 stuck en PerplexityQueue) — script Python de limpieza
-- **Prioridad 4:** TASK-001 — limpiar 3 entradas TEST en NewsLog
-- **Prioridad 5:** `update academic` — remaining ~6 pending items if any after today's processing
-- **Prioridad 6:** TASK-006 — Completar embeddings (~855 restantes), verificar semantic search, primera sesión con dual-write activo
+- **Prioridad 1:** TASK-007 — Análisis TRUMP AMERICA AI Act (~300 pages) — mapear provisiones NIST contra Arts. 9-15
+- **Prioridad 2:** TASK-009 — Post March 26 plenary vote: check Digital Omnibus outcome
+- **Prioridad 3:** BUG-004 — Reducir noise en AcademicQueue (filtros arXiv o pre-screening)
+- **Prioridad 4:** BUG-003 — re-evaluar 77 entradas degradadas (priorizar ALTA, usar synthesis de PerplexityQueue)
+- **Prioridad 5:** Resolver BUG-001 (84 stuck en PerplexityQueue) — script Python de limpieza
+- **Prioridad 6:** TASK-001 — limpiar 3 entradas TEST en NewsLog
+- **Prioridad 7:** TASK-008 — Update Colorado AI Act entries with new June 30 enforcement date
+- **Prioridad 8:** TASK-006 — Completar embeddings (~855 restantes), verificar semantic search, primera sesión con dual-write activo
 
 _Última actualización: 2026-03-19_

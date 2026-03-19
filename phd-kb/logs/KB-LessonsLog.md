@@ -71,7 +71,8 @@ These are hard rules derived from past bugs. Violating any of these means repeat
 | 2026-03-15 | update academic | 200 items processed (24 promoted, 156 discarded), ArXiv_v2.gs created | PR-001, PR-002, PR-006, PR-007 |
 | 2026-03-15 | infrastructure | Migrated all files from Drive to GitHub repo, created folder structure, SKILL-KB-v13 | PR-008 |
 | 2026-03-19 | infrastructure | Supabase proyecto phd-kb creado. Tabla evaluated_items (21 cols + pgvector 384d + metadata). Backfill 1,489 items. Edge function generate-embeddings desplegada (gte-small). RLS + search_evaluated_items. SKILL-KB-v15 dual-write. SKILL-PM-v7 con Supabase en §8/§12. | — |
+| 2026-03-19 | update all (run 209) | Queues empty. 7 Claude searches → 7 items added (3 ALTA, 4 MEDIA). CRITICAL: IMCO/LIBE voted Digital Omnibus 101-9-8 (Mar 18), TRUMP AMERICA AI Act draft released (Mar 19). FJC PG guidance, CAISI listening sessions, CREATE AI Act, Sorenson forensics outlook. | — |
 
 ---
 
-_Última actualización: 2026-03-19_
+_Última actualización: 2026-03-19 (run 209)_

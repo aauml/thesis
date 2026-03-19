@@ -1,13 +1,13 @@
 ---
-name: thesis-kb-update v13
-description: "Knowledge Base update and review skill for doctoral thesis on EU AI Act and NIST AI RMF interoperability. Reviews staging queues (PerplexityQueue, AcademicQueue, NewsResults) and runs targeted Claude searches. Promotes qualifying items to the NewsLog. Use when the user types 'update', 'update claude', 'update perplexity', 'update academic', 'update news', 'nd', 'what did we find about [topic]', 'show archive', 'add scholar', or 'add topic'."
+name: thesis-kb-update v16
+description: "Knowledge Base update and review skill for doctoral thesis on EU AI Act and NIST AI RMF interoperability. Reviews staging queues (PerplexityQueue, AcademicQueue, NewsResults) and runs targeted Claude searches. Evaluated items are written to Supabase (primary) with a lightweight verification row in Sheet NewsLog. Use when the user types 'update', 'update claude', 'update perplexity', 'update academic', 'update news', 'nd', 'what did we find about [topic]', 'show archive', 'add scholar', or 'add topic'."
 ---
 
 # Thesis KB Update Skill
 
 ## Purpose
 
-Maintain the doctoral thesis Knowledge Base by: (1) reviewing items staged in PerplexityQueue, AcademicQueue, and NewsResults by automated pipelines, (2) running targeted Claude web searches for URGENT/FOLLOW-UP topics, and (3) promoting qualifying items to the master NewsLog with full thesis evaluation.
+Maintain the doctoral thesis Knowledge Base by: (1) reviewing items staged in PerplexityQueue, AcademicQueue, and NewsResults by automated pipelines, (2) running targeted Claude web searches for URGENT/FOLLOW-UP topics, and (3) writing evaluated items to **Supabase** (primary data store) with a lightweight verification row in Sheet NewsLog.
 
 ## Four Pipelines
 
@@ -461,6 +461,174 @@ curl -s -L "SHEET_API" \
 
 ---
 
+## Supabase — Primary Data Store (TASK-006)
+
+**Since 2026-03-19**, Supabase is the **primary and sole destination** for evaluated items. The Sheet NewsLog tab receives only a lightweight verification row (title, url, importance, source_pipeline) so the user can visually confirm writes happened. All full data lives in Supabase.
+
+### Supabase Connection
+
+```
+SUPABASE_URL=https://wtwuvrtmadnlezkbesqp.supabase.co
+SUPABASE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind0d3V2cnRtYWRubGV6a2Jlc3FwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5MzczMDYsImV4cCI6MjA4OTUxMzMwNn0.1eCIlv6URloKHnEzxB2drHtiS2NR_VH_2DHF6YFLerY
+```
+
+### Batch write protocol — CRITICAL
+
+Sessions can pause or restart if they run too long. To avoid losing progress:
+
+1. **Evaluate in batches of ~20 items** from the staging queue.
+2. **Write the batch to Supabase** immediately after evaluating.
+3. **Write verification rows to Sheet** (lightweight, same batch).
+4. **Confirm the batch** before moving to the next group.
+5. If the session restarts, only the current unwritten batch is lost.
+
+**Never** evaluate all items first and write at the end. Always: evaluate batch → write batch → next batch.
+
+### Step 1 — Write to Supabase (primary)
+
+POST all evaluated items in the batch to Supabase. This is the complete record.
+
+```bash
+curl -s -X POST "SUPABASE_URL/rest/v1/evaluated_items" \
+  -H "apikey: SUPABASE_KEY" \
+  -H "Authorization: Bearer SUPABASE_KEY" \
+  -H "Content-Type: application/json" \
+  -H "Prefer: resolution=ignore-duplicates,return=minimal" \
+  -d '[{
+    "url": "https://example.com/article",
+    "title": "Article Title",
+    "source": "Source Name",
+    "date_published": "2026-02-15",
+    "content_type": "article",
+    "importance": "ALTA",
+    "capa": "Teórica, Analítica",
+    "capa_detail": "Gobernanza IA comparada, Art. 9 ↔ MAP/MEASURE",
+    "evaluativa_criteria": "Accountability, Explicabilidad",
+    "action_tag": "REFERENCE",
+    "thesis_relevance": "Context paragraph.\n\nArticle paragraph.\n\nThesis paragraph.",
+    "scholar": "",
+    "search_scope": "update perplexity",
+    "language": "en",
+    "run_id": "2026-03-19-001",
+    "tier": "2",
+    "folder": "01_Marco_Teorico",
+    "notes": "",
+    "starred": false,
+    "source_pipeline": "perplexity"
+  }]'
+```
+
+Multiple items can be included in the array for batch inserts. The `unique_url` constraint prevents duplicates.
+
+### Step 2 — Write verification row to Sheet NewsLog
+
+After a successful Supabase write, append a **minimal** row to NewsLog via the Sheet API so the user can visually verify. Only these fields are needed:
+
+```
+action=append&tab=NewsLog
+Fields: title, url, importance, source_pipeline, date_found (today), notes="✓ Supabase"
+```
+
+All other fields (thesis_relevance, capa, capa_detail, etc.) are left blank in the Sheet row — the full data is in Supabase only. The `notes="✓ Supabase"` marker makes it easy to distinguish these verification rows from legacy full rows.
+
+### Step 3 — Generate embeddings
+
+After writing a batch to Supabase, call the edge function to generate embeddings for the new items:
+
+```bash
+curl -s -X POST "SUPABASE_URL/functions/v1/generate-embeddings" \
+  -H "Authorization: Bearer SUPABASE_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"batch_size": 1}'
+```
+
+Call once per new item in the batch (or let the scheduled task handle it later — embeddings are not blocking).
+
+### Supabase fields
+
+| Field | Type | Notes |
+|-------|------|-------|
+| `url` | text | **Required.** Unique constraint — duplicates ignored |
+| `title` | text | **Required.** |
+| `importance` | text | **Required.** `ALTA` \| `MEDIA` \| `BAJA` |
+| `source` | text | Publication/site name |
+| `date_published` | text | Original publication date |
+| `content_type` | text | article, paper, report, etc. |
+| `capa` | text | Thesis layer(s) |
+| `capa_detail` | text | Specific sub-areas within layer |
+| `evaluativa_criteria` | text | Which evaluative criteria apply |
+| `action_tag` | text | `REFERENCE` \| `CONTEXT` \| `FOLLOW-UP` \| `URGENT` |
+| `thesis_relevance` | text | Full 3-paragraph evaluation |
+| `scholar` | text | Associated scholar if any |
+| `search_scope` | text | Query/command that found it |
+| `language` | text | Default `en` |
+| `run_id` | text | Session identifier (YYYY-MM-DD-NNN) |
+| `tier` | text | `1` \| `2` \| `3` |
+| `folder` | text | Target thesis folder |
+| `notes` | text | Free text |
+| `starred` | boolean | Default `false` |
+| `source_pipeline` | text | `perplexity` \| `academic` \| `news` \| `claude` \| `scholar_gateway` \| `consensus` |
+| `embedding` | vector(384) | Auto-generated by edge function (leave null on write) |
+
+### `source_pipeline` values
+
+Set based on the command that produced the item:
+- `update perplexity` → `"perplexity"`
+- `update academic` → `"academic"`
+- `update news` → `"news"`
+- `update claude` → `"claude"`
+- Scholar Gateway searches → `"scholar_gateway"`
+- Consensus searches → `"consensus"`
+
+### Error handling
+
+- **Supabase write fails:** Retry once. If still fails, write the FULL row to Sheet NewsLog as fallback (not just verification row) and add `notes="supabase_write_failed"`. Log in session for backfill later.
+- **Sheet verification row fails:** Not critical — the data is safe in Supabase. Continue.
+
+### Querying Supabase
+
+For `what did we find about [topic]?` and `show archive`, **always query Supabase first** (it has the complete data). Sheet NewsLog is no longer the primary source for queries.
+
+```bash
+# By importance
+curl -s "SUPABASE_URL/rest/v1/evaluated_items?importance=eq.ALTA&order=created_at.desc&limit=20" \
+  -H "apikey: SUPABASE_KEY"
+
+# By capa
+curl -s "SUPABASE_URL/rest/v1/evaluated_items?capa=ilike.*Analítica*&limit=20" \
+  -H "apikey: SUPABASE_KEY"
+
+# Full text search on thesis_relevance
+curl -s "SUPABASE_URL/rest/v1/evaluated_items?thesis_relevance=ilike.*NIST*&order=created_at.desc" \
+  -H "apikey: SUPABASE_KEY"
+
+# Semantic search (requires embedding — call search_evaluated_items RPC)
+curl -s "SUPABASE_URL/rest/v1/rpc/search_evaluated_items" \
+  -H "apikey: SUPABASE_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"query_embedding": "[384d vector]", "match_threshold": 0.7, "match_count": 10}'
+```
+
+### Embeddings pipeline
+
+- **Model:** gte-small (384 dimensions), free via Supabase AI
+- **Edge function:** `generate-embeddings` — processes items with `embedding IS NULL`, one at a time
+- **Invocation:** `POST SUPABASE_URL/functions/v1/generate-embeddings` with `Authorization: Bearer SUPABASE_KEY` and `{"batch_size": 1}`
+- **Auto-population:** After writing new items, embedding is null. Edge function generates it on demand or via scheduled task `generate-embeddings-backfill`.
+- **Search function:** `search_evaluated_items(query_embedding, match_threshold, match_count, filter_importance)` returns ranked results by cosine similarity.
+
+### Sheet tabs — current roles
+
+| Tab | Role | Status |
+|-----|------|--------|
+| **Queries** | Control plane — defines searches, scholars, schedules | Active (Apps Script reads) |
+| **PerplexityQueue** | Staging — raw Perplexity results | Active (Apps Script writes, Claude reads) |
+| **AcademicQueue** | Staging — raw academic/OpenAlex results | Active (Apps Script writes, Claude reads) |
+| **NewsResults** | Staging — raw Google News RSS results | Active (Apps Script writes, Claude reads) |
+| **NewsLog** | Verification log — minimal rows confirming Supabase writes | Active (receive-only, not queried for data) |
+
+---
+
 ## Special Commands
 
 ### `add scholar [name]`
@@ -636,7 +804,7 @@ Whenever a Google Apps Script file is modified (bug fix, new feature, configurat
 The same versioning rule applies to this skill file itself. When modifications are needed (new rules, bug fixes, updated behaviors):
 
 1. **Never edit the existing file in place.** Always create a new version.
-2. **Create `SKILL-KB-vN+1.md`** in `phd-kb/docs/` with all changes applied. Current version is v13, so next update produces `SKILL-KB-v14.md`.
+2. **Create `SKILL-KB-vN+1.md`** in `phd-kb/docs/` with all changes applied. Current version is v15, so next update produces `SKILL-KB-v16.md`.
 3. **Also overwrite `SKILL-KB-current.md`** with the same content. This is the file the bootstrap loader reads — it must always point to the latest version.
 4. Commit and push to the repo.
 5. The user does NOT need to update project knowledge — the bootstrap loads `current.md` automatically.

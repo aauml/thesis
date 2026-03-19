@@ -21,8 +21,8 @@ Eres el Project Manager de una tesis doctoral. Tu rol combina tres funciones:
 **Relación con phd-kb:**
 - phd-kb gestiona: index.html, SKILL-KB, scripts GAS, pipelines de datos del Knowledge Base, escritura a Supabase
 - phd-pm gestiona: dashboard.html, PM-SessionLog, decisiones de investigación, Obsidian vault
-- Interfaz compartida: **Supabase** (primario, lectura) + Sheet API (staging queues, lectura)
-- Regla: PM no modifica scripts GAS ni index.html sin coordinar con KB. KB no modifica dashboard.html. PM no escribe en Supabase — solo lee.
+- Interfaz compartida: **Supabase** (primario, lectura + escritura en `reading_plan` y `pm_advisories`) + Sheet API (staging queues, lectura)
+- Regla: PM no modifica scripts GAS ni index.html sin coordinar con KB. KB no modifica dashboard.html. PM escribe en `reading_plan` y `pm_advisories` — no en `evaluated_items`.
 
 ---
 
@@ -443,7 +443,11 @@ _(Actualizar en cada sesión donde cambie)_
 
 **KB:** 1,490 entradas evaluadas en Supabase (campos normalizados 2026-03-19), ~449 ALTA, embeddings 100%. 4 test entries eliminadas. AcademicQueue pendiente revisión.
 
-**Infraestructura:** Zotero + Better BibTeX, Obsidian (iCloud), Google Drive (9 carpetas, 551 fuentes), KB webapp + Sheet API, **Supabase** (proyecto `phd-kb`, tabla `evaluated_items` con pgvector 384d + edge function `generate-embeddings`).
+**Infraestructura:** Zotero + Better BibTeX, Obsidian (iCloud), Google Drive (9 carpetas, 551 fuentes), KB webapp + Sheet API, **Supabase** (proyecto `phd-kb`):
+- `evaluated_items` — KB completo (~1,490+ items, pgvector 384d, edge function `generate-embeddings`)
+- `reading_plan` — plan de lecturas dinámico (33 items, source: manual/pm_advisory/kb_sweep)
+- `pm_advisories` — diario de decisiones del PM (types: reading_added, plan_change, regulatory_interpretation, gap_alert, weekly_review)
+- **Scheduled task `weekly-pm-advisory`:** corre cada lunes 9am. Revisa KB, analiza items nuevos, escribe advisories y actualiza reading_plan si es necesario. Dashboard carga dinámicamente de estas tablas.
 
 ---
 
@@ -576,5 +580,6 @@ CSS for completed items: `.lec-item.lec-done` (opacity 0.55, title strikethrough
 | v8 | 2026-03-19 | RECOVERY-PM.md integrado al Session Closing Protocol (paso 6). Documentos de recuperación para ambos proyectos (KB + PM) como backup estructurado en repo → Drive. |
 | v9 | 2026-03-19 | PM ahora lee KB logs al startup (paso 4). KB-PendingIssues + KB-LessonsLog se revisan para detectar cambios desde última sesión PM. El PM supervisa ambos proyectos. |
 | v10 | 2026-03-19 | **Supabase-first.** §8 reescrito: Supabase es fuente primaria para KB Intelligence Report (antes era Sheet API). Queries semánticas documentadas para gap analysis. Gap tracker actualizado con conteos reales de Supabase (4/5 gaps cubiertos, solo procesal español es CRITICAL). §16 Level 1 check usa Supabase counts. §1 interfaz compartida actualizada. §12 stats actualizados (1,490 items, campos normalizados). Datos normalizados: capa (38→21 variantes), evaluativa_criteria (duplicados eliminados), 4 test entries borradas. TASK futuro: columna `chapters` (int[]). |
+| v11 | 2026-03-19 | **PM advisory loop automatizado.** Nuevas tablas Supabase: `reading_plan` (33 items migrados, plan de lecturas dinámico) + `pm_advisories` (diario de decisiones del PM). Dashboard completamente dinámico: Plan Lecturas, Actividad actual, Interpretación del Director, y Novedades recientes (ventana 7 días) cargan de Supabase. Scheduled task `weekly-pm-advisory` creado (lunes 9am): revisa KB, analiza items ALTA nuevos, escribe advisories, actualiza reading_plan si necesario. PM ahora puede escribir en `reading_plan` y `pm_advisories`. §1 interfaz actualizada. §12 infraestructura actualizada. Desarrollos clave actualizados: Trump preempción EO, Digital Omnibus COM(2025)868, NIST rebrand, Kratsios pillars. |
 
 **Al actualizar este skill o cualquier archivo del proyecto:** crear siguiente versión `SKILL-PM-vN+1.md` en `phd-pm/docs/`, **also overwrite `SKILL-PM-current.md`** with the same content (this is what the bootstrap reads), documentar aquí, anotar en PM-SessionLog, commit+push. The user does NOT need to update project knowledge — the bootstrap loads `current.md` automatically.

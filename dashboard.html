@@ -740,17 +740,69 @@
       <!-- Desarrollos clave — persistent, curated -->
       <div class="section-label">Desarrollos clave</div>
       <div class="card" style="border-left: 3px solid var(--accent-mid);">
-        <div style="font-size:0.72rem; color:var(--text-muted); margin-bottom:0.5rem;">Cambios regulatorios y hallazgos importantes para tener siempre en mente.</div>
-        <div class="news-item"><span class="news-date"><span class="news-tag tag-nist">NIST</span></span><div><strong>OMB M-24-10 rescindida → M-25-21:</strong> brecha de gobernanza EU-US se amplía. Agencias federales sin mandato claro de AI impact assessment.</div></div>
+        <div style="font-size:0.72rem; color:var(--text-muted); margin-bottom:0.5rem;">Cambios regulatorios y hallazgos importantes para tener siempre en mente. <em>Última revisión: 19 mar 2026.</em></div>
+
+        <div class="news-item"><span class="news-date"><span class="news-tag tag-act">AI Act</span></span><div><strong>Trump EO preempción federal de leyes estatales de IA (mar 2026):</strong> propone framework federal único que anularía legislación estatal (Colorado, Illinois). Incluye AI Litigation Task Force. Impacto: si se consolida, el interlocutor US para interoperabilidad con AI Act pasa de ser un mosaico estatal a un marco federal — <em>refuerza</em> la viabilidad del puente NIST↔RIA.</div></div>
+
+        <div class="news-item"><span class="news-date"><span class="news-tag tag-act">AI Act</span></span><div><strong>EU Digital Omnibus (COM(2025) 868):</strong> Consejo acuerda posición negociadora (13 mar 2026). Mecanismo stop-the-clock retrasa plazos de cumplimiento AI Act hasta 2027. Parlamento negocia alcance de simplificación. <em>Impacto para tesis:</em> la ventana de interoperabilidad se amplía — los estándares armonizados aún no están fijados.</div></div>
+
+        <div class="news-item"><span class="news-date"><span class="news-tag tag-nist">NIST</span></span><div><strong>NIST AI Safety Institute → Center for AI Standards &amp; Evaluation:</strong> rebranding bajo Trump. Foco se mueve de safety a standards/evaluation. El AI RMF mantiene vigencia estatutaria (NDAA), pero el framing político cambia. Monitorear si afecta los profiles de riesgo.</div></div>
+
+        <div class="news-item"><span class="news-date"><span class="news-tag tag-nist">NIST</span></span><div><strong>OMB M-24-10 rescindida → M-25-21:</strong> agencias sin mandato claro de AI impact assessment, pero la arquitectura de gobernanza (Chief AI Officers, governance boards) persiste. Continuidad funcional bajo framing diferente.</div></div>
+
         <div class="news-item"><span class="news-date"><span class="news-tag tag-conv">Conv.</span></span><div><strong>CETS 225 en vigor (nov 2025):</strong> primer tratado vinculante de IA ratificado por EEUU. Puente entre frameworks voluntarios y obligaciones.</div></div>
-        <div class="news-item"><span class="news-date"><span class="news-tag tag-act">AI Act</span></span><div><strong>EO 14110 revocada → EO 14179:</strong> marco ejecutivo de IA de Biden reemplazado. Impacto en postura federal ante regulación.</div></div>
-        <div class="news-item"><span class="news-date"><span class="news-tag tag-act">AI Act</span></span><div><strong>Directrices de alto riesgo retrasadas:</strong> gap de estándares armonizados persiste — oportunidad para argumento de interoperabilidad NIST.</div></div>
-        <div class="news-item"><span class="news-date"><span class="news-tag tag-nist">NIST</span></span><div><strong>NIST COSAIS:</strong> Control Overlays for Securing AI Systems. NIST se acerca a controles prescriptivos tipo AI Act.</div></div>
-        <div class="news-item"><span class="news-date"><span class="news-tag tag-acad">Acad.</span></span><div><strong>Ningún sistema DOJ tiene AI Impact Assessment publicado</strong> pese a requisitos OMB — hallazgo clave para Cap. 6.</div></div>
+
+        <div class="news-item"><span class="news-date"><span class="news-tag tag-act">AI Act</span></span><div><strong>EO 14110 revocada → EO 14179:</strong> marco ejecutivo de Biden reemplazado. Sin embargo, M-25-21 confirma continuidad funcional. La brecha es política, no estructural.</div></div>
+
+        <div class="news-item"><span class="news-date"><span class="news-tag tag-act">AI Act</span></span><div><strong>Directrices de alto riesgo retrasadas + Omnibus:</strong> gap de estándares armonizados persiste y se amplía con el stop-the-clock. Oportunidad para argumento de interoperabilidad NIST como puente temporal.</div></div>
+
+        <div class="news-item"><span class="news-date"><span class="news-tag tag-nist">NIST</span></span><div><strong>NIST COSAIS + Kratsios three pillars (mar 2026):</strong> Control Overlays + enfoque en estándares técnicos. NIST se acerca a controles prescriptivos tipo AI Act. Kratsios confirma: estándares, competitividad, seguridad nacional.</div></div>
+
+        <div class="news-item"><span class="news-date"><span class="news-tag tag-acad">Acad.</span></span><div><strong>Ningún sistema DOJ tiene AI Impact Assessment publicado</strong> pese a requisitos OMB — hallazgo clave para Cap. 6. Refuerza supuesto epistemológico: cumplimiento documentable ≠ cumplimiento real.</div></div>
       </div>
 
-      <!-- Novedades recientes — dynamic from NewsLog API (rolling 30 days) -->
-      <div class="section-label">Novedades recientes <span style="font-weight:400; text-transform:none; letter-spacing:0; font-size:0.65rem;">· últimos 30 días desde NewsLog</span></div>
+      <!-- Interpretación PM — analytical layer -->
+      <div class="section-label">Interpretación del Director</div>
+      <div class="card" style="border-left: 3px solid var(--warn-border); background: linear-gradient(135deg, var(--bg-card) 0%, rgba(255,193,7,0.03) 100%);">
+        <div style="font-size:0.72rem; color:var(--text-muted); margin-bottom:0.5rem;">Análisis y recomendaciones del PM basadas en los desarrollos recientes y el estado del KB. <em>Actualizado: 19 mar 2026.</em></div>
+
+        <div class="news-item" style="padding-bottom:0.5rem; border-bottom:1px solid var(--border);">
+          <span class="news-date" style="min-width:2rem;">📊</span>
+          <div>
+            <strong>Lectura del momento regulatorio:</strong> Estamos ante una convergencia paradójica. Trump empuja preempción federal (framework único US) al mismo tiempo que la UE retrasa implementación con el Digital Omnibus. Resultado neto: la ventana para argumentar interoperabilidad NIST↔RIA se <em>fortalece</em>. Un interlocutor federal US consolidado + plazos EU más flexibles = más tiempo y un target más claro para el puente.
+          </div>
+        </div>
+
+        <div class="news-item" style="padding-bottom:0.5rem; border-bottom:1px solid var(--border);">
+          <span class="news-date" style="min-width:2rem;">📖</span>
+          <div>
+            <strong>Lecturas prioritarias ajustadas:</strong>
+            <ol style="margin:0.3rem 0 0 1.2rem; font-size:0.72rem; line-height:1.5;">
+              <li><strong>Kaminski &amp; Selbst (2025)</strong> "An American's Guide to the EU AI Act" — <em>URGENTE.</em> Es exactamente el puente comparativo que hace la tesis. Leer antes que Bradford.</li>
+              <li><strong>Stoltz (2025)</strong> "The Road to Compliance: Executive Federal Agencies and the NIST Risk Management Framework" — evidencia empírica de adopción NIST en agencias federales.</li>
+              <li><strong>Kaminski (2023)</strong> "Regulating the Risks of AI" — EN CURSO, seguir.</li>
+              <li><strong>Bradford (2020)</strong> caps. 1-3 — replanificar para después de Kaminski &amp; Selbst.</li>
+            </ol>
+          </div>
+        </div>
+
+        <div class="news-item" style="padding-bottom:0.5rem; border-bottom:1px solid var(--border);">
+          <span class="news-date" style="min-width:2rem;">⚠️</span>
+          <div>
+            <strong>Vigilancia activa:</strong> El Trump EO de preempción es un draft — monitorear si se convierte en legislación (AMERICA AI Act). Si pasa, el Cap. 5 necesita una sección nueva sobre preempción federal como condición habilitante de interoperabilidad. El Digital Omnibus entra en trílogos — los plazos finales impactan el timeline del Cap. 3.
+          </div>
+        </div>
+
+        <div class="news-item">
+          <span class="news-date" style="min-width:2rem;">🔍</span>
+          <div>
+            <strong>Gap crítico detectado:</strong> Derecho procesal español (4 items ALTA vs. 15 necesarios). Ninguna fuente nueva ha entrado en el pipeline. Considerar búsqueda manual en Dialnet/CENDOJ para prueba electrónica + IA en el proceso penal español. Sin esto, el Cap. 2 §2.3 queda débil.
+          </div>
+        </div>
+      </div>
+
+      <!-- Novedades recientes — dynamic from Supabase (ALTA items) -->
+      <div class="section-label">Novedades recientes <span style="font-weight:400; text-transform:none; letter-spacing:0; font-size:0.65rem;">· últimas incorporaciones ALTA desde Supabase</span></div>
       <div id="recentNewsContainer">
         <div style="color:var(--text-muted); font-size:0.78rem; padding:0.5rem;">Cargando noticias recientes...</div>
       </div>
@@ -790,7 +842,8 @@
       <div class="card">
         <div class="news-item"><span class="news-date" style="min-width:2rem;">🟡</span><div><strong>Lecturas no terminadas antes de Q2:</strong> sin Kaminski + Bradford no hay base para reunión con director. <em>Mitigación: priorizar Kaminski, Bradford caps. 1-3 antes de mayo.</em></div></div>
         <div class="news-item"><span class="news-date" style="min-width:2rem;">🟢</span><div><strong>Caso de estudio sin decidir:</strong> riesgo bajo ahora, sube en Q2. No bloquea Fase 1. <em>Mitigación: recopilar documentación de ambos candidatos (PATTERN, STRmix) en paralelo.</em></div></div>
-        <div class="news-item"><span class="news-date" style="min-width:2rem;">🟡</span><div><strong>Cambios normativos:</strong> EO 14179 y rescisión OMB M-24-10 ya ocurrieron. Monitorear si invalidan supuestos del marco teórico. <em>Mitigación: Desarrollos clave en Panorama + pipeline activo.</em></div></div>
+        <div class="news-item"><span class="news-date" style="min-width:2rem;">🟡</span><div><strong>Cambios normativos acelerados:</strong> EO 14179 + preempción federal + Digital Omnibus stop-the-clock. El entorno regulatorio se mueve rápido. <em>Mitigación: Desarrollos clave + Interpretación PM en Panorama actualizados. Pipeline activo detecta cambios.</em></div></div>
+        <div class="news-item"><span class="news-date" style="min-width:2rem;">🔴</span><div><strong>Gap derecho procesal español:</strong> solo 4 items ALTA (necesarios ~15). Sin cobertura suficiente para Cap. 2 §2.3. <em>Mitigación: búsqueda manual Dialnet/CENDOJ prioritaria.</em></div></div>
       </div>
 
     </div>
@@ -1666,7 +1719,7 @@ async function fetchPipelineStatus() {
 }
 
 // ═══════════════════════════════════════
-// NOVEDADES RECIENTES — from NewsLog API
+// NOVEDADES RECIENTES — from Supabase (ALTA items, expandable analysis)
 // ═══════════════════════════════════════
 async function fetchRecentNews() {
   const container = document.getElementById('recentNewsContainer');
@@ -1681,8 +1734,7 @@ async function fetchRecentNews() {
   };
 
   function renderNewsItem(row) {
-    const dateStr = row.date_found || row.date_published || '';
-    const d = new Date(dateStr);
+    const d = new Date(row.created_at || 0);
     const shortDate = !isNaN(d.getTime()) ? d.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' }) : '';
     const capas = (row.capa || '').toLowerCase().split(',').map(c => c.trim());
     const capa = capas[0] || '';
@@ -1690,71 +1742,57 @@ async function fetchRecentNews() {
     const importance = (row.importance || '').toUpperCase();
     const star = importance === 'ALTA' ? '<strong>★</strong> ' : '';
     const title = row.title || '(sin título)';
-    // PR-012: only use URL if it comes from the API data — never fabricate
     const hasUrl = row.url && row.url.startsWith('http');
     const titleHtml = hasUrl
       ? `<a href="${row.url}" target="_blank" rel="noopener">${star}${title}</a>`
       : `${star}${title}`;
-    return `<div class="news-item">
+
+    // Expandable thesis_relevance (first paragraph as preview)
+    const relevance = row.thesis_relevance || '';
+    const firstPara = relevance.split('\n\n')[0] || '';
+    const hasMore = relevance.length > firstPara.length + 10;
+    const analysisHtml = relevance
+      ? `<details class="news-analysis" style="margin-top:0.3rem;">
+          <summary style="cursor:pointer; font-size:0.7rem; color:var(--accent-mid);">Análisis PM ▸</summary>
+          <div style="font-size:0.72rem; color:var(--text-secondary); margin-top:0.3rem; line-height:1.5; padding:0.4rem; background:var(--bg-card); border-radius:4px; border:1px solid var(--border);">
+            ${relevance.split('\n\n').map(p => '<p style="margin:0 0 0.5rem 0;">' + p + '</p>').join('')}
+          </div>
+        </details>`
+      : '';
+
+    return `<div class="news-item" style="padding-bottom:0.4rem; margin-bottom:0.3rem;">
       <span class="news-date">${shortDate}</span>
-      <div><span class="news-tag ${tag.cls}">${tag.label}</span>${titleHtml}</div>
+      <div><span class="news-tag ${tag.cls}">${tag.label}</span>${titleHtml}${analysisHtml}</div>
     </div>`;
   }
 
   try {
-    // Fetch recent entries — enough to cover 30 days
-    const resp = await fetch(GAS_API + '?action=getAll&limit=80');
-    const data = await resp.json();
-    const rows = data?.rows || [];
+    // Fetch recent ALTA items from Supabase (last 30, most recent first)
+    const rows = await supabaseQuery(
+      'evaluated_items?select=title,url,importance,capa,thesis_relevance,created_at&importance=eq.ALTA&order=created_at.desc&limit=30'
+    );
 
-    if (rows.length === 0) {
-      container.innerHTML = '<div style="color:var(--text-muted); font-size:0.78rem; padding:0.5rem;">No hay entradas en el NewsLog.</div>';
+    if (!rows || rows.length === 0) {
+      container.innerHTML = '<div style="color:var(--text-muted); font-size:0.78rem; padding:0.5rem;">No hay entradas ALTA en Supabase.</div>';
       return;
     }
 
-    const now = new Date();
-    const sevenAgo = new Date(now.getTime() - 7 * 86400000);
-    const thirtyAgo = new Date(now.getTime() - 30 * 86400000);
+    // Show top 8 with expandable analysis, rest collapsible
+    const top = rows.slice(0, 8);
+    const rest = rows.slice(8);
 
-    // Sort most recent first by date_found
-    const sorted = rows
-      .map(r => ({ ...r, _date: new Date(r.date_found || r.date_published || 0) }))
-      .filter(r => !isNaN(r._date.getTime()))
-      .sort((a, b) => b._date - a._date);
+    let html = '<div class="card">';
+    html += '<div style="font-size:0.68rem; font-weight:600; color:var(--accent); margin-bottom:0.3rem;">Últimas incorporaciones ALTA · desde Supabase</div>';
+    html += top.map(renderNewsItem).join('');
+    html += '</div>';
 
-    // Split into two buckets
-    const thisWeek = sorted.filter(r => r._date >= sevenAgo);
-    const olderMonth = sorted.filter(r => r._date < sevenAgo && r._date >= thirtyAgo);
-
-    // If nothing in the last 30 days, show most recent available
-    if (thisWeek.length === 0 && olderMonth.length === 0) {
-      const fallback = sorted.slice(0, 12);
-      let html = '<div style="font-size:0.68rem; color:var(--text-muted); margin-bottom:0.4rem;">Sin entradas en los últimos 30 días — mostrando las más recientes:</div>';
-      html += '<div class="card">' + fallback.map(renderNewsItem).join('') + '</div>';
-      container.innerHTML = html;
-      return;
-    }
-
-    let html = '';
-
-    // Section 1: This week (always visible)
-    if (thisWeek.length > 0) {
-      html += '<div class="card">';
-      html += '<div style="font-size:0.68rem; font-weight:600; color:var(--accent); margin-bottom:0.3rem;">Esta semana · ' + thisWeek.length + ' entradas</div>';
-      html += thisWeek.map(renderNewsItem).join('');
-      html += '</div>';
-    } else {
-      html += '<div style="font-size:0.78rem; color:var(--text-muted); padding:0.3rem 0 0.5rem;">Sin entradas esta semana.</div>';
-    }
-
-    // Section 2: Rest of the month (collapsible)
-    if (olderMonth.length > 0) {
+    if (rest.length > 0) {
       html += `<details class="news-expand">
         <summary style="cursor:pointer; font-size:0.75rem; font-weight:600; color:var(--accent-mid); padding:0.4rem 0; user-select:none;">
-          Ver más del mes · ${olderMonth.length} entradas anteriores ▸
+          Ver más · ${rest.length} entradas anteriores ▸
         </summary>
         <div class="card" style="margin-top:0.3rem;">
-          ${olderMonth.map(renderNewsItem).join('')}
+          ${rest.map(renderNewsItem).join('')}
         </div>
       </details>`;
     }
@@ -1767,8 +1805,8 @@ async function fetchRecentNews() {
       details.addEventListener('toggle', function() {
         const sum = this.querySelector('summary');
         if (sum) sum.textContent = this.open
-          ? `Ocultar · ${olderMonth.length} entradas anteriores ▾`
-          : `Ver más del mes · ${olderMonth.length} entradas anteriores ▸`;
+          ? `Ocultar · ${rest.length} entradas anteriores ▾`
+          : `Ver más · ${rest.length} entradas anteriores ▸`;
       });
     }
 

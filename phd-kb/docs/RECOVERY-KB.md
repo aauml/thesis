@@ -1,6 +1,6 @@
 # RECOVERY-KB — Reconstrucción completa del Knowledge Base
 
-**Última actualización:** 2026-03-19
+**Última actualización:** 2026-03-19 (v2 — GDrive cleanup)
 **Propósito:** Si Claude pierde la memoria o se inicia una sesión sin contexto, este archivo permite reconstruir todo el sistema KB desde cero.
 
 ---
@@ -86,6 +86,25 @@ DRIVE_PARENT_FOLDER = 1KvWGLwbXxrNzpmBuFU6od4HJeH-IGXBY (09_Sistema)
 ```
 
 GitHubSync.gs replica el repo a Drive diariamente (6-7am). Drive es backup, no fuente de verdad.
+
+**Estructura GDrive 09_Sistema (limpia desde 2026-03-19):**
+
+```
+09_sistema/
+├── thesis-repo/          ← Mirror de GitHub (GitHubSync.gs, fuente de verdad)
+│   ├── phd-kb/
+│   │   ├── docs/         ← SKILLs, RECOVERY, configs
+│   │   ├── logs/         ← LessonsLog, PendingIssues, monthly-sweeps
+│   │   └── scripts/      ← Apps Script source (.txt)
+│   └── phd-pm/
+│       ├── docs/         ← SKILLs, RECOVERY, context-blocks, tool-modes
+│       └── logs/         ← SessionLog, LessonsLog
+├── phd-kb/               ← Solo Sheet shortcut + AppScripts (deprecated)
+├── phd-pm/               ← Solo bootstraps + referencias multi-LLM
+└── Gemini/               ← Gem config
+```
+
+**Regla:** Todo archivo operativo vive en GitHub → llega a GDrive vía thesis-repo/. Las carpetas phd-kb/ y phd-pm/ sueltas en GDrive NO contienen archivos operativos.
 
 ---
 

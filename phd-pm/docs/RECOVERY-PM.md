@@ -192,7 +192,7 @@ thesis/
 
 | Archivo | Versión | Fecha |
 |---------|---------|-------|
-| SKILL-PM | v9 | 2026-03-19 |
+| SKILL-PM | v10 | 2026-03-19 |
 | SKILL-KB | v17 | 2026-03-19 |
 | PM-SessionLog | v7 | 2026-03-19 |
 | context-blocks | v2 | 2026-03-18 |
@@ -230,7 +230,7 @@ _(Al momento de escribir este documento — verificar PM-SessionLog para actuali
 
 **Cambios normativos:** EO 14110→14179, M-24-10→M-25-21, CETS 225 en vigor, Reg. 2025/454, TRUMP AMERICA AI Act draft.
 
-**KB:** 1,494+ entradas evaluadas en Supabase, 448 ALTA, embeddings 100%.
+**KB:** 1,490 entradas evaluadas en Supabase (campos normalizados), ~449 ALTA, embeddings 100%. Dashboard KB Report ahora usa Supabase como fuente primaria.
 
 **Infraestructura:** Zotero + Better BibTeX, Obsidian (iCloud), Google Drive (9 carpetas), KB webapp + Sheet API, Supabase (pgvector 384d + edge function), GitHub Pages (dashboard + KB).
 

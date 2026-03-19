@@ -56,8 +56,9 @@ REGION = us-west-1
 ORG = ademas.ai
 ```
 
-**Tabla:** `evaluated_items` — 1,494+ items evaluados
+**Tabla:** `evaluated_items` — 1,490 items evaluados (4 test entries eliminadas 2026-03-19)
 - 27 columnas: 21 del NewsLog original + `embedding` (pgvector 384d, gte-small) + `source_pipeline` + `migrated_from_sheet` + `pk` (UUID) + `created_at` + `updated_at`
+- **Campos normalizados (2026-03-19):** `capa` (38→21 variantes, acentos corregidos, orden alfabético), `evaluativa_criteria` (duplicados por orden eliminados, 15 variantes limpias)
 - RLS habilitado: SELECT, INSERT, UPDATE para anon key
 - Constraint: `unique_url` (dedup por URL normalizada)
 - Índices: ivfflat cosine (embeddings), btree (importance, capa, tier, action_tag, folder, run_id, created_at)

@@ -69,6 +69,7 @@ _Actualizar al cierre de cada sesión. Este archivo es la memoria técnica del s
 | 2026-03-15 | AcademicQueue first full review: 200 pending → 24 promoted, 156 discarded, 17 reviewed, 3 skipped (dupes). ArXiv queries return massive noise (quantum physics, biology) — needs query refinement or pre-staging filters. |
 | 2026-03-15 | Confirmado: `action=append` dedup contra 4 tabs incluye la queue de origen. Para promover desde AcademicQueue usar `action=promoteToNewsLog` (ya documentado, pero se re-confirmó con AcademicQueue). |
 | 2026-03-15 | ArXiv_v2.gs creado: inyecta filtro de categorías (cs.AI, cs.CY, cs.LG, etc.) automáticamente en todas las queries arXiv. Reemplaza ArXiv.gs (v1). Versiones activas actualizadas: ArXiv_v2 (pendiente deploy). |
+| 2026-03-19 | Supabase proyecto `phd-kb` creado (ID: wtwuvrtmadnlezkbesqp). Tabla `evaluated_items` con 21 cols NewsLog + pgvector embedding + metadata. Reemplazará NewsLog tab como destino de datos evaluados. Sheets se mantiene como control plane (Queries) y staging. Decisión coordinada KB ↔ PM. |
 
 ---
 
@@ -81,6 +82,18 @@ _Actualizar al cierre de cada sesión. Este archivo es la memoria técnica del s
 - **Fecha detectado:** 2026-03-15
 - **Fecha fix preparado:** 2026-03-15
 
+### TASK-006 — Integrar Supabase como destino de escritura post-evaluación
+- **Estado:** En progreso
+- **Descripción:** Proyecto Supabase `phd-kb` creado (ID: `wtwuvrtmadnlezkbesqp`, región: us-west-1, org: ademas.ai). Tabla `evaluated_items` creada con 27 columnas: las 21 del NewsLog actual + `embedding` (pgvector 1536d), `source_pipeline`, `migrated_from_sheet`, `pk` (UUID), `created_at`, `updated_at`. Índices: ivfflat para búsqueda semántica, btree para importance/capa/tier/action_tag/folder/run_id/created_at. Constraint `unique_url` para dedup.
+- **Próximos pasos:**
+  1. Modificar SKILL-KB para que la evaluación escriba a Supabase (dual-write: Sheet + Supabase durante transición)
+  2. Definir cómo generar embeddings (edge function o en sesión Claude)
+  3. Backfill del NewsLog existente (~1255 items)
+  4. Eventualmente modificar WebApp para que Apps Script escriba directo a Supabase post-evaluación
+- **Coordinación:** Decisión compartida KB ↔ PM. PM registra en Dashboard y actualiza §12 (infraestructura).
+- **Prioridad:** Media — no bloquea operaciones actuales, pero habilita búsqueda semántica sobre corpus curado
+- **Fecha creado:** 2026-03-19
+
 ---
 
 ## Próxima sesión
@@ -90,5 +103,6 @@ _Actualizar al cierre de cada sesión. Este archivo es la memoria técnica del s
 - **Prioridad 3:** Resolver BUG-001 (84 stuck en PerplexityQueue) — script Python de limpieza
 - **Prioridad 4:** TASK-001 — limpiar 3 entradas TEST en NewsLog
 - **Prioridad 5:** `update academic` — remaining ~6 pending items if any after today's processing
+- **Prioridad 6:** TASK-006 — Supabase dual-write: modificar SKILL-KB para escribir a Sheet + Supabase, definir pipeline de embeddings, planificar backfill
 
-_Última actualización: 2026-03-15_
+_Última actualización: 2026-03-19_

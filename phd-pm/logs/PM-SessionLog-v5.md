@@ -52,6 +52,55 @@ _Registro técnico del proyecto phd-pm. Actualizar al cierre de cada sesión. Al
 
 ## Registro de sesiones
 
+### 2026-03-18 (sweep) — Monthly KB Reading Sweep (Level 2, automated)
+
+**Contexto:** Primer run del scheduled task `monthly-kb-reading-sweep`. Ejecutado vía Cowork Dispatch.
+
+**KB Snapshot:**
+- Total: 1,468 (sin cambios desde la sesión anterior del mismo día)
+- ALTA: 439, MEDIA: 816, BAJA: 212, DELETED: 1
+- Delta desde última sesión: 0 nuevas entradas
+
+**MEDIA→ALTA candidatos (33 matches, top recomendaciones):**
+1. Kaminski — "The EU AI Act: A Tutorial (2025)" → ALTA (pillar author, tutorial directo)
+2. Hacker — "Simplifying Europe's AI Regulation" → ALTA (análisis evidence-based del AI Act)
+3. Wexler — profile Columbia Law → ALTA (forensic AI y due process expertise)
+4. Wachter — "Explainable AI, Counterfactual Explanations, CDD" → ALTA (pillar author)
+5. Hildebrandt — "Counter-Profiling: AI Governance and Rule of Law" → ALTA (pillar author)
+6. Renda — "EU AI Act Implementation Delays and 15% Conformity Gap" → ALTA (quantitative gap data)
+7. Finck — "Constitutional Dimension of AI" (forthcoming) → ALTA when published
+8. Narayanan & Kapoor — "AI Agent Reliability (Feb 2026)" → ALTA (governance)
+
+**Gap analysis:**
+| Gap | Previous | Current | Status |
+|-----|----------|---------|--------|
+| NIST entries total | 40 (reported) | 200+ (99 ALTA) | ⚠️ Count was underreported; academic NIST analysis still scarce |
+| PATTERN case | ~5 ALTA | 4 ALTA, 26 total | STAGNANT |
+| Spanish procedural | 6 ALTA es | 38 ALTA "procesal", 5 Bueno de Mata (all MEDIA) | BETTER COUNTED but Bueno de Mata still weak |
+| Equity criterion | 83 | 57 "equidad" (16 ALTA) | REVISED metric |
+| Forensic admissibility | ~20 | 73 prob. genotyping entries | IMPROVING |
+
+**Query health (Q120-Q124):** All 5 queries returned 0 results. Expected — they were created today (2026-03-18) and haven't run yet. Monitor next sweep.
+
+**New resources found via web search (NOT added to KB — POST API failed):**
+1. **Bueno de Mata (2025)** — "El uso de IA generativa por el agente encubierto informático" (RGDP núm. 66) → ALTA, director's publication
+2. **Instrucción CGPJ 2/2026** — BOE-A-2026-2205 → ALTA, first formal AI judicial guidance in Spain
+3. **OSPIA Comentario** — Instrucción 2/2026 analysis → MEDIA
+4. **Fernández Larrea (2026)** — "La IA en abogacía y judicatura" → MEDIA
+5. **Veale et al. (2025)** — "High-risk AI transparency? Qualified transparency mandates under AI Act" (Technology and Regulation) → ALTA, pillar author
+
+**Reading plan:** No structural changes needed. Current month (March 2026) aligns with C1 plan (Kaminski N1 in progress, Bradford next). Gap tracker updated in dashboard.
+
+**API issue:** POST to SHEET_API fails from Cowork VM (GAS redirect chain not followed by curl). GET works fine. Items above need to be added manually or via interactive session.
+
+**Componentes actualizados:**
+| Componente | Versión | Cambio |
+|-----------|---------|--------|
+| Dashboard | v8.1 | Gap tracker updated with current counts |
+| PM-SessionLog | v5 | This entry |
+
+---
+
 ### 2026-03-18 — Plan de Lecturas Doctoral + KB Analysis + Gap Remediation
 
 **Contexto:** Sesión vía Cowork. Usuario proporcionó el chat anterior como contexto de referencia y el plan de lecturas previo (.docx). Solicitó análisis profundo del KB completo y creación de un plan de lecturas detallado por cuatrimestre/mes en el Dashboard.

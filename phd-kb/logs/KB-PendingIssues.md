@@ -130,6 +130,13 @@ _Actualizar al cierre de cada sesión. Este archivo es la memoria técnica del s
 - **Prioridad:** Media — data is safe in Sheet, just needs Supabase sync
 - **Fecha detectado:** 2026-03-19
 
+### TASK-011 — Agregar columna `chapters` (int[]) a evaluated_items
+- **Estado:** Pendiente
+- **Descripción:** Agregar columna `chapters` tipo `integer[]` a `evaluated_items` en Supabase. Permitiría asignar capítulos de la tesis (1-7) a cada item para construir una matriz de cobertura por capítulo. Habilitaría queries como "¿qué items ALTA cubren Cap. 5?" y gap analysis a nivel de capítulo. Requiere: (1) ALTER TABLE, (2) batch UPDATE para items existentes basado en capa/tags, (3) actualizar SKILL-KB para incluir chapters en el protocolo de evaluación.
+- **Impacto:** Medio — mejora significativa para el PM al planificar redacción por capítulo.
+- **Prioridad:** Media — no bloquea operaciones actuales
+- **Fecha detectado:** 2026-03-19
+
 ---
 
 ## Próxima sesión

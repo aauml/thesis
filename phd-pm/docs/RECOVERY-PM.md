@@ -173,8 +173,8 @@ thesis/
 
 | Archivo | Versión | Fecha |
 |---------|---------|-------|
-| SKILL-PM | v7 | 2026-03-19 |
-| SKILL-KB | v16 | 2026-03-19 |
+| SKILL-PM | v8 | 2026-03-19 |
+| SKILL-KB | v17 | 2026-03-19 |
 | PM-SessionLog | v7 | 2026-03-19 |
 | context-blocks | v2 | 2026-03-18 |
 | tool-modes | v2 | 2026-03-15 |

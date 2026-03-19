@@ -182,8 +182,8 @@ GitHubSync.gs replica el repo a Drive diariamente (6-7am). Drive es backup, no f
 
 | Archivo | Versión | Fecha |
 |---------|---------|-------|
-| SKILL-KB | v16 | 2026-03-19 |
-| SKILL-PM | v7 | 2026-03-19 |
+| SKILL-KB | v17 | 2026-03-19 |
+| SKILL-PM | v8 | 2026-03-19 |
 | PM-SessionLog | v7 | 2026-03-19 |
 
 ---

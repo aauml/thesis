@@ -47,10 +47,13 @@ These are hard rules derived from past bugs. Violating any of these means repeat
 - **Root cause:** Using Drive as canonical location limited access to Cowork mode only. GitHub works in Cowork, regular chat, and Claude Code.
 - **Rule:** All scripts, docs, and logs live in `github.com/aauml/thesis`. Clone at session start, push at session close. Drive is a convenience mirror, not the source.
 
-### PR-009 — When Supabase is unreachable, write full rows to Sheet immediately
+### PR-009 — Supabase connectivity: test early, use Python sessions, batch calls
 - **Derived from:** Session 2026-03-19 (run 210), Supabase HTTP 000
-- **Root cause:** Container DNS resolver saturated after many curl calls; Supabase REST API unreachable.
-- **Rule:** If Supabase connectivity test returns HTTP 000 or non-2xx, skip Supabase and write the FULL row to Sheet NewsLog with `notes="supabase_write_failed"`. Do not wait or retry indefinitely. Backfill to Supabase in a fresh session. Also update meta in next session if DNS fails.
+- **Root cause:** Container DNS resolver saturated after many curl calls to different domains; Supabase REST API unreachable by the time writes were attempted.
+- **Rule (3 parts):**
+  1. **Test Supabase at session start** — immediately after cloning the repo and before any other API calls. If reachable, proceed with Supabase-primary protocol. If not, operate in Sheet-only mode for the entire session and note it.
+  2. **Use Python `requests.Session()` instead of repeated `curl` calls** — connection pooling reuses DNS lookups. Write a single Python script for batch API operations instead of multiple curl one-liners.
+  3. **If Supabase fails mid-session** — write FULL rows to Sheet NewsLog with `notes="supabase_write_failed"`. Backfill to Supabase in a fresh session.
 
 ---
 

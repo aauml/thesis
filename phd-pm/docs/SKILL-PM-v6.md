@@ -434,13 +434,21 @@ Triggered when the plan moves to a new cuatrimestre. Includes everything from Le
 | Equity criterion | 83 | ~150 | BELOW TARGET | — |
 | Forensic admissibility | ~20 | >30 | MONITORING | Q123 |
 
+### Changelog
+
+Every change to the reading plan MUST be logged in two places:
+1. **Dashboard changelog** — the `<details class="lec-changelog">` block at the top of `view-lecturas`. Add a new `lec-cl-item` at the top (newest first). Update the count in `.lec-changelog-count`.
+2. **PM-SessionLog** — note what changed and why in the session entry.
+
+Format: `<div class="lec-cl-item"><span class="lec-cl-date">YYYY-MM-DD</span> <strong>Brief title.</strong> Description of what changed and why.</div>`
+
 ### Rules
 
 - Never update the reading plan without checking the KB first
 - Always include links to sources (KB URL or direct URL, verified working)
 - When adding a source to the plan, specify: level (N1-N4), lente de lectura, capítulo target
 - Always ask: "¿dónde está el ángulo procesal?" (PR-016)
-- Log every plan change in the SessionLog
+- Log every plan change in the dashboard changelog AND the SessionLog
 
 ---
 

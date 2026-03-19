@@ -543,6 +543,30 @@
     .lec-biblio-table td:first-child { text-align: left; font-weight: 500; }
     .lec-biblio-total td { background: var(--accent-soft); font-weight: 700; }
 
+    .lec-changelog {
+      margin-bottom: 0.8rem; border: 1px solid var(--border-light);
+      border-radius: 6px; font-size: 0.75rem;
+    }
+    .lec-changelog-toggle {
+      padding: 0.45rem 0.7rem; cursor: pointer; color: var(--text-light);
+      display: flex; align-items: center; gap: 0.4rem;
+    }
+    .lec-changelog-toggle:hover { color: var(--accent); }
+    .lec-changelog-count {
+      font-size: 0.58rem; font-weight: 700; background: var(--accent-soft);
+      color: var(--accent); padding: 0.05rem 0.35rem; border-radius: 8px;
+    }
+    .lec-changelog-body { padding: 0 0.7rem 0.5rem; }
+    .lec-cl-item {
+      padding: 0.25rem 0; border-bottom: 1px solid var(--border-light);
+      line-height: 1.5;
+    }
+    .lec-cl-item:last-child { border-bottom: none; }
+    .lec-cl-date {
+      font-family: var(--mono); font-size: 0.65rem; color: var(--text-muted);
+      margin-right: 0.3rem;
+    }
+
     /* ═══════════════════════════════════════
        FOOTER
     ═══════════════════════════════════════ */
@@ -995,6 +1019,16 @@
         <span class="lec-lvl lec-nr">🎧 No-texto</span>
       </div>
       <div style="font-size:0.7rem; color:var(--text-muted); margin-bottom:1rem;">N1 = lectura completa con ficha · N2 = capítulos seleccionados · N3 = consulta puntual (20-30 min) · N4 = referencia indirecta · 🎧 = podcast/curso/conferencia</div>
+
+      <!-- ── CHANGELOG ── -->
+      <details class="lec-changelog">
+        <summary class="lec-changelog-toggle">Historial de cambios al plan <span class="lec-changelog-count">3</span></summary>
+        <div class="lec-changelog-body">
+          <div class="lec-cl-item"><span class="lec-cl-date">2026-03-18</span> <strong>Plan creado.</strong> Análisis completo del KB (1,468 entradas). 25 lecturas asignadas con niveles N1-N4 + no-texto. 5 queries agregados (Q120-Q124). Gaps identificados: NIST (crítico), PATTERN, derecho procesal español, equidad.</div>
+          <div class="lec-cl-item"><span class="lec-cl-date">2026-03-18</span> <strong>Links verificados.</strong> 7 URLs corregidos (NIST Playbook, Wachter, Renda, Wexler, Dempsey, Ebers, Hildebrandt). Vista Progreso absorbida.</div>
+          <div class="lec-cl-item"><span class="lec-cl-date">2026-03-18</span> <strong>Protocolo de sweep codificado.</strong> 3 niveles (session/monthly/quarterly). Scheduled task mensual activo. SKILL-PM v6 §16.</div>
+        </div>
+      </details>
 
       <!-- ── YEAR TABS ── -->
       <div class="lec-year-tabs">

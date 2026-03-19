@@ -823,6 +823,12 @@
         <div style="margin-left:auto; font-size:0.7rem; color:var(--text-muted); align-self:center;" id="kbStatsUpdated">Actualizado: cargando...</div>
       </div>
 
+      <!-- Supabase status — dynamic -->
+      <div id="supabaseStatus" style="font-size:0.7rem; color:var(--text-muted); margin-bottom:0.5rem; display:flex; align-items:center; gap:0.3rem;">
+        <span id="sbStatusDot" style="width:6px;height:6px;border-radius:50%;background:#ccc;display:inline-block;"></span>
+        <span id="sbStatusText">Supabase: conectando...</span>
+      </div>
+
       <!-- Distribution by layer — dynamic from getStats -->
       <div class="card" style="margin-bottom:0.75rem;">
         <div class="card-title">Distribución por capa</div>
@@ -1288,7 +1294,7 @@
         <button class="btn-sm" onclick="toggleAllDec(false)">Contraer todo</button>
       </div>
 
-      <details class="dec"><summary><span class="dec-date">2026-03-19</span><span class="dec-preview">Supabase como almacén de datos evaluados: proyecto phd-kb creado, tabla evaluated_items con pgvector, 1489 items migrados.</span><span class="dec-toggle">▸</span></summary><div class="dec-body">Decisión arquitectónica KB ↔ PM. Google Sheets se mantiene como control plane (Queries) y staging (3 queues). Supabase reemplaza NewsLog tab como destino de datos evaluados. Tabla evaluated_items: 21 columnas NewsLog + embedding pgvector 1536d + source_pipeline + metadata. Backfill completo: 1489 items migrados (443 ALTA, 828 MEDIA, 218 BAJA). SKILL-KB-v15 creado con instrucciones de dual-write. Próximos pasos: pipeline de embeddings, transición gradual con dual-write.</div></details>
+      <details class="dec"><summary><span class="dec-date">2026-03-19</span><span class="dec-preview">Supabase operativo: 1489 items + embeddings (gte-small 384d) + búsqueda semántica. Sheets se mantiene como control plane + staging.</span><span class="dec-toggle">▸</span></summary><div class="dec-body"><strong>Decisión arquitectónica KB ↔ PM — completada.</strong><br><br><strong>Arquitectura:</strong> Google Sheets = control plane (Queries tab) + staging (PerplexityQueue, AcademicQueue, NewsResults). Supabase = almacén de datos evaluados (reemplaza NewsLog como destino post-evaluación de Claude). Apps Script no cambia — sigue orquestando fetch → staging.<br><br><strong>Implementación:</strong> Proyecto Supabase <code>phd-kb</code> (ID: wtwuvrtmadnlezkbesqp). Tabla <code>evaluated_items</code>: 21 columnas NewsLog + embedding pgvector 384d (gte-small) + source_pipeline + metadata. Backfill: 1489/1490 items migrados (443 ALTA, 828 MEDIA, 218 BAJA). Embeddings: 1489/1489 generados via edge function <code>generate-embeddings</code>. RLS habilitado. Función <code>search_evaluated_items</code> para búsqueda semántica verificada (cosine similarity 0.92+ en queries relevantes).<br><br><strong>Tabs en Sheets:</strong> Queries (activo), PerplexityQueue (activo), AcademicQueue (activo), NewsResults (activo), NewsLog (dual-write durante transición, eventualmente read-only).<br><br><strong>Archivos actualizados:</strong> SKILL-KB-v15 (dual-write + embeddings pipeline), SKILL-PM-v7 (§8 Supabase queries, §12 infra), PM-SessionLog-v7, KB-PendingIssues (TASK-006 fase 2/4), KB-LessonsLog.</div></details>
 
       <details class="dec"><summary><span class="dec-date">2026-03-18</span><span class="dec-preview">Plan de Lecturas creado: análisis completo del KB (1,490 entradas), lecturas por cuatrimestre con objetivos mensuales, 5 queries nuevos (Q120-Q124).</span><span class="dec-toggle">▸</span></summary><div class="dec-body">Análisis profundo del KB (ALTA + MEDIA). Hallazgos: gap crítico en Cap. 4 NIST (solo 40 fuentes), 67 MEDIA con potencial ALTA, caso PATTERN subrepresentado. Queries agregados: Q120 (NIST académico), Q121 (casos federales emergentes), Q122 (derecho procesal España), Q123 (forensic admissibility), Q124 (Bueno de Mata). Eje procesal del director cruza toda la tesis, no solo C2 y C6. Recursos no-texto integrados (podcasts Tabassi, CSIS). Plan cubre Año 0 (2026) a Años 3-4 (2029-2030) con lecturas N1-N4 + no-texto mapeadas a capítulos. Sistema de memoria PM actualizado.</div></details>
 
@@ -1778,7 +1784,20 @@ function updateOpsBadge() {
 }
 
 // ═══════════════════════════════════════
-// KB STATS — dynamic from getStats API
+// SUPABASE CONFIG
+// ═══════════════════════════════════════
+const SUPABASE_URL = 'https://wtwuvrtmadnlezkbesqp.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind0d3V2cnRtYWRubGV6a2Jlc3FwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM5MzczMDYsImV4cCI6MjA4OTUxMzMwNn0.1eCIlv6URloKHnEzxB2drHtiS2NR_VH_2DHF6YFLerY';
+
+async function supabaseQuery(path) {
+  const resp = await fetch(SUPABASE_URL + '/rest/v1/' + path, {
+    headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY }
+  });
+  return resp.json();
+}
+
+// ═══════════════════════════════════════
+// KB STATS — dynamic from getStats API + Supabase fallback
 // ═══════════════════════════════════════
 async function fetchKbStats() {
   try {
@@ -1989,6 +2008,40 @@ function renderQ1Progress() {
 }
 
 // ═══════════════════════════════════════
+// SUPABASE STATUS — connectivity + embedding count
+// ═══════════════════════════════════════
+async function supabaseCount(filter) {
+  const url = SUPABASE_URL + '/rest/v1/evaluated_items?select=pk' + (filter ? '&' + filter : '');
+  const resp = await fetch(url, {
+    headers: {
+      'apikey': SUPABASE_KEY,
+      'Authorization': 'Bearer ' + SUPABASE_KEY,
+      'Prefer': 'count=exact',
+      'Range': '0-0'
+    }
+  });
+  const range = resp.headers.get('content-range');
+  return range ? parseInt(range.split('/')[1]) || 0 : 0;
+}
+
+async function fetchSupabaseStatus() {
+  const dot = document.getElementById('sbStatusDot');
+  const text = document.getElementById('sbStatusText');
+  if (!dot || !text) return;
+  try {
+    const [total, withEmb] = await Promise.all([
+      supabaseCount(''),
+      supabaseCount('embedding=not.is.null')
+    ]);
+    dot.style.background = '#22c55e';
+    text.innerHTML = `Supabase: <strong>${total.toLocaleString()}</strong> items · <strong>${withEmb.toLocaleString()}</strong> embeddings · búsqueda semántica activa`;
+  } catch(e) {
+    dot.style.background = '#ef4444';
+    text.textContent = 'Supabase: sin conexión';
+  }
+}
+
+// ═══════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════
 document.addEventListener('DOMContentLoaded', () => {
@@ -1999,6 +2052,7 @@ document.addEventListener('DOMContentLoaded', () => {
   fetchPipelineStatus(); // Live queue status on every page load
   fetchRecentNews(); // Dynamic news from NewsLog
   fetchKbStats(); // Dynamic KB stats from getStats API
+  fetchSupabaseStatus(); // Supabase connectivity + embedding count
 
   // Restore last active view on refresh
   const savedView = localStorage.getItem('dash-active-view');

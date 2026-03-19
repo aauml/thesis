@@ -104,12 +104,29 @@ These are hard rules derived from past bugs. Violating any of these means repeat
 - **Razón:** Sin este mount no se pueden leer fichas, evaluar entregas, actualizar estados, ni hacer el ciclo de aprendizaje. Los permisos de borrado no persisten entre sesiones.
 - **Para Dispatch:** Cualquier tarea programada que toque el vault debe incluir el mount como primer paso en su prompt.
 
+### PR-015 — Reading Plan is a living document: review on every KB sweep
+- **Derived from:** Sesión 2026-03-18. User requested PM actively manage reading plan.
+- **Root cause:** Plan de lecturas was a static .docx. User wants PM to actively update it with each KB change.
+- **Rule:** The reading plan lives in `dashboard.html` (view-lecturas). PM responsibilities:
+  1. **Each session:** Consult KB (`getStats`), detect new entries, cross-reference with current reading plan
+  2. **Periodic sweeps:** Analyze full KB (ALTA + MEDIA), reevaluate MEDIA→ALTA upgrades, identify gaps
+  3. **Active search:** Add queries to Queries tab to fill gaps, search independently when needed
+  4. **When new source found:** Add to KB, update plan if relevant, explain why it matters
+  5. **Log everything:** Dashboard (plan), SessionLog, LessonsLog
+- **Queries added this session:** Q120 (NIST academic), Q121 (federal AI cases), Q122 (Spanish procedural law), Q123 (forensic admissibility), Q124 (Bueno de Mata)
+- **Key gaps identified:** Cap. 4 NIST (40 sources, critical), PATTERN case (weak), Spanish procedural doctrine (6 sources), Equity criterion (83 vs 372 Accountability)
+
+### PR-016 — Procedural law thread runs through entire thesis, not just C2 and C6
+- **Derived from:** Sesión 2026-03-18. Analysis of director's specialty (Bueno de Mata, catedrático D. Procesal).
+- **Rule:** The procedural law angle must appear in: C2 (pilar teórico), C3 (Art. 14 supervisión humana → admissibility), C5 (comparative: does NIST have contestability equivalent?), C6 (case: Daubert/Frye challenges), C7 (conclusions: procedural gaps). When reviewing readings or producing content, always ask: "¿dónde está el ángulo procesal?"
+
 ---
 
 ## Session History
 
 | Date | Session Type | Key Actions | Lessons Added |
 |------|-------------|-------------|---------------|
+| 2026-03-18 | reading-plan | KB analysis (1468 entries), Plan de Lecturas in Dashboard v8.0, 5 queries added (Q120-Q124), gap analysis, non-text resources | PR-015, PR-016 |
 | 2026-03-17 | restructuring | Dashboard v6.1, vault files, iCloud cleanup, Operativo standalone, KPIs dinámicos, session log | PR-013, PR-014 |
 | 2026-03-15 | automation | Dashboard v5.0 live API fetch + scheduled daily queue review task | PR-011 |
 | 2026-03-15 | queue-empty | 370 items processed, 3 queues → 0, NewsResults ID bug found | PR-009, PR-010 |
@@ -121,4 +138,4 @@ These are hard rules derived from past bugs. Violating any of these means repeat
 
 ---
 
-_Última actualización: 2026-03-15 (sesión 5, final)_
+_Última actualización: 2026-03-18 (sesión reading-plan)_

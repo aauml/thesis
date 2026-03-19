@@ -52,6 +52,51 @@ _Registro técnico del proyecto phd-pm. Actualizar al cierre de cada sesión. Al
 
 ## Registro de sesiones
 
+### 2026-03-18 — Plan de Lecturas Doctoral + KB Analysis + Gap Remediation
+
+**Contexto:** Sesión vía Cowork. Usuario proporcionó el chat anterior como contexto de referencia y el plan de lecturas previo (.docx). Solicitó análisis profundo del KB completo y creación de un plan de lecturas detallado por cuatrimestre/mes en el Dashboard.
+
+**Análisis del KB realizado:**
+- Total: 1,468 entradas (439 ALTA, 816 MEDIA, 212 BAJA)
+- Distribución por capítulo (ALTA/MEDIA): C1 48/94, C2 159/357, C3 249/274, C4 16/24, C5 76/151, C6 136/176
+- 67 fuentes MEDIA de autores clave identificadas como candidatas a upgrade ALTA
+- Gap crítico: Cap. 4 (NIST AI RMF) solo tiene 40 fuentes totales
+- 101 autores únicos, top: Kaminski (19 ALTA), Kratsios (9), Wachter (8), Veale (7), Kerry (6), Bradford (6)
+
+**Cambios realizados:**
+- **Dashboard v8.0:** Nueva vista "Plan Lecturas" con sistema de tabs por año, lecturas por cuatrimestre/mes, niveles N1-N4 + no-texto, gap tracker, tabla de bibliografía proyectada. CSS con prefijo `lec-*`. JS `showLecYear()`.
+- **5 queries agregados al KB (Q120-Q124):**
+  - Q120: NIST AI RMF academic analysis (tier 1, weekly)
+  - Q121: Federal AI case study candidates (tier 1, weekly)
+  - Q122: Derecho procesal + IA España (tier 1, monthly)
+  - Q123: Forensic algorithm admissibility (tier 2, monthly)
+  - Q124: Federico Bueno de Mata publications (tier 1, monthly)
+- **PM-LessonsLog:** PR-015 (reading plan as living document), PR-016 (procedural law thread)
+- **Decisión registrada en Dashboard:** Plan de lecturas con análisis completo
+
+**Hallazgos clave de la sesión:**
+- El eje procesal del director (Bueno de Mata) debe cruzar toda la tesis, no solo C2 y C6
+- Instrucción CGPJ 2/2026, R.D. 729/2023, Adan Domènech (2026) identificados como fuentes pendientes de agregar al KB
+- Recursos no-texto integrados: podcasts Tabassi/Wiley/Wharton, CSIS AI Policy Podcast, NIST AI RMF Playbook
+- Caso de estudio: mantener abierto con monitoring activo (Q121). STRmix mejor documentado que PATTERN.
+
+**Componentes actualizados:**
+
+| Componente | Versión | Cambio |
+|-----------|---------|--------|
+| Dashboard | v8.0 | Vista Plan Lecturas |
+| PM-LessonsLog | — | PR-015, PR-016, session entry |
+| PM-SessionLog | v5 | Esta entrada |
+| KB Queries tab | Q120-Q124 | 5 nuevos queries |
+
+**Pendiente para próxima sesión:**
+- Agregar al KB las fuentes encontradas en búsqueda web: Instrucción CGPJ 2/2026, R.D. 729/2023, Adan Domènech (2026), U.S. v. Ortiz, GAO-23-105139 PATTERN, propuesta FRE 707
+- Hacer primer sweep con los queries nuevos (Q120-Q124)
+- Evaluar las 67 MEDIA candidatas a upgrade ALTA
+- Montar vault Obsidian (PR-014) y verificar estado de fichas
+
+---
+
 ### 2026-03-15 (sesión 2) — GitHubSync + WebApp v33 + Drive API fix
 
 **Contexto:** Sesión larga (~2 horas), trabajo realizado vía Claude in Chrome controlando el GAS editor directamente. Sesión dividida por context compaction — los dos contextos cubrieron la misma cadena de trabajo.

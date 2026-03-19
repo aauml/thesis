@@ -299,7 +299,7 @@ _Registro técnico del proyecto phd-pm. Actualizar al cierre de cada sesión. Al
 ## Problemas conocidos (sin resolver)
 
 ### PM-BUG-001 — KB API action names sin documentar
-- **Estado:** Abierto
+- **Estado:** CERRADO (2026-03-18) — Descubierto en sesión reading-plan: acción correcta es `getAll` (no `getPage`). Parámetros: `search`, `importance`, `folder`, `action_tag`, `limit`, `offset`. Documentado en SKILL-PM §16 y en el scheduled task.
 - **Descripción:** El endpoint SHEET_API acepta actions pero no hay schema documentado accesible desde phd-pm. El skill phd-kb usa `action=getPage`, `action=append`, `action=promoteToNewsLog`, etc.
 - **Impacto:** Medio — no puedo generar el KB Intelligence Report automáticamente hasta confirmar las actions disponibles.
 - **Fix:** Coordinar con phd-kb para documentar API schema aquí o en archivo compartido.

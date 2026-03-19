@@ -187,13 +187,12 @@ git push
 
 | Sección | Tipo | Descripción |
 |---------|------|-------------|
-| Briefing de Estado | En página | Dónde está el doctorando, qué sigue. Se actualiza cada sesión. |
-| Progreso | En página | Timeline visual (Q1–Q4 2026, 2027, 2028) + caja «Siguientes Pasos». Se actualiza cada sesión. |
-| Hoja de Ruta | En página | Lecturas activas con contexto, milestones, dependencias conceptuales. |
-| Obsidian Digest | En página | Análisis de notas del vault con sugerencias de acción. |
-| Registro de Decisiones | En página (colapsable, al final) | Entradas cronológicas, más recientes primero. |
-| KB Intelligence Report | Modal (botón en header) | Panorama del KB, incorporaciones recientes, gaps. |
-| Mapa Conceptual | Modal (botón en header) | Las 5 capas de la tesis con referencias. |
+| Panorama | Vista sidebar | Advisor contextual, actividad actual, desarrollos recientes. |
+| Operativo | Vista sidebar | Milestones administrativos, tareas de sesión, riesgos activos. |
+| KB Report | Vista sidebar | Stats live del KB, distribución por capa, gaps. |
+| Plan Lecturas | Vista sidebar | Plan de lecturas por año/cuatrimestre/mes + timeline + gaps + bibliografía. **§16.** |
+| Mapa Conceptual | Vista sidebar | Las 5 capas de la tesis con matriz de correspondencia. |
+| Registro de Decisiones | Vista sidebar (colapsable) | Entradas cronológicas, más recientes primero. |
 
 ### Formato para nuevas decisiones
 
@@ -210,13 +209,12 @@ Insertar siempre al inicio del bloque de decisiones (dentro de `#sec-decisiones 
 
 | Sección | Actualizar cuando… |
 |---------|-------------------|
-| Briefing | Cada sesión donde cambie el estado |
-| Progreso | Cada sesión: mover nodos done/current, ajustar fill %, renovar siguientes pasos |
-| Hoja de Ruta | Cambien lecturas activas, milestones, o prioridades |
-| Obsidian Digest | Se lean notas del vault y haya sugerencias nuevas |
-| Registro de Decisiones | Se tome una decisión sustantiva |
-| KB Intelligence Report | Se corra `news` o `update` (automático con phd-kb) |
+| Panorama | Cada sesión donde cambie el estado |
+| Operativo | Cambien milestones, tareas, o riesgos |
+| KB Report | Se corra `news` o `update` (automático con phd-kb) |
+| Plan Lecturas | Sweep Level 2/3 detecte cambios, nueva fuente relevante, cambio de cuatrimestre (ver §16) |
 | Mapa Conceptual | Cambio estructural en matriz, caso, pilar, o normativa |
+| Registro de Decisiones | Se tome una decisión sustantiva |
 
 ### Clases CSS del Dashboard
 
@@ -232,20 +230,13 @@ Referencia rápida para no romper el formato:
 
 ---
 
-## 7b. SECCIÓN PROGRESO — protocolo de actualización
+## 7b. PLAN DE LECTURAS EN EL DASHBOARD
 
-La sección `#progreso` tiene dos componentes:
+El timeline visual ahora vive dentro de la vista `view-lecturas` (Plan Lecturas). Los nodos Q1-Q4/2027/2028 usan las mismas clases CSS `.tl-dot` (`.done`/`.current`/`.future`). Al cambiar de fase: actualizar clase del nodo correspondiente.
 
-### Timeline visual
+Las clases CSS del plan de lecturas usan prefijo `lec-*`. Ver WEBAPP-MEMORY.md si se necesita modificar el diseño.
 
-6 nodos: Q1 2026, Q2 2026, Q3 2026, Q4 2026, 2027, 2028. Cada nodo usa una de tres clases en `.tl-dot`:
-- `.done` — fase completada (fondo azul, texto blanco)
-- `.current` — fase actual (borde naranja con glow)
-- `.future` — fase pendiente (gris)
-
-La barra `.timeline-fill` tiene un `width` inline que se ajusta como porcentaje del total. Fórmula: `calc((100% - 48px) * X)` donde X va de 0 a 1.
-
-**Al cambiar de fase:** cambiar clase del nodo anterior a `.done`, clase del nodo nuevo a `.current`, ajustar fill %, actualizar `.tl-label` y `.tl-phase` con las clases `.active`/`.done-label`/`.active-phase`.
+Para actualizar contenido del plan: seguir protocolo §16.
 
 ### Caja «Siguientes Pasos»
 

@@ -626,9 +626,6 @@
       <button class="sb-item" onclick="switchView('kb', this)">
         <span class="sb-icon">📊</span> KB Report <span class="sb-badge" id="badge-kb">3</span>
       </button>
-      <button class="sb-item" onclick="switchView('progreso', this)">
-        <span class="sb-icon">📈</span> Progreso
-      </button>
       <button class="sb-item" onclick="switchView('mapa', this)">
         <span class="sb-icon">🗺</span> Mapa
       </button>
@@ -809,102 +806,6 @@
     </div>
 
     <!-- ═══════════════════════════════════
-         VIEW: PROGRESO
-    ═══════════════════════════════════ -->
-    <div class="view" id="view-progreso">
-
-      <h2>Progreso</h2>
-
-      <div class="timeline" id="timeline">
-        <div class="tl-node selected" onclick="showPeriod('q1',this)">
-          <div class="tl-dot current">Q1</div>
-          <div class="tl-label active">2026</div>
-          <div class="tl-phase active">Orientación</div>
-        </div>
-        <div class="tl-conn"></div>
-        <div class="tl-node" onclick="showPeriod('q2',this)">
-          <div class="tl-dot future">Q2</div>
-          <div class="tl-label">2026</div>
-          <div class="tl-phase">Cimientos</div>
-        </div>
-        <div class="tl-conn"></div>
-        <div class="tl-node" onclick="showPeriod('q3',this)">
-          <div class="tl-dot future">Q3</div>
-          <div class="tl-label">2026</div>
-          <div class="tl-phase">Análisis</div>
-        </div>
-        <div class="tl-conn"></div>
-        <div class="tl-node" onclick="showPeriod('q4',this)">
-          <div class="tl-dot future">Q4</div>
-          <div class="tl-label">2026</div>
-          <div class="tl-phase">Borradores</div>
-        </div>
-        <div class="tl-conn"></div>
-        <div class="tl-node" onclick="showPeriod('y27',this)">
-          <div class="tl-dot future">27</div>
-          <div class="tl-label">2027</div>
-          <div class="tl-phase">Escritura</div>
-        </div>
-        <div class="tl-conn"></div>
-        <div class="tl-node" onclick="showPeriod('y28',this)">
-          <div class="tl-dot future">28</div>
-          <div class="tl-label">2028</div>
-          <div class="tl-phase">Defensa</div>
-        </div>
-      </div>
-
-      <!-- Period panels -->
-      <div class="period-detail active" id="pd-q1">
-        <div class="pd-header"><h3>Q1 2026 · Enero – Abril</h3><span class="pd-phase-tag">Orientación</span></div>
-        <!-- Dynamic progress bar — calculated from Actividad Actual in Panorama -->
-        <div id="q1ProgressBar" style="margin-bottom:0.75rem;"></div>
-        <div style="font-size:0.78rem; color:var(--text-muted); padding:0.4rem 0;">Detalle de objetivos y criterios → ver <strong style="cursor:pointer; color:var(--accent-mid);" onclick="switchView('panorama', document.querySelector('.sb-item'))">Panorama · Actividad Actual</strong></div>
-      </div>
-
-      <div class="period-detail" id="pd-q2">
-        <div class="pd-header"><h3>Q2 2026 · Mayo – Julio</h3><span class="pd-phase-tag">Cimientos teóricos</span></div>
-        <div class="pd-obj"><div class="pd-icon read">↦</div><div><strong>Lecturas de los 4 pilares</strong> — completar orientación. Articular cada pilar en palabras propias.</div></div>
-        <div class="pd-obj"><div class="pd-icon write">✎</div><div><strong>Fichas de pilar en Obsidian</strong> — una por pilar (~1 página). Mover stubs a permanentes.</div></div>
-        <div class="pd-obj"><div class="pd-icon read">↦</div><div><strong>Veale &amp; Borgesius (2021)</strong> y <strong>Engler (2023)</strong> — NLF + regulación distribuida.</div></div>
-        <div class="pd-obj"><div class="pd-icon build">⚙</div><div><strong>Monitorear crosswalk NIST → AI Act</strong> — seguir publicación del crosswalk final.</div></div>
-        <div class="pd-obj"><div class="pd-icon decide">◆</div><div><strong>Primera reunión sustantiva con director</strong> — mapa, caso, plan de trabajo.</div></div>
-      </div>
-
-      <div class="period-detail" id="pd-q3">
-        <div class="pd-header"><h3>Q3 2026 · Agosto – Octubre</h3><span class="pd-phase-tag">Construcción analítica</span></div>
-        <div class="pd-obj"><div class="pd-icon build">⚙</div><div><strong>Construir la matriz de correspondencia</strong> — cada celda RIA art. × función NIST.</div></div>
-        <div class="pd-obj"><div class="pd-icon write">✎</div><div><strong>Protocolo de documentación</strong> — instrumento para el caso de estudio.</div></div>
-        <div class="pd-obj"><div class="pd-icon read">↦</div><div><strong>Lectura profunda del caso</strong> — documentación pública: auditorías, PIAs, reportes NIJ.</div></div>
-        <div class="pd-obj"><div class="pd-icon decide">◆</div><div><strong>Validación metodológica</strong> — director revisa matriz y protocolo.</div></div>
-      </div>
-
-      <div class="period-detail" id="pd-q4">
-        <div class="pd-header"><h3>Q4 2026 · Nov – Ene 2027</h3><span class="pd-phase-tag">Primeros borradores</span></div>
-        <div class="pd-obj"><div class="pd-icon write">✎</div><div><strong>Borrador Cap. 1 (Introducción)</strong> — preliminar, se reescribe en 2028.</div></div>
-        <div class="pd-obj"><div class="pd-icon write">✎</div><div><strong>Borrador Cap. 2 (Marco teórico)</strong> — integrando los 4 pilares.</div></div>
-        <div class="pd-obj"><div class="pd-icon write">✎</div><div><strong>Borrador Cap. 3 (El RIA)</strong> — arts. 8–15 y 16–18.</div></div>
-        <div class="pd-obj"><div class="pd-icon write">✎</div><div><strong>Borrador Cap. 4 (NIST AI RMF)</strong> — 4 funciones.</div></div>
-        <div class="pd-obj"><div class="pd-icon decide">◆</div><div><strong>Feedback del director</strong> — entregar 4 borradores.</div></div>
-      </div>
-
-      <div class="period-detail" id="pd-y27">
-        <div class="pd-header"><h3>2027</h3><span class="pd-phase-tag">Escritura y análisis</span></div>
-        <div class="pd-obj"><div class="pd-icon build">⚙</div><div><strong>Análisis comparativo (Cap. 5)</strong> — aplicar matriz al caso. Evaluar con criterios transversales.</div></div>
-        <div class="pd-obj"><div class="pd-icon write">✎</div><div><strong>Caso de estudio (Cap. 6)</strong> — análisis de cumplimiento, gaps, evaluación.</div></div>
-        <div class="pd-obj"><div class="pd-icon decide">◆</div><div><strong>Revisiones iterativas</strong> — ciclos con director.</div></div>
-        <div class="pd-obj"><div class="pd-icon build">⚙</div><div><strong>Conferencias y publicación</strong> — explorar presentación de avances.</div></div>
-      </div>
-
-      <div class="period-detail" id="pd-y28">
-        <div class="pd-header"><h3>2028</h3><span class="pd-phase-tag">Cierre y defensa</span></div>
-        <div class="pd-obj"><div class="pd-icon write">✎</div><div><strong>Caps. 1 y 7 + manuscrito final</strong> — reescribir Introducción, Conclusiones, anexos.</div></div>
-        <div class="pd-obj"><div class="pd-icon decide">◆</div><div><strong>Revisión formal y depósito</strong> — correcciones finales, proceso USAL.</div></div>
-        <div class="pd-obj"><div class="pd-icon build">⚙</div><div><strong>Defensa de la tesis</strong> — presentación, anticipar preguntas del tribunal.</div></div>
-      </div>
-
-    </div>
-
-    <!-- ═══════════════════════════════════
          VIEW: MAPA
     ═══════════════════════════════════ -->
     <div class="view" id="view-mapa">
@@ -1067,6 +968,24 @@
       <h2>Plan de Lecturas Doctoral</h2>
       <div style="font-size:0.72rem; color:var(--text-muted); margin-bottom:0.4rem;">Basado en análisis del KB (1,468 entradas, 439 ALTA). Se actualiza con cada sweep del corpus. <strong>Última revisión: 18 marzo 2026.</strong></div>
 
+      <!-- Timeline integrado de Progreso -->
+      <div class="timeline" id="timeline" style="margin-bottom:1rem;">
+        <div class="tl-node selected">
+          <div class="tl-dot current">Q1</div>
+          <div class="tl-label active">2026</div>
+        </div>
+        <div class="tl-conn"></div>
+        <div class="tl-node"><div class="tl-dot future">Q2</div><div class="tl-label">2026</div></div>
+        <div class="tl-conn"></div>
+        <div class="tl-node"><div class="tl-dot future">Q3</div><div class="tl-label">2026</div></div>
+        <div class="tl-conn"></div>
+        <div class="tl-node"><div class="tl-dot future">Q4</div><div class="tl-label">2026</div></div>
+        <div class="tl-conn"></div>
+        <div class="tl-node"><div class="tl-dot future">27</div><div class="tl-label">2027</div></div>
+        <div class="tl-conn"></div>
+        <div class="tl-node"><div class="tl-dot future">28</div><div class="tl-label">2028</div></div>
+      </div>
+
       <!-- Nivel legend -->
       <div class="lec-legend">
         <span class="lec-lvl lec-n1">N1 Profunda</span>
@@ -1101,15 +1020,15 @@
 
           <div class="lec-month">
             <div class="lec-month-label">Enero – Febrero</div>
-            <div class="lec-item"><span class="lec-lvl lec-n1">N1</span><div><strong>Kaminski (2023) «Regulating the Risks of AI»</strong> — lectura completa. <em>Lente: cómo construye el argumento de regulación basada en riesgo y por qué critica el enfoque sectorial de EE.UU. Conectar con Art. 9 RIA.</em><br><span class="lec-chapter">→ Cap. 2 (gobernanza comparada) + Cap. 3 (RIA)</span></div></div>
-            <div class="lec-item"><span class="lec-lvl lec-nr">🎧</span><div><strong>NIST AI RMF Playbook</strong> — recurso oficial de implementación del framework. <em>Leer en paralelo a Kaminski para contrastar enfoque prescriptivo (RIA) vs. voluntario (NIST).</em><br><span class="lec-chapter">→ Cap. 4 (NIST AI RMF)</span></div></div>
+            <div class="lec-item"><span class="lec-lvl lec-n1">N1</span><div><strong><a href="https://www.bu.edu/bulawreview/files/2023/11/KAMINSKI.pdf" target="_blank">Kaminski (2023) «Regulating the Risks of AI»</a></strong> — lectura completa. <em>Lente: cómo construye el argumento de regulación basada en riesgo y por qué critica el enfoque sectorial de EE.UU. Conectar con Art. 9 RIA.</em><br><span class="lec-chapter">→ Cap. 2 (gobernanza comparada) + Cap. 3 (RIA)</span></div></div>
+            <div class="lec-item"><span class="lec-lvl lec-nr">🎧</span><div><strong><a href="https://airc.nist.gov/Docs/1" target="_blank">NIST AI RMF Playbook</a></strong> — recurso oficial de implementación del framework. <em>Leer en paralelo a Kaminski para contrastar enfoque prescriptivo (RIA) vs. voluntario (NIST).</em><br><span class="lec-chapter">→ Cap. 4 (NIST AI RMF)</span></div></div>
           </div>
 
           <div class="lec-month">
             <div class="lec-month-label">Marzo – Abril</div>
-            <div class="lec-item"><span class="lec-lvl lec-n1">N1</span><div><strong>Bradford (2020) «The Brussels Effect» caps. 1-3</strong> — lectura selectiva del mecanismo de transmisión regulatoria. <em>Lente: por qué la UE logra exportar estándares y si el AI Act replica ese patrón. Bradford 2023 «Digital Empires» complementa.</em><br><span class="lec-chapter">→ Cap. 2 (gobernanza comparada)</span></div></div>
-            <div class="lec-item"><span class="lec-lvl lec-n2">N2</span><div><strong>Veale & Borgesius (2021) «Demystifying the Draft EU AI Act»</strong> — §§ sobre alto riesgo y conformidad. <em>Lente: debilidades del borrador que se corrigieron (o no) en la versión final 2024/1689.</em><br><span class="lec-chapter">→ Cap. 3 (RIA)</span></div></div>
-            <div class="lec-item"><span class="lec-lvl lec-n3">N3</span><div><strong>Engler (2023) «EU and US Diverge on AI Regulation»</strong> — comparación transatlántica directa. Consulta rápida para calibrar el argumento central.<br><span class="lec-chapter">→ Cap. 2 + Cap. 5 (comparativo)</span></div></div>
+            <div class="lec-item"><span class="lec-lvl lec-n1">N1</span><div><strong><a href="https://www.brookings.edu/articles/the-eu-and-us-diverge-on-ai-regulation-a-transatlantic-comparison-and-steps-to-alignment/" target="_blank">Bradford (2020) «The Brussels Effect» caps. 1-3</a></strong> — lectura selectiva del mecanismo de transmisión regulatoria. <em>Lente: por qué la UE logra exportar estándares y si el AI Act replica ese patrón. Bradford 2023 «Digital Empires» complementa.</em><br><span class="lec-chapter">→ Cap. 2 (gobernanza comparada)</span></div></div>
+            <div class="lec-item"><span class="lec-lvl lec-n2">N2</span><div><strong><a href="https://doi.org/10.1016/j.clsr.2021.105573" target="_blank">Veale & Borgesius (2021) «Demystifying the Draft EU AI Act»</a></strong> — §§ sobre alto riesgo y conformidad. <em>Lente: debilidades del borrador que se corrigieron (o no) en la versión final 2024/1689.</em><br><span class="lec-chapter">→ Cap. 3 (RIA)</span></div></div>
+            <div class="lec-item"><span class="lec-lvl lec-n3">N3</span><div><strong><a href="https://www.brookings.edu/articles/the-eu-and-us-diverge-on-ai-regulation-a-transatlantic-comparison-and-steps-to-alignment/" target="_blank">Engler (2023) «EU and US Diverge on AI Regulation»</a></strong> — comparación transatlántica directa. Consulta rápida para calibrar el argumento central.<br><span class="lec-chapter">→ Cap. 2 + Cap. 5 (comparativo)</span></div></div>
           </div>
         </div>
 
@@ -1122,16 +1041,16 @@
 
           <div class="lec-month">
             <div class="lec-month-label">Mayo – Junio</div>
-            <div class="lec-item"><span class="lec-lvl lec-n1">N1</span><div><strong>Reglamento (UE) 2024/1689 (AI Act / RIA)</strong> — Arts. 1-15 y 16-18. Lectura normativa primaria. <em>Lente: requisitos operativos para sistemas de alto riesgo. Marcar cada artículo contra las funciones NIST.</em><br><span class="lec-chapter">→ Cap. 3 (El RIA)</span></div></div>
-            <div class="lec-item"><span class="lec-lvl lec-n1">N1</span><div><strong>NIST AI 100-1 (AI RMF 1.0) + AI 600-1 (Gen AI Profile)</strong> — lectura completa del framework y el perfil generativo. <em>Lente: las 4 funciones (GOVERN, MAP, MEASURE, MANAGE) como categorías del análisis comparativo.</em><br><span class="lec-chapter">→ Cap. 4 (NIST AI RMF)</span></div></div>
-            <div class="lec-item"><span class="lec-lvl lec-nr">🎧</span><div><strong>Podcast Tabassi (NIST) en Wiley Law</strong> — la arquitecta del AI RMF explica el diseño. ~45 min. Más útil que 3 papers para entender la filosofía del framework.<br><span class="lec-chapter">→ Cap. 4 (NIST AI RMF)</span></div></div>
+            <div class="lec-item"><span class="lec-lvl lec-n1">N1</span><div><strong><a href="https://eur-lex.europa.eu/eli/reg/2024/1689/oj" target="_blank">Reglamento (UE) 2024/1689 (AI Act / RIA)</a></strong> — Arts. 1-15 y 16-18. Lectura normativa primaria. <em>Lente: requisitos operativos para sistemas de alto riesgo. Marcar cada artículo contra las funciones NIST.</em><br><span class="lec-chapter">→ Cap. 3 (El RIA)</span></div></div>
+            <div class="lec-item"><span class="lec-lvl lec-n1">N1</span><div><strong><a href="https://nvlpubs.nist.gov/nistpubs/ai/nist.ai.100-1.pdf" target="_blank">NIST AI 100-1 (AI RMF 1.0)</a> + <a href="https://nvlpubs.nist.gov/nistpubs/ai/nist.ai.600-1.pdf" target="_blank">AI 600-1 (Gen AI Profile)</a></strong> — lectura completa del framework y el perfil generativo. <em>Lente: las 4 funciones (GOVERN, MAP, MEASURE, MANAGE) como categorías del análisis comparativo.</em><br><span class="lec-chapter">→ Cap. 4 (NIST AI RMF)</span></div></div>
+            <div class="lec-item"><span class="lec-lvl lec-nr">🎧</span><div><strong><a href="https://www.nist.gov/publications/artificial-intelligence-risk-management-framework-ai-rmf-10" target="_blank">Podcast Tabassi (NIST) en Wiley Law</a></strong> — la arquitecta del AI RMF explica el diseño. ~45 min. Más útil que 3 papers para entender la filosofía del framework.<br><span class="lec-chapter">→ Cap. 4 (NIST AI RMF)</span></div></div>
           </div>
 
           <div class="lec-month">
             <div class="lec-month-label">Julio – Agosto</div>
-            <div class="lec-item"><span class="lec-lvl lec-n1">N1</span><div><strong>Selbst & Kaminski (2025) «An American's Guide to the EU AI Act»</strong> — puente transatlántico. <em>Lente: cómo leen dos americanistas el AI Act y dónde ven las mayores fricciones con el sistema regulatorio de EE.UU.</em><br><span class="lec-chapter">→ Cap. 2 + Cap. 5 (comparativo)</span></div></div>
-            <div class="lec-item"><span class="lec-lvl lec-n2">N2</span><div><strong>Wachter (2020) «Counterfactual Explanations without Opening the Black Box»</strong> — §§ sobre explicabilidad y el GDPR. <em>Lente: anticipar argumentos de explicabilidad para el criterio evaluativo.</em><br><span class="lec-chapter">→ Cap. 2 (contestabilidad) + Cap. 7 (evaluación)</span></div></div>
-            <div class="lec-item"><span class="lec-lvl lec-n2">N2</span><div><strong>Wexler (2018) «Life, Liberty, and Trade Secrets»</strong> — §§ sobre secreto comercial vs. debido proceso. <em>Lente: el problema procesal central del caso de estudio.</em><br><span class="lec-chapter">→ Cap. 2 (derecho procesal) + Cap. 6 (caso)</span></div></div>
+            <div class="lec-item"><span class="lec-lvl lec-n1">N1</span><div><strong><a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=5373345" target="_blank">Selbst & Kaminski (2025) «An American's Guide to the EU AI Act»</a></strong> — puente transatlántico. <em>Lente: cómo leen dos americanistas el AI Act y dónde ven las mayores fricciones con el sistema regulatorio de EE.UU.</em><br><span class="lec-chapter">→ Cap. 2 + Cap. 5 (comparativo)</span></div></div>
+            <div class="lec-item"><span class="lec-lvl lec-n2">N2</span><div><strong><a href="https://jolt.law.harvard.edu/assets/articlePDFs/v31/Counterfactual-Explanations-without-Opening-the-Black-Box.pdf" target="_blank">Wachter (2020) «Counterfactual Explanations without Opening the Black Box»</a></strong> — §§ sobre explicabilidad y el GDPR. <em>Lente: anticipar argumentos de explicabilidad para el criterio evaluativo.</em><br><span class="lec-chapter">→ Cap. 2 (contestabilidad) + Cap. 7 (evaluación)</span></div></div>
+            <div class="lec-item"><span class="lec-lvl lec-n2">N2</span><div><strong><a href="https://review.law.stanford.edu/wp-content/uploads/sites/3/2018/02/70-Stan.-L.-Rev.-1.-Wexler.pdf" target="_blank">Wexler (2018) «Life, Liberty, and Trade Secrets»</a></strong> — §§ sobre secreto comercial vs. debido proceso. <em>Lente: el problema procesal central del caso de estudio.</em><br><span class="lec-chapter">→ Cap. 2 (derecho procesal) + Cap. 6 (caso)</span></div></div>
           </div>
         </div>
 
@@ -1144,17 +1063,17 @@
 
           <div class="lec-month">
             <div class="lec-month-label">Septiembre – Octubre</div>
-            <div class="lec-item"><span class="lec-lvl lec-n1">N1</span><div><strong>Hildebrandt (2020) «Law for Computer Scientists and Other Folk»</strong> — caps. seleccionados sobre interpretabilidad legal y protección por diseño. <em>Lente: el argumento de que la IA cambia la naturaleza de la evidencia legal.</em><br><span class="lec-chapter">→ Cap. 2 (pilar 3: derecho procesal)</span></div></div>
+            <div class="lec-item"><span class="lec-lvl lec-n1">N1</span><div><strong><a href="https://lawforcomputerscientists.org/" target="_blank">Hildebrandt (2020) «Law for Computer Scientists and Other Folk»</a></strong> — caps. seleccionados sobre interpretabilidad legal y protección por diseño. <em>Lente: el argumento de que la IA cambia la naturaleza de la evidencia legal.</em><br><span class="lec-chapter">→ Cap. 2 (pilar 3: derecho procesal)</span></div></div>
             <div class="lec-item"><span class="lec-lvl lec-n2">N2</span><div><strong>Bueno de Mata — publicaciones sobre prueba tecnológica</strong> — (pendiente: sweep de publicaciones del director). <em>Lente: la doctrina procesal española que fundamenta el eje procesal de la tesis.</em><br><span class="lec-chapter">→ Cap. 2 (pilar 3) — conexión directa con el director</span></div></div>
             <div class="lec-item"><span class="lec-lvl lec-n3">N3</span><div><strong>Instrucción CGPJ 2/2026</strong> — sobre uso de IA en actividad judicial. <em>Consulta puntual: contextualiza el estado del derecho español.</em><br><span class="lec-chapter">→ Cap. 2 (derecho procesal)</span></div></div>
           </div>
 
           <div class="lec-month">
             <div class="lec-month-label">Noviembre – Diciembre</div>
-            <div class="lec-item"><span class="lec-lvl lec-n1">N1</span><div><strong>Pasquale (2015) «The Black Box Society»</strong> — caps. sobre opacidad algorítmica y accountability. <em>Lente: el marco fundacional de la contestabilidad — por qué importa abrir la caja negra.</em><br><span class="lec-chapter">→ Cap. 2 (pilar 4: contestabilidad)</span></div></div>
-            <div class="lec-item"><span class="lec-lvl lec-n2">N2</span><div><strong>Buckleton et al. (2018-2023) — validación STRmix</strong> — papers de validación y las respuestas a PCAST. <em>Lente: lectura exploratoria para evaluar viabilidad del caso de estudio.</em><br><span class="lec-chapter">→ Cap. 6 (caso de estudio)</span></div></div>
-            <div class="lec-item"><span class="lec-lvl lec-n3">N3</span><div><strong>GAO-23-105139 (PATTERN/First Step Act)</strong> — informe de auditoría federal. <em>Comparar con STRmix como candidato alternativo.</em><br><span class="lec-chapter">→ Cap. 6 (caso de estudio)</span></div></div>
-            <div class="lec-item"><span class="lec-lvl lec-nr">🎧</span><div><strong>CSIS AI Policy Podcast (Allen)</strong> — episodios sobre AI governance federal y NIST. <em>Contexto de política pública estadounidense.</em><br><span class="lec-chapter">→ Cap. 2 + Cap. 4</span></div></div>
+            <div class="lec-item"><span class="lec-lvl lec-n1">N1</span><div><strong><a href="https://www.hup.harvard.edu/books/9780674970847" target="_blank">Pasquale (2015) «The Black Box Society»</a></strong> — caps. sobre opacidad algorítmica y accountability. <em>Lente: el marco fundacional de la contestabilidad — por qué importa abrir la caja negra.</em><br><span class="lec-chapter">→ Cap. 2 (pilar 4: contestabilidad)</span></div></div>
+            <div class="lec-item"><span class="lec-lvl lec-n2">N2</span><div><strong><a href="https://doi.org/10.1016/j.fsigen.2018.07.005" target="_blank">Buckleton et al. (2018-2023) — validación STRmix</a></strong> — papers de validación y las respuestas a PCAST. <em>Lente: lectura exploratoria para evaluar viabilidad del caso de estudio.</em><br><span class="lec-chapter">→ Cap. 6 (caso de estudio)</span></div></div>
+            <div class="lec-item"><span class="lec-lvl lec-n3">N3</span><div><strong><a href="https://www.gao.gov/assets/gao-23-105139.pdf" target="_blank">GAO-23-105139 (PATTERN/First Step Act)</a></strong> — informe de auditoría federal. <em>Comparar con STRmix como candidato alternativo.</em><br><span class="lec-chapter">→ Cap. 6 (caso de estudio)</span></div></div>
+            <div class="lec-item"><span class="lec-lvl lec-nr">🎧</span><div><strong><a href="https://www.csis.org/podcasts/ai-policy-podcast" target="_blank">CSIS AI Policy Podcast (Allen)</a></strong> — episodios sobre AI governance federal y NIST. <em>Contexto de política pública estadounidense.</em><br><span class="lec-chapter">→ Cap. 2 + Cap. 4</span></div></div>
           </div>
         </div>
       </div>
@@ -1176,16 +1095,16 @@
 
           <div class="lec-month">
             <div class="lec-month-label">Enero – Febrero</div>
-            <div class="lec-item"><span class="lec-lvl lec-n1">N1</span><div><strong>Yeung (2018) «Algorithmic Regulation and the Rule of Law»</strong> — cómo la regulación algorítmica transforma el Estado de derecho. <em>Lente: tensión entre eficiencia algorítmica y garantías procesales.</em><br><span class="lec-chapter">→ Cap. 2 §2.2</span></div></div>
-            <div class="lec-item"><span class="lec-lvl lec-n1">N1</span><div><strong>Renda (2024) «Stop Relying on the Brussels Effect»</strong> — crítica directa a Bradford. <em>Lente: ¿funciona el efecto Bruselas con estándares técnicos como los del AI Act?</em><br><span class="lec-chapter">→ Cap. 2 §2.1</span></div></div>
+            <div class="lec-item"><span class="lec-lvl lec-n1">N1</span><div><strong><a href="https://royalsocietypublishing.org/doi/10.1098/rsta.2018.0089" target="_blank">Yeung (2018) «Algorithmic Regulation and the Rule of Law»</a></strong> — cómo la regulación algorítmica transforma el Estado de derecho. <em>Lente: tensión entre eficiencia algorítmica y garantías procesales.</em><br><span class="lec-chapter">→ Cap. 2 §2.2</span></div></div>
+            <div class="lec-item"><span class="lec-lvl lec-n1">N1</span><div><strong><a href="https://mostly.ai/data-democratization-podcast/stop-relying-on-the-brussels-effect-on-effective-digital-policymaking-and-transatlantic-convergence" target="_blank">Renda (2024) «Stop Relying on the Brussels Effect»</a></strong> — crítica directa a Bradford. <em>Lente: ¿funciona el efecto Bruselas con estándares técnicos como los del AI Act?</em><br><span class="lec-chapter">→ Cap. 2 §2.1</span></div></div>
             <div class="lec-item"><span class="lec-lvl lec-n2">N2</span><div><strong>10-15 fuentes N2</strong> del KB: Smuha (Cambridge Handbook), Hacker (simplificación AI Act), Crum (Brussels Effect or Experimentalism?), Narayanan (AI as Normal Technology). <em>Capítulos selectivos, alimentan bibliografía del Cap. 2.</em></div></div>
           </div>
 
           <div class="lec-month">
             <div class="lec-month-label">Marzo – Abril</div>
-            <div class="lec-item"><span class="lec-lvl lec-n1">N1</span><div><strong>Finck (2026) «EU AI Act: A Commentary» (OUP)</strong> — comentario artículo por artículo. <em>Referencia primaria para Cap. 3. Lectura profunda de arts. 9-15.</em><br><span class="lec-chapter">→ Cap. 3 (El RIA)</span></div></div>
-            <div class="lec-item"><span class="lec-lvl lec-n2">N2</span><div><strong>Ebers (2024) «Truly Risk-Based Regulation of AI»</strong> — si el AI Act es verdaderamente basado en riesgo o solo lo aparenta.<br><span class="lec-chapter">→ Cap. 3</span></div></div>
-            <div class="lec-item"><span class="lec-lvl lec-n1">N1</span><div><strong>Schuett (2024) «Risk Management in the AI Act»</strong> — el Art. 9 como corazón del sistema. <em>Lente: cómo se operacionaliza la gestión de riesgos y cómo mapea contra NIST.</em><br><span class="lec-chapter">→ Cap. 3 + Cap. 5 (comparativo)</span></div></div>
+            <div class="lec-item"><span class="lec-lvl lec-n1">N1</span><div><strong><a href="https://global.oup.com/academic/product/the-eu-artificial-intelligence-act-9780198925705" target="_blank">Finck (2026) «EU AI Act: A Commentary» (OUP)</a></strong> — comentario artículo por artículo. <em>Referencia primaria para Cap. 3. Lectura profunda de arts. 9-15.</em><br><span class="lec-chapter">→ Cap. 3 (El RIA)</span></div></div>
+            <div class="lec-item"><span class="lec-lvl lec-n2">N2</span><div><strong><a href="https://www.cambridge.org/core/journals/cambridge-law-journal/article/truly-riskbased-regulation-of-artificial-intelligence" target="_blank">Ebers (2024) «Truly Risk-Based Regulation of AI»</a></strong> — si el AI Act es verdaderamente basado en riesgo o solo lo aparenta.<br><span class="lec-chapter">→ Cap. 3</span></div></div>
+            <div class="lec-item"><span class="lec-lvl lec-n1">N1</span><div><strong><a href="https://arxiv.org/pdf/2212.03109.pdf" target="_blank">Schuett (2024) «Risk Management in the AI Act»</a></strong> — el Art. 9 como corazón del sistema. <em>Lente: cómo se operacionaliza la gestión de riesgos y cómo mapea contra NIST.</em><br><span class="lec-chapter">→ Cap. 3 + Cap. 5 (comparativo)</span></div></div>
           </div>
         </div>
 
@@ -1205,7 +1124,7 @@
 
           <div class="lec-month">
             <div class="lec-month-label">Julio – Agosto</div>
-            <div class="lec-item"><span class="lec-lvl lec-n2">N2</span><div><strong>Kiesow Cortez (2024) «AI and Privacy Risks: EU AI Act vs NIST AI RMF»</strong> — comparación directa de los dos frameworks.<br><span class="lec-chapter">→ Cap. 5 (comparativo)</span></div></div>
+            <div class="lec-item"><span class="lec-lvl lec-n2">N2</span><div><strong><a href="https://doi.org/10.1016/j.clsr.2024.105959" target="_blank">Kiesow Cortez (2024) «AI and Privacy Risks: EU AI Act vs NIST AI RMF»</a></strong> — comparación directa de los dos frameworks.<br><span class="lec-chapter">→ Cap. 5 (comparativo)</span></div></div>
             <div class="lec-item"><span class="lec-lvl lec-n2">N2</span><div><strong>EC-Council crosswalk AI Act / NIST RMF / ISO 42001</strong> — crosswalk de practitioner.<br><span class="lec-chapter">→ Cap. 5 (comparativo)</span></div></div>
             <div class="lec-item"><span class="lec-lvl lec-n3">N3</span><div><strong>OMB M-25-21 + EO 14365</strong> — contexto regulatorio federal actual. Documentos normativos de consulta obligada.<br><span class="lec-chapter">→ Cap. 4 + Cap. 6</span></div></div>
           </div>
@@ -1221,15 +1140,15 @@
 
           <div class="lec-month">
             <div class="lec-month-label">Septiembre – Octubre</div>
-            <div class="lec-item"><span class="lec-lvl lec-n1">N1</span><div><strong>Kaminski & Urban «Right to Contest AI»</strong> — el derecho a contestar decisiones automatizadas. <em>Lente: cómo articular el pilar de contestabilidad con las garantías procesales del director.</em><br><span class="lec-chapter">→ Cap. 2 §2.4 (contestabilidad)</span></div></div>
-            <div class="lec-item"><span class="lec-lvl lec-n1">N1</span><div><strong>Dempsey (2024) «Challenging the Machine: Contestability in Government AI»</strong> — contestabilidad en IA gubernamental específicamente.<br><span class="lec-chapter">→ Cap. 2 + Cap. 6</span></div></div>
+            <div class="lec-item"><span class="lec-lvl lec-n1">N1</span><div><strong><a href="https://scholarship.law.columbia.edu/faculty_scholarship/3239/" target="_blank">Kaminski & Urban «Right to Contest AI»</a></strong> — el derecho a contestar decisiones automatizadas. <em>Lente: cómo articular el pilar de contestabilidad con las garantías procesales del director.</em><br><span class="lec-chapter">→ Cap. 2 §2.4 (contestabilidad)</span></div></div>
+            <div class="lec-item"><span class="lec-lvl lec-n1">N1</span><div><strong><a href="https://scholarship.law.berkeley.edu/facpubs/3197/" target="_blank">Dempsey (2024) «Challenging the Machine: Contestability in Government AI»</a></strong> — contestabilidad en IA gubernamental específicamente.<br><span class="lec-chapter">→ Cap. 2 + Cap. 6</span></div></div>
           </div>
 
           <div class="lec-month">
             <div class="lec-month-label">Noviembre – Diciembre</div>
             <div class="lec-item"><span class="lec-lvl lec-n2">N2</span><div><strong>Documentación completa del caso seleccionado</strong> — auditorías, PIAs, reportes NIJ/GAO, jurisprudencia relevante. <em>El caso ya estará decidido para este punto.</em><br><span class="lec-chapter">→ Cap. 6 (caso de estudio)</span></div></div>
-            <div class="lec-item"><span class="lec-lvl lec-n2">N2</span><div><strong>Garrett (2023) «Interpretable Algorithmic Forensics»</strong> — interpretabilidad en forense algorítmico.<br><span class="lec-chapter">→ Cap. 6</span></div></div>
-            <div class="lec-item"><span class="lec-lvl lec-n3">N3</span><div><strong>CETS 225 (CoE AI Convention)</strong> — obligaciones internacionales. Texto + análisis de ratificación US.<br><span class="lec-chapter">→ Cap. 2 + Cap. 5</span></div></div>
+            <div class="lec-item"><span class="lec-lvl lec-n2">N2</span><div><strong><a href="https://www.pnas.org/doi/10.1073/pnas.2301842120" target="_blank">Garrett (2023) «Interpretable Algorithmic Forensics»</a></strong> — interpretabilidad en forense algorítmico.<br><span class="lec-chapter">→ Cap. 6</span></div></div>
+            <div class="lec-item"><span class="lec-lvl lec-n3">N3</span><div><strong><a href="https://rm.coe.int/1680afae3c" target="_blank">CETS 225 (CoE AI Convention)</a></strong> — obligaciones internacionales. Texto + análisis de ratificación US.<br><span class="lec-chapter">→ Cap. 2 + Cap. 5</span></div></div>
           </div>
         </div>
       </div>
@@ -1262,7 +1181,7 @@
           <div class="lec-q-product">Producto: protocolo de documentación. Cap. 1 (metodología) borrador. Análisis parcial del caso.</div>
           <div class="lec-month">
             <div class="lec-month-label">Todo el cuatrimestre</div>
-            <div class="lec-item"><span class="lec-lvl lec-n1">N1</span><div><strong>Selbst (2024) «Institutional View of Algorithmic Impact Assessments»</strong> — evaluación de impacto algorítmico desde perspectiva institucional.<br><span class="lec-chapter">→ Cap. 5 + Cap. 6</span></div></div>
+            <div class="lec-item"><span class="lec-lvl lec-n1">N1</span><div><strong><a href="https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4786548" target="_blank">Selbst (2024) «Institutional View of Algorithmic Impact Assessments»</a></strong> — evaluación de impacto algorítmico desde perspectiva institucional.<br><span class="lec-chapter">→ Cap. 5 + Cap. 6</span></div></div>
             <div class="lec-item"><span class="lec-lvl lec-n2">N2</span><div><strong>20-30 fuentes del caso</strong> — informes GAO, OIG del DOJ, documentación técnica del sistema, jurisprudencia. El KB tendrá ~150+ fuentes de caso para este punto.<br><span class="lec-chapter">→ Cap. 6</span></div></div>
           </div>
         </div>
@@ -1391,17 +1310,6 @@ function switchView(id, btn) {
   badge.textContent = count;
   badge.style.display = count > 0 ? '' : 'none';
 })();
-
-// ═══════════════════════════════════════
-// TIMELINE
-// ═══════════════════════════════════════
-function showPeriod(id, node) {
-  document.querySelectorAll('.period-detail').forEach(p => p.classList.remove('active'));
-  const panel = document.getElementById('pd-' + id);
-  if (panel) panel.classList.add('active');
-  document.querySelectorAll('.tl-node').forEach(n => n.classList.remove('selected'));
-  if (node) node.classList.add('selected');
-}
 
 // ═══════════════════════════════════════
 // DECISIONS

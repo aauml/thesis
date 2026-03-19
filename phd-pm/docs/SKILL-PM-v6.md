@@ -442,6 +442,23 @@ Every change to the reading plan MUST be logged in two places:
 
 Format: `<div class="lec-cl-item"><span class="lec-cl-date">YYYY-MM-DD</span> <strong>Brief title.</strong> Description of what changed and why.</div>`
 
+### Reading completion protocol
+
+When user reports finishing a reading (e.g. "terminé Kaminski", "la ficha está en Obsidian"):
+
+1. **Plan de Lecturas:** Add class `lec-done` to the `lec-item` div. Change status tag to `<span class="lec-status lec-st-done">COMPLETADA</span>`. If ficha exists, add `<span class="lec-status lec-st-ficha">FICHA ✓</span>`.
+2. **Panorama:** Move the next N1 reading to "En curso" (`act-inprogress`). Remove the completed one or mark it done.
+3. **Changelog:** Add entry: "Completada: [title]. Ficha: [filename]. Siguiente: [next title]."
+4. **SessionLog:** Note what was completed and what moves to current.
+5. **Obsidian check:** If vault is mounted, verify the ficha exists and has substance (not just a stub).
+
+Status tags (HTML classes):
+- `lec-st-progress` — orange: currently reading
+- `lec-st-done` — green: reading completed
+- `lec-st-ficha` — blue: ficha written in Obsidian
+
+CSS for completed items: `.lec-item.lec-done` (opacity 0.55, title strikethrough).
+
 ### Rules
 
 - Never update the reading plan without checking the KB first

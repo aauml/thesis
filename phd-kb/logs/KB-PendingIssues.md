@@ -124,17 +124,24 @@ _Actualizar al cierre de cada sesión. Este archivo es la memoria técnica del s
 - **Prioridad:** URGENTE — run `update claude` on or after March 27
 - **Fecha detectado:** 2026-03-19
 
+### TASK-010 — Backfill run 210 items to Supabase + update meta
+- **Estado:** Pendiente
+- **Descripción:** 5 items from run 2026-03-19-210 written to Sheet with `notes="supabase_write_failed"` because Supabase was unreachable (DNS cache overflow). Need to: (1) write these 5 items to Supabase, (2) update Sheet meta `total_searches=210`, (3) clear `supabase_write_failed` from notes.
+- **Prioridad:** Media — data is safe in Sheet, just needs Supabase sync
+- **Fecha detectado:** 2026-03-19
+
 ---
 
 ## Próxima sesión
 
 - **Prioridad 1:** TASK-007 — Análisis TRUMP AMERICA AI Act (~300 pages) — mapear provisiones NIST contra Arts. 9-15
 - **Prioridad 2:** TASK-009 — Post March 26 plenary vote: check Digital Omnibus outcome
-- **Prioridad 3:** BUG-004 — Reducir noise en AcademicQueue (filtros arXiv o pre-screening)
-- **Prioridad 4:** BUG-003 — re-evaluar 77 entradas degradadas (priorizar ALTA, usar synthesis de PerplexityQueue)
-- **Prioridad 5:** Resolver BUG-001 (84 stuck en PerplexityQueue) — script Python de limpieza
-- **Prioridad 6:** TASK-001 — limpiar 3 entradas TEST en NewsLog
-- **Prioridad 7:** TASK-008 — Update Colorado AI Act entries with new June 30 enforcement date
-- **Prioridad 8:** TASK-006 — Primera sesión `update` con SKILL-KB-v16 (Supabase-primary + verification log)
+- **Prioridad 3:** TASK-010 — Backfill 5 items to Supabase + update meta to 210
+- **Prioridad 4:** BUG-004 — Reducir noise en AcademicQueue (filtros arXiv o pre-screening)
+- **Prioridad 5:** BUG-003 — re-evaluar 77 entradas degradadas (priorizar ALTA, usar synthesis de PerplexityQueue)
+- **Prioridad 6:** Resolver BUG-001 (84 stuck en PerplexityQueue) — script Python de limpieza
+- **Prioridad 7:** TASK-001 — limpiar 3 entradas TEST en NewsLog
+- **Prioridad 8:** TASK-008 — Update Colorado AI Act entries with new June 30 enforcement date
+- **Prioridad 9:** TASK-006 — Primera sesión con Supabase-primary writes verified end-to-end
 
 _Última actualización: 2026-03-19_

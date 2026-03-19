@@ -47,6 +47,11 @@ These are hard rules derived from past bugs. Violating any of these means repeat
 - **Root cause:** Using Drive as canonical location limited access to Cowork mode only. GitHub works in Cowork, regular chat, and Claude Code.
 - **Rule:** All scripts, docs, and logs live in `github.com/aauml/thesis`. Clone at session start, push at session close. Drive is a convenience mirror, not the source.
 
+### PR-009 — When Supabase is unreachable, write full rows to Sheet immediately
+- **Derived from:** Session 2026-03-19 (run 210), Supabase HTTP 000
+- **Root cause:** Container DNS resolver saturated after many curl calls; Supabase REST API unreachable.
+- **Rule:** If Supabase connectivity test returns HTTP 000 or non-2xx, skip Supabase and write the FULL row to Sheet NewsLog with `notes="supabase_write_failed"`. Do not wait or retry indefinitely. Backfill to Supabase in a fresh session. Also update meta in next session if DNS fails.
+
 ---
 
 ## Problem Log
@@ -60,6 +65,7 @@ These are hard rules derived from past bugs. Violating any of these means repeat
 | 2026-03-15 | PM Log not updated after session decisions | Session closing protocol incomplete | PR-006 | Yes — protocol reinforced |
 | 2026-03-15 | `action=append` skipped 27 items from AcademicQueue | append deduplicates against source queue | PR-001 | Yes — switched to promoteToNewsLog |
 | 2026-03-15 | Drive sync can't delete files, requires Cowork mount | Cowork sandbox limitation + Drive only accessible in Cowork | PR-008 | Yes — migrated to GitHub as canonical source |
+| 2026-03-19 | Supabase unreachable from container (HTTP 000) + DNS cache overflow | Container DNS resolver saturated after ~20+ curl calls to multiple domains | PR-009 | Yes — fallback to Sheet full-write, backfill to Supabase next session |
 
 ---
 
@@ -72,6 +78,7 @@ These are hard rules derived from past bugs. Violating any of these means repeat
 | 2026-03-15 | infrastructure | Migrated all files from Drive to GitHub repo, created folder structure, SKILL-KB-v13 | PR-008 |
 | 2026-03-19 | infrastructure | Supabase proyecto phd-kb creado. Tabla evaluated_items (21 cols + pgvector 384d + metadata). Backfill 1,489 items. Edge function generate-embeddings desplegada (gte-small). RLS + search_evaluated_items. SKILL-KB-v15 dual-write. SKILL-PM-v7 con Supabase en §8/§12. | — |
 | 2026-03-19 | update all (run 209) | Queues empty. 7 Claude searches → 7 items added (3 ALTA, 4 MEDIA). CRITICAL: IMCO/LIBE voted Digital Omnibus 101-9-8 (Mar 18), TRUMP AMERICA AI Act draft released (Mar 19). FJC PG guidance, CAISI listening sessions, CREATE AI Act, Sorenson forensics outlook. | — |
+| 2026-03-19 | update all (run 210) | Queues empty. 5 Claude searches → 5 items added (2 ALTA, 3 MEDIA). Council position Mar 13, EP Think Tank enforcement briefing, NLR TRUMP AI Act analysis, Zenodo gobernanza algorítmica paper (es), EC guidelines roadmap. Supabase unreachable — full rows written to Sheet as fallback. Meta update failed (DNS cache overflow). | PR-009 |
 
 ---
 

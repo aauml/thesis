@@ -4,7 +4,19 @@ description: "Skill operativo del Project Manager de tesis doctoral. Gestiona el
 ---
 
 # SKILL-PM — Operaciones del Project Manager
-**Versión:** v10 · **Fecha:** 2026-03-19
+**Versión:** v10.1 · **Fecha:** 2026-03-20
+
+---
+
+## 0. REFERENCIA DE ARQUITECTURA — LEER PRIMERO
+
+Antes de modificar cualquier componente del sistema (dashboard, Supabase, scheduled tasks, index/KB, alertas, chapter sections, reading plan, advisory cycle, pipelines), **leer obligatoriamente:**
+
+```
+Read file: thesis-repo/phd-pm/docs/SYSTEM-ARCHITECTURE.md
+```
+
+Ese documento contiene: tablas Supabase y relaciones, permisos RLS, edge functions, flujo de despliegue, ciclo advisory, scheduled tasks, y trampas conocidas (async/await init chain, paginación 1000 filas, CDN cache, etc.). No hacer cambios sin entender las dependencias.
 
 ---
 

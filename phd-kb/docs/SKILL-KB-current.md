@@ -5,6 +5,18 @@ description: "Knowledge Base update and review skill for doctoral thesis on EU A
 
 # Thesis KB Update Skill
 
+## Architecture Reference — READ FIRST
+
+Before modifying any system component (Supabase tables, index.html, embeddings, edge functions, dashboard integration), read:
+
+```
+Read file: thesis-repo/phd-pm/docs/SYSTEM-ARCHITECTURE.md
+```
+
+Contains: all Supabase tables and relations, RLS permissions, edge functions (semantic-search, generate-embeddings), deployment flow, pagination gotchas (1000-row limit), and the full data pipeline. Do not make structural changes without understanding dependencies.
+
+---
+
 ## Purpose
 
 Maintain the doctoral thesis Knowledge Base by: (1) reviewing items staged in PerplexityQueue, AcademicQueue, and NewsResults by automated pipelines, (2) running targeted Claude web searches for URGENT/FOLLOW-UP topics, and (3) writing evaluated items to **Supabase** (primary data store) with a lightweight verification row in Sheet NewsLog.

@@ -494,6 +494,9 @@
     .m2-dev { margin-bottom: 0.4rem; font-size: 0.82rem; line-height: 1.6; }
     .m2-dev strong { font-weight: 600; color: var(--text); }
     .m2-dev span { color: var(--text-light); }
+    .m2-dev-date { font-size: 0.7rem; color: #999; margin-left: 0.3rem; white-space: nowrap; }
+    .m2-dev-src { font-size: 0.7rem; color: #8aaccf; text-decoration: none; margin-left: 0.2rem; white-space: nowrap; }
+    .m2-dev-src:hover { text-decoration: underline; }
 
     /* M2 advisories */
     .m2-adv {
@@ -712,7 +715,7 @@
   ════════════════════════════════════════ -->
   <nav class="sidebar">
     <div class="sb-header">
-      <div class="sb-title">Thesis Director</div>
+      <div class="sb-title">Thesis PM</div>
       <div class="sb-meta">PhD · Regulación IA · C1 2026</div>
     </div>
 
@@ -777,30 +780,30 @@
         <div style="color:var(--text-muted); font-size:0.72rem; padding:0.5rem;">Cargando actividad actual...</div>
       </div>
 
-      <!-- Desarrollos clave — persistent, curated (M2: clean prose, no tags) -->
+      <!-- Desarrollos clave — persistent, curated (M2: clean prose, dates, source links) -->
       <div class="m2-heading">Desarrollos clave</div>
-      <div class="m2-meta">Revisado 19 mar 2026</div>
+      <div class="m2-meta">Ordenados por fecha · más reciente primero</div>
 
-      <div class="m2-dev"><strong>Trump EO preempción federal.</strong> <span>Framework federal único anularía legislación estatal (Colorado, Illinois). AI Litigation Task Force. Si se consolida, interlocutor US pasa de mosaico estatal a marco federal.</span></div>
-      <div class="m2-dev"><strong>EU Digital Omnibus (COM(2025) 868).</strong> <span>Consejo acuerda posición. Stop-the-clock retrasa plazos AI Act hasta 2027. Ventana de interoperabilidad se amplía.</span></div>
-      <div class="m2-dev"><strong>NIST → Center for AI Standards &amp; Evaluation.</strong> <span>Rebranding bajo Trump. Foco safety → standards. RMF mantiene vigencia estatutaria.</span></div>
-      <div class="m2-dev"><strong>OMB M-24-10 → M-25-21.</strong> <span>Sin mandato claro, pero gobernanza persiste.</span></div>
-      <div class="m2-dev"><strong>CETS 225 en vigor.</strong> <span>Primer tratado vinculante de IA ratificado por EEUU.</span></div>
-      <div class="m2-dev"><strong>EO 14110 → EO 14179.</strong> <span>Continuidad funcional. Brecha política, no estructural.</span></div>
-      <div class="m2-dev"><strong>Gap estándares armonizados.</strong> <span>NIST como puente temporal.</span></div>
-      <div class="m2-dev"><strong>COSAIS + Kratsios.</strong> <span>Control Overlays. NIST se acerca a prescripción tipo AI Act.</span></div>
-      <div class="m2-dev"><strong>DOJ sin AI Impact Assessment.</strong> <span>Hallazgo clave Cap. 6.</span></div>
+      <div class="m2-dev"><strong>EU Digital Omnibus (COM(2025) 868).</strong> <span>Consejo acuerda posición. Stop-the-clock retrasa plazos AI Act hasta 2027. Ventana de interoperabilidad se amplía.</span> <a href="https://www.consilium.europa.eu/en/press/press-releases/2025/03/04/digital-omnibus-regulation/" target="_blank" rel="noopener" class="m2-dev-src">ver fuente →</a> <span class="m2-dev-date">mar 2026</span></div>
+      <div class="m2-dev"><strong>Trump AMERICA AI Act.</strong> <span>Borrador Blackburn propone preempción federal, auditorías obligatorias contra sesgo y sunset de Section 230. Si avanza, interlocutor US pasa de mosaico estatal a marco federal.</span> <a href="https://www.hklaw.com/en/insights/publications/2025/02/what-to-watch-as-white-house-moves-to-federal-ai-regulation" target="_blank" rel="noopener" class="m2-dev-src">ver fuente →</a> <span class="m2-dev-date">mar 2026</span></div>
+      <div class="m2-dev"><strong>COSAIS + Kratsios.</strong> <span>NIST propone Control Overlay for AI Systems. Se acerca a prescripción tipo AI Act. Kratsios nombrado OSTP director.</span> <a href="https://www.nist.gov/artificial-intelligence/nist-proposes-cosais" target="_blank" rel="noopener" class="m2-dev-src">ver fuente →</a> <span class="m2-dev-date">feb 2026</span></div>
+      <div class="m2-dev"><strong>NIST → Center for AI Standards &amp; Evaluation.</strong> <span>Rebranding bajo Trump. Foco safety → standards. RMF mantiene vigencia estatutaria.</span> <a href="https://www.seyfarth.com/news-insights/trump-ai-action-plan-nist-rmf-revision.html" target="_blank" rel="noopener" class="m2-dev-src">ver fuente →</a> <span class="m2-dev-date">jul 2025</span></div>
+      <div class="m2-dev"><strong>DOJ sin AI Impact Assessment.</strong> <span>Estrategia DOJ adopta IA sin mecanismo de evaluación de impacto. Hallazgo clave Cap. 6.</span> <span class="m2-dev-date">jun 2025</span></div>
+      <div class="m2-dev"><strong>OMB M-24-10 → M-25-21.</strong> <span>Rescisión de mandatos de AI impact assessment. Sin mandato claro, pero gobernanza persiste por inercia institucional.</span> <a href="https://www.whitehouse.gov/omb/information-regulatory-affairs/" target="_blank" rel="noopener" class="m2-dev-src">ver fuente →</a> <span class="m2-dev-date">abr 2025</span></div>
+      <div class="m2-dev"><strong>EO 14110 → EO 14179.</strong> <span>Trump revoca EO Biden y emite EO 14179. Continuidad funcional en NIST. Brecha política, no estructural.</span> <a href="https://www.spglobal.com/marketintelligence/en/news-insights/latest-news-headlines/companies-face-compliance-limbo" target="_blank" rel="noopener" class="m2-dev-src">ver fuente →</a> <span class="m2-dev-date">ene 2025</span></div>
+      <div class="m2-dev"><strong>CETS 225 en vigor.</strong> <span>Primer tratado vinculante de IA ratificado por EEUU. Debilita la narrativa del enfoque puramente voluntario.</span> <a href="https://www.state.gov/council-of-europe-framework-convention-on-ai/" target="_blank" rel="noopener" class="m2-dev-src">ver fuente →</a> <span class="m2-dev-date">sep 2024</span></div>
+      <div class="m2-dev"><strong>Gap estándares armonizados.</strong> <span>CEN/CENELEC no cumple plazos. NIST AI RMF como puente temporal para conformity assessment.</span> <span class="m2-dev-date">2024–2025</span></div>
 
-      <!-- Interpretación PM — dynamic from pm_advisories -->
-      <div class="m2-heading">Interpretación del Director</div>
-      <div class="m2-meta">Última revisión desde Supabase</div>
+      <!-- Análisis y recomendaciones — dynamic from pm_advisories -->
+      <div class="m2-heading">Análisis y recomendaciones</div>
+      <div class="m2-meta">Desde Supabase · pm_advisories</div>
       <div id="advisoriesContainer">
-        <div style="color:var(--text-muted); font-size:0.72rem; padding:0.5rem;">Cargando advisories del PM...</div>
+        <div style="color:var(--text-muted); font-size:0.72rem; padding:0.5rem;">Cargando análisis y recomendaciones...</div>
       </div>
 
-      <!-- Novedades recientes — dynamic from Supabase (ALTA items) -->
+      <!-- Novedades recientes — dynamic from Supabase (ALTA items, 10 most recent) -->
       <div class="m2-heading">Novedades recientes</div>
-      <div class="m2-meta">Últimos 7 días · items ALTA desde Supabase</div>
+      <div class="m2-meta">10 más recientes · items ALTA desde Supabase</div>
       <div id="recentNewsContainer">
         <div style="color:var(--text-muted); font-size:0.78rem; padding:0.5rem;">Cargando noticias recientes...</div>
       </div>
@@ -1367,7 +1370,7 @@
     </div>
 
     <footer>
-      Última actualización: 19 de marzo de 2026 · Thesis Dashboard v9.0 (M2) — documento vivo · pipeline + novedades + KPIs son live
+      Última actualización: 19 de marzo de 2026 · Thesis Dashboard v9.1 (M2) — documento vivo · pipeline + novedades + KPIs son live
     </footer>
 
   </div><!-- /main -->
@@ -1718,7 +1721,7 @@ async function fetchPipelineStatus() {
 }
 
 // ═══════════════════════════════════════
-// NOVEDADES RECIENTES — from Supabase (ALTA items, 7-day window)
+// NOVEDADES RECIENTES — from Supabase (ALTA items, 10 most recent + expandable)
 // ═══════════════════════════════════════
 async function fetchRecentNews() {
   const container = document.getElementById('recentNewsContainer');
@@ -1745,25 +1748,18 @@ async function fetchRecentNews() {
       return;
     }
 
-    const now = new Date();
-    const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-    const recent = rows.filter(r => new Date(r.created_at) >= sevenDaysAgo);
-    const older = rows.filter(r => new Date(r.created_at) < sevenDaysAgo);
+    const visible = rows.slice(0, 10);
+    const rest = rows.slice(10);
 
-    let html = '';
-    if (recent.length > 0) {
-      html += recent.map(renderNewsItem).join('');
-    } else {
-      html += '<div style="font-size:0.72rem; color:var(--text-muted);">Sin entradas nuevas en los últimos 7 días.</div>';
-    }
+    let html = visible.map(renderNewsItem).join('');
 
-    if (older.length > 0) {
+    if (rest.length > 0) {
       html += `<details class="news-expand">
         <summary style="cursor:pointer; font-size:0.72rem; color:var(--text-muted); padding:0.4rem 0; user-select:none;">
-          Ver anteriores (${older.length}) →
+          ver más (${rest.length}) →
         </summary>
         <div style="margin-top:0.2rem;">
-          ${older.map(renderNewsItem).join('')}
+          ${rest.map(renderNewsItem).join('')}
         </div>
       </details>`;
     }
@@ -1800,7 +1796,7 @@ async function fetchAdvisories() {
       // Render content — clean M2 style
       const contentHtml = r.content.split('\n').map(line => {
         line = line.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-        line = line.replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener" style="color:var(--accent-mid);">ver fuente ↗</a>');
+        line = line.replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener" style="color:var(--accent-mid);">ver fuente →</a>');
         // Action tags — M2 clean style (no emojis)
         line = line.replace(/✅ AGREGADO/g, '<span class="m2-t-added">Agregado:</span>');
         line = line.replace(/📌 RECOMENDADO/g, '<span class="m2-t-rec">Recomendado:</span>');
@@ -2316,7 +2312,7 @@ document.addEventListener('DOMContentLoaded', () => {
   renderOps();
   updateOpsBadge();
   fetchPipelineStatus(); // Live queue status on every page load
-  fetchRecentNews(); // Dynamic news from Supabase (7-day window)
+  fetchRecentNews(); // Dynamic news from Supabase (10 most recent)
   fetchKbStats(); // KB stats + gaps from Supabase (primary)
   fetchSupabaseStatus(); // Supabase connectivity + embedding count
   fetchAdvisories(); // PM advisories from Supabase

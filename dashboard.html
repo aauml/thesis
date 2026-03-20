@@ -17,7 +17,7 @@
       --accent: #1a3a5c; --accent-soft: #e8eef4; --accent-mid: #4a7aac;
       --accent-hover: #244b73;
       --border: #d4dce8; --border-light: #e8ecf3;
-      --bg: #fdfdfd; --bg-sidebar: #f4f7fa; --bg-card: #f6f9fd;
+      --bg: #fdfdfd; --bg-sidebar: #1a2332; --bg-card: #f6f9fd;
       --serif: 'Source Serif 4', Georgia, serif;
       --sans: 'DM Sans', system-ui, -apple-system, sans-serif;
       --mono: 'SF Mono', 'Fira Code', monospace;
@@ -25,7 +25,15 @@
       --success-bg: #e6f4ea; --success-border: #b8e0c4; --success-text: #2d7a3f;
       --info-bg: #e8f0fe; --info-border: #b8d4fe; --info-text: #1a56db;
       --danger-bg: #fef0e8; --danger-border: #e8a080; --danger-text: #a03020;
-      --sidebar-w: 230px;
+      --sidebar-w: 200px;
+      /* M2 sidebar dark palette */
+      --sb-bg: #1a2332; --sb-text: #7a8ea0; --sb-text-active: #fff;
+      --sb-accent: #5b9bd5; --sb-hover: rgba(255,255,255,0.04);
+      --sb-border: rgba(255,255,255,0.06);
+      /* M2 clean content */
+      --pill-bg: #f0f0f0; --pill-color: #555;
+      --pill-active-bg: #e8eef4; --pill-active-color: #1a3a5c;
+      --t-added: #2d7a3f; --t-recommended: #8a6d20; --t-pending: #8a8a8a;
     }
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
@@ -38,69 +46,71 @@
     ═══════════════════════════════════════ */
     .layout { display: flex; min-height: 100vh; }
 
-    /* ── SIDEBAR ── */
+    /* ── SIDEBAR (M2 dark) ── */
     .sidebar {
-      width: var(--sidebar-w); flex-shrink: 0; background: var(--bg-sidebar);
-      border-right: 1px solid var(--border); display: flex; flex-direction: column;
+      width: var(--sidebar-w); flex-shrink: 0; background: var(--sb-bg);
+      border-right: none; display: flex; flex-direction: column;
       position: fixed; top: 0; left: 0; height: 100vh; z-index: 10;
       overflow-y: auto;
     }
-    .sb-header { padding: 1.25rem 1.2rem 0.6rem; }
-    .sb-title { font-family: var(--serif); font-size: 1.05rem; font-weight: 700; color: var(--accent); }
-    .sb-meta { font-size: 0.7rem; color: var(--text-muted); margin-top: 0.1rem; }
+    .sb-header { padding: 1.2rem 1rem 0.6rem; }
+    .sb-title { font-size: 0.85rem; font-weight: 700; color: #e0e6ed; }
+    .sb-meta { font-size: 0.62rem; color: #506478; margin-top: 0.1rem; }
 
     .sb-nav { flex: 1; padding: 0.5rem 0; }
     .sb-section-label {
-      font-size: 0.6rem; font-weight: 700; text-transform: uppercase;
-      letter-spacing: 0.1em; color: var(--text-muted); padding: 0.8rem 1.2rem 0.3rem;
+      font-size: 0.5rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.1em; color: #506478; padding: 0.6rem 1rem 0.2rem;
     }
     .sb-item {
-      display: flex; align-items: center; gap: 0.55rem;
-      padding: 0.5rem 1.2rem; font-size: 0.82rem; color: var(--text-light);
-      cursor: pointer; transition: all 0.12s; border: none; background: none;
+      display: flex; align-items: center; gap: 0.45rem;
+      padding: 0.38rem 1rem; font-size: 0.78rem; color: var(--sb-text);
+      cursor: pointer; transition: all 0.1s; border: none; background: none;
       width: 100%; text-align: left; font-family: var(--sans); position: relative;
+      border-left: 3px solid transparent;
     }
-    .sb-item:hover { background: #e0e8f0; color: var(--text); }
+    .sb-item:hover { color: #c0ccd8; background: var(--sb-hover); }
     .sb-item.active {
-      background: var(--accent); color: white;
-      border-radius: 0 5px 5px 0; margin-right: 0.6rem;
+      color: var(--sb-text-active); background: rgba(255,255,255,0.07);
+      border-left-color: var(--sb-accent); border-radius: 0; margin-right: 0;
     }
-    .sb-icon { font-size: 0.95rem; width: 20px; text-align: center; flex-shrink: 0; }
+    .sb-icon { font-size: 0.82rem; width: 17px; text-align: center; flex-shrink: 0; opacity: 0.6; }
+    .sb-item.active .sb-icon { opacity: 1; }
     .sb-badge {
-      margin-left: auto; font-size: 0.58rem; font-weight: 700;
-      background: #e07040; color: white; border-radius: 8px;
-      padding: 0.05rem 0.4rem; line-height: 1.4;
+      margin-left: auto; font-size: 0.55rem; font-weight: 700;
+      background: rgba(255,255,255,0.15); color: #8899aa; border-radius: 8px;
+      padding: 0.05rem 0.35rem; line-height: 1.4;
     }
-    .sb-item.active .sb-badge { background: rgba(255,255,255,0.3); }
+    .sb-item.active .sb-badge { background: rgba(255,255,255,0.2); color: #ccc; }
 
-    /* Phase indicator */
+    /* Phase indicator (dark sidebar) */
     .sb-phase {
-      margin: 0.5rem 0.8rem; padding: 0.6rem; background: white;
-      border: 1px solid var(--border); border-radius: 6px; text-align: center;
+      margin: 0.5rem 0.8rem; padding: 0.5rem; background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; text-align: center;
     }
-    .sb-phase-label { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); }
-    .sb-phase-value { font-size: 0.92rem; font-weight: 700; color: var(--accent); margin-top: 0.1rem; }
-    .sb-phase-sub { font-size: 0.7rem; color: var(--text-muted); }
+    .sb-phase-label { font-size: 0.55rem; text-transform: uppercase; letter-spacing: 0.08em; color: #506478; }
+    .sb-phase-value { font-size: 0.88rem; font-weight: 700; color: #e0e6ed; margin-top: 0.1rem; }
+    .sb-phase-sub { font-size: 0.65rem; color: #506478; }
 
-    /* Quick Add */
-    .sb-quickadd { padding: 0.6rem 0.8rem; border-top: 1px solid var(--border); }
-    .sb-quickadd-label { font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 0.3rem; }
+    /* Quick Add (dark sidebar) */
+    .sb-quickadd { padding: 0.5rem 0.8rem; border-top: 1px solid var(--sb-border); }
+    .sb-quickadd-label { font-size: 0.55rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #506478; margin-bottom: 0.3rem; }
     .sb-qa-row { display: flex; gap: 0.3rem; }
     .sb-qa-input {
-      flex: 1; font-family: var(--sans); font-size: 0.78rem;
-      padding: 0.4rem 0.55rem; border: 1px solid var(--border); border-radius: 4px;
-      background: white; color: var(--text); outline: none;
+      flex: 1; font-family: var(--sans); font-size: 0.75rem;
+      padding: 0.35rem 0.5rem; border: 1px solid rgba(255,255,255,0.1); border-radius: 4px;
+      background: rgba(255,255,255,0.05); color: #c0ccd8; outline: none;
     }
-    .sb-qa-input:focus { border-color: var(--accent-mid); box-shadow: 0 0 0 2px rgba(74,122,172,0.15); }
-    .sb-qa-input::placeholder { color: #b0b0b0; }
+    .sb-qa-input:focus { border-color: var(--sb-accent); box-shadow: 0 0 0 2px rgba(91,155,213,0.15); }
+    .sb-qa-input::placeholder { color: #506478; }
     .sb-qa-btn {
-      padding: 0.4rem 0.6rem; font-size: 0.78rem; font-weight: 600;
-      background: var(--accent); color: white; border: none; border-radius: 4px;
+      padding: 0.35rem 0.55rem; font-size: 0.75rem; font-weight: 600;
+      background: var(--sb-accent); color: white; border: none; border-radius: 4px;
       cursor: pointer; font-family: var(--sans); transition: background 0.12s;
     }
     .sb-qa-btn:hover { background: var(--accent-hover); }
     .sb-qa-toast {
-      font-size: 0.68rem; color: var(--success-text); margin-top: 0.25rem;
+      font-size: 0.65rem; color: #6bc48d; margin-top: 0.25rem;
       opacity: 0; transition: opacity 0.3s; height: 1.1rem;
     }
     .sb-qa-toast.show { opacity: 1; }
@@ -452,6 +462,63 @@
     .news-item a::after { content: ' ↗'; font-size: 0.6rem; opacity: 0.5; }
 
     /* ═══════════════════════════════════════
+       M2 PANORAMA — clean section headings
+    ═══════════════════════════════════════ */
+    .m2-heading {
+      font-size: 0.92rem; font-weight: 700; color: var(--accent);
+      margin: 1.5rem 0 0.1rem; padding-bottom: 0.25rem;
+      border-bottom: 1px solid var(--border-light);
+    }
+    .m2-meta { font-size: 0.68rem; color: var(--text-muted); margin-bottom: 0.5rem; }
+    .m2-meta a { color: var(--accent-mid); text-decoration: none; }
+    .m2-meta a:hover { text-decoration: underline; }
+
+    /* M2 pills */
+    .m2-pill {
+      display: inline-block; font-size: 0.58rem; font-weight: 600;
+      padding: 0.06rem 0.35rem; border-radius: 3px;
+      background: var(--pill-bg); color: var(--pill-color);
+    }
+    .m2-pill-active { background: var(--pill-active-bg); color: var(--pill-active-color); }
+
+    /* M2 activity items */
+    .m2-act-item { margin-bottom: 0.5rem; font-size: 0.84rem; line-height: 1.6; }
+    .m2-act-row { display: flex; align-items: baseline; gap: 0.3rem; flex-wrap: wrap; }
+    .m2-act-title { font-weight: 600; color: var(--text); }
+    .m2-act-title a { color: var(--text); text-decoration: underline; text-decoration-color: #ccc; text-underline-offset: 2px; }
+    .m2-act-title a:hover { text-decoration-color: #666; }
+    .m2-act-detail { font-size: 0.75rem; color: var(--text-light); margin-top: 0.05rem; }
+    .m2-act-chapter { font-size: 0.7rem; color: var(--text-muted); }
+
+    /* M2 desarrollos */
+    .m2-dev { margin-bottom: 0.4rem; font-size: 0.82rem; line-height: 1.6; }
+    .m2-dev strong { font-weight: 600; color: var(--text); }
+    .m2-dev span { color: var(--text-light); }
+
+    /* M2 advisories */
+    .m2-adv {
+      margin-bottom: 0.65rem; padding-bottom: 0.65rem;
+      border-bottom: 1px solid #f0f0f0;
+    }
+    .m2-adv:last-child { border-bottom: none; }
+    .m2-adv-head { display: flex; align-items: baseline; gap: 0.35rem; margin-bottom: 0.1rem; }
+    .m2-adv-title { font-weight: 600; font-size: 0.85rem; color: var(--text); }
+    .m2-adv-pri { font-size: 0.5rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--accent-mid); }
+    .m2-adv-body { font-size: 0.76rem; color: var(--text-light); line-height: 1.6; }
+    .m2-adv-date { font-size: 0.62rem; color: #aaa; margin-top: 0.15rem; }
+    .m2-t-added { color: var(--t-added); font-weight: 600; }
+    .m2-t-rec { color: var(--t-recommended); font-weight: 600; }
+    .m2-t-pend { color: var(--t-pending); font-weight: 600; }
+
+    /* M2 news — minimal, no tags */
+    .m2-nw { font-size: 0.82rem; padding: 0.2rem 0; display: flex; gap: 0.4rem; }
+    .m2-nw-date { font-size: 0.7rem; color: var(--text-muted); font-weight: 600; min-width: 3rem; }
+    .m2-nw a { color: var(--text); text-decoration: none; }
+    .m2-nw a:hover { text-decoration: underline; }
+    .m2-nw a::after { content: ''; } /* override arrow */
+    .m2-nw-more { font-size: 0.72rem; color: var(--text-muted); margin-top: 0.3rem; cursor: pointer; }
+
+    /* ═══════════════════════════════════════
        PLAN DE LECTURAS
     ═══════════════════════════════════════ */
     .lec-legend { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 0.3rem; }
@@ -592,32 +659,33 @@
       .sidebar {
         width: 100%; height: auto; position: sticky; top: 0;
         flex-direction: column; border-right: none;
-        border-bottom: 1px solid var(--border);
+        border-bottom: 1px solid #2d3a4a;
         overflow: visible; z-index: 20;
       }
       .sb-header {
-        padding: 0.55rem 1rem 0.2rem;
+        padding: 0.5rem 1rem 0.2rem;
         display: flex; align-items: baseline; gap: 0.5rem;
       }
-      .sb-title { font-size: 0.85rem; }
-      .sb-meta { font-size: 0.6rem; }
+      .sb-title { font-size: 0.8rem; }
+      .sb-meta { font-size: 0.58rem; }
       .sb-section-label { display: none; }
       .sb-nav {
         display: flex; flex-direction: row; flex-wrap: nowrap;
         overflow-x: auto; -webkit-overflow-scrolling: touch;
         padding: 0; gap: 0; flex: none;
-        border-top: 1px solid var(--border-light);
+        border-top: 1px solid rgba(255,255,255,0.06);
       }
       .sb-item {
-        flex: 0 0 auto; width: auto; padding: 0.45rem 0.75rem; font-size: 0.7rem;
+        flex: 0 0 auto; width: auto; padding: 0.4rem 0.7rem; font-size: 0.68rem;
         white-space: nowrap; border-radius: 0; border-bottom: 2px solid transparent;
+        border-left: none;
       }
       .sb-item.active {
-        background: none; color: var(--accent); font-weight: 600;
+        background: none; color: #fff; font-weight: 600;
         border-radius: 0; margin-right: 0;
-        border-bottom: 2px solid var(--accent);
+        border-bottom: 2px solid var(--sb-accent); border-left: none;
       }
-      .sb-item:hover { background: var(--accent-soft); }
+      .sb-item:hover { background: rgba(255,255,255,0.05); }
       .sb-icon { font-size: 0.78rem; width: 14px; }
       .sb-badge { font-size: 0.5rem; padding: 0.02rem 0.25rem; }
       .sb-phase { display: none; }
@@ -644,8 +712,8 @@
   ════════════════════════════════════════ -->
   <nav class="sidebar">
     <div class="sb-header">
-      <div class="sb-title">Thesis Dashboard</div>
-      <div class="sb-meta">Arturo Ayala · USAL</div>
+      <div class="sb-title">Thesis Director</div>
+      <div class="sb-meta">PhD · Regulación IA · C1 2026</div>
     </div>
 
     <div class="sb-nav">
@@ -697,49 +765,42 @@
     <div class="view active" id="view-panorama">
 
       <h2>Panorama</h2>
+      <div style="font-size:0.68rem; color:var(--text-muted); margin-top:-0.5rem; margin-bottom:1.5rem;">Estado general · Datos desde Supabase</div>
 
       <!-- Advisor — rendered from ADVISOR_CONFIG in JS -->
       <div id="advisorContainer"></div>
 
-
-      <!-- Actividad actual — dynamic from reading_plan (en_curso + siguiente) -->
-      <div class="section-label">Actividad actual <span style="font-weight:400; text-transform:none; letter-spacing:0; font-size:0.65rem;">· <a href="#" onclick="switchView('lecturas', document.querySelectorAll('.sb-item')[4]); return false;" style="color:var(--accent-mid);">ver plan completo</a></span></div>
+      <!-- Actividad actual — dynamic from reading_plan -->
+      <div class="m2-heading">Actividad actual</div>
+      <div class="m2-meta">C1 Ene–Abr 2026 · <a href="#" onclick="switchView('lecturas', document.querySelectorAll('.sb-item')[4]); return false;">ver plan completo →</a></div>
       <div id="actividadActual">
         <div style="color:var(--text-muted); font-size:0.72rem; padding:0.5rem;">Cargando actividad actual...</div>
       </div>
 
-      <!-- Desarrollos clave — persistent, curated -->
-      <div class="section-label">Desarrollos clave</div>
-      <div class="card" style="border-left: 3px solid var(--accent-mid);">
-        <div style="font-size:0.72rem; color:var(--text-muted); margin-bottom:0.5rem;">Cambios regulatorios y hallazgos importantes para tener siempre en mente. <em>Última revisión: 19 mar 2026.</em></div>
+      <!-- Desarrollos clave — persistent, curated (M2: clean prose, no tags) -->
+      <div class="m2-heading">Desarrollos clave</div>
+      <div class="m2-meta">Revisado 19 mar 2026</div>
 
-        <div class="news-item"><span class="news-date"><span class="news-tag tag-act">AI Act</span></span><div><strong>Trump EO preempción federal de leyes estatales de IA (mar 2026):</strong> propone framework federal único que anularía legislación estatal (Colorado, Illinois). Incluye AI Litigation Task Force. Impacto: si se consolida, el interlocutor US para interoperabilidad con AI Act pasa de ser un mosaico estatal a un marco federal — <em>refuerza</em> la viabilidad del puente NIST↔RIA.</div></div>
-
-        <div class="news-item"><span class="news-date"><span class="news-tag tag-act">AI Act</span></span><div><strong>EU Digital Omnibus (COM(2025) 868):</strong> Consejo acuerda posición negociadora (13 mar 2026). Mecanismo stop-the-clock retrasa plazos de cumplimiento AI Act hasta 2027. Parlamento negocia alcance de simplificación. <em>Impacto para tesis:</em> la ventana de interoperabilidad se amplía — los estándares armonizados aún no están fijados.</div></div>
-
-        <div class="news-item"><span class="news-date"><span class="news-tag tag-nist">NIST</span></span><div><strong>NIST AI Safety Institute → Center for AI Standards &amp; Evaluation:</strong> rebranding bajo Trump. Foco se mueve de safety a standards/evaluation. El AI RMF mantiene vigencia estatutaria (NDAA), pero el framing político cambia. Monitorear si afecta los profiles de riesgo.</div></div>
-
-        <div class="news-item"><span class="news-date"><span class="news-tag tag-nist">NIST</span></span><div><strong>OMB M-24-10 rescindida → M-25-21:</strong> agencias sin mandato claro de AI impact assessment, pero la arquitectura de gobernanza (Chief AI Officers, governance boards) persiste. Continuidad funcional bajo framing diferente.</div></div>
-
-        <div class="news-item"><span class="news-date"><span class="news-tag tag-conv">Conv.</span></span><div><strong>CETS 225 en vigor (nov 2025):</strong> primer tratado vinculante de IA ratificado por EEUU. Puente entre frameworks voluntarios y obligaciones.</div></div>
-
-        <div class="news-item"><span class="news-date"><span class="news-tag tag-act">AI Act</span></span><div><strong>EO 14110 revocada → EO 14179:</strong> marco ejecutivo de Biden reemplazado. Sin embargo, M-25-21 confirma continuidad funcional. La brecha es política, no estructural.</div></div>
-
-        <div class="news-item"><span class="news-date"><span class="news-tag tag-act">AI Act</span></span><div><strong>Directrices de alto riesgo retrasadas + Omnibus:</strong> gap de estándares armonizados persiste y se amplía con el stop-the-clock. Oportunidad para argumento de interoperabilidad NIST como puente temporal.</div></div>
-
-        <div class="news-item"><span class="news-date"><span class="news-tag tag-nist">NIST</span></span><div><strong>NIST COSAIS + Kratsios three pillars (mar 2026):</strong> Control Overlays + enfoque en estándares técnicos. NIST se acerca a controles prescriptivos tipo AI Act. Kratsios confirma: estándares, competitividad, seguridad nacional.</div></div>
-
-        <div class="news-item"><span class="news-date"><span class="news-tag tag-acad">Acad.</span></span><div><strong>Ningún sistema DOJ tiene AI Impact Assessment publicado</strong> pese a requisitos OMB — hallazgo clave para Cap. 6. Refuerza supuesto epistemológico: cumplimiento documentable ≠ cumplimiento real.</div></div>
-      </div>
+      <div class="m2-dev"><strong>Trump EO preempción federal.</strong> <span>Framework federal único anularía legislación estatal (Colorado, Illinois). AI Litigation Task Force. Si se consolida, interlocutor US pasa de mosaico estatal a marco federal.</span></div>
+      <div class="m2-dev"><strong>EU Digital Omnibus (COM(2025) 868).</strong> <span>Consejo acuerda posición. Stop-the-clock retrasa plazos AI Act hasta 2027. Ventana de interoperabilidad se amplía.</span></div>
+      <div class="m2-dev"><strong>NIST → Center for AI Standards &amp; Evaluation.</strong> <span>Rebranding bajo Trump. Foco safety → standards. RMF mantiene vigencia estatutaria.</span></div>
+      <div class="m2-dev"><strong>OMB M-24-10 → M-25-21.</strong> <span>Sin mandato claro, pero gobernanza persiste.</span></div>
+      <div class="m2-dev"><strong>CETS 225 en vigor.</strong> <span>Primer tratado vinculante de IA ratificado por EEUU.</span></div>
+      <div class="m2-dev"><strong>EO 14110 → EO 14179.</strong> <span>Continuidad funcional. Brecha política, no estructural.</span></div>
+      <div class="m2-dev"><strong>Gap estándares armonizados.</strong> <span>NIST como puente temporal.</span></div>
+      <div class="m2-dev"><strong>COSAIS + Kratsios.</strong> <span>Control Overlays. NIST se acerca a prescripción tipo AI Act.</span></div>
+      <div class="m2-dev"><strong>DOJ sin AI Impact Assessment.</strong> <span>Hallazgo clave Cap. 6.</span></div>
 
       <!-- Interpretación PM — dynamic from pm_advisories -->
-      <div class="section-label">Interpretación del Director</div>
+      <div class="m2-heading">Interpretación del Director</div>
+      <div class="m2-meta">Última revisión desde Supabase</div>
       <div id="advisoriesContainer">
         <div style="color:var(--text-muted); font-size:0.72rem; padding:0.5rem;">Cargando advisories del PM...</div>
       </div>
 
       <!-- Novedades recientes — dynamic from Supabase (ALTA items) -->
-      <div class="section-label">Novedades recientes <span style="font-weight:400; text-transform:none; letter-spacing:0; font-size:0.65rem;">· últimas incorporaciones ALTA desde Supabase</span></div>
+      <div class="m2-heading">Novedades recientes</div>
+      <div class="m2-meta">Últimos 7 días · items ALTA desde Supabase</div>
       <div id="recentNewsContainer">
         <div style="color:var(--text-muted); font-size:0.78rem; padding:0.5rem;">Cargando noticias recientes...</div>
       </div>
@@ -1306,7 +1367,7 @@
     </div>
 
     <footer>
-      Última actualización: 18 de marzo de 2026 · Thesis Dashboard v8.1 — documento vivo · pipeline + novedades + KPIs son live
+      Última actualización: 19 de marzo de 2026 · Thesis Dashboard v9.0 (M2) — documento vivo · pipeline + novedades + KPIs son live
     </footer>
 
   </div><!-- /main -->
@@ -1663,75 +1724,45 @@ async function fetchRecentNews() {
   const container = document.getElementById('recentNewsContainer');
   if (!container) return;
 
-  const tagMap = {
-    'analítica': { label: 'AI Act / NIST', cls: 'tag-act' },
-    'teórica': { label: 'Teórica', cls: 'tag-acad' },
-    'caso': { label: 'Caso', cls: 'tag-conv' },
-    'evaluativa': { label: 'Evaluativa', cls: 'tag-nist' },
-    'metodológica': { label: 'Metod.', cls: 'tag-acad' },
-  };
-
   function renderNewsItem(row) {
     const d = new Date(row.created_at || 0);
     const shortDate = !isNaN(d.getTime()) ? d.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' }) : '';
-    const capas = (row.capa || '').toLowerCase().split(',').map(c => c.trim());
-    const capa = capas[0] || '';
-    const tag = tagMap[capa] || { label: 'KB', cls: 'tag-acad' };
-    const importance = (row.importance || '').toUpperCase();
-    const star = importance === 'ALTA' ? '<strong>★</strong> ' : '';
     const title = row.title || '(sin título)';
     const hasUrl = row.url && row.url.startsWith('http');
     const titleHtml = hasUrl
-      ? `<a href="${row.url}" target="_blank" rel="noopener">${star}${title}</a>`
-      : `${star}${title}`;
-
-    const relevance = row.thesis_relevance || '';
-    const analysisHtml = relevance
-      ? `<details class="news-analysis" style="margin-top:0.3rem;">
-          <summary style="cursor:pointer; font-size:0.7rem; color:var(--accent-mid);">Análisis PM ▸</summary>
-          <div style="font-size:0.72rem; color:var(--text-secondary); margin-top:0.3rem; line-height:1.5; padding:0.4rem; background:var(--bg-card); border-radius:4px; border:1px solid var(--border);">
-            ${relevance.split('\n\n').map(p => '<p style="margin:0 0 0.5rem 0;">' + p + '</p>').join('')}
-          </div>
-        </details>`
-      : '';
-
-    return `<div class="news-item" style="padding-bottom:0.4rem; margin-bottom:0.3rem;">
-      <span class="news-date">${shortDate}</span>
-      <div><span class="news-tag ${tag.cls}">${tag.label}</span>${titleHtml}${analysisHtml}</div>
-    </div>`;
+      ? `<a href="${row.url}" target="_blank" rel="noopener">${title}</a>`
+      : title;
+    return `<div class="m2-nw"><span class="m2-nw-date">${shortDate}</span> ${titleHtml}</div>`;
   }
 
   try {
     const rows = await supabaseQuery(
-      'evaluated_items?select=title,url,importance,capa,thesis_relevance,created_at&importance=eq.ALTA&order=created_at.desc&limit=50'
+      'evaluated_items?select=title,url,importance,capa,created_at&importance=eq.ALTA&order=created_at.desc&limit=50'
     );
 
     if (!rows || rows.length === 0) {
-      container.innerHTML = '<div style="color:var(--text-muted); font-size:0.78rem; padding:0.5rem;">No hay entradas ALTA en Supabase.</div>';
+      container.innerHTML = '<div style="color:var(--text-muted); font-size:0.78rem;">No hay entradas ALTA en Supabase.</div>';
       return;
     }
 
-    // Split by 7-day window
     const now = new Date();
     const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
     const recent = rows.filter(r => new Date(r.created_at) >= sevenDaysAgo);
     const older = rows.filter(r => new Date(r.created_at) < sevenDaysAgo);
 
-    let html = '<div class="card">';
+    let html = '';
     if (recent.length > 0) {
-      html += '<div style="font-size:0.68rem; font-weight:600; color:var(--accent); margin-bottom:0.3rem;">Últimos 7 días · ' + recent.length + ' items ALTA</div>';
       html += recent.map(renderNewsItem).join('');
     } else {
-      html += '<div style="font-size:0.72rem; color:var(--text-muted); padding:0.3rem 0;">Sin entradas nuevas en los últimos 7 días.</div>';
+      html += '<div style="font-size:0.72rem; color:var(--text-muted);">Sin entradas nuevas en los últimos 7 días.</div>';
     }
-    html += '</div>';
 
     if (older.length > 0) {
       html += `<details class="news-expand">
-        <summary style="cursor:pointer; font-size:0.75rem; font-weight:600; color:var(--accent-mid); padding:0.4rem 0; user-select:none;">
-          Ver anteriores · ${older.length} entradas ▸
+        <summary style="cursor:pointer; font-size:0.72rem; color:var(--text-muted); padding:0.4rem 0; user-select:none;">
+          Ver anteriores (${older.length}) →
         </summary>
-        <div class="card" style="margin-top:0.3rem;">
+        <div style="margin-top:0.2rem;">
           ${older.map(renderNewsItem).join('')}
         </div>
       </details>`;
@@ -1739,18 +1770,8 @@ async function fetchRecentNews() {
 
     container.innerHTML = html;
 
-    const details = container.querySelector('details.news-expand');
-    if (details) {
-      details.addEventListener('toggle', function() {
-        const sum = this.querySelector('summary');
-        if (sum) sum.textContent = this.open
-          ? `Ocultar · ${older.length} entradas anteriores ▾`
-          : `Ver anteriores · ${older.length} entradas ▸`;
-      });
-    }
-
   } catch(e) {
-    container.innerHTML = '<div style="color:var(--text-muted); font-size:0.78rem; padding:0.5rem;">No se pudo cargar noticias — API no disponible.</div>';
+    container.innerHTML = '<div style="color:var(--text-muted); font-size:0.78rem;">No se pudo cargar noticias.</div>';
   }
 }
 
@@ -1761,67 +1782,47 @@ async function fetchAdvisories() {
   const container = document.getElementById('advisoriesContainer');
   if (!container) return;
 
-  const iconMap = {
-    'regulatory_interpretation': '📊',
-    'reading_added': '📖',
-    'gap_alert': '🔍',
-    'plan_change': '🔄',
-    'weekly_review': '📋'
-  };
-
   try {
     const rows = await supabaseQuery(
       'pm_advisories?select=*&status=eq.active&order=priority.asc,created_at.desc'
     );
 
     if (!rows || rows.length === 0) {
-      container.innerHTML = '<div class="card" style="border-left:3px solid var(--warn-border);"><div style="font-size:0.72rem; color:var(--text-muted);">Sin advisories activos. El PM no ha detectado cambios que requieran acción.</div></div>';
+      container.innerHTML = '<div style="font-size:0.72rem; color:var(--text-muted);">Sin advisories activos.</div>';
       return;
     }
 
-    let html = '<div class="card" style="border-left: 3px solid var(--warn-border); background: linear-gradient(135deg, var(--bg-card) 0%, rgba(255,193,7,0.03) 100%);">';
-    html += '<div style="font-size:0.72rem; color:var(--text-muted); margin-bottom:0.5rem;">Análisis y recomendaciones del PM basadas en desarrollos recientes y estado del KB. <em>Fuente: Supabase (live).</em></div>';
+    let html = '';
+    rows.forEach(r => {
+      const priorityTag = r.priority === 'high' ? '<span class="m2-adv-pri">alta</span>' : '';
+      const dateStr = new Date(r.created_at).toLocaleDateString('es-ES', { day:'numeric', month:'short', year:'numeric' });
 
-    rows.forEach((r, i) => {
-      const icon = iconMap[r.type] || '📌';
-      const border = i < rows.length - 1 ? 'border-bottom:1px solid var(--border);' : '';
-      const priorityTag = r.priority === 'high' ? ' <span style="font-size:0.6rem; color:var(--warn-text); font-weight:600;">ALTA</span>' : '';
-
-      // Render content — support newlines, numbered lists, bold, links, and action tags
+      // Render content — clean M2 style
       const contentHtml = r.content.split('\n').map(line => {
-        // Convert **bold** to <strong>
         line = line.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-        // Convert URLs to clickable links
         line = line.replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener" style="color:var(--accent-mid);">ver fuente ↗</a>');
-        // Highlight action tags
-        line = line.replace(/✅ AGREGADO/g, '<span style="color:#155724; font-weight:600;">✅ AGREGADO</span>');
-        line = line.replace(/📌 RECOMENDADO/g, '<span style="color:var(--warn-text); font-weight:600;">📌 RECOMENDADO</span>');
-        line = line.replace(/📌 PENDIENTE/g, '<span style="color:var(--warn-text); font-weight:600;">📌 PENDIENTE</span>');
-        line = line.replace(/📋 Impacto en el plan:/g, '<span style="font-weight:600;">📋 Impacto en el plan:</span>');
-
+        // Action tags — M2 clean style (no emojis)
+        line = line.replace(/✅ AGREGADO/g, '<span class="m2-t-added">Agregado:</span>');
+        line = line.replace(/📌 RECOMENDADO/g, '<span class="m2-t-rec">Recomendado:</span>');
+        line = line.replace(/📌 PENDIENTE/g, '<span class="m2-t-pend">Pendiente:</span>');
+        line = line.replace(/📋 Impacto en el plan:/g, '<strong>Impacto en el plan:</strong>');
         if (line.match(/^\d+\.\s/)) {
-          return '<div style="margin-left:1.2rem; margin-bottom:0.25rem; line-height:1.5;">' + line + '</div>';
+          return '<div style="margin-left:0.5rem; margin-bottom:0.2rem;">' + line + '</div>';
         }
-        return line ? '<p style="margin:0 0 0.3rem 0;">' + line + '</p>' : '';
+        return line ? '<p style="margin:0 0 0.2rem 0;">' + line + '</p>' : '';
       }).join('');
 
-      html += `<div class="news-item" style="padding-bottom:0.5rem; ${border}">
-        <span class="news-date" style="min-width:2rem;">${icon}</span>
-        <div>
-          <strong>${r.title}</strong>${priorityTag}
-          <div style="font-size:0.72rem; color:var(--text-secondary); margin-top:0.2rem; line-height:1.5;">
-            ${contentHtml}
-          </div>
-          <div style="font-size:0.6rem; color:var(--text-muted); margin-top:0.2rem;">${new Date(r.created_at).toLocaleDateString('es-ES', { day:'numeric', month:'short', year:'numeric' })}</div>
-        </div>
+      html += `<div class="m2-adv">
+        <div class="m2-adv-head"><span class="m2-adv-title">${r.title}</span> ${priorityTag}</div>
+        <div class="m2-adv-body">${contentHtml}</div>
+        <div class="m2-adv-date">${dateStr}</div>
       </div>`;
     });
 
-    html += '</div>';
     container.innerHTML = html;
 
   } catch(e) {
-    container.innerHTML = '<div style="color:var(--text-muted); font-size:0.78rem;">No se pudo cargar advisories del PM.</div>';
+    container.innerHTML = '<div style="color:var(--text-muted); font-size:0.78rem;">No se pudo cargar advisories.</div>';
   }
 }
 
@@ -1832,14 +1833,15 @@ async function fetchActividadActual() {
   const container = document.getElementById('actividadActual');
   if (!container) return;
 
-  const statusMap = {
-    'en_curso': { label: 'En curso', cls: 'status-inprogress', itemCls: 'act-inprogress' },
-    'siguiente': { label: 'Siguiente', cls: 'status-assigned', itemCls: 'act-pending' },
+  const statusLabels = {
+    'en_curso': 'En curso',
+    'siguiente': 'Siguiente',
+    'planificado': 'Planificado',
   };
 
   try {
     const rows = await supabaseQuery(
-      'reading_plan?select=*&or=(status.eq.en_curso,status.eq.siguiente)&order=position.asc'
+      'reading_plan?select=*&or=(status.eq.en_curso,status.eq.siguiente,status.eq.planificado)&order=position.asc&limit=5'
     );
 
     if (!rows || rows.length === 0) {
@@ -1847,27 +1849,31 @@ async function fetchActividadActual() {
       return;
     }
 
+    // Show en_curso first, then siguiente, then top planificado — max 3-4 items
+    const active = rows.filter(r => r.status === 'en_curso' || r.status === 'siguiente');
+    const planned = rows.filter(r => r.status === 'planificado');
+    const display = active.length >= 3 ? active.slice(0,4) : [...active, ...planned.slice(0, 3 - active.length)];
+
     let html = '';
-    rows.forEach(r => {
-      const sm = statusMap[r.status] || statusMap['siguiente'];
+    display.forEach(r => {
+      const label = statusLabels[r.status] || r.status;
+      const isActive = r.status === 'en_curso';
+      const pillCls = isActive ? 'm2-pill m2-pill-active' : 'm2-pill';
       const urlHtml = r.url ? `<a href="${r.url}" target="_blank">${r.title}</a>` : r.title;
-      html += `<div class="act-item ${sm.itemCls}">
-        <div class="act-header">
-          <span class="act-status-tag ${sm.cls}">${sm.label}</span>
-          <strong>${urlHtml}</strong> <span style="font-size:0.6rem; color:var(--accent-mid);">${r.level}</span>
+      html += `<div class="m2-act-item">
+        <div class="m2-act-row">
+          <span class="${pillCls}">${label}</span>
+          <span class="m2-act-title">${urlHtml}</span>
+          <span class="m2-pill">${r.level}</span>
         </div>
-        <div class="act-detail">
-          ${r.notes ? r.notes + '<br>' : ''}
-          ${r.lens ? '<span class="act-criteria">Lente: ' + r.lens + '</span>' : ''}
-          ${r.chapters ? '<br><span class="lec-chapter">→ ' + r.chapters + '</span>' : ''}
-        </div>
+        <div class="m2-act-detail">${r.lens || r.notes || ''}</div>
+        ${r.chapters ? '<div class="m2-act-chapter">→ ' + r.chapters + '</div>' : ''}
       </div>`;
     });
 
     container.innerHTML = html;
 
   } catch(e) {
-    // Keep existing static content as fallback
     console.warn('fetchActividadActual error:', e);
   }
 }

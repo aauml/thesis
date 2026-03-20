@@ -230,6 +230,13 @@
       color: var(--text-muted); cursor: pointer; font-family: var(--sans);
     }
     .btn-sm:hover { background: #f0f0f0; color: var(--text); }
+    .btn-accent {
+      font-size: 0.68rem; font-weight: 600; padding: 0.2rem 0.5rem;
+      border: 1px solid var(--accent); border-radius: 3px;
+      background: var(--accent); color: white; cursor: pointer;
+      font-family: var(--sans); text-decoration: none; display: inline-block;
+    }
+    .btn-accent:hover { background: var(--accent-hover); }
 
     /* ═══════════════════════════════════════
        TIMELINE
@@ -431,7 +438,70 @@
     .kb-stat-num.alta { color: var(--danger-text); }
     .kb-stat-label { font-size: 0.72rem; color: var(--text-muted); }
 
-    /* Pipeline alerts */
+    /* Pipeline compact strip */
+    .kb-pipe-strip {
+      display: flex; align-items: center; gap: 0.6rem;
+      padding: 0.4rem 0.75rem; margin-bottom: 0.75rem;
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: 5px;
+      font-size: 0.75rem; color: var(--text-light); flex-wrap: wrap;
+    }
+    .kb-pipe-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; display: inline-block; }
+    .kb-pipe-dot.green { background: var(--success-text); }
+    .kb-pipe-dot.yellow { background: var(--warn-text); }
+    .kb-pipe-sep { width: 1px; height: 12px; background: var(--border); flex-shrink: 0; }
+
+    /* KB two-column layout */
+    .kb-two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+
+    /* Stacked bar */
+    .kb-stacked { display: flex; height: 20px; border-radius: 4px; overflow: hidden; }
+    .kb-stacked-seg { display: flex; align-items: center; justify-content: center; font-size: 0.56rem; font-weight: 600; color: white; }
+
+    /* Criteria rows with % */
+    .kb-crit-row { display: flex; align-items: center; gap: 0.4rem; margin-bottom: 0.3rem; }
+    .kb-crit-name { width: 105px; font-weight: 600; color: var(--accent); font-size: 0.72rem; }
+    .kb-crit-bar { flex: 1; height: 7px; background: #e8ecf3; border-radius: 3px; overflow: hidden; }
+    .kb-crit-fill { height: 100%; border-radius: 3px; background: var(--accent-mid); }
+    .kb-crit-val { width: 30px; text-align: right; font-size: 0.68rem; color: var(--text-muted); }
+    .kb-crit-pct { width: 28px; text-align: right; font-size: 0.62rem; color: var(--text-muted); }
+
+    /* Gap mini-cards 2×2 */
+    .kb-gap-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+    .kb-gap { border-radius: 5px; padding: 0.55rem 0.7rem; border-left: 3px solid; }
+    .kb-gap.warn { background: var(--warn-bg); border-left-color: var(--warn-border); }
+    .kb-gap.ok { background: var(--success-bg); border-left-color: var(--success-border); }
+    .kb-gap-title { font-size: 0.78rem; font-weight: 700; }
+    .kb-gap.warn .kb-gap-title { color: var(--warn-text); }
+    .kb-gap.ok .kb-gap-title { color: var(--success-text); }
+    .kb-gap-nums { font-size: 0.7rem; margin-top: 0.1rem; }
+    .kb-gap.warn .kb-gap-nums { color: #7a5c00; }
+    .kb-gap.ok .kb-gap-nums { color: #1a6030; }
+    .kb-gap-bar { height: 4px; background: rgba(0,0,0,0.08); border-radius: 2px; overflow: hidden; margin-top: 0.25rem; }
+    .kb-gap-fill { height: 100%; border-radius: 2px; }
+    .kb-gap.warn .kb-gap-fill { background: var(--warn-text); }
+    .kb-gap.ok .kb-gap-fill { background: var(--success-text); }
+
+    /* Chapter coverage grid */
+    .kb-chap-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.4rem; }
+    .kb-chap { display: flex; align-items: center; gap: 0.5rem; padding: 0.45rem 0.6rem; background: var(--bg-card); border: 1px solid var(--border-light); border-radius: 4px; }
+    .kb-chap-num { font-family: var(--serif); font-weight: 700; color: var(--accent); font-size: 0.85rem; width: 18px; text-align: center; }
+    .kb-chap-body { flex: 1; }
+    .kb-chap-name { font-size: 0.75rem; font-weight: 600; color: var(--text); }
+    .kb-chap-meta { font-size: 0.65rem; color: var(--text-muted); }
+    .kb-chap-bar { width: 45px; height: 5px; background: #e8ecf3; border-radius: 3px; overflow: hidden; flex-shrink: 0; }
+    .kb-chap-fill { height: 100%; border-radius: 3px; }
+
+    /* Recent additions table */
+    .kb-recent { width: 100%; font-size: 0.75rem; border-collapse: collapse; }
+    .kb-recent th { text-align: left; font-weight: 600; color: var(--text-muted); font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.04em; padding: 0.25rem 0.3rem; border-bottom: 1px solid var(--border); }
+    .kb-recent td { padding: 0.3rem; border-bottom: 1px solid #f2f2f2; color: var(--text-light); }
+    .kb-recent td:first-child { color: var(--text); font-weight: 500; max-width: 280px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .kb-recent .pill { display: inline-block; font-size: 0.55rem; font-weight: 700; text-transform: uppercase; padding: 0.04rem 0.28rem; border-radius: 2px; }
+    .kb-recent .pill-alta { background: var(--danger-bg); color: var(--danger-text); }
+    .kb-recent .pill-media { background: var(--warn-bg); color: var(--warn-text); }
+    .kb-recent .pill-baja { background: #f0f0f0; color: #888; }
+
+    /* Legacy pipeline (keep for fallback) */
     .pipeline-alert { display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 0.75rem; border-radius: 5px; font-size: 0.82rem; margin-bottom: 0.75rem; }
     .pipeline-alert.alert-ok { background: var(--success-bg); border: 1px solid var(--success-border); color: var(--success-text); }
     .pipeline-alert.alert-warn { background: var(--warn-bg); border: 1px solid var(--warn-border); color: var(--warn-text); }
@@ -723,6 +793,11 @@
       .map-ana-layout > * { flex-shrink: 0; min-width: 140px; }
       .map-eva-grid { grid-template-columns: repeat(2, 1fr); }
       .map-question { font-size: 0.72rem; }
+      /* KB report responsive */
+      .kb-two-col { grid-template-columns: 1fr; }
+      .kb-gap-grid { grid-template-columns: 1fr; }
+      .kb-chap-grid { grid-template-columns: 1fr; }
+      .kb-pipe-strip { font-size: 0.68rem; gap: 0.4rem; }
     }
   </style>
 </head>
@@ -888,55 +963,63 @@
     ═══════════════════════════════════ -->
     <div class="view" id="view-kb">
 
-      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:0.75rem;">
+      <!-- Header -->
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:0.5rem;">
         <h2 style="margin-bottom:0;">KB Intelligence Report</h2>
-        <a href="https://aauml.github.io/thesis/index.html" target="_blank" class="btn-sm" style="text-decoration:none;">
+        <a href="https://aauml.github.io/thesis/index.html" target="_blank" class="btn-accent" style="text-decoration:none;">
           Abrir KB ↗
         </a>
       </div>
 
-      <!-- Pipeline status — LIVE (top priority) -->
-      <div id="kbPipelineStatus">
-        <div id="pipelineLive" style="font-size:0.82rem;">
-          <div style="color:var(--text-muted);padding:0.3rem;">Consultando pipeline...</div>
-        </div>
+      <!-- Pipeline compact strip — dynamic from GAS API -->
+      <div id="pipelineLive" class="kb-pipe-strip">
+        <span style="color:var(--text-muted); font-size:0.75rem;">Consultando pipeline...</span>
       </div>
 
-      <!-- Compact stats line — dynamic from Supabase -->
+      <!-- Stats line — dynamic from Supabase -->
       <div class="kb-stats-line">
         <div class="kb-stat"><span class="kb-stat-num" id="kbTotal">—</span> <span class="kb-stat-label">total</span></div>
         <div class="kb-stat"><span class="kb-stat-num alta" id="kbAlta">—</span> <span class="kb-stat-label">alta</span></div>
         <div class="kb-stat"><span class="kb-stat-num" id="kbMedia">—</span> <span class="kb-stat-label">media</span></div>
         <div class="kb-stat"><span class="kb-stat-num" id="kbBaja">—</span> <span class="kb-stat-label">baja</span></div>
-        <div style="margin-left:auto; font-size:0.7rem; color:var(--text-muted); align-self:center;" id="kbStatsUpdated">Actualizado: cargando...</div>
+        <div style="margin-left:auto; font-size:0.7rem; color:var(--text-muted); align-self:center;" id="kbStatsUpdated">Cargando...</div>
       </div>
 
-      <!-- Supabase status — dynamic -->
-      <div id="supabaseStatus" style="font-size:0.7rem; color:var(--text-muted); margin-bottom:0.5rem; display:flex; align-items:center; gap:0.3rem;">
-        <span id="sbStatusDot" style="width:6px;height:6px;border-radius:50%;background:#ccc;display:inline-block;"></span>
-        <span id="sbStatusText">Supabase: conectando...</span>
-      </div>
-
-      <!-- Distribution by layer — dynamic from Supabase -->
-      <div class="card" style="margin-bottom:0.75rem;">
-        <div class="card-title">Distribución por capa</div>
-        <div id="capaDistribution">
-          <div style="color:var(--text-muted); font-size:0.8rem; padding:0.3rem;">Cargando distribución...</div>
+      <!-- Two-col: Capas + Criterios — dynamic from Supabase -->
+      <div class="kb-two-col">
+        <div class="card" style="margin-bottom:0;">
+          <div class="card-title">Distribución por capa</div>
+          <div id="capaStacked" style="margin-bottom:0.5rem;">
+            <div style="color:var(--text-muted); font-size:0.75rem;">Cargando...</div>
+          </div>
+          <div id="capaDistribution">
+            <div style="color:var(--text-muted); font-size:0.75rem;">Cargando distribución...</div>
+          </div>
+        </div>
+        <div class="card" style="margin-bottom:0;">
+          <div class="card-title">Criterios evaluativos</div>
+          <div id="criteriaDistribution">
+            <div style="color:var(--text-muted); font-size:0.75rem;">Cargando criterios...</div>
+          </div>
         </div>
       </div>
 
-      <!-- Evaluative criteria distribution — dynamic from Supabase -->
-      <div class="card" style="margin-bottom:0.75rem;">
-        <div class="card-title">Criterios evaluativos</div>
-        <div id="criteriaDistribution">
-          <div style="color:var(--text-muted); font-size:0.8rem; padding:0.3rem;">Cargando criterios...</div>
-        </div>
-      </div>
-
-      <!-- Gaps — dynamic from Supabase -->
+      <!-- Gap analysis — dynamic 2×2 cards from Supabase -->
       <div class="section-label">Análisis de gaps</div>
-      <div id="gapAnalysis">
-        <div style="color:var(--text-muted); font-size:0.8rem; padding:0.3rem;">Cargando análisis...</div>
+      <div id="gapAnalysis" class="kb-gap-grid">
+        <div style="color:var(--text-muted); font-size:0.75rem; grid-column:1/-1;">Cargando análisis...</div>
+      </div>
+
+      <!-- Chapter coverage — dynamic from Supabase -->
+      <div class="section-label">Cobertura por capítulo</div>
+      <div id="chapterCoverage" class="kb-chap-grid">
+        <div style="color:var(--text-muted); font-size:0.75rem; grid-column:1/-1;">Cargando cobertura...</div>
+      </div>
+
+      <!-- Recent additions — dynamic from Supabase -->
+      <div class="section-label">Adiciones recientes</div>
+      <div class="card" id="recentAdditionsCard">
+        <div id="recentAdditions" style="color:var(--text-muted); font-size:0.75rem;">Cargando recientes...</div>
       </div>
     </div>
 
@@ -1691,7 +1774,7 @@ async function fetchPipelineStatus() {
       return `en ${m}min`;
     }
 
-    // Queue cards with semaphore: 🟢 = ok, 🟡 = pendientes (auto), 🔴 = error
+    // Compact pipeline strip
     const queueRows = [
       { name: 'Academic', count: acadPending },
       { name: 'Perplexity', count: perpPending },
@@ -1700,31 +1783,14 @@ async function fetchPipelineStatus() {
 
     const procesado = timeAgo(lastProcess) || 'sin datos';
 
-    let html = '<div class="pipeline-queues">';
-    for (const q of queueRows) {
-      const hasPending = q.count > 0;
-      const dot = hasPending ? '🟡' : '🟢';
-      const countLabel = hasPending ? ` · <strong style="color:var(--warn-text);">${q.count}</strong> pendientes` : '';
-      const nextRun = nextTriggerRun(q.name);
-      html += `<div class="pipeline-q">
-        <div>${dot} <strong>${q.name}</strong>${countLabel}</div>
-        <div class="pq-meta">Siguiente scan: ${nextRun}</div>
-      </div>`;
-    }
-    html += '</div>';
-
-    // Alert bar
-    if (hasWork) {
-      html += `<div class="pipeline-alert alert-warn">
-        <strong>${totalPending} items en cola</strong> — se procesan automáticamente
-        <span style="margin-left:auto;font-size:0.72rem;">Procesado: ${procesado} · Consultado: justo ahora</span>
-      </div>`;
-    } else {
-      html += `<div class="pipeline-alert alert-ok">
-        <span>✓</span> <strong>Todas las colas en cero</strong>
-        <span style="margin-left:auto;font-size:0.72rem;">Procesado: ${procesado} · Consultado: justo ahora</span>
-      </div>`;
-    }
+    let html = '';
+    queueRows.forEach((q, i) => {
+      const dotClass = q.count > 0 ? 'yellow' : 'green';
+      const countLabel = q.count > 0 ? ` <strong style="color:var(--warn-text);">${q.count}</strong>` : ' 0';
+      html += `<span class="kb-pipe-dot ${dotClass}"></span> <strong>${q.name}</strong>${countLabel}`;
+      if (i < queueRows.length - 1) html += '<span class="kb-pipe-sep"></span>';
+    });
+    html += `<span style="margin-left:auto; font-size:0.68rem; color:var(--text-muted);">Procesado: ${procesado}</span>`;
 
     el.innerHTML = html;
 
@@ -2120,13 +2186,14 @@ async function supabaseQuery(path) {
 async function fetchKbStats() {
   try {
     // Primary source: Supabase for all evaluated data
-    const [total, alta, media, baja, capaData, criteriaData] = await Promise.all([
+    const [total, alta, media, baja, capaData, criteriaData, recentData] = await Promise.all([
       supabaseCount(''),
       supabaseCount('importance=eq.ALTA'),
       supabaseCount('importance=eq.MEDIA'),
       supabaseCount('importance=eq.BAJA'),
       supabaseQuery('evaluated_items?select=capa&capa=not.is.null&capa=neq.'),
-      supabaseQuery('evaluated_items?select=evaluativa_criteria&evaluativa_criteria=not.is.null&evaluativa_criteria=neq.')
+      supabaseQuery('evaluated_items?select=evaluativa_criteria&evaluativa_criteria=not.is.null&evaluativa_criteria=neq.'),
+      supabaseQuery('evaluated_items?select=title,capa,importance,source_type,created_at&order=created_at.desc&limit=8')
     ]);
 
     // Update stat numbers
@@ -2143,7 +2210,7 @@ async function fetchKbStats() {
     const kbEl = document.getElementById('kbStatsUpdated');
     if (kbEl) kbEl.textContent = 'Fuente: Supabase (live)';
 
-    // Count capas (items can have multiple, e.g. "Analítica, Teórica")
+    // ── Count capas (items can have multiple) ──
     const capaNames = ['Teórica', 'Analítica', 'Evaluativa', 'Caso', 'Metodológica'];
     const byCapa = {};
     capaNames.forEach(c => byCapa[c] = 0);
@@ -2151,7 +2218,27 @@ async function fetchKbStats() {
       capaNames.forEach(c => { if (row.capa && row.capa.includes(c)) byCapa[c]++; });
     });
 
-    // Capa distribution bars
+    // ── Stacked bar ──
+    const stackedEl = document.getElementById('capaStacked');
+    if (stackedEl) {
+      const capaTotal = capaNames.reduce((s, c) => s + (byCapa[c] || 0), 0) || 1;
+      const segColors = ['var(--accent)', 'var(--accent-mid)', 'var(--accent-hover)', '#6a9cc8', '#8aaccf'];
+      const segLabels = ['Teór', 'Analít', 'Eval', 'Caso', 'Met'];
+      let stackedHtml = '<div class="kb-stacked">';
+      capaNames.forEach((c, i) => {
+        const val = byCapa[c] || 0;
+        const pct = Math.round((val / capaTotal) * 100);
+        if (pct >= 3) {
+          stackedHtml += `<div class="kb-stacked-seg" style="width:${pct}%; background:${segColors[i]};" title="${c}: ${val}">${segLabels[i]} ${val}</div>`;
+        } else if (pct > 0) {
+          stackedHtml += `<div class="kb-stacked-seg" style="width:${pct}%; background:${segColors[i]};" title="${c}: ${val}"></div>`;
+        }
+      });
+      stackedHtml += '</div>';
+      stackedEl.innerHTML = stackedHtml;
+    }
+
+    // ── Capa distribution bars ──
     const capaContainer = document.getElementById('capaDistribution');
     if (capaContainer) {
       const capas = [
@@ -2170,70 +2257,127 @@ async function fetchKbStats() {
       }).join('');
     }
 
-    // Evaluative criteria distribution
+    // ── Evaluative criteria with percentages ──
     const critContainer = document.getElementById('criteriaDistribution');
     if (critContainer) {
-      const critNames = ['Accountability', 'Contestabilidad', 'Equidad', 'Explicabilidad'];
+      const critNames = ['Accountability', 'Contestabilidad', 'Explicabilidad', 'Equidad'];
+      const critLabels = ['Accountability', 'Contestab.', 'Explicab.', 'Equidad'];
       const byCrit = {};
       critNames.forEach(c => byCrit[c] = 0);
       (criteriaData || []).forEach(row => {
         critNames.forEach(c => { if (row.evaluativa_criteria && row.evaluativa_criteria.includes(c)) byCrit[c]++; });
       });
       const maxCrit = Math.max(...critNames.map(c => byCrit[c]), 1);
-      critContainer.innerHTML = critNames.map(c => {
+      critContainer.innerHTML = critNames.map((c, i) => {
         const val = byCrit[c];
-        const pct = Math.round((val / maxCrit) * 100);
-        const low = (val / total) < 0.05 ? ' low' : '';
-        return `<div class="bar-row"><span class="bar-label">${c}</span><div class="bar-track"><div class="bar-fill${low}" style="width:${pct}%"></div></div><span class="bar-val">${val.toLocaleString()}</span></div>`;
-      }).join('');
+        const barPct = Math.round((val / maxCrit) * 100);
+        const pctOfTotal = Math.round((val / total) * 100);
+        return `<div class="kb-crit-row"><span class="kb-crit-name">${critLabels[i]}</span><div class="kb-crit-bar"><div class="kb-crit-fill" style="width:${barPct}%"></div></div><span class="kb-crit-val">${val.toLocaleString()}</span><span class="kb-crit-pct">${pctOfTotal}%</span></div>`;
+      }).join('') + '<div style="font-size:0.62rem; color:var(--text-muted); margin-top:0.4rem;">% sobre total · items multi-criterio</div>';
     }
 
-    // Gap analysis — based on real Supabase counts
+    // ── Gap analysis — mini-cards 2×2 ──
     const gapContainer = document.getElementById('gapAnalysis');
     if (gapContainer) {
       const gaps = [
-        { name: 'Derecho procesal español', count: null, target: 15, status: 'check', query: 'importance=eq.ALTA&or=(thesis_relevance.ilike.*procesal*,thesis_relevance.ilike.*prueba electrónica*)' },
+        { name: 'Derecho procesal español', count: null, target: 15, query: 'importance=eq.ALTA&or=(thesis_relevance.ilike.*procesal*,thesis_relevance.ilike.*prueba electrónica*)' },
         { name: 'Caso PATTERN/BOP', count: null, target: 20, query: 'or=(thesis_relevance.ilike.*PATTERN*,thesis_relevance.ilike.*Bureau of Prisons*,thesis_relevance.ilike.*recidivism*)' },
       ];
-      // Fetch gap counts from Supabase
       const gapCounts = await Promise.all(gaps.map(g => supabaseCount(g.query)));
       gaps.forEach((g, i) => g.count = gapCounts[i]);
 
-      // Also add capa-based gaps
-      const capaGaps = [
-        { name: 'Caso (capa)', count: byCapa['Caso'], target: 40, chapter: 'Cap. 6' },
-        { name: 'Metodológica (capa)', count: byCapa['Metodológica'], target: 80, chapter: 'Cap. 1-2' },
+      // Add capa-based gaps
+      const allGaps = [
+        ...gaps,
+        { name: 'Caso (capa)', count: byCapa['Caso'], target: 150 },
+        { name: 'Metodológica', count: byCapa['Metodológica'], target: 80 },
       ];
 
-      let html = '';
-      // Specific gaps
-      gaps.forEach(g => {
-        if (g.count < g.target) {
-          html += `<div class="callout callout-warn"><strong>${g.name}:</strong> ${g.count} de ${g.target} target. Necesita crecer.</div>`;
-        } else {
-          html += `<div class="callout callout-success"><strong>${g.name}:</strong> ${g.count} items (target: ${g.target}). Cubierto.</div>`;
+      gapContainer.innerHTML = allGaps.map(g => {
+        const pct = Math.min(Math.round((g.count / g.target) * 100), 100);
+        const pctLabel = Math.round((g.count / g.target) * 100);
+        const isOk = g.count >= g.target;
+        const cls = isOk ? 'ok' : 'warn';
+        return `<div class="kb-gap ${cls}">
+          <div class="kb-gap-title">${g.name}</div>
+          <div class="kb-gap-nums">${g.count} / ${g.target} · ${pctLabel}%</div>
+          <div class="kb-gap-bar"><div class="kb-gap-fill" style="width:${pct}%"></div></div>
+        </div>`;
+      }).join('');
+    }
+
+    // ── Chapter coverage — dynamic from thesis_relevance ──
+    const chapContainer = document.getElementById('chapterCoverage');
+    if (chapContainer) {
+      const chapters = [
+        { num: 1, name: 'Introducción', query: 'thesis_relevance.ilike.*introducci*' },
+        { num: 2, name: 'Marco teórico', capas: ['Teórica'] },
+        { num: 3, name: 'Metodología', capas: ['Metodológica'] },
+        { num: 4, name: 'Estado del arte', query: 'or=(thesis_relevance.ilike.*estado del arte*,thesis_relevance.ilike.*literature*,thesis_relevance.ilike.*review*)' },
+        { num: 5, name: 'Análisis comparado', capas: ['Analítica'] },
+        { num: 6, name: 'Caso DOJ', capas: ['Caso'] },
+        { num: 7, name: 'Evaluación', capas: ['Evaluativa'] },
+        { num: 8, name: 'Conclusiones', count: 0, target: 50 },
+      ];
+
+      // For capa-based chapters, use already-fetched counts
+      // For query-based chapters, fetch from Supabase
+      const queryChapters = chapters.filter(ch => ch.query);
+      const queryCounts = await Promise.all(queryChapters.map(ch => supabaseCount(ch.query)));
+      queryChapters.forEach((ch, i) => ch.count = queryCounts[i]);
+
+      // Assign capa-based counts and sensible targets
+      const capaTargets = { 'Teórica': 400, 'Metodológica': 80, 'Analítica': 600, 'Caso': 150, 'Evaluativa': 300 };
+      chapters.forEach(ch => {
+        if (ch.capas) {
+          ch.count = ch.capas.reduce((s, c) => s + (byCapa[c] || 0), 0);
+          ch.target = ch.capas.reduce((s, c) => s + (capaTargets[c] || 100), 0);
         }
-      });
-      // Capa gaps
-      capaGaps.forEach(g => {
-        if (g.count < g.target) {
-          html += `<div class="callout callout-warn"><strong>Gap — ${g.name}:</strong> ${g.count.toLocaleString()} entradas (target: ${g.target}). ${g.chapter}.</div>`;
-        }
+        if (!ch.target && ch.count !== undefined) ch.target = Math.max(ch.count, 30);
       });
 
-      // Strengths
-      const strengths = [
-        { name: 'Teórica', count: byCapa['Teórica'] },
-        { name: 'Analítica', count: byCapa['Analítica'] },
-      ].filter(s => s.count > 100);
-      if (strengths.length) {
-        html += strengths.map(s => `<div class="callout callout-success"><strong>Fortaleza — ${s.name}:</strong> ${s.count.toLocaleString()} entradas.</div>`).join('');
-      }
-      gapContainer.innerHTML = html || '<div style="color:var(--text-muted);font-size:0.8rem;">Sin gaps detectados.</div>';
+      chapContainer.innerHTML = chapters.map(ch => {
+        const count = ch.count || 0;
+        const target = ch.target || 1;
+        const pct = Math.min(Math.round((count / target) * 100), 100);
+        let barColor = 'var(--success-text)';
+        if (pct < 50) barColor = '#e07040';
+        else if (pct < 80) barColor = 'var(--accent-mid)';
+        return `<div class="kb-chap">
+          <span class="kb-chap-num">${ch.num}</span>
+          <div class="kb-chap-body"><div class="kb-chap-name">${ch.name}</div><div class="kb-chap-meta">${count > 0 ? '~' + count.toLocaleString() + ' items' : 'Pendiente'}</div></div>
+          <div class="kb-chap-bar"><div class="kb-chap-fill" style="width:${pct}%; background:${barColor};"></div></div>
+        </div>`;
+      }).join('');
+    }
+
+    // ── Recent additions table ──
+    const recentEl = document.getElementById('recentAdditions');
+    if (recentEl && recentData && recentData.length > 0) {
+      const rows = recentData.slice(0, 6);
+      let html = '<table class="kb-recent"><thead><tr><th>Título</th><th>Capa</th><th>Prior.</th><th style="text-align:right">Fecha</th></tr></thead><tbody>';
+      rows.forEach(r => {
+        const title = (r.title || '').length > 55 ? r.title.substring(0, 52) + '…' : (r.title || '—');
+        const capa = (r.capa || '—').split(',')[0].trim();
+        const capaShort = capa === 'Metodológica' ? 'Metod.' : capa;
+        const imp = (r.importance || '').toUpperCase();
+        const pillCls = imp === 'ALTA' ? 'pill-alta' : imp === 'MEDIA' ? 'pill-media' : 'pill-baja';
+        let dateStr = '—';
+        if (r.created_at) {
+          const d = new Date(r.created_at);
+          dateStr = d.toLocaleDateString('es', { day: 'numeric', month: 'short' });
+        }
+        const kbLink = r.title ? 'https://aauml.github.io/thesis/index.html?q=' + encodeURIComponent(r.title.split(/[\s:—–()«»""]+/).filter(w => w.length > 3).slice(0, 3).join(' ')) : '#';
+        html += `<tr><td><a href="${kbLink}" target="_blank" style="color:var(--text);text-decoration:none;" title="${r.title || ''}">${title}</a></td><td>${capaShort}</td><td><span class="pill ${pillCls}">${imp || '—'}</span></td><td style="text-align:right;color:var(--text-muted)">${dateStr}</td></tr>`;
+      });
+      html += '</tbody></table>';
+      recentEl.innerHTML = html;
+    } else if (recentEl) {
+      recentEl.innerHTML = '<div style="color:var(--text-muted); font-size:0.75rem;">Sin datos de fecha disponibles</div>';
     }
 
   } catch(e) {
-    // Fallback: show error state
+    console.error('fetchKbStats error:', e);
     const kbEl = document.getElementById('kbStatsUpdated');
     if (kbEl) kbEl.textContent = 'Error cargando stats';
   }

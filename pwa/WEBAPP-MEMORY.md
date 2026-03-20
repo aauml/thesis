@@ -187,7 +187,56 @@ Se evaluaron tres opciones: (1) apilar todo verticalmente — pierde la relació
 
 ---
 
-## 7. PRÓXIMOS CAMBIOS PREVISTOS
+## 7. DEEP-LINKS: DASHBOARD → KB
+
+### Mecanismo
+
+El dashboard (`dashboard.html`) genera enlaces que abren tarjetas individuales en el KB webapp (`index.html`). Hay dos modos de deep-link:
+
+| Parámetro | Ejemplo | Comportamiento en index.html |
+|-----------|---------|------------------------------|
+| `?url=` | `index.html?url=https%3A%2F%2Fairc.nist.gov%2FDocs%2F1` | Busca coincidencia **exacta** en `r.url`. Muestra una sola tarjeta expandida. |
+| `?q=` | `index.html?q=GAO+PATTERN+First+Step+Act` | Búsqueda AND por palabras. Puede devolver múltiples resultados. |
+
+**Prioridad:** `?url=` siempre se prefiere. `?q=` es fallback para ítems que no están en el KB.
+
+### Fuentes de deep-links en dashboard.html
+
+1. **Hardcoded lec-items** (plan de lecturas estático, ~28 ítems con URL):
+   - Los hrefs apuntan directamente a `index.html?url=ENCODED_KB_URL`.
+   - El init script rewriter (`document.querySelectorAll('.lec-item a[href^="http"]')`) convierte URLs externas restantes a `?url=` deep-links. Ya no toca los que apuntan a `aauml.github.io`.
+   - **Importante:** Las URLs hardcodeadas DEBEN coincidir exactamente con las URLs canónicas del KB (Sheet/Supabase). No usar DOIs, publishers, ni mirrors — usar la URL que aparece en el campo `url` de `evaluated_items`.
+
+2. **Novedades dinámicas** (`renderNewsItem()`): Usa `row.url` de Supabase → `?url=`. Fallback a `?q=` con palabras del título.
+
+3. **Actividad Actual / Plan de Lectura** (`fetchActividadActual()`, `fetchOpLecturas()`, `fetchReadingPlan()`): Usa `r.url` de `reading_plan` → `?url=`. Fallback a `?q=`.
+
+4. **Advisories** (`renderAdvisory()`): Extrae palabras del pathname de la URL → `?q=` search.
+
+5. **Desarrollos** (hardcoded): Usa `?q=` con términos curados.
+
+### Reglas para mantener deep-links
+
+- **Antes de agregar un lec-item hardcoded:** Verificar que la URL existe en Supabase `evaluated_items.url`. Usar esa URL exacta.
+- **URLs `gdrive://`** son válidas como KB URLs. Se codifican normalmente con `encodeURIComponent()`.
+- **Si el ítem no existe en KB:** Usar `?q=` con 3-5 palabras clave (sin años, sin caracteres especiales).
+- **Tras cambios en pipelines que alteren URLs:** Verificar que los lec-items hardcoded siguen coincidiendo.
+
+### Historial de problemas resueltos (2026-03-20)
+
+| Problema | Causa | Solución |
+|----------|-------|----------|
+| 0 resultados en KB | `+` codificado como `%2B` (literal) en lugar de `%20` (espacio) | Cambiar `.join('+')` → `.join(' ')` |
+| 0 resultados en KB | Guillemets `«»""` no eliminados de términos de búsqueda | Agregar `«»""` al regex de split |
+| Múltiples resultados | Búsqueda por string completo sin AND logic | Implementar `words.every(w => blob.includes(w))` |
+| Múltiples resultados | `?q=` busca por título (impreciso) | Implementar `?url=` exact match |
+| `?url=` falla para 14 ítems | URLs hardcodeadas (DOIs, publishers) ≠ URLs del KB | Reemplazar con URLs canónicas del KB |
+| `?id=` fallido (revertido) | `btoa(url).slice(0,16)` produce solo 356 IDs únicos para 1,502 ítems | Revertido a `?url=` |
+| GitHub Pages cache | Cambios no visibles inmediatamente | Cache-bust con `?_v=` o Ctrl+Shift+R |
+
+---
+
+## 8. PRÓXIMOS CAMBIOS PREVISTOS
 
 - **Clasificar puntos de la matriz:** Cuando la Fase 1 produzca resultados, cambiar puntos negros por verde/rojo/azul. Agregar clases CSS `.mtx-co { background: #2d7a3f; }`, `.mtx-di { background: #b03030; }`, `.mtx-cp { background: #185fa5; }`.
 - **Actualizar caso de estudio:** Cuando se confirme con el director, reemplazar los criterios genéricos con el caso específico y sus detalles.

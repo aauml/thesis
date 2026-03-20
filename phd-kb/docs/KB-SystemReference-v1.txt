@@ -121,6 +121,22 @@ Es un archivo HTML/CSS/JS autocontenido sin dependencias externas ni build proce
 | 2026-03-07 | Sin datos con `action=getAll` | Webapp usaba JSONP (`<script>&callback=_cb_xyz`). API ignora `callback`, devuelve JSON plano. Browser ejecutaba `{"rows":...}` como JS → SyntaxError silencioso | Reemplazar `jsonp()` con `fetch()`. API tiene CORS habilitado (redirect 302→200, ambas respuestas con `access-control-allow-origin: *`) |
 | 2026-03-08 | Filtros no funcionan, total siempre 1041, starred vacío | API siempre devuelve `total: 1041`; `search`/`sort`/`capa_detail` ignorados server-side; `starred` es int `1` no string `"1"`; filtro starred solo escaneaba 50 rows de la página actual | Cargar todos los datos (`limit=2000`), cachear, filtrar/ordenar/paginar todo client-side. Comparación starred con `==`. |
 
+### Deep-linking desde el dashboard
+
+La webapp soporta dos parámetros de URL para deep-links desde `dashboard.html`:
+
+| Parámetro | Ejemplo | Qué hace |
+|-----------|---------|----------|
+| `?url=` | `?url=https%3A%2F%2Fairc.nist.gov%2FDocs%2F1` | Coincidencia **exacta** con `r.url`. Muestra una sola tarjeta expandida. Ignora todos los filtros. |
+| `?q=` | `?q=GAO+PATTERN+First+Step+Act` | Búsqueda AND: cada palabra debe aparecer en el blob de búsqueda (`title + thesis_relevance + source + scholar + capa_detail + date_published`). |
+
+**Implementación (index.html):**
+- `state._deepLinkUrl` se setea desde `URLSearchParams.get('url')` al cargar la página.
+- En `fetchData()`, si `state._deepLinkUrl` existe, se filtra `allRows.filter(r => r.url === state._deepLinkUrl)` y se expande la tarjeta automáticamente.
+- `?q=` se inyecta en `state.search` y el input de búsqueda.
+
+**Regla crítica:** Las URLs usadas en `?url=` deben coincidir **exactamente** con el campo `url` del item en la Sheet/Supabase. No usar DOIs, mirrors, ni publishers alternativos.
+
 ### Modificar la webapp
 
 - **Agregar filtro nuevo:** añadir UI en HTML + filtro en `fetchData()` sección "── Filter ──" + reset en `clearAllFilters()` y `updateClearBtn()`

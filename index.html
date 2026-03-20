@@ -659,15 +659,6 @@ async function fetchData() {
       });
     }
 
-    // Deep-link by ID — override all other filters
-    if (state._deepLinkId) {
-      const match = allRows.filter(r => r.id === state._deepLinkId);
-      if (match.length) {
-        filtered = match;
-        expandedIds.add('c-1-0'); // auto-expand the single card
-      }
-    }
-
     if (state.starFilter)
       filtered = filtered.filter(r =>
         r.starred == 1 || r.starred === "1" || r.starred === "true" || r.starred === "yes");
@@ -1025,15 +1016,11 @@ function exportMarkdown() {
 buildSubcapaDropdown("");
 syncAdvancedFiltersPanel();
 
-// Support ?q= and ?id= URL params for deep-linking from dashboard
+// Support ?q= URL param for deep-linking from dashboard
 (function() {
   const params = new URLSearchParams(window.location.search);
-  const id = params.get('id');
   const q = params.get('q');
-  if (id) {
-    // Direct link to a specific item by its row id
-    state._deepLinkId = id;
-  } else if (q) {
+  if (q) {
     state.search = q;
     document.getElementById('searchInput').value = q;
     updateXBtn(); updateClearBtn();

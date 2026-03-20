@@ -866,19 +866,12 @@
         <div style="color:var(--text-muted); font-size:0.72rem; padding:0.5rem;">Cargando actividad actual...</div>
       </div>
 
-      <!-- Desarrollos clave — persistent, curated (M2: clean prose, dates, source links) -->
+      <!-- Desarrollos clave — dynamic from Supabase pm_developments -->
       <div class="m2-heading">Desarrollos clave</div>
-      <div class="m2-meta">Ordenados por fecha · más reciente primero</div>
-
-      <div class="m2-dev"><strong>EU Digital Omnibus (COM(2025) 868).</strong> <span>Consejo acuerda posición. Stop-the-clock retrasa plazos AI Act hasta 2027. Ventana de interoperabilidad se amplía.</span> <a href="https://aauml.github.io/thesis/index.html?url=https%3A%2F%2Fwww.consilium.europa.eu%2Fen%2Fpress%2Fpress-releases%2F2026%2F03%2F13%2Fcouncil-agrees-position-to-streamline-rules-on-artificial-intelligence%2F" target="_blank" rel="noopener" class="m2-dev-src">ver en kb →</a> <span class="m2-dev-date">mar 2026</span></div>
-      <div class="m2-dev"><strong>Trump AMERICA AI Act.</strong> <span>Borrador Blackburn propone preempción federal, auditorías obligatorias contra sesgo y sunset de Section 230. Si avanza, interlocutor US pasa de mosaico estatal a marco federal.</span> <a href="https://aauml.github.io/thesis/index.html?url=https%3A%2F%2Fnatlawreview.com%2Farticle%2Ftrump-america-ai-act-federal-preemption-meets-comprehensive-regulation" target="_blank" rel="noopener" class="m2-dev-src">ver en kb →</a> <span class="m2-dev-date">mar 2026</span></div>
-      <div class="m2-dev"><strong>COSAIS + Kratsios.</strong> <span>NIST propone Control Overlay for AI Systems. Se acerca a prescripción tipo AI Act. Kratsios nombrado OSTP director.</span> <a href="https://aauml.github.io/thesis/index.html?url=https%3A%2F%2Fwww.nist.gov%2Fartificial-intelligence%2Fai-standards-federal-engagement" target="_blank" rel="noopener" class="m2-dev-src">ver en kb →</a> <span class="m2-dev-date">feb 2026</span></div>
-      <div class="m2-dev"><strong>NIST → Center for AI Standards &amp; Evaluation.</strong> <span>Rebranding bajo Trump. Foco safety → standards. RMF mantiene vigencia estatutaria.</span> <a href="https://aauml.github.io/thesis/index.html?url=https%3A%2F%2Ffedscoop.com%2Ftrump-administration-rebrands-ai-safety-institute-aisi-caisi%2F" target="_blank" rel="noopener" class="m2-dev-src">ver en kb →</a> <span class="m2-dev-date">jul 2025</span></div>
-      <div class="m2-dev"><strong>DOJ sin AI Impact Assessment.</strong> <span>Estrategia DOJ adopta IA sin mecanismo de evaluación de impacto. Hallazgo clave Cap. 6.</span> <a href="https://aauml.github.io/thesis/index.html?url=gdrive%3A%2F%2F03_Corpus_Juridico%2F03-DOJ2020-AI_Strategy.pdf" target="_blank" rel="noopener" class="m2-dev-src">ver en kb →</a> <span class="m2-dev-date">jun 2025</span></div>
-      <div class="m2-dev"><strong>OMB M-24-10 → M-25-21.</strong> <span>Rescisión de mandatos de AI impact assessment. Sin mandato claro, pero gobernanza persiste por inercia institucional.</span> <a href="https://aauml.github.io/thesis/index.html?url=https%3A%2F%2Fwww.whitehouse.gov%2Fwp-content%2Fuploads%2F2025%2F04%2FM-25-21.pdf" target="_blank" rel="noopener" class="m2-dev-src">ver en kb →</a> <span class="m2-dev-date">abr 2025</span></div>
-      <div class="m2-dev"><strong>EO 14110 → EO 14179.</strong> <span>Trump revoca EO Biden y emite EO 14179. Continuidad funcional en NIST. Brecha política, no estructural.</span> <a href="https://aauml.github.io/thesis/index.html?url=https%3A%2F%2Fwww.whitehouse.gov%2Fpresidential-actions%2F2025%2F01%2Fremoving-barriers-to-american-leadership-in-artificial-intelligence%2F" target="_blank" rel="noopener" class="m2-dev-src">ver en kb →</a> <span class="m2-dev-date">ene 2025</span></div>
-      <div class="m2-dev"><strong>CETS 225 en vigor.</strong> <span>Primer tratado vinculante de IA ratificado por EEUU. Debilita la narrativa del enfoque puramente voluntario.</span> <a href="https://aauml.github.io/thesis/index.html?url=https%3A%2F%2Fwww.coe.int%2Fen%2Fweb%2Fartificial-intelligence%2Fthe-framework-convention-on-artificial-intelligence" target="_blank" rel="noopener" class="m2-dev-src">ver en kb →</a> <span class="m2-dev-date">sep 2024</span></div>
-      <div class="m2-dev"><strong>Gap estándares armonizados.</strong> <span>CEN/CENELEC no cumple plazos. NIST AI RMF como puente temporal para conformity assessment.</span> <a href="https://aauml.github.io/thesis/index.html?url=https%3A%2F%2Fwww.cencenelec.eu%2Fnews-events%2Fnews%2F2025%2Fbrief-news%2F2025-10-23-ai-standardization%2F" target="_blank" rel="noopener" class="m2-dev-src">ver en kb →</a> <span class="m2-dev-date">2024–2025</span></div>
+      <div class="m2-meta">Ordenados por fecha · más reciente primero · desde Supabase</div>
+      <div id="developmentsContainer">
+        <div style="color:var(--text-muted); font-size:0.72rem; padding:0.5rem;">Cargando desarrollos...</div>
+      </div>
 
       <!-- Análisis y recomendaciones — dynamic from pm_advisories -->
       <div class="m2-heading">Análisis y recomendaciones</div>
@@ -923,28 +916,18 @@
         <div style="color:var(--text-muted); font-size:0.72rem; padding:0.5rem;">Cargando lecturas...</div>
       </div>
 
-      <!-- Milestones — hardcoded, longer-term institutional/academic -->
+      <!-- Milestones — dynamic from Supabase pm_milestones -->
       <div class="m2-heading">Milestones</div>
-      <div class="m2-meta">Hitos institucionales y académicos · largo plazo</div>
-      <div style="margin-bottom:1.2rem;">
-        <div class="m2-ms"><input type="checkbox" disabled><span class="m2-ms-date">Q1 2026</span> <span>Obtener email institucional USAL</span></div>
-        <div class="m2-ms"><input type="checkbox" disabled><span class="m2-ms-date">Q2 2026</span> <span>Inscripción formal programa doctoral</span></div>
-        <div class="m2-ms"><input type="checkbox" disabled><span class="m2-ms-date">Q2 2026</span> <span>Primera reunión sustantiva con director</span></div>
-        <div class="m2-ms"><input type="checkbox" disabled><span class="m2-ms-date">Q2 2026</span> <span>Decisión caso de estudio (PATTERN vs. STRmix)</span></div>
-        <div class="m2-ms"><input type="checkbox" disabled><span class="m2-ms-date">Q3 2026</span> <span>Borrador Cap. 2 (marco teórico)</span></div>
-        <div class="m2-ms"><input type="checkbox" disabled><span class="m2-ms-date">Q4 2026</span> <span>Borrador Cap. 3 (corpus jurídico) + Cap. 4 (NIST)</span></div>
-        <div class="m2-ms"><input type="checkbox" disabled><span class="m2-ms-date">2027</span> <span>Cap. 5 (análisis comparativo) + Cap. 6 (caso de estudio)</span></div>
-        <div class="m2-ms"><input type="checkbox" disabled><span class="m2-ms-date">2028</span> <span>Cap. 7 (conclusiones) + defensa</span></div>
+      <div class="m2-meta">Hitos institucionales y académicos · desde Supabase</div>
+      <div id="milestonesContainer" style="margin-bottom:1.2rem;">
+        <div style="color:var(--text-muted); font-size:0.72rem; padding:0.5rem;">Cargando milestones...</div>
       </div>
 
-      <!-- Riesgos — prose style, no emojis -->
+      <!-- Riesgos — dynamic from Supabase pm_risks -->
       <div class="m2-heading">Riesgos activos</div>
-      <div class="m2-meta">Fase 1 · Orientación</div>
-      <div style="margin-bottom:1rem;">
-        <div class="m2-risk"><span class="m2-risk-lvl m2-risk-high">alto</span> <strong>Gap derecho procesal español.</strong> <span>Solo 4 items ALTA de ~15 necesarios para Cap. 2 §2.3. Búsqueda manual en Dialnet y CENDOJ prioritaria.</span></div>
-        <div class="m2-risk"><span class="m2-risk-lvl m2-risk-med">medio</span> <strong>Lecturas pendientes antes de Q2.</strong> <span>Sin Kaminski + Bradford no hay base para reunión con director. Priorizar Kaminski, Bradford caps. 1-3 antes de mayo.</span></div>
-        <div class="m2-risk"><span class="m2-risk-lvl m2-risk-med">medio</span> <strong>Entorno regulatorio acelerado.</strong> <span>AMERICA AI Act + Digital Omnibus + EO 14179. Pipeline activo y queries de vigilancia (Q125, Q079) mitigan. Desarrollos clave en Panorama actualizados.</span></div>
-        <div class="m2-risk"><span class="m2-risk-lvl m2-risk-low">bajo</span> <strong>Caso de estudio sin decidir.</strong> <span>No bloquea Fase 1. Documentación de PATTERN y STRmix se recopila en paralelo.</span></div>
+      <div class="m2-meta" id="risksPhaseLabel">Cargando...</div>
+      <div id="risksContainer" style="margin-bottom:1rem;">
+        <div style="color:var(--text-muted); font-size:0.72rem; padding:0.5rem;">Cargando riesgos...</div>
       </div>
 
     </div>
@@ -1465,20 +1448,14 @@
         <button class="btn-sm" onclick="toggleAllDec(false)">Contraer todo</button>
       </div>
 
-      <details class="dec"><summary><span class="dec-date">2026-03-19</span><span class="dec-preview">Supabase operativo: 1489 items + embeddings (gte-small 384d) + búsqueda semántica. Sheets se mantiene como control plane + staging.</span><span class="dec-toggle">▸</span></summary><div class="dec-body"><strong>Decisión arquitectónica KB ↔ PM — completada.</strong><br><br><strong>Arquitectura:</strong> Google Sheets = control plane (Queries tab) + staging (PerplexityQueue, AcademicQueue, NewsResults). Supabase = almacén de datos evaluados (reemplaza NewsLog como destino post-evaluación de Claude). Apps Script no cambia — sigue orquestando fetch → staging.<br><br><strong>Implementación:</strong> Proyecto Supabase <code>phd-kb</code> (ID: wtwuvrtmadnlezkbesqp). Tabla <code>evaluated_items</code>: 21 columnas NewsLog + embedding pgvector 384d (gte-small) + source_pipeline + metadata. Backfill: 1489/1490 items migrados (443 ALTA, 828 MEDIA, 218 BAJA). Embeddings: 1489/1489 generados via edge function <code>generate-embeddings</code>. RLS habilitado. Función <code>search_evaluated_items</code> para búsqueda semántica verificada (cosine similarity 0.92+ en queries relevantes).<br><br><strong>Tabs en Sheets:</strong> Queries (activo), PerplexityQueue (activo), AcademicQueue (activo), NewsResults (activo), NewsLog (dual-write durante transición, eventualmente read-only).<br><br><strong>Archivos actualizados:</strong> SKILL-KB-v15 (dual-write + embeddings pipeline), SKILL-PM-v7 (§8 Supabase queries, §12 infra), PM-SessionLog-v7, KB-PendingIssues (TASK-006 fase 2/4), KB-LessonsLog.</div></details>
-
-      <details class="dec"><summary><span class="dec-date">2026-03-18</span><span class="dec-preview">Plan de Lecturas creado: análisis completo del KB (1,490 entradas), lecturas por cuatrimestre con objetivos mensuales, 5 queries nuevos (Q120-Q124).</span><span class="dec-toggle">▸</span></summary><div class="dec-body">Análisis profundo del KB (ALTA + MEDIA). Hallazgos: gap crítico en Cap. 4 NIST (solo 40 fuentes), 67 MEDIA con potencial ALTA, caso PATTERN subrepresentado. Queries agregados: Q120 (NIST académico), Q121 (casos federales emergentes), Q122 (derecho procesal España), Q123 (forensic admissibility), Q124 (Bueno de Mata). Eje procesal del director cruza toda la tesis, no solo C2 y C6. Recursos no-texto integrados (podcasts Tabassi, CSIS). Plan cubre Año 0 (2026) a Años 3-4 (2029-2030) con lecturas N1-N4 + no-texto mapeadas a capítulos. Sistema de memoria PM actualizado.</div></details>
-
-      <details class="dec"><summary><span class="dec-date">2026-03-18</span><span class="dec-preview">Dashboard simplificado: Vault eliminado, Session Log movido a repo, Registro filtrado, Hoja de Ruta desduplicada.</span><span class="dec-toggle">▸</span></summary><div class="dec-body">Reestructuración: (1) Vista Vault eliminada — inventario estático que duplicaba Obsidian; (2) Session Log eliminado del dashboard — ya existe en PM-SessionLog, evita duplicación y tokens; (3) Registro filtrado: solo decisiones de investigación; (4) Hoja de Ruta eliminada de Progreso — duplicaba Actividad Actual en Panorama; (5) Operativo reorganizado con milestones separados de tareas.</div></details>
-
-      <details class="dec"><summary><span class="dec-date">2026-03-15</span><span class="dec-preview">Protocolo de actualización del dashboard: frecuencia y responsabilidades.</span><span class="dec-toggle">▸</span></summary><div class="dec-body">El dashboard se actualiza al cierre de cada sesión donde ocurra algo relevante. Claude actualiza sin pedir confirmación para cambios menores. Para cambios al Mapa Conceptual o estructura de capítulos, confirmar antes.</div></details>
-
-      <details class="dec"><summary><span class="dec-date">2026-03-14</span><span class="dec-preview">Thesis Dashboard creado. Tono experto-mentor, sidebar, KB Report live, Advisor.</span><span class="dec-toggle">▸</span></summary><div class="dec-body">PM Log rediseñado como Thesis Dashboard con sidebar, 6 vistas, Advisor contextual, KB Report con pipeline live, Operativo interactivo con Quick Add + GAS sync, timeline de progreso Q1–2028.</div></details>
+      <div id="decisionsContainer">
+        <div style="color:var(--text-muted); font-size:0.72rem; padding:0.5rem;">Cargando decisiones...</div>
+      </div>
 
     </div>
 
     <footer>
-      Última actualización: 19 de marzo de 2026 · Thesis Dashboard v9.3 (M2) — documento vivo · pipeline + novedades + KPIs son live
+      Última actualización: 20 de marzo de 2026 · Thesis Dashboard v10.0 (M2) — fully dynamic · all sections from Supabase
     </footer>
 
   </div><!-- /main -->
@@ -1517,14 +1494,8 @@ function switchView(id, btn) {
 })();
 
 // ═══════════════════════════════════════
-// DECISIONS
+// DECISIONS — toggle listeners attached dynamically in fetchDecisions()
 // ═══════════════════════════════════════
-document.querySelectorAll('details.dec').forEach(d => {
-  d.addEventListener('toggle', function() {
-    const icon = this.querySelector('.dec-toggle');
-    if (icon) icon.textContent = this.open ? '▾' : '▸';
-  });
-});
 function toggleAllDec(open) {
   document.querySelectorAll('details.dec').forEach(d => d.open = open);
 }
@@ -1540,48 +1511,23 @@ function showLecYear(id, btn) {
 }
 
 // ═══════════════════════════════════════
-// OPERATIVO — interactive checklist with undo
-// Version bump forces localStorage refresh on deploy
+// OPERATIVO — tasks from Supabase pm_tasks
 // ═══════════════════════════════════════
-const OPS_VERSION = 6; // v6: M2 redesign, tasks aligned with current priorities
-const DEFAULT_OPS = [
-  { id: 'op-kaminski', text: 'Terminar Kaminski (2023) — Regulating the Risks of AI', done: false, ts: null },
-  { id: 'op-bradford', text: 'Bradford (2020) caps. 1-3 — Brussels Effect', done: false, ts: null },
-  { id: 'op-dialnet', text: 'Búsqueda manual Dialnet/CENDOJ — derecho procesal + IA', done: false, ts: null },
-  { id: 'op-stoltz', text: 'Leer Stoltz (2024) — Road to Compliance: Federal Agencies and NIST RMF', done: false, ts: null },
-  { id: 'op-email-usal', text: 'Obtener email institucional USAL', done: false, ts: null },
-  { id: 'op-tanner', text: 'Agregar Tanner et al. (2026) al KB', done: false, ts: null },
-];
+let _tasksCache = null;
 
-// IDs that were removed from defaults — don't preserve them from old localStorage
-const DEPRECATED_OPS = new Set(['op-academic', 'op-perplexity', 'op-news', 'op-queues', 'op-email', 'op-inscripcion', 'op-obsidian', 'op-bug001', 'op-finck']);
-
-function loadOps() {
-  const ver = parseInt(localStorage.getItem(LS_PREFIX + 'ops_ver') || '0');
-  if (ver < OPS_VERSION) {
-    // Merge: keep user-added items + completed state, update defaults
-    const old = JSON.parse(localStorage.getItem(LS_PREFIX + 'ops') || '[]');
-    const oldMap = Object.fromEntries(old.map(o => [o.id, o]));
-    const merged = DEFAULT_OPS.map(d => oldMap[d.id] ? { ...d, done: oldMap[d.id].done, ts: oldMap[d.id].ts } : { ...d });
-    // Preserve user-added items (ids not in defaults AND not deprecated)
-    const defaultIds = new Set(DEFAULT_OPS.map(d => d.id));
-    old.filter(o => !defaultIds.has(o.id) && !DEPRECATED_OPS.has(o.id)).forEach(o => merged.push(o));
-    saveOps(merged);
-    return merged;
-  }
-  const saved = localStorage.getItem(LS_PREFIX + 'ops');
-  return saved ? JSON.parse(saved) : JSON.parse(JSON.stringify(DEFAULT_OPS));
-}
-function saveOps(ops) {
-  localStorage.setItem(LS_PREFIX + 'ops', JSON.stringify(ops));
-  localStorage.setItem(LS_PREFIX + 'ops_ver', String(OPS_VERSION));
+async function loadOps() {
+  if (_tasksCache) return _tasksCache;
+  try {
+    const rows = await supabaseQuery('pm_tasks?select=*&status=eq.active&order=position.asc');
+    _tasksCache = (rows || []).map(r => ({ id: r.id, text: r.text, done: r.done, ts: r.done_at ? new Date(r.done_at).toLocaleDateString('es-ES', { day:'numeric', month:'short' }) : null }));
+  } catch(e) { _tasksCache = []; }
+  return _tasksCache;
 }
 
-function renderOps() {
-  const ops = loadOps();
+async function renderOps() {
+  const ops = await loadOps();
   const active = ops.filter(o => !o.done);
   const completed = ops.filter(o => o.done);
-
   const activeEl = document.getElementById('opActive');
   const completedEl = document.getElementById('opCompleted');
   const headerEl = document.getElementById('opCompletedHeader');
@@ -1608,21 +1554,29 @@ function renderOps() {
   }
 }
 
-function toggleOp(id, markDone) {
-  const ops = loadOps();
-  const op = ops.find(o => o.id === id);
-  if (op) {
-    op.done = markDone;
-    op.ts = markDone ? new Date().toLocaleDateString('es-ES', { day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' }) : null;
+async function toggleOp(id, markDone) {
+  if (_tasksCache) {
+    const t = _tasksCache.find(o => o.id === id);
+    if (t) { t.done = markDone; t.ts = markDone ? new Date().toLocaleDateString('es-ES', { day:'numeric', month:'short' }) : null; }
   }
-  saveOps(ops);
   renderOps();
+  fetch(SUPABASE_URL + '/rest/v1/pm_tasks?id=eq.' + encodeURIComponent(id), {
+    method: 'PATCH', headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+    body: JSON.stringify({ done: markDone, done_at: markDone ? new Date().toISOString() : null, updated_at: new Date().toISOString() })
+  }).catch(e => console.error('Task toggle failed:', e));
 }
 
-function clearCompletedOps() {
-  const ops = loadOps().filter(o => !o.done);
-  saveOps(ops);
-  renderOps();
+async function clearCompletedOps() {
+  const ops = await loadOps();
+  const done = ops.filter(o => o.done);
+  for (const o of done) {
+    fetch(SUPABASE_URL + '/rest/v1/pm_tasks?id=eq.' + encodeURIComponent(o.id), {
+      method: 'PATCH', headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+      body: JSON.stringify({ status: 'archived', updated_at: new Date().toISOString() })
+    }).catch(e => console.error('Task archive failed:', e));
+  }
+  _tasksCache = null;
+  setTimeout(() => renderOps(), 500);
 }
 
 // ═══════════════════════════════════════
@@ -2541,6 +2495,106 @@ async function fetchSupabaseStatus() {
 }
 
 // ═══════════════════════════════════════
+// DESARROLLOS CLAVE — from Supabase pm_developments
+// ═══════════════════════════════════════
+async function fetchDevelopments() {
+  const container = document.getElementById('developmentsContainer');
+  if (!container) return;
+  try {
+    const rows = await supabaseQuery('pm_developments?select=*&status=eq.active&order=sort_date.desc');
+    if (!rows || rows.length === 0) {
+      container.innerHTML = '<div style="color:var(--text-muted); font-size:0.72rem;">Sin desarrollos registrados.</div>';
+      return;
+    }
+    container.innerHTML = rows.map(d => {
+      const link = d.kb_url ? ` <a href="${d.kb_url}" target="_blank" rel="noopener" class="m2-dev-src">ver en kb →</a>` : '';
+      return `<div class="m2-dev"><strong>${d.title}.</strong> <span>${d.summary}</span>${link} <span class="m2-dev-date">${d.date_label}</span></div>`;
+    }).join('');
+  } catch(e) {
+    container.innerHTML = '<div style="color:var(--text-muted); font-size:0.72rem;">Error cargando desarrollos.</div>';
+  }
+}
+
+// ═══════════════════════════════════════
+// MILESTONES — from Supabase pm_milestones
+// ═══════════════════════════════════════
+async function fetchMilestones() {
+  const container = document.getElementById('milestonesContainer');
+  if (!container) return;
+  try {
+    const rows = await supabaseQuery('pm_milestones?select=*&status=eq.active&order=position.asc');
+    if (!rows || rows.length === 0) {
+      container.innerHTML = '<div style="color:var(--text-muted); font-size:0.72rem;">Sin milestones.</div>';
+      return;
+    }
+    container.innerHTML = rows.map(m => {
+      const checked = m.completed ? ' checked' : '';
+      const style = m.completed ? ' style="opacity:0.5; text-decoration:line-through;"' : '';
+      return `<div class="m2-ms"><input type="checkbox"${checked} onchange="toggleMilestone(${m.id}, this.checked)"><span class="m2-ms-date">${m.target_period}</span> <span${style}>${m.title}</span></div>`;
+    }).join('');
+  } catch(e) {
+    container.innerHTML = '<div style="color:var(--text-muted); font-size:0.72rem;">Error cargando milestones.</div>';
+  }
+}
+
+function toggleMilestone(id, completed) {
+  fetch(SUPABASE_URL + '/rest/v1/pm_milestones?id=eq.' + id, {
+    method: 'PATCH', headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+    body: JSON.stringify({ completed, completed_at: completed ? new Date().toISOString() : null, updated_at: new Date().toISOString() })
+  }).catch(e => console.error('Milestone toggle failed:', e));
+}
+
+// ═══════════════════════════════════════
+// RIESGOS — from Supabase pm_risks
+// ═══════════════════════════════════════
+async function fetchRisks() {
+  const container = document.getElementById('risksContainer');
+  const phaseLabel = document.getElementById('risksPhaseLabel');
+  if (!container) return;
+  try {
+    const rows = await supabaseQuery('pm_risks?select=*&status=eq.active&order=position.asc');
+    if (!rows || rows.length === 0) {
+      container.innerHTML = '<div style="color:var(--text-muted); font-size:0.72rem;">Sin riesgos activos.</div>';
+      if (phaseLabel) phaseLabel.textContent = '';
+      return;
+    }
+    if (phaseLabel && rows[0].phase) phaseLabel.textContent = rows[0].phase;
+    const lvlClass = { alto: 'm2-risk-high', medio: 'm2-risk-med', bajo: 'm2-risk-low' };
+    container.innerHTML = rows.map(r =>
+      `<div class="m2-risk"><span class="m2-risk-lvl ${lvlClass[r.level] || ''}">${r.level}</span> <strong>${r.title}.</strong> <span>${r.description}</span></div>`
+    ).join('');
+  } catch(e) {
+    container.innerHTML = '<div style="color:var(--text-muted); font-size:0.72rem;">Error cargando riesgos.</div>';
+  }
+}
+
+// ═══════════════════════════════════════
+// DECISIONES — from Supabase pm_decisions
+// ═══════════════════════════════════════
+async function fetchDecisions() {
+  const container = document.getElementById('decisionsContainer');
+  if (!container) return;
+  try {
+    const rows = await supabaseQuery('pm_decisions?select=*&status=eq.active&order=date.desc,id.desc');
+    if (!rows || rows.length === 0) {
+      container.innerHTML = '<div style="color:var(--text-muted); font-size:0.72rem;">Sin decisiones registradas.</div>';
+      return;
+    }
+    container.innerHTML = rows.map(d =>
+      `<details class="dec"><summary><span class="dec-date">${d.date}</span><span class="dec-preview">${d.preview}</span><span class="dec-toggle">▸</span></summary><div class="dec-body">${d.body}</div></details>`
+    ).join('');
+    container.querySelectorAll('details.dec').forEach(det => {
+      det.addEventListener('toggle', function() {
+        const icon = this.querySelector('.dec-toggle');
+        if (icon) icon.textContent = this.open ? '▾' : '▸';
+      });
+    });
+  } catch(e) {
+    container.innerHTML = '<div style="color:var(--text-muted); font-size:0.72rem;">Error cargando decisiones.</div>';
+  }
+}
+
+// ═══════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════
 document.addEventListener('DOMContentLoaded', () => {
@@ -2553,8 +2607,12 @@ document.addEventListener('DOMContentLoaded', () => {
   fetchKbStats(); // KB stats + gaps from Supabase (primary)
   fetchSupabaseStatus(); // Supabase connectivity + embedding count
   fetchAdvisories(); // PM advisories from Supabase
+  fetchDevelopments(); // Desarrollos clave from Supabase
   fetchActividadActual(); // Current readings from reading_plan
   fetchOpLecturas(); // Reading plan items for Operativo view
+  fetchMilestones(); // Milestones from Supabase
+  fetchRisks(); // Riesgos from Supabase
+  fetchDecisions(); // Decisiones from Supabase
   fetchReadingPlan(); // Full reading plan from Supabase
 
   // Rewrite all hardcoded lecturas links to KB deep-links (exact URL match)

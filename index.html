@@ -659,6 +659,15 @@ async function fetchData() {
       });
     }
 
+    // Exact URL deep-link — overrides all other filters, shows single card expanded
+    if (state._deepLinkUrl) {
+      const match = allRows.filter(r => r.url === state._deepLinkUrl);
+      if (match.length) {
+        filtered = match;
+        expandedIds.add('c-1-0');
+      }
+    }
+
     if (state.starFilter)
       filtered = filtered.filter(r =>
         r.starred == 1 || r.starred === "1" || r.starred === "true" || r.starred === "yes");
@@ -1016,11 +1025,14 @@ function exportMarkdown() {
 buildSubcapaDropdown("");
 syncAdvancedFiltersPanel();
 
-// Support ?q= URL param for deep-linking from dashboard
+// Support ?url= (exact card) and ?q= (search) deep-linking from dashboard
 (function() {
   const params = new URLSearchParams(window.location.search);
+  const urlParam = params.get('url');
   const q = params.get('q');
-  if (q) {
+  if (urlParam) {
+    state._deepLinkUrl = urlParam;
+  } else if (q) {
     state.search = q;
     document.getElementById('searchInput').value = q;
     updateXBtn(); updateClearBtn();

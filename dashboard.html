@@ -1766,9 +1766,10 @@ async function fetchRecentNews() {
     const d = new Date(row.created_at || 0);
     const shortDate = !isNaN(d.getTime()) ? d.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' }) : '';
     const title = row.title || '(sin título)';
-    // Link to KB search — AND matching finds the right card
-    const kbTerms = title.split(/[\s:—–()«»""]+/).filter(w => w.length > 3 && !/^\d+$/.test(w)).slice(0, 5).join(' ');
-    const kbUrl = 'https://aauml.github.io/thesis/index.html?q=' + encodeURIComponent(kbTerms);
+    // Link to exact KB card by URL, fallback to search
+    const kbUrl = row.url
+      ? 'https://aauml.github.io/thesis/index.html?url=' + encodeURIComponent(row.url)
+      : 'https://aauml.github.io/thesis/index.html?q=' + encodeURIComponent(title.split(/[\s:—–()«»""]+/).filter(w => w.length > 3 && !/^\d+$/.test(w)).slice(0, 5).join(' '));
     const titleHtml = `<a href="${kbUrl}" target="_blank" rel="noopener">${title}</a>`;
     return `<div class="m2-nw"><span class="m2-nw-date">${shortDate}</span> ${titleHtml}</div>`;
   }
@@ -1898,8 +1899,10 @@ async function fetchActividadActual() {
       const label = statusLabels[r.status] || r.status;
       const isActive = r.status === 'en_curso';
       const pillCls = isActive ? 'm2-pill m2-pill-active' : 'm2-pill';
-      const kbTerms = r.title.split(/[\s:—–()«»""]+/).filter(w => w.length > 3 && !/^\d+$/.test(w)).slice(0, 4).join(' ');
-      const urlHtml = `<a href="https://aauml.github.io/thesis/index.html?q=${encodeURIComponent(kbTerms)}" target="_blank">${r.title}</a>`;
+      const kbLink = r.url
+        ? 'https://aauml.github.io/thesis/index.html?url=' + encodeURIComponent(r.url)
+        : 'https://aauml.github.io/thesis/index.html?q=' + encodeURIComponent(r.title.split(/[\s:—–()«»""]+/).filter(w => w.length > 3 && !/^\d+$/.test(w)).slice(0, 4).join(' '));
+      const urlHtml = `<a href="${kbLink}" target="_blank">${r.title}</a>`;
       html += `<div class="m2-act-item">
         <div class="m2-act-row">
           <span class="${pillCls}">${label}</span>
@@ -1951,8 +1954,10 @@ async function fetchOpLecturas() {
       const label = statusLabels[r.status] || r.status;
       const isActive = r.status === 'en_curso';
       const pillCls = isActive ? 'm2-pill m2-pill-active' : 'm2-pill';
-      const kbTerms = r.title.split(/[\s:—–()«»""]+/).filter(w => w.length > 3 && !/^\d+$/.test(w)).slice(0, 4).join(' ');
-      const urlHtml = `<a href="https://aauml.github.io/thesis/index.html?q=${encodeURIComponent(kbTerms)}" target="_blank" style="color:var(--accent-mid); text-decoration:none;">${r.title}</a>`;
+      const kbLink = r.url
+        ? 'https://aauml.github.io/thesis/index.html?url=' + encodeURIComponent(r.url)
+        : 'https://aauml.github.io/thesis/index.html?q=' + encodeURIComponent(r.title.split(/[\s:—–()«»""]+/).filter(w => w.length > 3 && !/^\d+$/.test(w)).slice(0, 4).join(' '));
+      const urlHtml = `<a href="${kbLink}" target="_blank" style="color:var(--accent-mid); text-decoration:none;">${r.title}</a>`;
       html += `<div class="m2-lec-item">
         <span class="${pillCls}">${label}</span>
         <span style="flex:1;">${urlHtml}</span>
@@ -2046,8 +2051,10 @@ async function fetchReadingPlan() {
           const lvlCls = levelClasses[r.level] || 'lec-n3';
           const lvlLabel = r.level === 'NR' ? '🎧' : r.level;
           const statusHtml = statusLabels[r.status] || '';
-          const kbTerms = r.title.split(/[\s:—–()«»""]+/).filter(w => w.length > 3 && !/^\d+$/.test(w)).slice(0, 4).join(' ');
-          const urlHtml = `<a href="https://aauml.github.io/thesis/index.html?q=${encodeURIComponent(kbTerms)}" target="_blank">${r.title}</a>`;
+          const kbLink = r.url
+            ? 'https://aauml.github.io/thesis/index.html?url=' + encodeURIComponent(r.url)
+            : 'https://aauml.github.io/thesis/index.html?q=' + encodeURIComponent(r.title.split(/[\s:—–()«»""]+/).filter(w => w.length > 3 && !/^\d+$/.test(w)).slice(0, 4).join(' '));
+          const urlHtml = `<a href="${kbLink}" target="_blank">${r.title}</a>`;
           const sourceTag = r.source === 'pm_advisory' ? ' <span style="font-size:0.55rem; background:var(--warn-bg); color:var(--warn-text); padding:0.1rem 0.3rem; border-radius:3px;">PM</span>' : '';
 
           yearsHtml += `<div class="lec-item"><span class="lec-lvl ${lvlCls}">${lvlLabel}</span><div>
@@ -2412,11 +2419,12 @@ document.addEventListener('DOMContentLoaded', () => {
   fetchOpLecturas(); // Reading plan items for Operativo view
   fetchReadingPlan(); // Full reading plan from Supabase
 
-  // Rewrite all hardcoded lecturas links to KB deep-links
+  // Rewrite all hardcoded lecturas links to KB deep-links (exact URL match)
   document.querySelectorAll('.lec-item a[href^="http"]').forEach(a => {
-    const text = a.textContent.trim();
-    const terms = text.split(/[\s:—–()«»"]+/).filter(w => w.length > 3 && !/^\d+$/.test(w)).slice(0, 4).join(' ');
-    if (terms) a.href = 'https://aauml.github.io/thesis/index.html?q=' + encodeURIComponent(terms);
+    const origUrl = a.href;
+    // Skip if already rewritten to KB
+    if (origUrl.includes('aauml.github.io/thesis/index.html')) return;
+    a.href = 'https://aauml.github.io/thesis/index.html?url=' + encodeURIComponent(origUrl);
   });
 
   // Restore last active view on refresh

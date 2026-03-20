@@ -556,20 +556,29 @@ function normStr(s) {
 async function loadAllRows() {
   if (_cache) return _cache;
   // Supabase REST: select all columns except embedding (too large)
+  // Paginate to bypass Supabase 1000-row default limit
   const cols = "pk,url,title,source,date_published,date_found,content_type,importance,capa,capa_detail,evaluativa_criteria,action_tag,thesis_relevance,scholar,language,tier,starred,source_pipeline,search_scope";
-  const url = REST_URL + "?select=" + cols + "&order=date_found.desc.nullslast&limit=2000";
-  const resp = await fetch(url, { headers: SB_HEADERS });
-  if (!resp.ok) throw new Error("Supabase HTTP " + resp.status);
-  const rows = await resp.json();
+  const baseUrl = REST_URL + "?select=" + cols + "&order=date_found.desc.nullslast";
+  const PAGE = 1000;
+  let allRows = [];
+  let offset = 0;
+  while (true) {
+    const resp = await fetch(baseUrl + "&limit=" + PAGE + "&offset=" + offset, { headers: SB_HEADERS });
+    if (!resp.ok) throw new Error("Supabase HTTP " + resp.status);
+    const batch = await resp.json();
+    allRows = allRows.concat(batch);
+    if (batch.length < PAGE) break; // last page
+    offset += PAGE;
+  }
   // Normalize starred from boolean to match existing logic
-  rows.forEach(r => { if (r.starred === true) r.starred = 1; else if (!r.starred) r.starred = ""; });
+  allRows.forEach(r => { if (r.starred === true) r.starred = 1; else if (!r.starred) r.starred = ""; });
   const stats = {
-    total_all: rows.length,
-    alta:  rows.filter(r => r.importance === "ALTA").length,
-    media: rows.filter(r => r.importance === "MEDIA").length,
-    baja:  rows.filter(r => r.importance === "BAJA").length,
+    total_all: allRows.length,
+    alta:  allRows.filter(r => r.importance === "ALTA").length,
+    media: allRows.filter(r => r.importance === "MEDIA").length,
+    baja:  allRows.filter(r => r.importance === "BAJA").length,
   };
-  _cache = { rows, stats };
+  _cache = { rows: allRows, stats };
   return _cache;
 }
 

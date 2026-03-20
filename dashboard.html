@@ -498,6 +498,26 @@
     .m2-dev-src { font-size: 0.7rem; color: #8aaccf; text-decoration: none; margin-left: 0.2rem; white-space: nowrap; }
     .m2-dev-src:hover { text-decoration: underline; }
 
+    /* M2 milestones */
+    .m2-ms { display: flex; align-items: baseline; gap: 0.4rem; font-size: 0.82rem; padding: 0.25rem 0; border-bottom: 1px solid #f0f0f0; }
+    .m2-ms:last-child { border-bottom: none; }
+    .m2-ms input[type="checkbox"] { accent-color: var(--sb-accent); cursor: default; margin-top: 2px; }
+    .m2-ms-date { font-size: 0.7rem; color: #999; min-width: 3.5rem; white-space: nowrap; }
+    .m2-ms span { color: var(--text-light); }
+
+    /* M2 risks */
+    .m2-risk { margin-bottom: 0.4rem; font-size: 0.82rem; line-height: 1.6; }
+    .m2-risk strong { font-weight: 600; color: var(--text); }
+    .m2-risk span { color: var(--text-light); }
+    .m2-risk-lvl { font-size: 0.65rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; padding: 0.1rem 0.35rem; border-radius: 3px; margin-right: 0.3rem; vertical-align: middle; }
+    .m2-risk-high { background: #fde8e8; color: #b91c1c; }
+    .m2-risk-med { background: #fef3c7; color: #92400e; }
+    .m2-risk-low { background: #ecfdf5; color: #065f46; }
+
+    /* M2 operativo lecturas */
+    .m2-lec-item { display: flex; align-items: baseline; gap: 0.4rem; font-size: 0.82rem; padding: 0.3rem 0; border-bottom: 1px solid #f0f0f0; }
+    .m2-lec-item:last-child { border-bottom: none; }
+
     /* M2 advisories */
     .m2-adv {
       margin-bottom: 0.65rem; padding-bottom: 0.65rem;
@@ -816,35 +836,49 @@
     <div class="view" id="view-operativo">
 
       <h2>Operativo</h2>
+      <div style="font-size:0.68rem; color:var(--text-muted); margin-top:-0.5rem; margin-bottom:1.5rem;">Tareas, lecturas y seguimiento · C1 2026</div>
 
-      <!-- Milestones — solo administrativos/institucionales. Las lecturas y fichas están en Panorama → Actividad Actual. -->
-      <div class="section-label">Milestones</div>
-      <div class="card" style="border-left: 3px solid var(--warn-border);">
-        <div class="news-item"><span class="news-date" style="color:var(--warn-text); min-width:5rem;">Q1 2026</span><div>Obtener email institucional USAL</div></div>
-        <div class="news-item"><span class="news-date" style="color:var(--text-muted); min-width:5rem;">Q2 2026</span><div>Inscripción formal programa doctoral</div></div>
-        <div class="news-item"><span class="news-date" style="color:var(--text-muted); min-width:5rem;">Q2 2026</span><div>Primera reunión sustantiva con director</div></div>
-        <div class="news-item"><span class="news-date" style="color:var(--text-muted); min-width:5rem;">Q2 2026</span><div>Decisión caso de estudio (PATTERN vs. STRmix)</div></div>
-      </div>
-
-      <!-- Tareas de sesión -->
-      <div class="section-label">Tareas</div>
-      <div style="font-size:0.68rem; color:var(--text-muted); margin-bottom:0.4rem;">Acciones concretas para próximas sesiones. Se limpian al completar.</div>
-      <div class="card" id="opCard">
+      <!-- Tareas — interactive checklist + reading plan items -->
+      <div class="m2-heading">Tareas</div>
+      <div class="m2-meta">Acciones concretas · se limpian al completar</div>
+      <div id="opCard" style="margin-bottom:1.2rem;">
         <div id="opActive"></div>
         <div class="op-completed-header" id="opCompletedHeader" style="display:none;">
-          <span class="op-completed-label">Completados</span>
-          <button class="btn-sm" onclick="clearCompletedOps()">Limpiar historial</button>
+          <span class="op-completed-label">completados</span>
+          <button class="btn-sm" onclick="clearCompletedOps()">limpiar</button>
         </div>
         <div id="opCompleted"></div>
       </div>
 
-      <!-- Riesgos activos — Fase 1 -->
-      <div class="section-label">Riesgos activos · Fase 1 Orientación</div>
-      <div class="card">
-        <div class="news-item"><span class="news-date" style="min-width:2rem;">🟡</span><div><strong>Lecturas no terminadas antes de Q2:</strong> sin Kaminski + Bradford no hay base para reunión con director. <em>Mitigación: priorizar Kaminski, Bradford caps. 1-3 antes de mayo.</em></div></div>
-        <div class="news-item"><span class="news-date" style="min-width:2rem;">🟢</span><div><strong>Caso de estudio sin decidir:</strong> riesgo bajo ahora, sube en Q2. No bloquea Fase 1. <em>Mitigación: recopilar documentación de ambos candidatos (PATTERN, STRmix) en paralelo.</em></div></div>
-        <div class="news-item"><span class="news-date" style="min-width:2rem;">🟡</span><div><strong>Cambios normativos acelerados:</strong> EO 14179 + preempción federal + Digital Omnibus stop-the-clock. El entorno regulatorio se mueve rápido. <em>Mitigación: Desarrollos clave + Interpretación PM en Panorama actualizados. Pipeline activo detecta cambios.</em></div></div>
-        <div class="news-item"><span class="news-date" style="min-width:2rem;">🔴</span><div><strong>Gap derecho procesal español:</strong> solo 4 items ALTA (necesarios ~15). Sin cobertura suficiente para Cap. 2 §2.3. <em>Mitigación: búsqueda manual Dialnet/CENDOJ prioritaria.</em></div></div>
+      <!-- Actividad actual — lecturas del cuatrimestre desde reading_plan -->
+      <div class="m2-heading">Lecturas C1</div>
+      <div class="m2-meta">Desde Supabase · reading_plan · <a href="#" onclick="switchView('lecturas', document.querySelectorAll('.sb-item')[4]); return false;">ver plan completo →</a></div>
+      <div id="opLecturas" style="margin-bottom:1.2rem;">
+        <div style="color:var(--text-muted); font-size:0.72rem; padding:0.5rem;">Cargando lecturas...</div>
+      </div>
+
+      <!-- Milestones — hardcoded, longer-term institutional/academic -->
+      <div class="m2-heading">Milestones</div>
+      <div class="m2-meta">Hitos institucionales y académicos · largo plazo</div>
+      <div style="margin-bottom:1.2rem;">
+        <div class="m2-ms"><input type="checkbox" disabled><span class="m2-ms-date">Q1 2026</span> <span>Obtener email institucional USAL</span></div>
+        <div class="m2-ms"><input type="checkbox" disabled><span class="m2-ms-date">Q2 2026</span> <span>Inscripción formal programa doctoral</span></div>
+        <div class="m2-ms"><input type="checkbox" disabled><span class="m2-ms-date">Q2 2026</span> <span>Primera reunión sustantiva con director</span></div>
+        <div class="m2-ms"><input type="checkbox" disabled><span class="m2-ms-date">Q2 2026</span> <span>Decisión caso de estudio (PATTERN vs. STRmix)</span></div>
+        <div class="m2-ms"><input type="checkbox" disabled><span class="m2-ms-date">Q3 2026</span> <span>Borrador Cap. 2 (marco teórico)</span></div>
+        <div class="m2-ms"><input type="checkbox" disabled><span class="m2-ms-date">Q4 2026</span> <span>Borrador Cap. 3 (corpus jurídico) + Cap. 4 (NIST)</span></div>
+        <div class="m2-ms"><input type="checkbox" disabled><span class="m2-ms-date">2027</span> <span>Cap. 5 (análisis comparativo) + Cap. 6 (caso de estudio)</span></div>
+        <div class="m2-ms"><input type="checkbox" disabled><span class="m2-ms-date">2028</span> <span>Cap. 7 (conclusiones) + defensa</span></div>
+      </div>
+
+      <!-- Riesgos — prose style, no emojis -->
+      <div class="m2-heading">Riesgos activos</div>
+      <div class="m2-meta">Fase 1 · Orientación</div>
+      <div style="margin-bottom:1rem;">
+        <div class="m2-risk"><span class="m2-risk-lvl m2-risk-high">alto</span> <strong>Gap derecho procesal español.</strong> <span>Solo 4 items ALTA de ~15 necesarios para Cap. 2 §2.3. Búsqueda manual en Dialnet y CENDOJ prioritaria.</span></div>
+        <div class="m2-risk"><span class="m2-risk-lvl m2-risk-med">medio</span> <strong>Lecturas pendientes antes de Q2.</strong> <span>Sin Kaminski + Bradford no hay base para reunión con director. Priorizar Kaminski, Bradford caps. 1-3 antes de mayo.</span></div>
+        <div class="m2-risk"><span class="m2-risk-lvl m2-risk-med">medio</span> <strong>Entorno regulatorio acelerado.</strong> <span>AMERICA AI Act + Digital Omnibus + EO 14179. Pipeline activo y queries de vigilancia (Q125, Q079) mitigan. Desarrollos clave en Panorama actualizados.</span></div>
+        <div class="m2-risk"><span class="m2-risk-lvl m2-risk-low">bajo</span> <strong>Caso de estudio sin decidir.</strong> <span>No bloquea Fase 1. Documentación de PATTERN y STRmix se recopila en paralelo.</span></div>
       </div>
 
     </div>
@@ -1370,7 +1404,7 @@
     </div>
 
     <footer>
-      Última actualización: 19 de marzo de 2026 · Thesis Dashboard v9.1 (M2) — documento vivo · pipeline + novedades + KPIs son live
+      Última actualización: 19 de marzo de 2026 · Thesis Dashboard v9.2 (M2) — documento vivo · pipeline + novedades + KPIs son live
     </footer>
 
   </div><!-- /main -->
@@ -1435,17 +1469,18 @@ function showLecYear(id, btn) {
 // OPERATIVO — interactive checklist with undo
 // Version bump forces localStorage refresh on deploy
 // ═══════════════════════════════════════
-const OPS_VERSION = 5; // v5: milestones moved to static HTML, tasks are session-level only
+const OPS_VERSION = 6; // v6: M2 redesign, tasks aligned with current priorities
 const DEFAULT_OPS = [
-  { id: 'op-obsidian', text: 'Expandir stubs de pilares teóricos', done: false, ts: null },
-  { id: 'op-tanner', text: 'Agregar Tanner et al. (2026) al KB', done: false, ts: null },
-  { id: 'op-bug001', text: 'PM-BUG-001: documentar schema API del KB para phd-pm', done: false, ts: null },
+  { id: 'op-kaminski', text: 'Terminar Kaminski (2023) — Regulating the Risks of AI', done: false, ts: null },
+  { id: 'op-bradford', text: 'Bradford (2020) caps. 1-3 — Brussels Effect', done: false, ts: null },
+  { id: 'op-dialnet', text: 'Búsqueda manual Dialnet/CENDOJ — derecho procesal + IA', done: false, ts: null },
   { id: 'op-stoltz', text: 'Leer Stoltz (2024) — Road to Compliance: Federal Agencies and NIST RMF', done: false, ts: null },
-  { id: 'op-finck', text: 'Leer Finck (2026) — EU AI Act Article-by-Article Commentary (OUP)', done: false, ts: null },
+  { id: 'op-email-usal', text: 'Obtener email institucional USAL', done: false, ts: null },
+  { id: 'op-tanner', text: 'Agregar Tanner et al. (2026) al KB', done: false, ts: null },
 ];
 
 // IDs that were removed from defaults — don't preserve them from old localStorage
-const DEPRECATED_OPS = new Set(['op-academic', 'op-perplexity', 'op-news', 'op-queues', 'op-email', 'op-inscripcion']);
+const DEPRECATED_OPS = new Set(['op-academic', 'op-perplexity', 'op-news', 'op-queues', 'op-email', 'op-inscripcion', 'op-obsidian', 'op-bug001', 'op-finck']);
 
 function loadOps() {
   const ver = parseInt(localStorage.getItem(LS_PREFIX + 'ops_ver') || '0');
@@ -1871,6 +1906,52 @@ async function fetchActividadActual() {
 
   } catch(e) {
     console.warn('fetchActividadActual error:', e);
+  }
+}
+
+// ═══════════════════════════════════════
+// OPERATIVO LECTURAS — reading_plan items for Operativo view
+// ═══════════════════════════════════════
+async function fetchOpLecturas() {
+  const container = document.getElementById('opLecturas');
+  if (!container) return;
+
+  const statusLabels = {
+    'en_curso': 'En curso', 'siguiente': 'Siguiente', 'planificado': 'Planificado',
+  };
+
+  try {
+    const rows = await supabaseQuery(
+      'reading_plan?select=*&or=(status.eq.en_curso,status.eq.siguiente,status.eq.planificado)&order=position.asc&limit=10'
+    );
+
+    if (!rows || rows.length === 0) {
+      container.innerHTML = '<div style="color:var(--text-muted); font-size:0.72rem;">Sin lecturas activas.</div>';
+      return;
+    }
+
+    // Show en_curso first, then siguiente, then planificado
+    const sorted = [
+      ...rows.filter(r => r.status === 'en_curso'),
+      ...rows.filter(r => r.status === 'siguiente'),
+      ...rows.filter(r => r.status === 'planificado'),
+    ].slice(0, 8);
+
+    let html = '';
+    sorted.forEach(r => {
+      const label = statusLabels[r.status] || r.status;
+      const isActive = r.status === 'en_curso';
+      const pillCls = isActive ? 'm2-pill m2-pill-active' : 'm2-pill';
+      const urlHtml = r.url ? `<a href="${r.url}" target="_blank" style="color:var(--accent-mid); text-decoration:none;">${r.title}</a>` : r.title;
+      html += `<div class="m2-lec-item">
+        <span class="${pillCls}">${label}</span>
+        <span style="flex:1;">${urlHtml}</span>
+        <span class="m2-pill">${r.level || ''}</span>
+      </div>`;
+    });
+    container.innerHTML = html;
+  } catch(e) {
+    console.warn('fetchOpLecturas error:', e);
   }
 }
 
@@ -2317,6 +2398,7 @@ document.addEventListener('DOMContentLoaded', () => {
   fetchSupabaseStatus(); // Supabase connectivity + embedding count
   fetchAdvisories(); // PM advisories from Supabase
   fetchActividadActual(); // Current readings from reading_plan
+  fetchOpLecturas(); // Reading plan items for Operativo view
   fetchReadingPlan(); // Full reading plan from Supabase
 
   // Restore last active view on refresh

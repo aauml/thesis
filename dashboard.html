@@ -158,30 +158,35 @@
     /* ═══════════════════════════════════════
        ADVISOR section
     ═══════════════════════════════════════ */
+    /* ── Notas del PM (white card) ── */
     .advisor {
-      background: linear-gradient(135deg, #f8faff 0%, #f0f4fb 100%);
-      border: 1px solid #c8d8e8; border-radius: 6px; padding: 0.9rem 1rem;
-      margin-bottom: 1.25rem; position: relative;
+      background: #fff;
+      border: 1px solid #c8d8e8; border-radius: 8px; padding: 0;
+      margin-bottom: 1.25rem; position: relative; overflow: hidden;
     }
     .advisor-header {
-      font-size: 0.72rem; font-weight: 700; text-transform: uppercase;
-      letter-spacing: 0.06em; color: var(--accent-mid); margin-bottom: 0.5rem;
+      font-size: 0.74rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 0.06em; color: var(--accent); padding: 0.7rem 1rem 0.5rem;
+      border-bottom: 1px solid var(--border-light); background: #f8faff;
     }
-    .advisor-quote {
-      font-family: var(--serif); font-size: 0.88rem; font-style: italic;
-      color: var(--text); line-height: 1.6; margin-bottom: 0.5rem;
-      border-left: 3px solid var(--accent-mid); padding-left: 0.75rem;
-    }
-    .advisor-source { font-size: 0.72rem; color: var(--text-muted); margin-bottom: 0.6rem; }
-    .advisor-tip {
-      font-size: 0.82rem; color: var(--text-light); line-height: 1.55;
-      background: rgba(255,255,255,0.6); border-radius: 4px; padding: 0.5rem 0.65rem;
-    }
+    .advisor-header .adv-meta { font-weight: 400; color: var(--text-muted); font-size: 0.66rem; text-transform: none; letter-spacing: 0; margin-left: 0.5rem; }
 
-    /* ── Advisor item types ── */
-    .adv-items { display: flex; flex-direction: column; gap: 0.35rem; margin-bottom: 0.5rem; }
-    .adv-item { font-size: 0.82rem; line-height: 1.55; padding: 0.4rem 0.65rem; border-radius: 4px; }
-    .adv-label { font-size: 0.57rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-right: 0.4rem; vertical-align: middle; }
+    /* ── Actividad actual (status bar) ── */
+    .adv-actividad { padding: 0.6rem 1rem; background: #f7f9fc; border-bottom: 1px solid var(--border-light); }
+    .adv-act-title { font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 0.35rem; }
+    .adv-act-item { font-size: 0.8rem; line-height: 1.5; padding: 0.15rem 0; color: var(--text); }
+    .adv-act-status { font-size: 0.62rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; margin-right: 0.4rem; padding: 0.1rem 0.35rem; border-radius: 3px; vertical-align: middle; }
+    .adv-act-doing  .adv-act-status { background: #dbeafe; color: #1e40af; }
+    .adv-act-next   .adv-act-status { background: #fef3c7; color: #92400e; }
+    .adv-act-blocked .adv-act-status { background: #fee2e2; color: #991b1b; }
+
+    /* ── Observaciones y decisiones ── */
+    .adv-obs-section { padding: 0.6rem 1rem; border-bottom: 1px solid var(--border-light); }
+    .adv-obs-title { font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 0.35rem; }
+    .adv-items { display: flex; flex-direction: column; gap: 0.3rem; }
+    .adv-item { font-size: 0.8rem; line-height: 1.5; padding: 0.35rem 0.6rem; border-radius: 4px; position: relative; }
+    .adv-label { font-size: 0.55rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-right: 0.35rem; vertical-align: middle; }
+    .adv-follow { position: absolute; top: 0.3rem; right: 0.4rem; font-size: 0.55rem; font-weight: 700; color: #b45309; background: #fef3c7; padding: 0.05rem 0.3rem; border-radius: 3px; letter-spacing: 0.03em; }
     .adv-obs  { background: var(--info-bg); border-left: 3px solid var(--info-border); color: var(--info-text); }
     .adv-obs  .adv-label { color: var(--info-text); }
     .adv-rec  { background: var(--success-bg); border-left: 3px solid var(--success-border); color: var(--success-text); }
@@ -192,32 +197,46 @@
     .adv-sug  .adv-label { color: var(--warn-text); }
     .adv-dec  { background: var(--accent-soft); border-left: 3px solid var(--accent-mid); color: var(--accent); }
     .adv-dec  .adv-label { color: var(--accent); }
-    /* ── Advisor live KB signals ── */
-    .adv-signals { margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid rgba(74,122,172,0.2); }
-    .adv-sig-header { font-size: 0.64rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--accent-mid); margin-bottom: 0.3rem; display: flex; align-items: center; gap: 0.35rem; }
-    .adv-sig-dot { width: 6px; height: 6px; border-radius: 50%; background: #4aaa88; flex-shrink: 0; animation: adv-pulse 2.2s ease-in-out infinite; }
-    @keyframes adv-pulse { 0%,100%{opacity:1;} 50%{opacity:0.35;} }
-    .adv-sig-item { font-size: 0.78rem; padding: 0.22rem 0; border-bottom: 1px solid rgba(74,122,172,0.1); color: var(--text); line-height: 1.45; }
-    .adv-sig-item:last-child { border-bottom: none; }
-    .adv-sig-date { font-size: 0.65rem; color: var(--text-muted); margin-right: 0.3rem; }
-    .adv-sig-star { color: #e07040; margin-right: 0.15rem; font-size: 0.72rem; }
 
-    /* ── Supabase PM Advisories (inside Advisor section) ── */
-    .adv-db-section { margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid rgba(74,122,172,0.2); }
-    .adv-db-header { font-size: 0.64rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--accent-mid); margin-bottom: 0.4rem; display: flex; align-items: center; gap: 0.35rem; }
-    .adv-db-item { font-size: 0.78rem; padding: 0.35rem 0.55rem; border-radius: 4px; line-height: 1.5; margin-bottom: 0.25rem; }
+    /* ── Cambios en el plan de lectura ── */
+    .adv-plan-section { padding: 0.6rem 1rem; border-bottom: 1px solid var(--border-light); }
+    .adv-plan-title { font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); margin-bottom: 0.35rem; }
+    .adv-plan-item { font-size: 0.78rem; line-height: 1.5; padding: 0.2rem 0; color: var(--text); }
+    .adv-plan-action { font-weight: 700; font-size: 0.82rem; margin-right: 0.3rem; font-family: var(--mono); }
+    .adv-plan-action-add { color: #16a34a; }
+    .adv-plan-action-move { color: #b45309; }
+    .adv-plan-action-drop { color: #dc2626; }
+    .adv-plan-target { font-size: 0.65rem; font-weight: 600; color: var(--accent-mid); background: var(--accent-soft); padding: 0.05rem 0.3rem; border-radius: 3px; margin-left: 0.3rem; }
+    .adv-plan-reason { font-size: 0.72rem; color: var(--text-muted); margin-left: 0.3rem; }
+
+    /* ── Alertas regulatorias (warm grey card) ── */
+    .adv-db-section { padding: 0.6rem 1rem; background: #faf8f5; }
+    .adv-db-header { font-size: 0.64rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #78716c; margin-bottom: 0.4rem; display: flex; align-items: center; gap: 0.35rem; }
+    .adv-db-dot { width: 6px; height: 6px; border-radius: 50%; background: #4aaa88; flex-shrink: 0; animation: adv-pulse 2.2s ease-in-out infinite; }
+    @keyframes adv-pulse { 0%,100%{opacity:1;} 50%{opacity:0.35;} }
+    .adv-db-item { font-size: 0.78rem; padding: 0.35rem 0.55rem; border-radius: 4px; line-height: 1.5; margin-bottom: 0.25rem; background: transparent; }
     .adv-db-item .adv-db-type { font-size: 0.55rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; margin-right: 0.35rem; vertical-align: middle; }
     .adv-db-item .adv-db-date { font-size: 0.62rem; color: var(--text-muted); margin-left: 0.3rem; }
-    .adv-db-item.db-high { background: var(--danger-bg); border-left: 3px solid var(--danger-border); }
-    .adv-db-item.db-high .adv-db-type { color: var(--danger-text); }
-    .adv-db-item.db-medium { background: var(--warn-bg); border-left: 3px solid var(--warn-border); }
-    .adv-db-item.db-medium .adv-db-type { color: var(--warn-text); }
-    .adv-db-item.db-low { background: #f0f4fb; border-left: 3px solid #a0b8d0; }
-    .adv-db-item.db-low .adv-db-type { color: var(--text-muted); }
+    .adv-db-item.db-high { border-left: 4px solid #dc2626; }
+    .adv-db-item.db-high .adv-db-type { color: #dc2626; font-weight: 800; }
+    .adv-db-item.db-high .adv-db-title { font-weight: 700; }
+    .adv-db-item.db-medium { border-left: 4px solid #d97706; }
+    .adv-db-item.db-medium .adv-db-type { color: #d97706; }
+    .adv-db-item.db-low { border-left: 4px solid #9ca3af; }
+    .adv-db-item.db-low .adv-db-type { color: #9ca3af; }
     .adv-db-title { font-weight: 600; }
     .adv-db-expand { cursor: pointer; font-size: 0.72rem; color: var(--accent-mid); user-select: none; padding: 0.2rem 0; }
     .adv-db-content { font-size: 0.75rem; color: var(--text-light); line-height: 1.5; margin-top: 0.25rem; white-space: pre-line; display: none; }
     .adv-db-content.open { display: block; }
+
+    /* ── Noticias Importantes del KB (cool grey feed) ── */
+    .adv-signals { padding: 0.6rem 1rem; background: #f5f7fa; border-radius: 0 0 8px 8px; }
+    .adv-sig-header { font-size: 0.64rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #64748b; margin-bottom: 0.3rem; display: flex; align-items: center; gap: 0.35rem; }
+    .adv-sig-dot { width: 6px; height: 6px; border-radius: 50%; background: #4aaa88; flex-shrink: 0; animation: adv-pulse 2.2s ease-in-out infinite; }
+    .adv-sig-item { font-size: 0.78rem; padding: 0.22rem 0; border-bottom: 1px solid rgba(100,116,139,0.1); color: var(--text); line-height: 1.45; }
+    .adv-sig-item:last-child { border-bottom: none; }
+    .adv-sig-date { font-size: 0.65rem; color: var(--text-muted); margin-right: 0.3rem; }
+    .adv-sig-star { color: #e07040; margin-right: 0.15rem; font-size: 0.72rem; }
 
     /* ═══════════════════════════════════════
        NEWS
@@ -1931,29 +1950,37 @@ async function fetchKbStats() {
 }
 
 // ═══════════════════════════════════════
-// ADVISOR — PM Briefing + live KB signals
+// NOTAS DEL PM — 3 bloques: Actividad + Observaciones + Plan de lectura
+// + Alertas regulatorias (Supabase) + Noticias Importantes KB (Sheet via GAS)
 // PM actualiza PM_BRIEFING al cierre de cada sesión relevante.
-// fetchAdvisorSignals() consulta el KB API en tiempo real.
 // ═══════════════════════════════════════
 
-// ── PM_BRIEFING: el PM escribe aquí observaciones, recomendaciones,
-//    sugerencias, alertas y decisiones. Actualizar date en cada sesión.
-//    Tipos válidos: 'obs' | 'rec' | 'sug' | 'alerta' | 'dec'
+// ── PM_BRIEFING: estructura del panel "Notas del PM"
+//    3 sub-secciones: actividad, observaciones, plan_changes
+//    Actualizar date en cada sesión.
+//    Tipos observaciones: 'obs' | 'rec' | 'sug' | 'alerta' | 'dec'
+//    follow: true  → marca item con indicador de seguimiento
 const PM_BRIEFING = {
   date: '2026-03-19',
   context: 'Fase 1 · Orientación · C1 Mar–Abr 2026',
-  items: [
+
+  // ── Actividad actual: qué estoy leyendo / haciendo / pendiente inmediato
+  actividad: [
+    { text: 'Leyendo: Kaminski (2023) "Regulating the Risks of AI" — en curso', status: 'doing' },
+    { text: 'Pendiente: escribir <code>ficha-Kaminski2023.md</code>', status: 'next' },
+    { text: 'Pendiente: Bradford (2020) caps. 1-3 — bloqueado por Kaminski', status: 'blocked' },
+  ],
+
+  // ── Observaciones y decisiones del PM
+  observaciones: [
     {
       type: 'obs',
       text: 'Kaminski (2023) está en curso. Sin la ficha terminada, no se puede cerrar el marco teórico del Cap. 2 ni avanzar con Bradford.',
     },
     {
-      type: 'rec',
-      text: 'Prioridad inmediata: terminar lectura de Kaminski y escribir <code>ficha-Kaminski2023.md</code> antes de iniciar Bradford caps. 1-3.',
-    },
-    {
       type: 'alerta',
       text: 'Gap crítico en Cap. 4 (NIST AI RMF): análisis académico crítico escaso. Query Q120 activo — 0 resultados hasta ahora. Si no mejora en mayo, buscar vía Stanford CodeX o Brookings AI.',
+      follow: true,
     },
     {
       type: 'sug',
@@ -1962,7 +1989,15 @@ const PM_BRIEFING = {
     {
       type: 'dec',
       text: 'Decisión pendiente Q2-Q3 2026: selección del caso de estudio (PATTERN vs. STRmix). PATTERN tiene solo 4 entradas ALTA en KB — refuerzo documental necesario antes de decidir.',
+      follow: true,
     },
+  ],
+
+  // ── Cambios en el plan de lectura: qué se añadió/quitó/movió, en qué Q/C, por qué
+  plan_changes: [
+    { action: '+', text: 'Bradford caps. 1-3', target: 'Q1/C2', reason: 'Dependencia directa de Kaminski para argumento Efecto Bruselas' },
+    { action: '~', text: 'NIST deep-dive (Cap. 4)', target: 'Q2→Q3', reason: 'Gap sin fuentes — Q120 activo, esperar resultados' },
+    { action: '~', text: 'Caso de estudio PATTERN vs STRmix', target: 'Q2-Q3', reason: 'Refuerzo documental necesario antes de decidir — solo 4 ALTA en KB para PATTERN' },
   ],
 };
 
@@ -2054,30 +2089,59 @@ function renderAdvisor() {
     dec:    { label: 'Decisión PM',    cls: 'adv-dec' },
   };
 
-  const itemsHtml = PM_BRIEFING.items.map(item => {
+  const statusLabels = { doing: 'En curso', next: 'Siguiente', blocked: 'Bloqueado' };
+
+  // ── 1. Actividad actual
+  const actHtml = (PM_BRIEFING.actividad || []).map(a => {
+    const st = a.status || 'next';
+    return `<div class="adv-act-item adv-act-${st}"><span class="adv-act-status">${statusLabels[st] || st}</span>${a.text}</div>`;
+  }).join('');
+
+  // ── 2. Observaciones y decisiones
+  const obsHtml = (PM_BRIEFING.observaciones || []).map(item => {
     const cfg = typeConfig[item.type] || typeConfig.sug;
-    return `<div class="adv-item ${cfg.cls}"><span class="adv-label">${cfg.label}</span>${item.text}</div>`;
+    const followTag = item.follow ? '<span class="adv-follow">SEGUIMIENTO</span>' : '';
+    return `<div class="adv-item ${cfg.cls}"><span class="adv-label">${cfg.label}</span>${item.text}${followTag}</div>`;
+  }).join('');
+
+  // ── 3. Cambios en el plan de lectura
+  const actionConfig = { '+': { label: '+', cls: 'adv-plan-action-add' }, '~': { label: '~', cls: 'adv-plan-action-move' }, '-': { label: '−', cls: 'adv-plan-action-drop' } };
+  const planHtml = (PM_BRIEFING.plan_changes || []).map(p => {
+    const ac = actionConfig[p.action] || actionConfig['~'];
+    return `<div class="adv-plan-item"><span class="adv-plan-action ${ac.cls}">${ac.label}</span>${p.text}<span class="adv-plan-target">${p.target}</span><span class="adv-plan-reason">— ${p.reason}</span></div>`;
   }).join('');
 
   el.innerHTML = `<div class="advisor">
-    <div class="advisor-header">Advisor · PM Briefing
-      <span style="font-weight:400; color:var(--text-muted); font-size:0.68rem; text-transform:none; letter-spacing:0; margin-left:0.5rem;">
-        ${PM_BRIEFING.context} · actualizado ${PM_BRIEFING.date}
-      </span>
+    <div class="advisor-header">Notas del PM<span class="adv-meta">${PM_BRIEFING.context} · actualizado ${PM_BRIEFING.date}</span></div>
+
+    <div class="adv-actividad">
+      <div class="adv-act-title">Actividad actual</div>
+      ${actHtml}
     </div>
-    <div class="adv-items">${itemsHtml}</div>
+
+    <div class="adv-obs-section">
+      <div class="adv-obs-title">Observaciones y decisiones</div>
+      <div class="adv-items">${obsHtml}</div>
+    </div>
+
+    <div class="adv-plan-section">
+      <div class="adv-plan-title">Cambios en el plan de lectura</div>
+      ${planHtml}
+    </div>
+
     <div class="adv-db-section">
-      <div class="adv-db-header"><span class="adv-sig-dot"></span> Advisories activos · Supabase</div>
-      <div id="advisorDbBody" style="color:var(--text-muted);font-size:0.75rem;padding:0.2rem 0;">Consultando advisories…</div>
+      <div class="adv-db-header"><span class="adv-db-dot"></span> Alertas regulatorias</div>
+      <div id="advisorDbBody" style="color:var(--text-muted);font-size:0.75rem;padding:0.2rem 0;">Consultando alertas…</div>
     </div>
+
     <div class="adv-signals">
-      <div class="adv-sig-header"><span class="adv-sig-dot"></span> Señales KB recientes · ALTA prioridad</div>
+      <div class="adv-sig-header"><span class="adv-sig-dot"></span> Noticias Importantes del KB</div>
       <div id="advisorSignalsBody" style="color:var(--text-muted);font-size:0.75rem;padding:0.2rem 0;">Consultando KB…</div>
     </div>
   </div>`;
 }
 
-// ── fetchPmAdvisories: consulta pm_advisories en Supabase y muestra activos
+// ── fetchPmAdvisories: Alertas regulatorias desde Supabase pm_advisories
 async function fetchPmAdvisories() {
   const el = document.getElementById('advisorDbBody');
   if (!el) return;
@@ -2098,7 +2162,7 @@ async function fetchPmAdvisories() {
     const advisories = await resp.json();
 
     if (!Array.isArray(advisories) || advisories.length === 0) {
-      el.innerHTML = '<div style="color:var(--text-muted);font-size:0.75rem;">Sin advisories activos.</div>';
+      el.innerHTML = '<div style="color:var(--text-muted);font-size:0.75rem;">Sin alertas regulatorias activas.</div>';
       return;
     }
 
@@ -2106,7 +2170,8 @@ async function fetchPmAdvisories() {
       const d = new Date(a.created_at);
       const dateStr = !isNaN(d.getTime()) ? d.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' }) : '';
       const priorityCls = a.priority === 'high' ? 'db-high' : a.priority === 'medium' ? 'db-medium' : 'db-low';
-      const typeLabel = typeLabels[a.type] || a.type;
+      const urgencyLabels = { high: 'Acción', medium: 'Monitorear', low: 'Info' };
+      const typeLabel = urgencyLabels[a.priority] || typeLabels[a.type] || a.type;
       const contentId = `adv-content-${a.id || i}`;
       const hasContent = a.content && a.content.length > 0;
       return `<div class="adv-db-item ${priorityCls}">
@@ -2118,11 +2183,11 @@ async function fetchPmAdvisories() {
       </div>`;
     }).join('');
   } catch(e) {
-    el.innerHTML = '<div style="color:var(--text-muted);font-size:0.75rem;">No se pudo conectar con Supabase.</div>';
+    el.innerHTML = '<div style="color:var(--text-muted);font-size:0.75rem;">No se pudo conectar con Supabase para alertas.</div>';
   }
 }
 
-// ── fetchAdvisorSignals: consulta el KB API y muestra entradas ALTA recientes
+// ── fetchAdvisorSignals: Noticias Importantes del KB (ALTA prioridad, Sheet via GAS)
 async function fetchAdvisorSignals() {
   const el = document.getElementById('advisorSignalsBody');
   if (!el) return;
@@ -2147,17 +2212,17 @@ async function fetchAdvisorSignals() {
         .slice(0, 5);
 
       if (fallback.length === 0) {
-        el.innerHTML = '<div style="color:var(--text-muted);font-size:0.75rem;">Sin entradas ALTA en el KB.</div>';
+        el.innerHTML = '<div style="color:var(--text-muted);font-size:0.75rem;">Sin noticias importantes recientes.</div>';
         return;
       }
-      el.innerHTML = '<div style="font-size:0.68rem;color:var(--text-muted);margin-bottom:0.2rem;">Sin ALTA en últimos 14 días — mostrando más recientes:</div>' +
+      el.innerHTML = '<div style="font-size:0.68rem;color:var(--text-muted);margin-bottom:0.2rem;">Sin noticias importantes en últimos 14 días — mostrando más recientes:</div>' +
         fallback.map(r => renderSignalItem(r)).join('');
       return;
     }
 
     el.innerHTML = recent.map(r => renderSignalItem(r)).join('');
   } catch(e) {
-    el.innerHTML = '<div style="color:var(--text-muted);font-size:0.75rem;">KB no disponible.</div>';
+    el.innerHTML = '<div style="color:var(--text-muted);font-size:0.75rem;">KB no disponible para noticias.</div>';
   }
 }
 

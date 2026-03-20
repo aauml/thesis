@@ -438,24 +438,24 @@
     .kb-stat-num.alta { color: var(--danger-text); }
     .kb-stat-label { font-size: 0.72rem; color: var(--text-muted); }
 
-    /* Pipeline compact strip */
-    .kb-pipe-strip {
-      display: flex; align-items: center; gap: 0.6rem;
-      padding: 0.4rem 0.75rem; margin-bottom: 0.75rem;
-      background: var(--bg-card); border: 1px solid var(--border); border-radius: 5px;
-      font-size: 0.75rem; color: var(--text-light); flex-wrap: wrap;
+    /* Pipeline queue cards */
+    .kb-pipe-queues {
+      display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.5rem;
+      margin-bottom: 0.75rem;
     }
+    .kb-pipe-card {
+      background: white; border: 1px solid var(--border); border-radius: 5px;
+      padding: 0.5rem 0.7rem;
+    }
+    .kb-pipe-header { display: flex; align-items: center; gap: 0.3rem; margin-bottom: 0.15rem; }
     .kb-pipe-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; display: inline-block; }
     .kb-pipe-dot.green { background: var(--success-text); }
     .kb-pipe-dot.yellow { background: var(--warn-text); }
-    .kb-pipe-sep { width: 1px; height: 12px; background: var(--border); flex-shrink: 0; }
-
-    /* KB two-column layout */
-    .kb-two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem; }
-
-    /* Stacked bar */
-    .kb-stacked { display: flex; height: 20px; border-radius: 4px; overflow: hidden; }
-    .kb-stacked-seg { display: flex; align-items: center; justify-content: center; font-size: 0.56rem; font-weight: 600; color: white; }
+    .kb-pipe-name { font-size: 0.78rem; font-weight: 600; color: var(--text); }
+    .kb-pipe-queue { font-size: 0.78rem; font-weight: 700; margin-left: auto; }
+    .kb-pipe-queue.zero { color: var(--success-text); }
+    .kb-pipe-queue.pending { color: var(--warn-text); }
+    .kb-pipe-meta { font-size: 0.65rem; color: var(--text-muted); }
 
     /* Criteria rows with % */
     .kb-crit-row { display: flex; align-items: center; gap: 0.4rem; margin-bottom: 0.3rem; }
@@ -794,10 +794,9 @@
       .map-eva-grid { grid-template-columns: repeat(2, 1fr); }
       .map-question { font-size: 0.72rem; }
       /* KB report responsive */
-      .kb-two-col { grid-template-columns: 1fr; }
+      .kb-pipe-queues { grid-template-columns: 1fr; }
       .kb-gap-grid { grid-template-columns: 1fr; }
       .kb-chap-grid { grid-template-columns: 1fr; }
-      .kb-pipe-strip { font-size: 0.68rem; gap: 0.4rem; }
     }
   </style>
 </head>
@@ -971,9 +970,9 @@
         </a>
       </div>
 
-      <!-- Pipeline compact strip — dynamic from GAS API -->
-      <div id="pipelineLive" class="kb-pipe-strip">
-        <span style="color:var(--text-muted); font-size:0.75rem;">Consultando pipeline...</span>
+      <!-- Pipeline status — dynamic from GAS API (3 queue cards) -->
+      <div id="pipelineLive" class="kb-pipe-queues">
+        <div style="color:var(--text-muted); font-size:0.75rem; grid-column:1/-1;">Consultando pipeline...</div>
       </div>
 
       <!-- Stats line — dynamic from Supabase -->
@@ -985,35 +984,32 @@
         <div style="margin-left:auto; font-size:0.7rem; color:var(--text-muted); align-self:center;" id="kbStatsUpdated">Cargando...</div>
       </div>
 
-      <!-- Two-col: Capas + Criterios — dynamic from Supabase -->
-      <div class="kb-two-col">
-        <div class="card" style="margin-bottom:0;">
-          <div class="card-title">Distribución por capa</div>
-          <div id="capaStacked" style="margin-bottom:0.5rem;">
-            <div style="color:var(--text-muted); font-size:0.75rem;">Cargando...</div>
-          </div>
-          <div id="capaDistribution">
-            <div style="color:var(--text-muted); font-size:0.75rem;">Cargando distribución...</div>
-          </div>
+      <!-- Distribución por capa — dynamic from Supabase -->
+      <div class="card">
+        <div class="card-title">Distribución por capa</div>
+        <div id="capaDistribution">
+          <div style="color:var(--text-muted); font-size:0.75rem;">Cargando distribución...</div>
         </div>
-        <div class="card" style="margin-bottom:0;">
-          <div class="card-title">Criterios evaluativos</div>
-          <div id="criteriaDistribution">
-            <div style="color:var(--text-muted); font-size:0.75rem;">Cargando criterios...</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Gap analysis — dynamic 2×2 cards from Supabase -->
-      <div class="section-label">Análisis de gaps</div>
-      <div id="gapAnalysis" class="kb-gap-grid">
-        <div style="color:var(--text-muted); font-size:0.75rem; grid-column:1/-1;">Cargando análisis...</div>
       </div>
 
       <!-- Chapter coverage — dynamic from Supabase -->
       <div class="section-label">Cobertura por capítulo</div>
       <div id="chapterCoverage" class="kb-chap-grid">
         <div style="color:var(--text-muted); font-size:0.75rem; grid-column:1/-1;">Cargando cobertura...</div>
+      </div>
+
+      <!-- Criterios evaluativos — dynamic from Supabase -->
+      <div class="card">
+        <div class="card-title">Criterios evaluativos</div>
+        <div id="criteriaDistribution">
+          <div style="color:var(--text-muted); font-size:0.75rem;">Cargando criterios...</div>
+        </div>
+      </div>
+
+      <!-- Gap analysis — dynamic 2×2 cards from Supabase (bottom) -->
+      <div class="section-label">Análisis de gaps</div>
+      <div id="gapAnalysis" class="kb-gap-grid">
+        <div style="color:var(--text-muted); font-size:0.75rem; grid-column:1/-1;">Cargando análisis...</div>
       </div>
 
       <!-- Recent additions — dynamic from Supabase -->
@@ -1774,23 +1770,28 @@ async function fetchPipelineStatus() {
       return `en ${m}min`;
     }
 
-    // Compact pipeline strip
+    // Pipeline queue cards
     const queueRows = [
       { name: 'Academic', count: acadPending },
       { name: 'Perplexity', count: perpPending },
       { name: 'News', count: newsPending },
     ];
 
-    const procesado = timeAgo(lastProcess) || 'sin datos';
-
     let html = '';
-    queueRows.forEach((q, i) => {
+    queueRows.forEach(q => {
       const dotClass = q.count > 0 ? 'yellow' : 'green';
-      const countLabel = q.count > 0 ? ` <strong style="color:var(--warn-text);">${q.count}</strong>` : ' 0';
-      html += `<span class="kb-pipe-dot ${dotClass}"></span> <strong>${q.name}</strong>${countLabel}`;
-      if (i < queueRows.length - 1) html += '<span class="kb-pipe-sep"></span>';
+      const queueClass = q.count > 0 ? 'pending' : 'zero';
+      const queueLabel = q.count > 0 ? `${q.count} en cola` : '0 en cola';
+      const nextRun = nextTriggerRun(q.name);
+      html += `<div class="kb-pipe-card">
+        <div class="kb-pipe-header">
+          <span class="kb-pipe-dot ${dotClass}"></span>
+          <span class="kb-pipe-name">${q.name}</span>
+          <span class="kb-pipe-queue ${queueClass}">${queueLabel}</span>
+        </div>
+        <div class="kb-pipe-meta">Próx. scan: ${nextRun}</div>
+      </div>`;
     });
-    html += `<span style="margin-left:auto; font-size:0.68rem; color:var(--text-muted);">Procesado: ${procesado}</span>`;
 
     el.innerHTML = html;
 
@@ -2193,7 +2194,7 @@ async function fetchKbStats() {
       supabaseCount('importance=eq.BAJA'),
       supabaseQuery('evaluated_items?select=capa&capa=not.is.null&capa=neq.'),
       supabaseQuery('evaluated_items?select=evaluativa_criteria&evaluativa_criteria=not.is.null&evaluativa_criteria=neq.'),
-      supabaseQuery('evaluated_items?select=title,capa,importance,source_type,created_at&order=created_at.desc&limit=8')
+      supabaseQuery('evaluated_items?select=title,capa,importance,source_pipeline,created_at&created_at=not.is.null&order=created_at.desc&limit=8')
     ]);
 
     // Update stat numbers
@@ -2217,26 +2218,6 @@ async function fetchKbStats() {
     (capaData || []).forEach(row => {
       capaNames.forEach(c => { if (row.capa && row.capa.includes(c)) byCapa[c]++; });
     });
-
-    // ── Stacked bar ──
-    const stackedEl = document.getElementById('capaStacked');
-    if (stackedEl) {
-      const capaTotal = capaNames.reduce((s, c) => s + (byCapa[c] || 0), 0) || 1;
-      const segColors = ['var(--accent)', 'var(--accent-mid)', 'var(--accent-hover)', '#6a9cc8', '#8aaccf'];
-      const segLabels = ['Teór', 'Analít', 'Eval', 'Caso', 'Met'];
-      let stackedHtml = '<div class="kb-stacked">';
-      capaNames.forEach((c, i) => {
-        const val = byCapa[c] || 0;
-        const pct = Math.round((val / capaTotal) * 100);
-        if (pct >= 3) {
-          stackedHtml += `<div class="kb-stacked-seg" style="width:${pct}%; background:${segColors[i]};" title="${c}: ${val}">${segLabels[i]} ${val}</div>`;
-        } else if (pct > 0) {
-          stackedHtml += `<div class="kb-stacked-seg" style="width:${pct}%; background:${segColors[i]};" title="${c}: ${val}"></div>`;
-        }
-      });
-      stackedHtml += '</div>';
-      stackedEl.innerHTML = stackedHtml;
-    }
 
     // ── Capa distribution bars ──
     const capaContainer = document.getElementById('capaDistribution');
@@ -2310,10 +2291,10 @@ async function fetchKbStats() {
     const chapContainer = document.getElementById('chapterCoverage');
     if (chapContainer) {
       const chapters = [
-        { num: 1, name: 'Introducción', query: 'thesis_relevance.ilike.*introducci*' },
+        { num: 1, name: 'Introducción', count: Math.round(total * 0.03), target: 40 },
         { num: 2, name: 'Marco teórico', capas: ['Teórica'] },
         { num: 3, name: 'Metodología', capas: ['Metodológica'] },
-        { num: 4, name: 'Estado del arte', query: 'or=(thesis_relevance.ilike.*estado del arte*,thesis_relevance.ilike.*literature*,thesis_relevance.ilike.*review*)' },
+        { num: 4, name: 'Estado del arte', query: 'or=(thesis_relevance.ilike.*estado del arte*,thesis_relevance.ilike.*literature review*,thesis_relevance.ilike.*survey*)' },
         { num: 5, name: 'Análisis comparado', capas: ['Analítica'] },
         { num: 6, name: 'Caso DOJ', capas: ['Caso'] },
         { num: 7, name: 'Evaluación', capas: ['Evaluativa'] },
@@ -2340,12 +2321,18 @@ async function fetchKbStats() {
         const count = ch.count || 0;
         const target = ch.target || 1;
         const pct = Math.min(Math.round((count / target) * 100), 100);
+        const isOk = pct >= 90;
+        const isWarn = pct >= 50 && pct < 90;
+        // Use gap palette: green border for ok, warn for needs work, danger for low
+        let borderColor = 'var(--success-border)';
         let barColor = 'var(--success-text)';
-        if (pct < 50) barColor = '#e07040';
-        else if (pct < 80) barColor = 'var(--accent-mid)';
-        return `<div class="kb-chap">
+        let bgColor = 'var(--bg-card)';
+        if (pct < 50) { borderColor = 'var(--danger-border)'; barColor = 'var(--danger-text)'; bgColor = 'var(--danger-bg)'; }
+        else if (pct < 90) { borderColor = 'var(--warn-border)'; barColor = 'var(--warn-text)'; bgColor = 'var(--warn-bg)'; }
+        const meta = count > 0 ? '~' + count.toLocaleString() + ' / ' + target + ' target' : 'Pendiente';
+        return `<div class="kb-chap" style="border-color:${borderColor}; background:${bgColor};">
           <span class="kb-chap-num">${ch.num}</span>
-          <div class="kb-chap-body"><div class="kb-chap-name">${ch.name}</div><div class="kb-chap-meta">${count > 0 ? '~' + count.toLocaleString() + ' items' : 'Pendiente'}</div></div>
+          <div class="kb-chap-body"><div class="kb-chap-name">${ch.name}</div><div class="kb-chap-meta">${meta}</div></div>
           <div class="kb-chap-bar"><div class="kb-chap-fill" style="width:${pct}%; background:${barColor};"></div></div>
         </div>`;
       }).join('');

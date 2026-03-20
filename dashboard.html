@@ -2749,7 +2749,7 @@ async function fetchAlerts() {
     const rows = await supabaseQuery('pm_alerts?select=*&dismissed=eq.false&order=created_at.desc');
     if (!rows || rows.length === 0) { banner.innerHTML = ''; return; }
     const icons = { high: '🔴', medium: '🟡', low: '🔵' };
-    const typeLabels = { nueva_alta: 'nueva alta', urgent_item: 'urgente', deadline_risk: 'deadline', stalled_task: 'tarea estancada' };
+    const typeLabels = { urgent_item: 'urgente', deadline_risk: 'deadline', stalled_task: 'tarea estancada' };
     banner.innerHTML = rows.map(a => `
       <div class="alert-item ${a.severity}">
         <span class="alert-icon">${icons[a.severity] || '🟡'}</span>

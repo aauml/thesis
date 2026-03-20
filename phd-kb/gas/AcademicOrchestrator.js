@@ -1,0 +1,339 @@
+// =============================================================================
+// Code.gs — Academic Orchestrator v2
+// Batch architecture: BATCH_SIZE queries per run, schedules next batch via trigger
+// Academic providers: OpenAlex.gs, SemanticScholar.gs, ArXiv.gs, CORE.gs
+// News provider: NewsSearch.gs (runs independently via its own trigger)
+//
+// CHANGES from v1:
+//   + next_run gating: solo procesa queries donde today >= next_run (o next_run vacío)
+//   + Queries ordenadas por tier (1=alta prioridad) antes del batch slice
+//   + _advanceNextRunDate(): calcula próxima fecha según frequency
+//   + _updateQuerySchedule(): actualiza next_run (y last_run si existe) vía API
+//   + Mejor logging: muestra cuántas queries se saltaron por next_run
+//   + Soporte para columnas opcionales last_run / last_success en Queries tab
+//     (el WebApp ignora columnas que no existan — no rompe si no están)
+//
+// SEMANTIC SCHOLAR API KEY:
+//   Añadir en Script Properties:
+//     SEMANTIC_API_KEY = DmqhxgRVk19OWJ13Y3xKM5BcCWJds9VwaFSJSsI5
+//   Ya estaba soportado en v1. Con la key se obtiene 1 req/sec garantizado.
+// =============================================================================
+
+var CONFIG = {
+  RESULTS_PER_QUERY: 3,
+  QUERY_TYPES: ['scholar', 'topic'],
+  QUEUE_TAB: 'AcademicQueue',
+  QUEUE_COLUMNS: ['id','url','title','authors','year','abstract','source_api','query_id','query_name','date_found','status','notes'],
+  BATCH_SIZE: 15,
+  BATCH_GAP_MS: 70 * 1000
+};
+
+var PROVIDERS = {
+  q_openalex: searchOpenAlex,
+  q_semantic:  searchSemanticScholar,
+  q_arxiv:     searchArXiv,
+  q_core:      searchCORE
+};
+
+// =============================================================================
+// SCHEDULING HELPERS
+// =============================================================================
+
+/**
+ * _advanceNextRunDate(frequencyStr)
+ * Calcula la próxima fecha de ejecución a partir de hoy según la frecuencia.
+ * Retorna string en formato yyyy-MM-dd.
+ */
+function _advanceNextRunDate(frequencyStr) {
+  var base = new Date();
+  var daysToAdd = 30; // default: mensual
+  var freq = (frequencyStr || '').toLowerCase().trim();
+
+  if      (freq === 'weekly')    daysToAdd = 7;
+  else if (freq === 'biweekly')  daysToAdd = 14;
+  else if (freq === 'monthly')   daysToAdd = 30;
+  else if (freq === 'quarterly') daysToAdd = 90;
+  else if (freq === 'manual')    return _fmtDate(base); // no avanzar
+
+  base.setDate(base.getDate() + daysToAdd);
+  return _fmtDate(base);
+}
+
+/**
+ * _isQueryDue(nextRunStr)
+ * Retorna true si la query debe ejecutarse hoy.
+ * next_run vacío o no parseable = siempre ejecutar.
+ */
+function _isQueryDue(nextRunStr) {
+  if (!nextRunStr || String(nextRunStr).trim() === '') return true;
+  var nextRun = new Date(nextRunStr);
+  if (isNaN(nextRun.getTime())) return true; // no parseable = ejecutar
+  var today = new Date();
+  today.setHours(0, 0, 0, 0);
+  nextRun.setHours(0, 0, 0, 0);
+  return today >= nextRun;
+}
+
+/**
+ * _updateQuerySchedule(sheetApi, queryId, frequency)
+ * Actualiza next_run y last_run en la Queries tab via API.
+ * Si las columnas last_run / last_success no existen en el Sheet, el WebApp
+ * las ignora silenciosamente — no causa error.
+ */
+function _updateQuerySchedule(sheetApi, queryId, frequency) {
+  if (!sheetApi || !queryId) return;
+  var nextRun = _advanceNextRunDate(frequency);
+  var lastRun = _fmtDate(new Date());
+  try {
+    UrlFetchApp.fetch(sheetApi, {
+      method: 'post',
+      headers: { 'Content-Type': 'application/json' },
+      payload: JSON.stringify({
+        action: 'updateQuery',
+        id: queryId,
+        fields: {
+          next_run:  nextRun,
+          last_run:  lastRun
+        }
+      }),
+      muteHttpExceptions: true
+    });
+  } catch(e) {
+    Logger.log('[Schedule] updateQuery ERR for ' + queryId + ': ' + e.message);
+  }
+}
+
+// =============================================================================
+// ENTRY POINTS
+// =============================================================================
+
+function startDeepSweep() {
+  var props = PropertiesService.getScriptProperties();
+  props.setProperty('sweep_index', '0');
+  props.setProperty('sweep_mode', 'deep');
+  props.setProperty('sweep_from_year', '2020');
+  _cleanBatchTriggers();
+  Logger.log('Deep sweep initialized.');
+  runBatch();
+}
+
+function runBatch() {
+  var props    = PropertiesService.getScriptProperties();
+  var sheetApi = props.getProperty('SHEET_API');
+  var coreKey  = props.getProperty('CORE_API_KEY') || '';
+  var ssKey    = props.getProperty('SEMANTIC_API_KEY') || '';
+  var idx      = parseInt(props.getProperty('sweep_index') || '0', 10);
+  var fromYear = parseInt(props.getProperty('sweep_from_year') || String(new Date().getFullYear() - 1), 10);
+
+  Logger.log('=== BATCH START idx=' + idx + ' fromYear=' + fromYear + ' ===');
+
+  var existingUrls = _getExistingUrls(sheetApi);
+  var queueUrls    = _getQueueUrls();
+  var allKnown     = new Set([].concat(Array.from(existingUrls), Array.from(queueUrls)));
+  Logger.log('Known URLs: ' + allKnown.size);
+
+  // Cargar todas las queries activas del tipo correcto
+  var allQueries = _getActiveQueries(sheetApi);
+  Logger.log('Total active queries: ' + allQueries.length);
+
+  // --- v2: Filtrar por next_run (solo queries vencidas o sin fecha) ---
+  var eligibleQueries = allQueries.filter(function(q) {
+    return _isQueryDue(q.next_run);
+  });
+  var skippedCount = allQueries.length - eligibleQueries.length;
+  Logger.log('Eligible (due): ' + eligibleQueries.length + ' | Skipped (not due): ' + skippedCount);
+
+  // --- v2: Ordenar por tier (1=prioridad alta) ---
+  eligibleQueries.sort(function(a, b) {
+    var tierA = parseInt(a.tier || '3', 10);
+    var tierB = parseInt(b.tier || '3', 10);
+    return tierA - tierB; // 1 primero
+  });
+
+  // Aplicar batch slice a la lista elegible (no a la lista completa)
+  var batch = eligibleQueries.slice(idx, idx + CONFIG.BATCH_SIZE);
+  Logger.log('Processing ' + batch.length + ' queries (batch idx=' + idx + ')');
+
+  if (batch.length === 0) {
+    Logger.log('No eligible queries in this batch. Sweep complete.');
+    _updateLastScan(sheetApi);
+    _cleanBatchTriggers();
+    return;
+  }
+
+  var newRows = [];
+  var runDate = new Date().toISOString().split('T')[0];
+  var options = { coreKey: coreKey, ssKey: ssKey };
+
+  for (var qi = 0; qi < batch.length; qi++) {
+    var q = batch[qi];
+    Logger.log('[' + (idx + qi + 1) + '/' + eligibleQueries.length + '] ' + q.name
+      + ' (tier=' + (q.tier || '?') + ', freq=' + (q.frequency || '?') + ')');
+
+    var providerFields = Object.keys(PROVIDERS);
+    for (var pi = 0; pi < providerFields.length; pi++) {
+      var field = providerFields[pi];
+      var term  = (q[field] || '').trim();
+      if (!term) continue;
+      var providerFn = PROVIDERS[field];
+      try {
+        var results = providerFn(term, fromYear, options);
+        var added = 0;
+        for (var ri = 0; ri < results.length; ri++) {
+          var r = results[ri];
+          if (!r.url || allKnown.has(r.url)) continue;
+          allKnown.add(r.url);
+          added++;
+          newRows.push({
+            id: _makeId(r.url), url: r.url,
+            title: r.title || '', authors: r.authors || '',
+            year: r.year || '', abstract: (r.abstract || '').substring(0, 800),
+            source_api: field.replace('q_', ''),
+            query_id: q.id, query_name: q.name,
+            date_found: runDate, status: 'pending', notes: ''
+          });
+        }
+        if (added > 0) Logger.log('  [' + field + '] +' + added);
+        // SemanticScholar v2 ya duerme internamente. Pausa inter-proveedor.
+        if (field !== 'q_semantic') Utilities.sleep(150);
+      } catch(e) {
+        Logger.log('  [' + field + '] ERR: ' + e.message);
+      }
+    }
+
+    // --- v2: Actualizar next_run para esta query ---
+    _updateQuerySchedule(sheetApi, q.id, q.frequency);
+  }
+
+  if (newRows.length > 0) {
+    _writeToQueue(newRows);
+    Logger.log('Wrote ' + newRows.length + ' rows to AcademicQueue.');
+  } else {
+    Logger.log('No new rows in this batch.');
+  }
+
+  var nextIdx = idx + batch.length;
+  props.setProperty('sweep_index', String(nextIdx));
+
+  if (nextIdx < eligibleQueries.length) {
+    ScriptApp.newTrigger('runBatch').timeBased().at(new Date(Date.now() + CONFIG.BATCH_GAP_MS)).create();
+    Logger.log('Next batch scheduled at eligible index ' + nextIdx);
+  } else {
+    Logger.log('All eligible batches done.');
+    _updateLastScan(sheetApi);
+    _cleanBatchTriggers();
+  }
+}
+
+function startIncrementalScan() {
+  var props    = PropertiesService.getScriptProperties();
+  var lastScan = _getLastAcadScan(props.getProperty('SHEET_API'));
+  var fromYear = lastScan ? new Date(lastScan).getFullYear() : new Date().getFullYear() - 1;
+  props.setProperty('sweep_index', '0');
+  props.setProperty('sweep_mode', 'incremental');
+  props.setProperty('sweep_from_year', String(fromYear));
+  _cleanBatchTriggers();
+  Logger.log('Incremental scan fromYear=' + fromYear);
+  runBatch();
+}
+
+function setupTrigger() {
+  var existing = ScriptApp.getProjectTriggers().filter(function(t) {
+    return t.getHandlerFunction() === 'startIncrementalScan';
+  });
+  if (existing.length > 0) { Logger.log('Trigger exists.'); return; }
+  ScriptApp.newTrigger('startIncrementalScan').timeBased().everyWeeks(2).onWeekDay(ScriptApp.WeekDay.MONDAY).atHour(6).create();
+  Logger.log('Biweekly trigger created (Mondays 6am).');
+}
+
+function removeTrigger() {
+  ScriptApp.getProjectTriggers().forEach(function(t) { ScriptApp.deleteTrigger(t); });
+  Logger.log('All triggers removed.');
+}
+
+// =============================================================================
+// INTERNAL HELPERS
+// =============================================================================
+
+function _cleanBatchTriggers() {
+  ScriptApp.getProjectTriggers().forEach(function(t) {
+    var fn = t.getHandlerFunction();
+    if (fn === 'runBatch' || fn === 'runDeepSweep' || fn === 'scheduleDeepSweep') {
+      ScriptApp.deleteTrigger(t);
+    }
+  });
+}
+
+function _getExistingUrls(sheetApi) {
+  var resp = UrlFetchApp.fetch(sheetApi + '?action=getUrls', { muteHttpExceptions: true });
+  if (resp.getResponseCode() !== 200) return new Set();
+  var data = JSON.parse(resp.getContentText());
+  var urls = data.urls || data.rows || [];
+  return new Set(urls.map(function(u) { return typeof u === 'string' ? u : (u.url || ''); }));
+}
+
+function _getActiveQueries(sheetApi) {
+  var resp = UrlFetchApp.fetch(sheetApi + '?action=getQueries', { muteHttpExceptions: true });
+  if (resp.getResponseCode() !== 200) return [];
+  return (JSON.parse(resp.getContentText()).queries || []).filter(function(r) {
+    return r.active === 'yes' && CONFIG.QUERY_TYPES.indexOf(r.type) !== -1;
+  });
+}
+
+function _getLastAcadScan(sheetApi) {
+  var resp = UrlFetchApp.fetch(sheetApi + '?action=getMeta', { muteHttpExceptions: true });
+  if (resp.getResponseCode() !== 200) return null;
+  return (JSON.parse(resp.getContentText()) || {}).last_acad_scan || null;
+}
+
+function _updateLastScan(sheetApi) {
+  UrlFetchApp.fetch(sheetApi, {
+    method: 'post', headers: { 'Content-Type': 'application/json' },
+    payload: JSON.stringify({ action: 'updateMeta', meta: { last_acad_scan: new Date().toISOString() } }),
+    muteHttpExceptions: true
+  });
+}
+
+function _ensureQueueTab() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName(CONFIG.QUEUE_TAB);
+  if (!sheet) sheet = ss.insertSheet(CONFIG.QUEUE_TAB);
+  var header = sheet.getRange(1, 1, 1, CONFIG.QUEUE_COLUMNS.length).getValues()[0];
+  if (header[0] !== 'id') {
+    sheet.getRange(1, 1, 1, CONFIG.QUEUE_COLUMNS.length)
+      .setValues([CONFIG.QUEUE_COLUMNS])
+      .setFontWeight('bold')
+      .setBackground('#d0e4f7');
+    sheet.setFrozenRows(1);
+  }
+  return sheet;
+}
+
+function _getQueueUrls() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName(CONFIG.QUEUE_TAB);
+  if (!sheet || sheet.getLastRow() < 2) return new Set();
+  var urlCol = CONFIG.QUEUE_COLUMNS.indexOf('url') + 1;
+  return new Set(
+    sheet.getRange(2, urlCol, sheet.getLastRow() - 1, 1)
+      .getValues()
+      .map(function(r) { return r[0]; })
+      .filter(Boolean)
+  );
+}
+
+function _writeToQueue(rows) {
+  var sheet = _ensureQueueTab();
+  var values = rows.map(function(r) {
+    return CONFIG.QUEUE_COLUMNS.map(function(col) { return r[col] || ''; });
+  });
+  sheet.getRange(sheet.getLastRow() + 1, 1, values.length, CONFIG.QUEUE_COLUMNS.length).setValues(values);
+}
+
+function _makeId(url) {
+  return Utilities.base64Encode(url).replace(/[^a-zA-Z0-9]/g, '').substring(0, 16);
+}
+
+function _fmtDate(d) {
+  return d.toISOString().split('T')[0];
+}

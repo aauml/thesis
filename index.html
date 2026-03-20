@@ -1015,6 +1015,18 @@ function exportMarkdown() {
 // ── Init ──────────────────────────────────────────────────────────────────────
 buildSubcapaDropdown("");
 syncAdvancedFiltersPanel();
+
+// Support ?q= URL param for deep-linking from dashboard
+(function() {
+  const params = new URLSearchParams(window.location.search);
+  const q = params.get('q');
+  if (q) {
+    state.search = q;
+    document.getElementById('searchInput').value = q;
+    updateXBtn(); updateClearBtn();
+  }
+})();
+
 fetchData();
 </script>
 </body>

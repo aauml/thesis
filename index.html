@@ -649,14 +649,13 @@ async function fetchData() {
     if (tp) filtered = filtered.filter(r => (r.content_type || "") === tp);
 
     if (state.search) {
-      const q = normStr(state.search);
-      filtered = filtered.filter(r =>
-        normStr(r.title).includes(q) ||
-        normStr(r.thesis_relevance).includes(q) ||
-        normStr(r.source).includes(q) ||
-        normStr(r.scholar).includes(q) ||
-        normStr(r.capa_detail).includes(q)
-      );
+      // Split query into words — ALL must match (AND logic) for better deep-link results
+      const words = normStr(state.search).split(/\s+/).filter(w => w.length > 1);
+      filtered = filtered.filter(r => {
+        const blob = normStr(r.title) + ' ' + normStr(r.thesis_relevance) + ' ' +
+                     normStr(r.source) + ' ' + normStr(r.scholar) + ' ' + normStr(r.capa_detail);
+        return words.every(w => blob.includes(w));
+      });
     }
 
     if (state.starFilter)

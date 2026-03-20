@@ -457,49 +457,43 @@
     .kb-pipe-queue.pending { color: var(--warn-text); }
     .kb-pipe-meta { font-size: 0.65rem; color: var(--text-muted); }
 
-    /* Criteria rows with % */
-    .kb-crit-row { display: flex; align-items: center; gap: 0.4rem; margin-bottom: 0.3rem; }
-    .kb-crit-name { width: 105px; font-weight: 600; color: var(--accent); font-size: 0.72rem; }
-    .kb-crit-bar { flex: 1; height: 7px; background: #e8ecf3; border-radius: 3px; overflow: hidden; }
-    .kb-crit-fill { height: 100%; border-radius: 3px; background: var(--accent-mid); }
-    .kb-crit-val { width: 30px; text-align: right; font-size: 0.68rem; color: var(--text-muted); }
-    .kb-crit-pct { width: 28px; text-align: right; font-size: 0.62rem; color: var(--text-muted); }
+    /* Tri-color stacked bar rows (shared by capas, criterios, chapters) */
+    .kb-stack-row { display: flex; align-items: center; gap: 0.4rem; margin-bottom: 0.35rem; }
+    .kb-stack-label { width: 105px; font-weight: 600; color: var(--accent); font-size: 0.72rem; flex-shrink: 0; }
+    .kb-stack-bar { flex: 1; height: 10px; background: #e8ecf3; border-radius: 4px; overflow: hidden; display: flex; }
+    .kb-stack-seg { height: 100%; transition: width 0.3s ease; }
+    .kb-stack-seg.seg-alta { background: var(--danger-text); }
+    .kb-stack-seg.seg-media { background: var(--warn-text); }
+    .kb-stack-seg.seg-baja { background: #b0b8c4; }
+    .kb-stack-total { width: 36px; text-align: right; font-size: 0.72rem; font-weight: 700; color: var(--text); }
+    .kb-stack-detail { font-size: 0.6rem; color: var(--text-muted); margin-left: 0.15rem; white-space: nowrap; }
+    .kb-stack-legend { display: flex; gap: 0.8rem; font-size: 0.6rem; color: var(--text-muted); margin-top: 0.5rem; }
+    .kb-stack-legend span { display: flex; align-items: center; gap: 0.2rem; }
+    .kb-stack-legend .dot { width: 7px; height: 7px; border-radius: 2px; display: inline-block; }
+    .kb-stack-legend .dot-alta { background: var(--danger-text); }
+    .kb-stack-legend .dot-media { background: var(--warn-text); }
+    .kb-stack-legend .dot-baja { background: #b0b8c4; }
 
-    /* Gap mini-cards 2×2 */
-    .kb-gap-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
-    .kb-gap { border-radius: 5px; padding: 0.55rem 0.7rem; border-left: 3px solid; }
-    .kb-gap.warn { background: var(--warn-bg); border-left-color: var(--warn-border); }
-    .kb-gap.ok { background: var(--success-bg); border-left-color: var(--success-border); }
-    .kb-gap-title { font-size: 0.78rem; font-weight: 700; }
-    .kb-gap.warn .kb-gap-title { color: var(--warn-text); }
-    .kb-gap.ok .kb-gap-title { color: var(--success-text); }
-    .kb-gap-nums { font-size: 0.7rem; margin-top: 0.1rem; }
-    .kb-gap.warn .kb-gap-nums { color: #7a5c00; }
-    .kb-gap.ok .kb-gap-nums { color: #1a6030; }
-    .kb-gap-bar { height: 4px; background: rgba(0,0,0,0.08); border-radius: 2px; overflow: hidden; margin-top: 0.25rem; }
-    .kb-gap-fill { height: 100%; border-radius: 2px; }
-    .kb-gap.warn .kb-gap-fill { background: var(--warn-text); }
-    .kb-gap.ok .kb-gap-fill { background: var(--success-text); }
+    /* Gap list — plain text, no colored boxes */
+    .kb-gap-list { display: flex; flex-direction: column; gap: 0.35rem; }
+    .kb-gap-item { display: flex; align-items: center; gap: 0.6rem; padding: 0.45rem 0.7rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 4px; font-size: 0.78rem; }
+    .kb-gap-name { font-weight: 600; color: var(--text); flex: 1; }
+    .kb-gap-counts { display: flex; gap: 0.5rem; font-size: 0.7rem; }
+    .kb-gap-c { display: flex; align-items: center; gap: 0.15rem; }
+    .kb-gap-c .dot { width: 6px; height: 6px; border-radius: 2px; display: inline-block; }
+    .kb-gap-c-val { font-weight: 600; }
 
-    /* Chapter coverage grid */
+    /* Chapter coverage grid — stacked bar variant */
     .kb-chap-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.4rem; }
     .kb-chap { display: flex; align-items: center; gap: 0.5rem; padding: 0.45rem 0.6rem; background: var(--bg-card); border: 1px solid var(--border-light); border-radius: 4px; }
     .kb-chap-num { font-family: var(--serif); font-weight: 700; color: var(--accent); font-size: 0.85rem; width: 18px; text-align: center; }
-    .kb-chap-body { flex: 1; }
+    .kb-chap-body { flex: 1; min-width: 0; }
     .kb-chap-name { font-size: 0.75rem; font-weight: 600; color: var(--text); }
-    .kb-chap-meta { font-size: 0.65rem; color: var(--text-muted); }
-    .kb-chap-bar { width: 45px; height: 5px; background: #e8ecf3; border-radius: 3px; overflow: hidden; flex-shrink: 0; }
-    .kb-chap-fill { height: 100%; border-radius: 3px; }
+    .kb-chap-meta { font-size: 0.62rem; color: var(--text-muted); display: flex; gap: 0.4rem; }
+    .kb-chap-bar { flex: 1; height: 8px; background: #e8ecf3; border-radius: 3px; overflow: hidden; display: flex; min-width: 50px; }
+    .kb-chap-bar .kb-stack-seg { height: 100%; }
 
-    /* Recent additions table */
-    .kb-recent { width: 100%; font-size: 0.75rem; border-collapse: collapse; }
-    .kb-recent th { text-align: left; font-weight: 600; color: var(--text-muted); font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.04em; padding: 0.25rem 0.3rem; border-bottom: 1px solid var(--border); }
-    .kb-recent td { padding: 0.3rem; border-bottom: 1px solid #f2f2f2; color: var(--text-light); }
-    .kb-recent td:first-child { color: var(--text); font-weight: 500; max-width: 280px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-    .kb-recent .pill { display: inline-block; font-size: 0.55rem; font-weight: 700; text-transform: uppercase; padding: 0.04rem 0.28rem; border-radius: 2px; }
-    .kb-recent .pill-alta { background: var(--danger-bg); color: var(--danger-text); }
-    .kb-recent .pill-media { background: var(--warn-bg); color: var(--warn-text); }
-    .kb-recent .pill-baja { background: #f0f0f0; color: #888; }
+    /* (recent additions removed) */
 
     /* Legacy pipeline (keep for fallback) */
     .pipeline-alert { display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 0.75rem; border-radius: 5px; font-size: 0.82rem; margin-bottom: 0.75rem; }
@@ -795,7 +789,7 @@
       .map-question { font-size: 0.72rem; }
       /* KB report responsive */
       .kb-pipe-queues { grid-template-columns: 1fr; }
-      .kb-gap-grid { grid-template-columns: 1fr; }
+      /* gap-list is flex column, no grid override needed */
       .kb-chap-grid { grid-template-columns: 1fr; }
     }
   </style>
@@ -984,7 +978,7 @@
         <div style="margin-left:auto; font-size:0.7rem; color:var(--text-muted); align-self:center;" id="kbStatsUpdated">Cargando...</div>
       </div>
 
-      <!-- Distribución por capa — dynamic from Supabase -->
+      <!-- Distribución por capa — tri-color stacked bars -->
       <div class="card">
         <div class="card-title">Distribución por capa</div>
         <div id="capaDistribution">
@@ -992,13 +986,7 @@
         </div>
       </div>
 
-      <!-- Chapter coverage — dynamic from Supabase -->
-      <div class="section-label">Cobertura por capítulo</div>
-      <div id="chapterCoverage" class="kb-chap-grid">
-        <div style="color:var(--text-muted); font-size:0.75rem; grid-column:1/-1;">Cargando cobertura...</div>
-      </div>
-
-      <!-- Criterios evaluativos — dynamic from Supabase -->
+      <!-- Criterios evaluativos — tri-color stacked bars -->
       <div class="card">
         <div class="card-title">Criterios evaluativos</div>
         <div id="criteriaDistribution">
@@ -1006,16 +994,16 @@
         </div>
       </div>
 
-      <!-- Gap analysis — dynamic 2×2 cards from Supabase (bottom) -->
-      <div class="section-label">Análisis de gaps</div>
-      <div id="gapAnalysis" class="kb-gap-grid">
-        <div style="color:var(--text-muted); font-size:0.75rem; grid-column:1/-1;">Cargando análisis...</div>
+      <!-- Chapter coverage — tri-color stacked bars -->
+      <div class="section-label">Cobertura por capítulo</div>
+      <div id="chapterCoverage" class="kb-chap-grid">
+        <div style="color:var(--text-muted); font-size:0.75rem; grid-column:1/-1;">Cargando cobertura...</div>
       </div>
 
-      <!-- Recent additions — dynamic from Supabase -->
-      <div class="section-label">Adiciones recientes</div>
-      <div class="card" id="recentAdditionsCard">
-        <div id="recentAdditions" style="color:var(--text-muted); font-size:0.75rem;">Cargando recientes...</div>
+      <!-- Gap analysis — plain text with quality counts -->
+      <div class="section-label">Análisis de gaps</div>
+      <div id="gapAnalysis" class="kb-gap-list">
+        <div style="color:var(--text-muted); font-size:0.75rem;">Cargando análisis...</div>
       </div>
     </div>
 
@@ -2186,15 +2174,14 @@ async function supabaseQuery(path) {
 // ═══════════════════════════════════════
 async function fetchKbStats() {
   try {
-    // Primary source: Supabase for all evaluated data
-    const [total, alta, media, baja, capaData, criteriaData, recentData] = await Promise.all([
+    // Fetch totals + cross-filtered data (capa×importance, criteria×importance)
+    const [total, alta, media, baja, capaImpData, critImpData] = await Promise.all([
       supabaseCount(''),
       supabaseCount('importance=eq.ALTA'),
       supabaseCount('importance=eq.MEDIA'),
       supabaseCount('importance=eq.BAJA'),
-      supabaseQuery('evaluated_items?select=capa&capa=not.is.null&capa=neq.'),
-      supabaseQuery('evaluated_items?select=evaluativa_criteria&evaluativa_criteria=not.is.null&evaluativa_criteria=neq.'),
-      supabaseQuery('evaluated_items?select=title,capa,importance,source_pipeline,created_at&created_at=not.is.null&order=created_at.desc&limit=8')
+      supabaseQuery('evaluated_items?select=capa,importance&capa=not.is.null&capa=neq.&importance=not.is.null'),
+      supabaseQuery('evaluated_items?select=evaluativa_criteria,importance&evaluativa_criteria=not.is.null&evaluativa_criteria=neq.&importance=not.is.null'),
     ]);
 
     // Update stat numbers
@@ -2207,160 +2194,153 @@ async function fetchKbStats() {
     set('kbMedia', media);
     set('kbBaja', baja);
 
-    // Updated timestamp
     const kbEl = document.getElementById('kbStatsUpdated');
     if (kbEl) kbEl.textContent = 'Fuente: Supabase (live)';
 
-    // ── Count capas (items can have multiple) ──
+    // ── Helper: build stacked bar HTML ──
+    function stackedBar(label, a, m, b) {
+      const t = a + m + b;
+      if (t === 0) return `<div class="kb-stack-row"><span class="kb-stack-label">${label}</span><div class="kb-stack-bar"></div><span class="kb-stack-total">0</span></div>`;
+      const pA = (a / t * 100).toFixed(1);
+      const pM = (m / t * 100).toFixed(1);
+      const pB = (b / t * 100).toFixed(1);
+      return `<div class="kb-stack-row">
+        <span class="kb-stack-label">${label}</span>
+        <div class="kb-stack-bar">
+          <div class="kb-stack-seg seg-alta" style="width:${pA}%" title="Alta: ${a}"></div>
+          <div class="kb-stack-seg seg-media" style="width:${pM}%" title="Media: ${m}"></div>
+          <div class="kb-stack-seg seg-baja" style="width:${pB}%" title="Baja: ${b}"></div>
+        </div>
+        <span class="kb-stack-total">${t.toLocaleString()}</span>
+        <span class="kb-stack-detail">${a}A · ${m}M · ${b}B</span>
+      </div>`;
+    }
+
+    const legend = `<div class="kb-stack-legend"><span><i class="dot dot-alta"></i> Alta</span><span><i class="dot dot-media"></i> Media</span><span><i class="dot dot-baja"></i> Baja</span></div>`;
+
+    // ── Cross-tabulate capas × importance ──
     const capaNames = ['Teórica', 'Analítica', 'Evaluativa', 'Caso', 'Metodológica'];
+    const capaLabels = { 'Teórica': 'Teórica', 'Analítica': 'Analítica', 'Evaluativa': 'Evaluativa', 'Caso': 'Caso', 'Metodológica': 'Metod.' };
     const byCapa = {};
-    capaNames.forEach(c => byCapa[c] = 0);
-    (capaData || []).forEach(row => {
-      capaNames.forEach(c => { if (row.capa && row.capa.includes(c)) byCapa[c]++; });
+    capaNames.forEach(c => byCapa[c] = { ALTA: 0, MEDIA: 0, BAJA: 0 });
+    (capaImpData || []).forEach(row => {
+      const imp = (row.importance || '').toUpperCase();
+      if (!['ALTA', 'MEDIA', 'BAJA'].includes(imp)) return;
+      capaNames.forEach(c => { if (row.capa && row.capa.includes(c)) byCapa[c][imp]++; });
     });
 
-    // ── Capa distribution bars ──
+    // Render capa tri-color bars
     const capaContainer = document.getElementById('capaDistribution');
     if (capaContainer) {
-      const capas = [
-        { label: 'Teórica', key: 'Teórica' },
-        { label: 'Analítica', key: 'Analítica' },
-        { label: 'Evaluativa', key: 'Evaluativa' },
-        { label: 'Caso', key: 'Caso' },
-        { label: 'Metod.', key: 'Metodológica' },
-      ];
-      const maxVal = Math.max(...capas.map(c => byCapa[c.key] || 0), 1);
-      capaContainer.innerHTML = capas.map(c => {
-        const val = byCapa[c.key] || 0;
-        const pct = Math.round((val / maxVal) * 100);
-        const low = (val / total) < 0.1 ? ' low' : '';
-        return `<div class="bar-row"><span class="bar-label">${c.label}</span><div class="bar-track"><div class="bar-fill${low}" style="width:${pct}%"></div></div><span class="bar-val">${val.toLocaleString()}</span></div>`;
-      }).join('');
+      capaContainer.innerHTML = capaNames.map(c =>
+        stackedBar(capaLabels[c], byCapa[c].ALTA, byCapa[c].MEDIA, byCapa[c].BAJA)
+      ).join('') + legend;
     }
 
-    // ── Evaluative criteria with percentages ──
+    // ── Cross-tabulate criteria × importance ──
+    const critNames = ['Accountability', 'Contestabilidad', 'Explicabilidad', 'Equidad'];
+    const critLabels = { 'Accountability': 'Accountability', 'Contestabilidad': 'Contestab.', 'Explicabilidad': 'Explicab.', 'Equidad': 'Equidad' };
+    const byCrit = {};
+    critNames.forEach(c => byCrit[c] = { ALTA: 0, MEDIA: 0, BAJA: 0 });
+    (critImpData || []).forEach(row => {
+      const imp = (row.importance || '').toUpperCase();
+      if (!['ALTA', 'MEDIA', 'BAJA'].includes(imp)) return;
+      critNames.forEach(c => { if (row.evaluativa_criteria && row.evaluativa_criteria.includes(c)) byCrit[c][imp]++; });
+    });
+
+    // Render criteria tri-color bars
     const critContainer = document.getElementById('criteriaDistribution');
     if (critContainer) {
-      const critNames = ['Accountability', 'Contestabilidad', 'Explicabilidad', 'Equidad'];
-      const critLabels = ['Accountability', 'Contestab.', 'Explicab.', 'Equidad'];
-      const byCrit = {};
-      critNames.forEach(c => byCrit[c] = 0);
-      (criteriaData || []).forEach(row => {
-        critNames.forEach(c => { if (row.evaluativa_criteria && row.evaluativa_criteria.includes(c)) byCrit[c]++; });
-      });
-      const maxCrit = Math.max(...critNames.map(c => byCrit[c]), 1);
-      critContainer.innerHTML = critNames.map((c, i) => {
-        const val = byCrit[c];
-        const barPct = Math.round((val / maxCrit) * 100);
-        const pctOfTotal = Math.round((val / total) * 100);
-        return `<div class="kb-crit-row"><span class="kb-crit-name">${critLabels[i]}</span><div class="kb-crit-bar"><div class="kb-crit-fill" style="width:${barPct}%"></div></div><span class="kb-crit-val">${val.toLocaleString()}</span><span class="kb-crit-pct">${pctOfTotal}%</span></div>`;
-      }).join('') + '<div style="font-size:0.62rem; color:var(--text-muted); margin-top:0.4rem;">% sobre total · items multi-criterio</div>';
+      critContainer.innerHTML = critNames.map(c =>
+        stackedBar(critLabels[c], byCrit[c].ALTA, byCrit[c].MEDIA, byCrit[c].BAJA)
+      ).join('') + '<div style="font-size:0.6rem; color:var(--text-muted); margin-top:0.3rem;">Items multi-criterio contados en cada categoría aplicable</div>';
     }
 
-    // ── Gap analysis — mini-cards 2×2 ──
-    const gapContainer = document.getElementById('gapAnalysis');
-    if (gapContainer) {
-      const gaps = [
-        { name: 'Derecho procesal español', count: null, target: 15, query: 'importance=eq.ALTA&or=(thesis_relevance.ilike.*procesal*,thesis_relevance.ilike.*prueba electrónica*)' },
-        { name: 'Caso PATTERN/BOP', count: null, target: 20, query: 'or=(thesis_relevance.ilike.*PATTERN*,thesis_relevance.ilike.*Bureau of Prisons*,thesis_relevance.ilike.*recidivism*)' },
-      ];
-      const gapCounts = await Promise.all(gaps.map(g => supabaseCount(g.query)));
-      gaps.forEach((g, i) => g.count = gapCounts[i]);
-
-      // Add capa-based gaps
-      const allGaps = [
-        ...gaps,
-        { name: 'Caso (capa)', count: byCapa['Caso'], target: 150 },
-        { name: 'Metodológica', count: byCapa['Metodológica'], target: 80 },
-      ];
-
-      gapContainer.innerHTML = allGaps.map(g => {
-        const pct = Math.min(Math.round((g.count / g.target) * 100), 100);
-        const pctLabel = Math.round((g.count / g.target) * 100);
-        const isOk = g.count >= g.target;
-        const cls = isOk ? 'ok' : 'warn';
-        return `<div class="kb-gap ${cls}">
-          <div class="kb-gap-title">${g.name}</div>
-          <div class="kb-gap-nums">${g.count} / ${g.target} · ${pctLabel}%</div>
-          <div class="kb-gap-bar"><div class="kb-gap-fill" style="width:${pct}%"></div></div>
-        </div>`;
-      }).join('');
-    }
-
-    // ── Chapter coverage — dynamic from thesis_relevance ──
+    // ── Chapter coverage — tri-color bars ──
     const chapContainer = document.getElementById('chapterCoverage');
     if (chapContainer) {
+      // Chapters mapped to capas (reuse cross-tab data)
       const chapters = [
-        { num: 1, name: 'Introducción', count: Math.round(total * 0.03), target: 40 },
+        { num: 1, name: 'Introducción', alta: Math.round(alta * 0.03), media: Math.round(media * 0.03), baja: Math.round(baja * 0.03) },
         { num: 2, name: 'Marco teórico', capas: ['Teórica'] },
         { num: 3, name: 'Metodología', capas: ['Metodológica'] },
-        { num: 4, name: 'Estado del arte', query: 'or=(thesis_relevance.ilike.*estado del arte*,thesis_relevance.ilike.*literature review*,thesis_relevance.ilike.*survey*)' },
+        { num: 4, name: 'Estado del arte', query: true },
         { num: 5, name: 'Análisis comparado', capas: ['Analítica'] },
         { num: 6, name: 'Caso DOJ', capas: ['Caso'] },
         { num: 7, name: 'Evaluación', capas: ['Evaluativa'] },
-        { num: 8, name: 'Conclusiones', count: 0, target: 50 },
+        { num: 8, name: 'Conclusiones', alta: 0, media: 0, baja: 0 },
       ];
 
-      // For capa-based chapters, use already-fetched counts
-      // For query-based chapters, fetch from Supabase
-      const queryChapters = chapters.filter(ch => ch.query);
-      const queryCounts = await Promise.all(queryChapters.map(ch => supabaseCount(ch.query)));
-      queryChapters.forEach((ch, i) => ch.count = queryCounts[i]);
-
-      // Assign capa-based counts and sensible targets
-      const capaTargets = { 'Teórica': 400, 'Metodológica': 80, 'Analítica': 600, 'Caso': 150, 'Evaluativa': 300 };
+      // For capa-based chapters, aggregate from cross-tab
       chapters.forEach(ch => {
         if (ch.capas) {
-          ch.count = ch.capas.reduce((s, c) => s + (byCapa[c] || 0), 0);
-          ch.target = ch.capas.reduce((s, c) => s + (capaTargets[c] || 100), 0);
+          ch.alta = ch.capas.reduce((s, c) => s + (byCapa[c] ? byCapa[c].ALTA : 0), 0);
+          ch.media = ch.capas.reduce((s, c) => s + (byCapa[c] ? byCapa[c].MEDIA : 0), 0);
+          ch.baja = ch.capas.reduce((s, c) => s + (byCapa[c] ? byCapa[c].BAJA : 0), 0);
         }
-        if (!ch.target && ch.count !== undefined) ch.target = Math.max(ch.count, 30);
       });
 
+      // Chapter 4 needs a query-based count with importance breakdown
+      const ch4Queries = await Promise.all([
+        supabaseCount('importance=eq.ALTA&or=(thesis_relevance.ilike.*estado del arte*,thesis_relevance.ilike.*literature review*,thesis_relevance.ilike.*survey*)'),
+        supabaseCount('importance=eq.MEDIA&or=(thesis_relevance.ilike.*estado del arte*,thesis_relevance.ilike.*literature review*,thesis_relevance.ilike.*survey*)'),
+        supabaseCount('importance=eq.BAJA&or=(thesis_relevance.ilike.*estado del arte*,thesis_relevance.ilike.*literature review*,thesis_relevance.ilike.*survey*)'),
+      ]);
+      chapters[3].alta = ch4Queries[0];
+      chapters[3].media = ch4Queries[1];
+      chapters[3].baja = ch4Queries[2];
+
       chapContainer.innerHTML = chapters.map(ch => {
-        const count = ch.count || 0;
-        const target = ch.target || 1;
-        const pct = Math.min(Math.round((count / target) * 100), 100);
-        const isOk = pct >= 90;
-        const isWarn = pct >= 50 && pct < 90;
-        // Use gap palette: green border for ok, warn for needs work, danger for low
-        let borderColor = 'var(--success-border)';
-        let barColor = 'var(--success-text)';
-        let bgColor = 'var(--bg-card)';
-        if (pct < 50) { borderColor = 'var(--danger-border)'; barColor = 'var(--danger-text)'; bgColor = 'var(--danger-bg)'; }
-        else if (pct < 90) { borderColor = 'var(--warn-border)'; barColor = 'var(--warn-text)'; bgColor = 'var(--warn-bg)'; }
-        const meta = count > 0 ? '~' + count.toLocaleString() + ' / ' + target + ' target' : 'Pendiente';
-        return `<div class="kb-chap" style="border-color:${borderColor}; background:${bgColor};">
+        const t = (ch.alta || 0) + (ch.media || 0) + (ch.baja || 0);
+        const a = ch.alta || 0, m = ch.media || 0, b = ch.baja || 0;
+        const pA = t > 0 ? (a / t * 100).toFixed(1) : 0;
+        const pM = t > 0 ? (m / t * 100).toFixed(1) : 0;
+        const pB = t > 0 ? (b / t * 100).toFixed(1) : 0;
+        return `<div class="kb-chap">
           <span class="kb-chap-num">${ch.num}</span>
-          <div class="kb-chap-body"><div class="kb-chap-name">${ch.name}</div><div class="kb-chap-meta">${meta}</div></div>
-          <div class="kb-chap-bar"><div class="kb-chap-fill" style="width:${pct}%; background:${barColor};"></div></div>
+          <div class="kb-chap-body">
+            <div class="kb-chap-name">${ch.name}</div>
+            <div class="kb-chap-meta"><span>${t.toLocaleString()} fuentes</span><span>${a}A · ${m}M · ${b}B</span></div>
+          </div>
+          <div class="kb-chap-bar">
+            ${t > 0 ? `<div class="kb-stack-seg seg-alta" style="width:${pA}%"></div><div class="kb-stack-seg seg-media" style="width:${pM}%"></div><div class="kb-stack-seg seg-baja" style="width:${pB}%"></div>` : ''}
+          </div>
         </div>`;
       }).join('');
     }
 
-    // ── Recent additions table ──
-    const recentEl = document.getElementById('recentAdditions');
-    if (recentEl && recentData && recentData.length > 0) {
-      const rows = recentData.slice(0, 6);
-      let html = '<table class="kb-recent"><thead><tr><th>Título</th><th>Capa</th><th>Prior.</th><th style="text-align:right">Fecha</th></tr></thead><tbody>';
-      rows.forEach(r => {
-        const title = (r.title || '').length > 55 ? r.title.substring(0, 52) + '…' : (r.title || '—');
-        const capa = (r.capa || '—').split(',')[0].trim();
-        const capaShort = capa === 'Metodológica' ? 'Metod.' : capa;
-        const imp = (r.importance || '').toUpperCase();
-        const pillCls = imp === 'ALTA' ? 'pill-alta' : imp === 'MEDIA' ? 'pill-media' : 'pill-baja';
-        let dateStr = '—';
-        if (r.created_at) {
-          const d = new Date(r.created_at);
-          dateStr = d.toLocaleDateString('es', { day: 'numeric', month: 'short' });
-        }
-        const kbLink = r.title ? 'https://aauml.github.io/thesis/index.html?q=' + encodeURIComponent(r.title.split(/[\s:—–()«»""]+/).filter(w => w.length > 3).slice(0, 3).join(' ')) : '#';
-        html += `<tr><td><a href="${kbLink}" target="_blank" style="color:var(--text);text-decoration:none;" title="${r.title || ''}">${title}</a></td><td>${capaShort}</td><td><span class="pill ${pillCls}">${imp || '—'}</span></td><td style="text-align:right;color:var(--text-muted)">${dateStr}</td></tr>`;
-      });
-      html += '</tbody></table>';
-      recentEl.innerHTML = html;
-    } else if (recentEl) {
-      recentEl.innerHTML = '<div style="color:var(--text-muted); font-size:0.75rem;">Sin datos de fecha disponibles</div>';
+    // ── Gap analysis — plain text with quality counts ──
+    const gapContainer = document.getElementById('gapAnalysis');
+    if (gapContainer) {
+      // Fetch alta/media/baja for each gap area
+      const gapDefs = [
+        { name: 'Derecho procesal español', filter: 'or=(thesis_relevance.ilike.*procesal*,thesis_relevance.ilike.*prueba electrónica*)' },
+        { name: 'Caso PATTERN/BOP', filter: 'or=(thesis_relevance.ilike.*PATTERN*,thesis_relevance.ilike.*Bureau of Prisons*,thesis_relevance.ilike.*recidivism*)' },
+        { name: 'Capa: Caso', filter: 'capa=ilike.*Caso*' },
+        { name: 'Capa: Metodológica', filter: 'capa=ilike.*Metodológica*' },
+      ];
+
+      const gapResults = await Promise.all(gapDefs.flatMap(g => [
+        supabaseCount(g.filter + '&importance=eq.ALTA'),
+        supabaseCount(g.filter + '&importance=eq.MEDIA'),
+        supabaseCount(g.filter + '&importance=eq.BAJA'),
+      ]));
+
+      gapContainer.innerHTML = gapDefs.map((g, i) => {
+        const a = gapResults[i * 3];
+        const m = gapResults[i * 3 + 1];
+        const b = gapResults[i * 3 + 2];
+        const t = a + m + b;
+        return `<div class="kb-gap-item">
+          <span class="kb-gap-name">${g.name}</span>
+          <div class="kb-gap-counts">
+            <span class="kb-gap-c"><i class="dot dot-alta"></i> <span class="kb-gap-c-val">${a}</span></span>
+            <span class="kb-gap-c"><i class="dot dot-media"></i> <span class="kb-gap-c-val">${m}</span></span>
+            <span class="kb-gap-c"><i class="dot dot-baja"></i> <span class="kb-gap-c-val">${b}</span></span>
+            <span style="font-size:0.65rem; color:var(--text-muted);">(${t})</span>
+          </div>
+        </div>`;
+      }).join('');
     }
 
   } catch(e) {

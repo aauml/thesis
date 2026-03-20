@@ -2162,8 +2162,8 @@ async function fetchReadingPlan() {
 // ═══════════════════════════════════════
 // OPS BADGE — update sidebar badge with pending count
 // ═══════════════════════════════════════
-function updateOpsBadge() {
-  const ops = loadOps();
+async function updateOpsBadge() {
+  const ops = await loadOps();
   const pending = ops.filter(o => !o.done).length;
   const badge = document.getElementById('badge-ops');
   if (badge) {

@@ -1087,10 +1087,45 @@ function exportMarkdown() {
     });
 }
 
+// ── Deep link: ?url=... opens the matching card ─────────────────────────────
+async function handleDeepLink() {
+  const params = new URLSearchParams(window.location.search);
+  const targetUrl = params.get("url");
+  if (!targetUrl) return;
+
+  // Wait for data to load
+  const { rows } = await loadAllRows();
+  const idx = rows.findIndex(r => r.url === targetUrl);
+  if (idx < 0) return;
+
+  // Calculate which page this item is on (in default sort: found-desc)
+  const page = Math.floor(idx / PAGE_LIMIT) + 1;
+  state.page = page;
+
+  // Render that page
+  await fetchData();
+
+  // Find the card on the rendered page and open it
+  const pageIdx = idx % PAGE_LIMIT;
+  const cardId = "c-" + page + "-" + pageIdx;
+  const el = document.getElementById(cardId);
+  if (el) {
+    expandedIds.add(cardId);
+    el.classList.add("open");
+    // Scroll to the card's article
+    const article = el.closest("article");
+    if (article) {
+      setTimeout(() => article.scrollIntoView({ behavior: "smooth", block: "start" }), 100);
+      article.style.background = "#FFFBEB";
+      setTimeout(() => article.style.background = "", 3000);
+    }
+  }
+}
+
 // ── Init ──────────────────────────────────────────────────────────────────────
 buildSubcapaDropdown("");
 syncAdvancedFiltersPanel();
-fetchData();
+fetchData().then(() => handleDeepLink());
 </script>
 </body>
 </html>

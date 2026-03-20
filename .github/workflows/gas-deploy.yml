@@ -1,0 +1,38 @@
+name: Deploy Apps Script
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'phd-kb/gas/**'
+
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install clasp
+        run: npm install -g @google/clasp
+
+      - name: Write clasp credentials
+        run: |
+          echo '${{ secrets.CLASPRC_JSON }}' > ~/.clasprc.json
+
+      - name: Push to Apps Script
+        working-directory: phd-kb/gas
+        run: clasp push --force
+
+      - name: Deploy new version
+        working-directory: phd-kb/gas
+        run: |
+          VERSION=$(clasp version "Auto-deploy from GitHub $(date -u +%Y-%m-%d_%H:%M)" 2>&1 | grep -oP '\d+' | head -1)
+          echo "Created version: $VERSION"
+          clasp deploy --versionNumber "$VERSION" --deploymentId "AKfycbzk2vhu-qcKFBPqEImKGEZKSitpVZv1IQQEv5ZzG7pNfo-iPUWfvSoLWWnkoc8d8PQQ" --description "v${VERSION} auto-deploy"
+          echo "Deployed version $VERSION"

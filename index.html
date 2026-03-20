@@ -286,6 +286,27 @@
   .btn-page:disabled { color: #D1D5DB; background: #F9FAFB; cursor: default; }
   .ellipsis { font-size: 12px; color: #9CA3AF; padding: 0 2px; }
 
+  /* ── Semantic search toggle ── */
+  .search-mode-toggle {
+    display: flex; gap: 0; border: 1px solid #E5E7EB; border-radius: 3px; overflow: hidden; height: 30px;
+  }
+  .search-mode-toggle button {
+    padding: 0 10px; font-size: 11px; font-weight: 600;
+    border: none; background: #fff; color: #6B7280; cursor: pointer;
+    white-space: nowrap; transition: background 0.15s, color 0.15s;
+  }
+  .search-mode-toggle button.active { background: #1E40AF; color: #fff; }
+  .search-mode-toggle button:not(.active):hover { background: #F3F4F6; }
+  .semantic-badge {
+    display: inline-flex; align-items: center; gap: 3px;
+    font-size: 10px; font-weight: 600; color: #7C3AED;
+    background: #EDE9FE; padding: 2px 6px; border-radius: 3px; margin-left: 4px;
+  }
+  .similarity-bar {
+    display: inline-block; height: 4px; border-radius: 2px; background: #7C3AED;
+    vertical-align: middle; margin-left: 4px;
+  }
+
   /* ── States ── */
   .state-msg { text-align: center; padding: 60px 0; color: #9CA3AF; font-size: 14px; }
   .error-box {
@@ -372,6 +393,10 @@
 
     <!-- Row 2: Search + sort -->
     <div class="controls-row3">
+      <div class="search-mode-toggle">
+        <button id="modeKeyword" class="active" onclick="setSearchMode('keyword')">Keyword</button>
+        <button id="modeSemantic" onclick="setSearchMode('semantic')">Semantic</button>
+      </div>
       <div class="search-wrap">
         <input type="text" id="searchInput" placeholder="Search title, source, relevance…"
                onkeydown="if(event.key==='Enter')submitSearch()"
@@ -434,7 +459,16 @@
 </div>
 
 <script>
-const API_URL    = "https://script.google.com/macros/s/AKfycbzk2vhu-qcKFBPqEImKGEZKSitpVZv1IQQEv5ZzG7pNfo-iPUWfvSoLWWnkoc8d8PQQ/exec";
+// ── Supabase config (source of truth) ────────────────────────────────────────
+const SUPABASE_URL = "https://wtwuvrtmadnlezkbesqp.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind0d3V2cnRtYWRubGV6a2Jlc3FwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM3NjY3NDIsImV4cCI6MjA4OTM0Mjc0Mn0.SE2jFKBxWeuM5bHKNjYgfRuPPicOJuJUmMceBOBwEP4";
+const REST_URL   = SUPABASE_URL + "/rest/v1/evaluated_items";
+const SEARCH_URL = SUPABASE_URL + "/functions/v1/semantic-search";
+const SB_HEADERS = {
+  "apikey": SUPABASE_KEY,
+  "Authorization": "Bearer " + SUPABASE_KEY,
+  "Content-Type": "application/json",
+};
 const PAGE_LIMIT = 50;
 
 const SUBCAPA_OPTIONS = {
@@ -504,6 +538,8 @@ let state = {
   sort: "found-desc", starFilter: false,
   rows: [], total: 0, total_pages: 1, has_next: false, has_prev: false,
   loading: false, lastFetch: null,
+  searchMode: "keyword",      // "keyword" | "semantic"
+  semanticResults: null,       // array from edge fn, or null
 };
 let expandedIds = new Set();
 let _cache = null; // { rows: [], stats: {} } — loaded once, filtered client-side
@@ -516,12 +552,17 @@ function normStr(s) {
     .replace(/[úùûü]/g, "u").replace(/ñ/g, "n");
 }
 
-// ── Load all rows once, cache ─────────────────────────────────────────────────
+// ── Load all rows once from Supabase, cache ──────────────────────────────────
 async function loadAllRows() {
   if (_cache) return _cache;
-  const data = await fetch(API_URL + "?action=getAll&limit=2000&offset=0")
-    .then(r => { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); });
-  const rows = data.rows || [];
+  // Supabase REST: select all columns except embedding (too large)
+  const cols = "pk,url,title,source,date_published,date_found,content_type,importance,capa,capa_detail,evaluativa_criteria,action_tag,thesis_relevance,scholar,language,tier,starred,source_pipeline,search_scope";
+  const url = REST_URL + "?select=" + cols + "&order=date_found.desc.nullslast&limit=2000";
+  const resp = await fetch(url, { headers: SB_HEADERS });
+  if (!resp.ok) throw new Error("Supabase HTTP " + resp.status);
+  const rows = await resp.json();
+  // Normalize starred from boolean to match existing logic
+  rows.forEach(r => { if (r.starred === true) r.starred = 1; else if (!r.starred) r.starred = ""; });
   const stats = {
     total_all: rows.length,
     alta:  rows.filter(r => r.importance === "ALTA").length,
@@ -530,6 +571,36 @@ async function loadAllRows() {
   };
   _cache = { rows, stats };
   return _cache;
+}
+
+// ── Semantic search via edge function ────────────────────────────────────────
+async function semanticSearch(query) {
+  const filters = {};
+  if (state.importance) filters.importance = state.importance;
+  if (state.capa) filters.capa = state.capa;
+  const resp = await fetch(SEARCH_URL, {
+    method: "POST",
+    headers: { ...SB_HEADERS, "Content-Type": "application/json" },
+    body: JSON.stringify({ query, match_count: 40, match_threshold: 0.25, filters }),
+  });
+  if (!resp.ok) throw new Error("Semantic search HTTP " + resp.status);
+  const data = await resp.json();
+  if (data.error) throw new Error(data.error);
+  // Normalize starred
+  (data.results || []).forEach(r => { if (r.starred === true) r.starred = 1; else if (!r.starred) r.starred = ""; });
+  return data.results || [];
+}
+
+// ── Search mode toggle ───────────────────────────────────────────────────────
+function setSearchMode(mode) {
+  state.searchMode = mode;
+  state.semanticResults = null;
+  document.getElementById("modeKeyword").classList.toggle("active", mode === "keyword");
+  document.getElementById("modeSemantic").classList.toggle("active", mode === "semantic");
+  const input = document.getElementById("searchInput");
+  input.placeholder = mode === "semantic"
+    ? "Describe what you're looking for…"
+    : "Search title, source, relevance…";
 }
 
 // ── Subcapa dropdown sync ─────────────────────────────────────────────────────
@@ -580,33 +651,7 @@ function toggleStarFilter() {
   fetchData();
 }
 
-// ── URL builder ───────────────────────────────────────────────────────────────
-function buildUrl() {
-  const offset = (state.page - 1) * PAGE_LIMIT;
-  let url = API_URL + "?action=getAll"
-    + "&limit=" + PAGE_LIMIT
-    + "&offset=" + offset;
-  if (state.sort)       url += "&sort="       + encodeURIComponent(state.sort);
-  if (state.importance) url += "&importance=" + encodeURIComponent(state.importance);
-  if (state.capa)       url += "&capa="       + encodeURIComponent(state.capa);
-  const cd = document.getElementById("selCapaDetail").value;
-  if (cd) url += "&capa_detail=" + encodeURIComponent(cd);
-  const ev = document.getElementById("selEvaluativa").value;
-  const tp = document.getElementById("selType").value;
-  // Star filter: handled client-side after fetch since the API doesn't have a starred param.
-  const extra = [ev, tp].filter(Boolean).join(" ");
-  const combined = [state.search, extra].filter(Boolean).join(" ");
-  if (combined) url += "&search=" + encodeURIComponent(combined);
-  return url;
-}
-
-// ── Fetch (API supports CORS: access-control-allow-origin: *) ─────────────────
-function jsonp(url) {
-  return fetch(url).then(r => {
-    if (!r.ok) throw new Error("HTTP " + r.status);
-    return r.json();
-  });
-}
+// (buildUrl and jsonp removed — Supabase REST replaces Sheet API)
 
 // ── Button counts ─────────────────────────────────────────────────────────────
 function updateAllButtonCounts(stats) {
@@ -625,63 +670,71 @@ async function fetchData() {
   renderMain('<div class="state-msg">Loading…</div>');
   document.getElementById("pagination").innerHTML = "";
   try {
+    // Always load the full cache for stats and keyword search
     const { rows: allRows, stats } = await loadAllRows();
 
-    // ── Filter ──────────────────────────────────────────────────────────────
-    let filtered = allRows;
+    let filtered;
+    let isSemanticResult = false;
 
-    if (state.importance)
-      filtered = filtered.filter(r => r.importance === state.importance);
+    // If semantic mode + has query, use edge function results
+    if (state.searchMode === "semantic" && state.search) {
+      if (!state.semanticResults) {
+        renderMain('<div class="state-msg">Searching semantically…</div>');
+        state.semanticResults = await semanticSearch(state.search);
+      }
+      filtered = state.semanticResults;
+      isSemanticResult = true;
+    } else {
+      // Keyword mode: client-side filtering
+      filtered = allRows;
+      state.semanticResults = null;
 
-    if (state.capa) {
-      const nc = normStr(state.capa);
-      filtered = filtered.filter(r => normStr(r.capa).includes(nc));
+      if (state.importance)
+        filtered = filtered.filter(r => r.importance === state.importance);
+
+      if (state.capa) {
+        const nc = normStr(state.capa);
+        filtered = filtered.filter(r => normStr(r.capa).includes(nc));
+      }
+
+      const cd = document.getElementById("selCapaDetail").value;
+      if (cd) filtered = filtered.filter(r => (r.capa_detail || "").includes(cd));
+
+      const ev = document.getElementById("selEvaluativa").value;
+      if (ev) filtered = filtered.filter(r =>
+        normStr(r.evaluativa_criteria).includes(normStr(ev)));
+
+      const tp = document.getElementById("selType").value;
+      if (tp) filtered = filtered.filter(r => (r.content_type || "") === tp);
+
+      if (state.search) {
+        const q = normStr(state.search);
+        filtered = filtered.filter(r =>
+          normStr(r.title).includes(q) ||
+          normStr(r.thesis_relevance).includes(q) ||
+          normStr(r.source).includes(q) ||
+          normStr(r.scholar).includes(q) ||
+          normStr(r.capa_detail).includes(q)
+        );
+      }
+
+      if (state.starFilter)
+        filtered = filtered.filter(r =>
+          r.starred == 1 || r.starred === "1" || r.starred === "true" || r.starred === "yes");
     }
 
-    const cd = document.getElementById("selCapaDetail").value;
-    if (cd) filtered = filtered.filter(r => (r.capa_detail || "").includes(cd));
-
-    const ev = document.getElementById("selEvaluativa").value;
-    if (ev) filtered = filtered.filter(r =>
-      normStr(r.evaluativa_criteria).includes(normStr(ev)));
-
-    const tp = document.getElementById("selType").value;
-    if (tp) filtered = filtered.filter(r => (r.content_type || "") === tp);
-
-    if (state.search) {
-      // Split query into words — ALL must match (AND logic) for better deep-link results
-      const words = normStr(state.search).split(/\s+/).filter(w => w.length > 1);
-      filtered = filtered.filter(r => {
-        const blob = normStr(r.title) + ' ' + normStr(r.thesis_relevance) + ' ' +
-                     normStr(r.source) + ' ' + normStr(r.scholar) + ' ' + normStr(r.capa_detail) +
-                     ' ' + (r.date_published || '');
-        return words.every(w => blob.includes(w));
+    // ── Sort (skip for semantic — already ranked by similarity) ───────────
+    if (!isSemanticResult) {
+      filtered = [...filtered].sort((a, b) => {
+        switch (state.sort) {
+          case "found-asc":  return new Date(a.date_found)      - new Date(b.date_found);
+          case "date-desc":  return new Date(b.date_published)  - new Date(a.date_published);
+          case "date-asc":   return new Date(a.date_published)  - new Date(b.date_published);
+          case "importance": { const o={ALTA:0,MEDIA:1,BAJA:2}; return (o[a.importance]??3)-(o[b.importance]??3); }
+          default:           return new Date(b.date_found)      - new Date(a.date_found); // found-desc
+        }
       });
     }
-
-    // Exact URL deep-link — overrides all other filters, shows single card expanded
-    if (state._deepLinkUrl) {
-      const match = allRows.filter(r => r.url === state._deepLinkUrl);
-      if (match.length) {
-        filtered = match;
-        expandedIds.add('c-1-0');
-      }
-    }
-
-    if (state.starFilter)
-      filtered = filtered.filter(r =>
-        r.starred == 1 || r.starred === "1" || r.starred === "true" || r.starred === "yes");
-
-    // ── Sort ────────────────────────────────────────────────────────────────
-    filtered = [...filtered].sort((a, b) => {
-      switch (state.sort) {
-        case "found-asc":  return new Date(a.date_found)      - new Date(b.date_found);
-        case "date-desc":  return new Date(b.date_published)  - new Date(a.date_published);
-        case "date-asc":   return new Date(a.date_published)  - new Date(b.date_published);
-        case "importance": { const o={ALTA:0,MEDIA:1,BAJA:2}; return (o[a.importance]??3)-(o[b.importance]??3); }
-        default:           return new Date(b.date_found)      - new Date(a.date_found); // found-desc
-      }
-    });
 
     // ── Paginate ────────────────────────────────────────────────────────────
     state.total       = filtered.length;
@@ -693,6 +746,8 @@ async function fetchData() {
 
     const start  = (state.page - 1) * PAGE_LIMIT;
     state.rows   = filtered.slice(start, start + PAGE_LIMIT);
+    // Attach semantic flag so renderCard can show similarity
+    state._isSemanticResult = isSemanticResult;
 
     renderHeader(stats);
     updateAllButtonCounts(stats);
@@ -708,7 +763,7 @@ async function fetchData() {
       state.lastFetch.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 }
 
-function refresh() { _cache = null; state.lastFetch = null; fetchData(); }
+function refresh() { _cache = null; state.lastFetch = null; state.semanticResults = null; fetchData(); }
 
 // ── Star toggle on individual card ────────────────────────────────────────────
 function toggleStar(event, url, cardStarBtnId) {
@@ -725,15 +780,14 @@ function toggleStar(event, url, cardStarBtnId) {
   btn.classList.toggle("starred", !isStarred);
   btn.title = !isStarred ? "Unstar" : "Star";
 
-  // Use JSONP for the write — avoids CORS issues with Apps Script
-  const fieldsJson = JSON.stringify({ starred: newVal });
-  const writeUrl = API_URL
-    + "?action=updateByUrl"
-    + "&url=" + encodeURIComponent(url)
-    + "&fields=" + encodeURIComponent(fieldsJson);
-
-  jsonp(writeUrl).then(result => {
-    if (result.error) throw new Error(result.error);
+  // PATCH via Supabase REST API
+  const patchUrl = REST_URL + "?url=eq." + encodeURIComponent(url);
+  fetch(patchUrl, {
+    method: "PATCH",
+    headers: { ...SB_HEADERS, "Prefer": "return=minimal" },
+    body: JSON.stringify({ starred: newVal === "1" }),
+  }).then(resp => {
+    if (!resp.ok) throw new Error("HTTP " + resp.status);
 
     // Update cache and current page rows so re-renders stay consistent
     if (_cache) {
@@ -806,12 +860,13 @@ function applySort() {
 
 function submitSearch() {
   state.search = document.getElementById("searchInput").value.trim();
+  state.semanticResults = null;  // force new semantic search
   state.page = 1; updateXBtn(); updateClearBtn(); fetchData();
 }
 
 function clearSearch() {
   document.getElementById("searchInput").value = "";
-  state.search = ""; state.page = 1; updateXBtn(); updateClearBtn(); fetchData();
+  state.search = ""; state.semanticResults = null; state.page = 1; updateXBtn(); updateClearBtn(); fetchData();
 }
 
 function clearAllFilters() {
@@ -825,6 +880,10 @@ function clearAllFilters() {
   );
   state.search = ""; state.importance = ""; state.capa = ""; state.capaKey = "";
   state.sort = "found-desc"; state.page = 1; state.starFilter = false;
+  state.semanticResults = null; state.searchMode = "keyword";
+  document.getElementById("modeKeyword").classList.add("active");
+  document.getElementById("modeSemantic").classList.remove("active");
+  document.getElementById("searchInput").placeholder = "Search title, source, relevance…";
   document.getElementById("btnStarFilter").classList.remove("active");
   buildSubcapaDropdown("");
   syncAdvancedFiltersPanel();
@@ -912,6 +971,13 @@ function renderCard(item, id) {
                   : capaRaw.includes("eval")                                ? "Evaluativa"
                   : capaRaw.includes("metod")                               ? "Metodológica"
                   : item.capa || "";
+  // Semantic similarity badge
+  if (state._isSemanticResult && item.similarity) {
+    const pct = Math.round(item.similarity * 100);
+    const barW = Math.max(8, Math.round(pct * 0.6));
+    metaParts.push(`<span class="semantic-badge">${pct}%<span class="similarity-bar" style="width:${barW}px"></span></span>`);
+  }
+
   if (capaLabel) metaParts.push(`<span class="${capaClass}">${capaLabel}</span>`);
   if (item.capa_detail)         metaParts.push(`<span class="meta-capa-detail">${item.capa_detail}</span>`);
   if (item.evaluativa_criteria) metaParts.push(`<span class="meta-evaluativa">${item.evaluativa_criteria}</span>`);
@@ -1024,21 +1090,6 @@ function exportMarkdown() {
 // ── Init ──────────────────────────────────────────────────────────────────────
 buildSubcapaDropdown("");
 syncAdvancedFiltersPanel();
-
-// Support ?url= (exact card) and ?q= (search) deep-linking from dashboard
-(function() {
-  const params = new URLSearchParams(window.location.search);
-  const urlParam = params.get('url');
-  const q = params.get('q');
-  if (urlParam) {
-    state._deepLinkUrl = urlParam;
-  } else if (q) {
-    state.search = q;
-    document.getElementById('searchInput').value = q;
-    updateXBtn(); updateClearBtn();
-  }
-})();
-
 fetchData();
 </script>
 </body>

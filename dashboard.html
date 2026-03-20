@@ -1766,9 +1766,11 @@ async function fetchRecentNews() {
     const d = new Date(row.created_at || 0);
     const shortDate = !isNaN(d.getTime()) ? d.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' }) : '';
     const title = row.title || '(sin título)';
-    // Link to KB webapp with title search — avoids broken external URLs
-    const searchTerms = title.split(/[\s:—–()«»""]+/).filter(w => w.length > 3).slice(0, 5).join(' ');
-    const kbUrl = 'https://aauml.github.io/thesis/index.html?q=' + encodeURIComponent(searchTerms);
+    // Link to KB card by ID (derived from URL), fallback to search
+    const kbId = row.url ? btoa(row.url).substring(0, 16) : '';
+    const kbUrl = kbId
+      ? 'https://aauml.github.io/thesis/index.html?id=' + encodeURIComponent(kbId)
+      : 'https://aauml.github.io/thesis/index.html?q=' + encodeURIComponent(title.split(/[\s:—–()«»""]+/).filter(w => w.length > 3 && !/^\d+$/.test(w)).slice(0, 5).join(' '));
     const titleHtml = `<a href="${kbUrl}" target="_blank" rel="noopener">${title}</a>`;
     return `<div class="m2-nw"><span class="m2-nw-date">${shortDate}</span> ${titleHtml}</div>`;
   }
@@ -1835,7 +1837,7 @@ async function fetchAdvisories() {
           // Extract search terms from URL path for KB deep-link
           try {
             const u = new URL(match);
-            const pathWords = u.pathname.replace(/[\/\-_\.]/g, ' ').trim().split(/\s+/).filter(w => w.length > 3).slice(0, 4).join(' ');
+            const pathWords = u.pathname.replace(/[\/\-_\.]/g, ' ').trim().split(/\s+/).filter(w => w.length > 3 && !/^\d+$/.test(w)).slice(0, 4).join(' ');
             const kbUrl = pathWords ? 'https://aauml.github.io/thesis/index.html?q=' + encodeURIComponent(pathWords) : 'https://aauml.github.io/thesis/index.html';
             return '<a href="' + kbUrl + '" target="_blank" rel="noopener" class="m2-dev-src">ver en kb →</a>';
           } catch(e) { return match; }
@@ -1898,8 +1900,11 @@ async function fetchActividadActual() {
       const label = statusLabels[r.status] || r.status;
       const isActive = r.status === 'en_curso';
       const pillCls = isActive ? 'm2-pill m2-pill-active' : 'm2-pill';
-      const kbSearch = encodeURIComponent(r.title.split(/[\s:—–()«»""]+/).filter(w => w.length > 3).slice(0, 4).join(' '));
-      const urlHtml = `<a href="https://aauml.github.io/thesis/index.html?q=${kbSearch}" target="_blank">${r.title}</a>`;
+      const kbId = r.url ? btoa(r.url).substring(0, 16) : '';
+      const kbLink = kbId
+        ? 'https://aauml.github.io/thesis/index.html?id=' + encodeURIComponent(kbId)
+        : 'https://aauml.github.io/thesis/index.html?q=' + encodeURIComponent(r.title.split(/[\s:—–()«»""]+/).filter(w => w.length > 3 && !/^\d+$/.test(w)).slice(0, 4).join(' '));
+      const urlHtml = `<a href="${kbLink}" target="_blank">${r.title}</a>`;
       html += `<div class="m2-act-item">
         <div class="m2-act-row">
           <span class="${pillCls}">${label}</span>
@@ -1951,8 +1956,11 @@ async function fetchOpLecturas() {
       const label = statusLabels[r.status] || r.status;
       const isActive = r.status === 'en_curso';
       const pillCls = isActive ? 'm2-pill m2-pill-active' : 'm2-pill';
-      const kbSearch = encodeURIComponent(r.title.split(/[\s:—–()«»""]+/).filter(w => w.length > 3).slice(0, 4).join(' '));
-      const urlHtml = `<a href="https://aauml.github.io/thesis/index.html?q=${kbSearch}" target="_blank" style="color:var(--accent-mid); text-decoration:none;">${r.title}</a>`;
+      const kbId = r.url ? btoa(r.url).substring(0, 16) : '';
+      const kbLink = kbId
+        ? 'https://aauml.github.io/thesis/index.html?id=' + encodeURIComponent(kbId)
+        : 'https://aauml.github.io/thesis/index.html?q=' + encodeURIComponent(r.title.split(/[\s:—–()«»""]+/).filter(w => w.length > 3 && !/^\d+$/.test(w)).slice(0, 4).join(' '));
+      const urlHtml = `<a href="${kbLink}" target="_blank" style="color:var(--accent-mid); text-decoration:none;">${r.title}</a>`;
       html += `<div class="m2-lec-item">
         <span class="${pillCls}">${label}</span>
         <span style="flex:1;">${urlHtml}</span>
@@ -2046,8 +2054,11 @@ async function fetchReadingPlan() {
           const lvlCls = levelClasses[r.level] || 'lec-n3';
           const lvlLabel = r.level === 'NR' ? '🎧' : r.level;
           const statusHtml = statusLabels[r.status] || '';
-          const kbSearch = encodeURIComponent(r.title.split(/[\s:—–()«»""]+/).filter(w => w.length > 3).slice(0, 4).join(' '));
-          const urlHtml = `<a href="https://aauml.github.io/thesis/index.html?q=${kbSearch}" target="_blank">${r.title}</a>`;
+          const kbId = r.url ? btoa(r.url).substring(0, 16) : '';
+          const kbLink = kbId
+            ? 'https://aauml.github.io/thesis/index.html?id=' + encodeURIComponent(kbId)
+            : 'https://aauml.github.io/thesis/index.html?q=' + encodeURIComponent(r.title.split(/[\s:—–()«»""]+/).filter(w => w.length > 3 && !/^\d+$/.test(w)).slice(0, 4).join(' '));
+          const urlHtml = `<a href="${kbLink}" target="_blank">${r.title}</a>`;
           const sourceTag = r.source === 'pm_advisory' ? ' <span style="font-size:0.55rem; background:var(--warn-bg); color:var(--warn-text); padding:0.1rem 0.3rem; border-radius:3px;">PM</span>' : '';
 
           yearsHtml += `<div class="lec-item"><span class="lec-lvl ${lvlCls}">${lvlLabel}</span><div>
@@ -2415,7 +2426,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Rewrite all hardcoded lecturas links to KB deep-links
   document.querySelectorAll('.lec-item a[href^="http"]').forEach(a => {
     const text = a.textContent.trim();
-    const terms = text.split(/[\s:—–()«»"]+/).filter(w => w.length > 3).slice(0, 4).join(' ');
+    const terms = text.split(/[\s:—–()«»"]+/).filter(w => w.length > 3 && !/^\d+$/.test(w)).slice(0, 4).join(' ');
     if (terms) a.href = 'https://aauml.github.io/thesis/index.html?q=' + encodeURIComponent(terms);
   });
 

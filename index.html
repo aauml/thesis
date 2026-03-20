@@ -653,9 +653,19 @@ async function fetchData() {
       const words = normStr(state.search).split(/\s+/).filter(w => w.length > 1);
       filtered = filtered.filter(r => {
         const blob = normStr(r.title) + ' ' + normStr(r.thesis_relevance) + ' ' +
-                     normStr(r.source) + ' ' + normStr(r.scholar) + ' ' + normStr(r.capa_detail);
+                     normStr(r.source) + ' ' + normStr(r.scholar) + ' ' + normStr(r.capa_detail) +
+                     ' ' + (r.date_published || '');
         return words.every(w => blob.includes(w));
       });
+    }
+
+    // Deep-link by ID — override all other filters
+    if (state._deepLinkId) {
+      const match = allRows.filter(r => r.id === state._deepLinkId);
+      if (match.length) {
+        filtered = match;
+        expandedIds.add('c-1-0'); // auto-expand the single card
+      }
     }
 
     if (state.starFilter)
@@ -1015,11 +1025,15 @@ function exportMarkdown() {
 buildSubcapaDropdown("");
 syncAdvancedFiltersPanel();
 
-// Support ?q= URL param for deep-linking from dashboard
+// Support ?q= and ?id= URL params for deep-linking from dashboard
 (function() {
   const params = new URLSearchParams(window.location.search);
+  const id = params.get('id');
   const q = params.get('q');
-  if (q) {
+  if (id) {
+    // Direct link to a specific item by its row id
+    state._deepLinkId = id;
+  } else if (q) {
     state.search = q;
     document.getElementById('searchInput').value = q;
     updateXBtn(); updateClearBtn();

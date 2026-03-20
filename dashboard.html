@@ -485,17 +485,15 @@
     .pipeline-alert { display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 0.75rem; border-radius: 5px; font-size: 0.82rem; margin-bottom: 0.75rem; }
     .pipeline-alert.alert-ok { background: var(--success-bg); border: 1px solid var(--success-border); color: var(--success-text); }
     .pipeline-alert.alert-warn { background: var(--warn-bg); border: 1px solid var(--warn-border); color: var(--warn-text); }
-    .pipeline-queues { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.4rem; margin-bottom: 0.75rem; }
-    .pipeline-q { padding: 0.45rem 0.6rem; border: 1px solid var(--border); border-radius: 4px; font-size: 0.78rem; }
-    .pipeline-q strong { font-size: 0.75rem; }
-    .pipeline-q .pq-meta { font-size: 0.68rem; color: var(--text-muted); }
-    .sync-status { display: grid; grid-template-columns: 1fr 1fr; gap: 0.4rem; margin-bottom: 0.5rem; }
-    .sync-card { padding: 0.5rem 0.65rem; border: 1px solid var(--border); border-radius: 4px; font-size: 0.78rem; }
-    .sync-card .sync-num { font-size: 1.1rem; font-weight: 700; }
-    .sync-card .sync-label { font-size: 0.68rem; color: var(--text-muted); }
-    .sync-delta { display: flex; align-items: center; gap: 0.4rem; padding: 0.4rem 0.65rem; border-radius: 4px; font-size: 0.78rem; margin-bottom: 0.75rem; }
-    .sync-delta.delta-ok { background: var(--success-bg); border: 1px solid var(--success-border); color: var(--success-text); }
-    .sync-delta.delta-warn { background: var(--warn-bg); border: 1px solid var(--warn-border); color: var(--warn-text); }
+    .pipeline-grid { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 0.35rem; margin-bottom: 0.5rem; }
+    .pipeline-q { padding: 0.4rem 0.55rem; border: 1px solid var(--border); border-radius: 4px; font-size: 0.74rem; }
+    .pipeline-q strong { font-size: 0.72rem; }
+    .pipeline-q .pq-meta { font-size: 0.63rem; color: var(--text-muted); }
+    .pipeline-q .pq-count { font-size: 0.95rem; font-weight: 700; margin: 0.15rem 0; }
+    .pipeline-q.sync-card { border-style: dashed; }
+    .pipeline-alert { display: flex; align-items: center; gap: 0.5rem; padding: 0.4rem 0.65rem; border-radius: 5px; font-size: 0.78rem; margin-bottom: 0.75rem; flex-wrap: wrap; }
+    .pipeline-alert.alert-ok { background: var(--success-bg); border: 1px solid var(--success-border); color: var(--success-text); }
+    .pipeline-alert.alert-warn { background: var(--warn-bg); border: 1px solid var(--warn-border); color: var(--warn-text); }
     .kb-process-footer { font-size: 0.65rem; color: var(--text-muted); line-height: 1.5; padding: 0.5rem 0; border-top: 1px solid var(--border); margin-top: 0.75rem; }
 
     /* Actividad actual — learning cycle */
@@ -903,12 +901,6 @@
       <div class="section-label">Análisis de gaps</div>
       <div id="gapAnalysis">
         <div style="color:var(--text-muted); font-size:0.8rem; padding:0.3rem;">Cargando análisis...</div>
-      </div>
-
-      <!-- Sync status: NewsLog vs Supabase -->
-      <div class="section-label">Sincronización NewsLog → Supabase</div>
-      <div id="syncStatus">
-        <div style="color:var(--text-muted); font-size:0.8rem; padding:0.3rem;">Consultando sincronización...</div>
       </div>
 
       <!-- Process footer -->
@@ -1623,46 +1615,45 @@ async function fetchPipelineStatus() {
   el.innerHTML = '<div style="color:var(--text-muted);padding:0.3rem;">Consultando API...</div>';
 
   try {
-    const [acad, perp, news, meta] = await Promise.all([
+    // Fetch queues, meta, stats, and Supabase count in parallel
+    const [acad, perp, news, meta, statsResp, supaResp] = await Promise.all([
       fetch(GAS_API + '?action=getAcademicQueue&status=pending&limit=200').then(r => r.json()).catch(() => null),
       fetch(GAS_API + '?action=getPerplexityQueue&status=pending&limit=200').then(r => r.json()).catch(() => null),
       fetch(GAS_API + '?action=getNewsResults&status=pending&limit=200').then(r => r.json()).catch(() => null),
       fetch(GAS_API + '?action=getMeta').then(r => r.json()).catch(() => null),
+      fetch(GAS_API + '?action=getStats').then(r => r.json()).catch(() => null),
+      fetch(SUPABASE_URL + '/rest/v1/evaluated_items?select=pk&limit=1', {
+        headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY, 'Prefer': 'count=exact' }
+      }).then(r => { const c = parseInt(r.headers.get('content-range')?.split('/')[1] || '0'); return { count: c }; }).catch(() => null)
     ]);
 
     const acadPending = acad?.total || acad?.rows?.length || 0;
     const perpPending = perp?.total || perp?.rows?.length || 0;
     const newsPending = news?.total || news?.rows?.length || 0;
     const totalPending = acadPending + perpPending + newsPending;
+    const sheetTotal = statsResp?.total || 0;
+    const supaTotal = supaResp?.count || 0;
+    const syncDelta = sheetTotal - supaTotal;
 
-    const lastAcad = meta?.last_acad_scan || null;
-    const lastNews = meta?.last_news_scan || null;
-    const lastPerp = meta?.last_perplexity_scan || null;
     const lastProcess = meta?.last_search_date || null;
-
     const hasWork = totalPending > 0;
 
     // Calculate next trigger run based on fixed schedules (local timezone)
-    // News: daily 11pm, Perplexity: Sunday 3am, Academic: every other Monday 6am
     function nextTriggerRun(type) {
       const now = new Date();
       let next;
       if (type === 'News') {
-        // Daily at 11pm local
         next = new Date(now); next.setHours(23, 0, 0, 0);
         if (next <= now) next.setDate(next.getDate() + 1);
       } else if (type === 'Perplexity') {
-        // Sunday 3am local
         next = new Date(now); next.setHours(3, 0, 0, 0);
         const daysUntilSun = (7 - next.getDay()) % 7;
         next.setDate(next.getDate() + (daysUntilSun === 0 && next <= now ? 7 : daysUntilSun));
       } else {
-        // Academic: biweekly Monday 6am local (approximate — next Monday then +14d cycle)
         next = new Date(now); next.setHours(6, 0, 0, 0);
         const daysUntilMon = (8 - next.getDay()) % 7;
         next.setDate(next.getDate() + (daysUntilMon === 0 && next <= now ? 7 : daysUntilMon));
       }
-      // Format countdown
       const diffMs = next - now;
       const h = Math.floor(diffMs / 3600000);
       const m = Math.floor((diffMs % 3600000) / 60000);
@@ -1672,7 +1663,7 @@ async function fetchPipelineStatus() {
       return `en ${m}min`;
     }
 
-    // Queue cards with semaphore and trigger info
+    // 4-column grid: Academic, Perplexity, News, Sync
     const queueRows = [
       { name: 'Academic', count: acadPending, trigger: 'startIncrementalScan', schedule: 'lun 6am' },
       { name: 'Perplexity', count: perpPending, trigger: 'runPerplexitySearch', schedule: 'dom 3am' },
@@ -1681,41 +1672,55 @@ async function fetchPipelineStatus() {
 
     const procesado = timeAgo(lastProcess) || 'sin datos';
 
-    let html = '<div class="pipeline-queues">';
+    let html = '<div class="pipeline-grid">';
     for (const q of queueRows) {
       const hasPending = q.count > 0;
       const dot = hasPending ? '🟡' : '🟢';
-      const countLabel = hasPending ? ` · <strong style="color:var(--warn-text);">${q.count}</strong> en cola` : '';
-      const nextRun = nextTriggerRun(q.name);
       html += `<div class="pipeline-q">
-        <div>${dot} <strong>${q.name}</strong>${countLabel}</div>
-        <div class="pq-meta">Próximo scan: ${nextRun}</div>
-        <div class="pq-meta" style="opacity:0.7;"><code style="font-size:0.62rem;">${q.trigger}</code> · ${q.schedule}</div>
+        <div>${dot} <strong>${q.name}</strong></div>
+        <div class="pq-count" style="color:${hasPending ? 'var(--warn-text)' : 'var(--text-muted)'};">${q.count}</div>
+        <div class="pq-meta">en cola · scan: ${nextTriggerRun(q.name)}</div>
+        <div class="pq-meta" style="opacity:0.7;"><code style="font-size:0.6rem;">${q.trigger}</code> · ${q.schedule}</div>
       </div>`;
     }
+
+    // Sync card (4th column)
+    const syncOk = syncDelta === 0;
+    const syncDot = syncOk ? '🟢' : '🟡';
+    html += `<div class="pipeline-q sync-card">
+      <div>${syncDot} <strong>Sync</strong></div>
+      <div class="pq-count">${sheetTotal.toLocaleString()} / ${supaTotal.toLocaleString()}</div>
+      <div class="pq-meta">${syncOk ? 'Sheet = Supabase' : `⚠ ${Math.abs(syncDelta)} ${syncDelta > 0 ? 'pendientes' : 'extra en Supa'}`}</div>
+      <div class="pq-meta" style="opacity:0.7;"><code style="font-size:0.6rem;">thesis-queue-review</code> · 7:05am</div>
+    </div>`;
     html += '</div>';
 
-    // Alert bar
-    if (hasWork) {
+    // Alert bar — combined queue + sync status
+    if (hasWork || !syncOk) {
+      let parts = [];
+      if (hasWork) parts.push(`<strong>${totalPending} items por clasificar</strong>`);
+      if (syncDelta > 0) parts.push(`<strong>${syncDelta} por sincronizar a Supabase</strong>`);
+      if (syncDelta < 0) parts.push(`<strong>${Math.abs(syncDelta)} extra en Supabase</strong>`);
       html += `<div class="pipeline-alert alert-warn">
-        <strong>${totalPending} items en cola</strong> — se clasifican con <code style="font-size:0.7rem;">thesis-queue-review</code> (diario 7:05am)
+        ${parts.join(' · ')} — <code style="font-size:0.7rem;">thesis-queue-review</code> diario 7:05am
         <span style="margin-left:auto;font-size:0.72rem;">Procesado: ${procesado}</span>
       </div>`;
     } else {
       html += `<div class="pipeline-alert alert-ok">
-        <span>✓</span> <strong>Todas las colas en cero</strong>
+        <span>✓</span> <strong>Colas en cero · bases sincronizadas</strong>
         <span style="margin-left:auto;font-size:0.72rem;">Procesado: ${procesado}</span>
       </div>`;
     }
 
     el.innerHTML = html;
 
-    // Update sidebar badge — amber for pending, green for clear
+    // Update sidebar badge
     const badge = document.getElementById('badge-kb');
+    const totalIssues = totalPending + Math.max(syncDelta, 0);
     if (badge) {
-      badge.textContent = hasWork ? totalPending : '✓';
-      badge.style.background = hasWork ? '#e8d060' : '#b8e0c4';
-      badge.style.color = hasWork ? '#5a4500' : '#2d7a3f';
+      badge.textContent = totalIssues > 0 ? totalIssues : '✓';
+      badge.style.background = totalIssues > 0 ? '#e8d060' : '#b8e0c4';
+      badge.style.color = totalIssues > 0 ? '#5a4500' : '#2d7a3f';
     }
 
     // Cache
@@ -1970,67 +1975,6 @@ async function fetchKbStats() {
     // Fallback: show error state
     const kbEl = document.getElementById('kbStatsUpdated');
     if (kbEl) kbEl.textContent = 'Error cargando stats';
-  }
-}
-
-// ═══════════════════════════════════════
-// SYNC STATUS — NewsLog vs Supabase
-// ═══════════════════════════════════════
-async function fetchSyncStatus() {
-  const el = document.getElementById('syncStatus');
-  if (!el) return;
-
-  try {
-    // Fetch NewsLog total from Sheet API and Supabase count in parallel
-    const [sheetResp, supaResp] = await Promise.all([
-      fetch(GAS_API + '?action=getStats').then(r => r.json()).catch(() => null),
-      fetch(SUPABASE_URL + '/rest/v1/evaluated_items?select=pk&limit=1', {
-        headers: {
-          'apikey': SUPABASE_ANON_KEY,
-          'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
-          'Prefer': 'count=exact'
-        }
-      }).then(r => {
-        const count = parseInt(r.headers.get('content-range')?.split('/')[1] || '0');
-        return { count };
-      }).catch(() => null)
-    ]);
-
-    const sheetTotal = sheetResp?.total || 0;
-    const supaTotal = supaResp?.count || 0;
-    const delta = sheetTotal - supaTotal;
-
-    let html = '<div class="sync-status">';
-    html += `<div class="sync-card">
-      <div class="sync-num">${sheetTotal.toLocaleString()}</div>
-      <div class="sync-label">NewsLog (Google Sheet)</div>
-    </div>`;
-    html += `<div class="sync-card">
-      <div class="sync-num">${supaTotal.toLocaleString()}</div>
-      <div class="sync-label">Supabase (evaluated_items)</div>
-    </div>`;
-    html += '</div>';
-
-    if (delta === 0) {
-      html += `<div class="sync-delta delta-ok">
-        <span>✓</span> <strong>Sincronizado</strong> — ambas bases tienen el mismo número de registros.
-      </div>`;
-    } else if (delta > 0) {
-      html += `<div class="sync-delta delta-warn">
-        <strong>⚠ ${delta} registros pendientes de sincronizar a Supabase.</strong>
-        <span style="margin-left:auto;font-size:0.7rem;">Trigger: <code>thesis-queue-review</code> · diario 7:05am · o ejecutar manualmente "update [queue]" en Claude.</span>
-      </div>`;
-    } else {
-      html += `<div class="sync-delta delta-warn">
-        <strong>⚠ Supabase tiene ${Math.abs(delta)} registros más que NewsLog.</strong>
-        <span style="margin-left:auto;font-size:0.7rem;">Posibles inserciones directas vía Claude.</span>
-      </div>`;
-    }
-
-    el.innerHTML = html;
-
-  } catch(e) {
-    el.innerHTML = '<div style="color:var(--text-muted);font-size:0.78rem;padding:0.3rem;">No se pudo consultar sincronización.</div>';
   }
 }
 
@@ -2367,7 +2311,6 @@ document.addEventListener('DOMContentLoaded', () => {
   fetchPipelineStatus(); // Live queue status on every page load
   fetchRecentNews(); // Dynamic news from NewsLog
   fetchKbStats(); // Dynamic KB stats from getStats API
-  fetchSyncStatus(); // NewsLog vs Supabase sync status
 
   // Restore last active view on refresh
   const savedView = localStorage.getItem('dash-active-view');

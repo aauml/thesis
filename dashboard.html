@@ -219,6 +219,19 @@
     .op-item input[type="checkbox"] { margin-top: 3px; accent-color: var(--accent); cursor: pointer; }
     .op-item.done { opacity: 0.45; text-decoration: line-through; }
     .op-item .op-ts { font-size: 0.62rem; color: var(--text-muted); margin-left: auto; white-space: nowrap; }
+    .op-type {
+      font-size: 0.58rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
+      padding: 1px 5px; border-radius: 2px; white-space: nowrap; flex-shrink: 0;
+    }
+    .op-type-lectura { background: #DBEAFE; color: #1E40AF; }
+    .op-type-ficha { background: #D1FAE5; color: #065F46; }
+    .op-type-busqueda { background: #FEF3C7; color: #92400E; }
+    .op-type-redaccion { background: #EDE9FE; color: #5B21B6; }
+    .op-type-revision { background: #FCE7F3; color: #9D174D; }
+    .op-type-action { background: #F3F4F6; color: #374151; }
+    .op-type-admin { background: #F3F4F6; color: #6B7280; }
+    .op-review { font-size: 0.58rem; color: #D97706; font-weight: 600; margin-left: 4px; }
+    .op-output { font-size: 0.62rem; color: var(--text-muted); display: block; padding-left: 1.5rem; margin-top: 1px; }
     .op-completed-header {
       display: flex; align-items: center; justify-content: space-between;
       margin-top: 0.8rem; padding-top: 0.6rem; border-top: 1px solid var(--border-light);
@@ -1519,9 +1532,32 @@ async function loadOps() {
   if (_tasksCache) return _tasksCache;
   try {
     const rows = await supabaseQuery('pm_tasks?select=*&status=eq.active&order=position.asc');
-    _tasksCache = (rows || []).map(r => ({ id: r.id, text: r.text, done: r.done, ts: r.done_at ? new Date(r.done_at).toLocaleDateString('es-ES', { day:'numeric', month:'short' }) : null }));
+    _tasksCache = (rows || []).map(r => ({
+      id: r.id, text: r.text, done: r.done,
+      ts: r.done_at ? new Date(r.done_at).toLocaleDateString('es-ES', { day:'numeric', month:'short' }) : null,
+      task_type: r.task_type || 'action',
+      expected_output: r.expected_output || '',
+      review_status: r.review_status || 'none',
+      review_notes: r.review_notes || '',
+    }));
   } catch(e) { _tasksCache = []; }
   return _tasksCache;
+}
+
+function renderTaskItem(o, isDone) {
+  const typeLabel = { lectura:'lectura', ficha:'ficha', busqueda:'búsqueda', redaccion:'redacción', revision:'revisión', action:'acción', admin:'admin' };
+  const typeTag = `<span class="op-type op-type-${o.task_type}">${typeLabel[o.task_type] || o.task_type}</span>`;
+  const reviewTag = o.done && o.review_status === 'pending_review' ? '<span class="op-review">⏳ pendiente revisión</span>' : '';
+  const reviewedTag = o.review_status === 'reviewed' && o.review_notes ? `<span class="op-review" title="${o.review_notes.replace(/"/g,'&quot;')}">✓ revisado</span>` : '';
+  const outputLine = !isDone && o.expected_output ? `<span class="op-output">→ ${o.expected_output}</span>` : '';
+  const checked = isDone ? ' checked' : '';
+  const doneClass = isDone ? ' done' : '';
+  return `
+    <div class="op-item${doneClass}" data-id="${o.id}">
+      <input type="checkbox"${checked} onchange="toggleOp('${o.id}', ${!isDone})">
+      ${typeTag}<span>${o.text}</span>${reviewTag}${reviewedTag}
+      ${isDone ? `<span class="op-ts">${o.ts || ''}</span>` : ''}
+    </div>${outputLine}`;
 }
 
 async function renderOps() {
@@ -1532,22 +1568,11 @@ async function renderOps() {
   const completedEl = document.getElementById('opCompleted');
   const headerEl = document.getElementById('opCompletedHeader');
 
-  activeEl.innerHTML = active.map(o => `
-    <div class="op-item" data-id="${o.id}">
-      <input type="checkbox" onchange="toggleOp('${o.id}', true)">
-      <span>${o.text}</span>
-    </div>
-  `).join('');
+  activeEl.innerHTML = active.map(o => renderTaskItem(o, false)).join('');
 
   if (completed.length > 0) {
     headerEl.style.display = 'flex';
-    completedEl.innerHTML = completed.map(o => `
-      <div class="op-item done" data-id="${o.id}">
-        <input type="checkbox" checked onchange="toggleOp('${o.id}', false)">
-        <span>${o.text}</span>
-        <span class="op-ts">${o.ts || ''}</span>
-      </div>
-    `).join('');
+    completedEl.innerHTML = completed.map(o => renderTaskItem(o, true)).join('');
   } else {
     headerEl.style.display = 'none';
     completedEl.innerHTML = '';
@@ -1557,12 +1582,22 @@ async function renderOps() {
 async function toggleOp(id, markDone) {
   if (_tasksCache) {
     const t = _tasksCache.find(o => o.id === id);
-    if (t) { t.done = markDone; t.ts = markDone ? new Date().toLocaleDateString('es-ES', { day:'numeric', month:'short' }) : null; }
+    if (t) {
+      t.done = markDone;
+      t.ts = markDone ? new Date().toLocaleDateString('es-ES', { day:'numeric', month:'short' }) : null;
+      t.review_status = markDone ? 'pending_review' : 'none';
+    }
   }
   renderOps();
+  const body = {
+    done: markDone,
+    done_at: markDone ? new Date().toISOString() : null,
+    review_status: markDone ? 'pending_review' : 'none',
+    updated_at: new Date().toISOString()
+  };
   fetch(SUPABASE_URL + '/rest/v1/pm_tasks?id=eq.' + encodeURIComponent(id), {
     method: 'PATCH', headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
-    body: JSON.stringify({ done: markDone, done_at: markDone ? new Date().toISOString() : null, updated_at: new Date().toISOString() })
+    body: JSON.stringify(body)
   }).catch(e => console.error('Task toggle failed:', e));
 }
 

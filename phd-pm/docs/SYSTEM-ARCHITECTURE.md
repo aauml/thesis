@@ -50,7 +50,7 @@ El sistema gestiona una tesis doctoral sobre AI governance / RegTech. Tiene tres
 | `pm_milestones` | 8 | Hitos institucionales/académicos | Advisory (service_role), anon UPDATE (completed) |
 | `pm_risks` | 4 | Registro de riesgos | Advisory/sweep (service_role) |
 | `pm_developments` | 9 | Desarrollos regulatorios clave | Advisory (service_role) |
-| `pm_advisories` | 6 | Análisis y recomendaciones estratégicas | Advisory (service_role) |
+| `pm_advisories` | 6 | Análisis y recomendaciones estratégicas. Campos de seguimiento: `next_review`, `review_interval` (weekly/biweekly/monthly/quarterly/on_trigger), `search_queries` (jsonb), `last_checked`, `check_notes`, `resolved_at`, `resolved_reason`. Status: active/resolved/parked. | Advisory (service_role), PM sessions |
 | `pm_decisions` | 5 | Registro de decisiones de investigación | PM sessions (service_role) |
 | `pm_alerts` | variable | Alertas urgentes entre advisories | Sweep/advisory (service_role), anon UPDATE (dismissed) |
 | `chapter_sections` | 24 | Tracker de redacción por sección de capítulo | Advisory (service_role), anon UPDATE (status, word_count) |

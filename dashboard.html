@@ -2890,6 +2890,55 @@ document.addEventListener('DOMContentLoaded', () => {
       switchView(savedView, btn);
     }
   }
+
+  // ═══════════════════════════════════════
+  // SWIPE NAVIGATION — left/right to switch views
+  // ═══════════════════════════════════════
+  (function initSwipeNav() {
+    const mainEl = document.querySelector('.main');
+    if (!mainEl) return;
+    const viewOrder = ['panorama','operativo','kb','mapa','lecturas','redaccion','decisiones'];
+    let startX = 0, startY = 0, tracking = false;
+    const THRESHOLD = 60;   // min px horizontal
+    const MAX_RATIO = 0.6;  // max vertical/horizontal ratio (ignore diagonal/vertical swipes)
+
+    function getCurrentIndex() {
+      const active = document.querySelector('.view.active');
+      if (!active) return 0;
+      const id = active.id.replace('view-', '');
+      const idx = viewOrder.indexOf(id);
+      return idx >= 0 ? idx : 0;
+    }
+
+    function goTo(idx) {
+      if (idx < 0 || idx >= viewOrder.length) return;
+      const btn = document.querySelectorAll('.sb-item')[idx];
+      switchView(viewOrder[idx], btn);
+      // Scroll the nav tab into view on mobile
+      if (btn) btn.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+    }
+
+    mainEl.addEventListener('touchstart', function(e) {
+      if (e.touches.length !== 1) return;
+      startX = e.touches[0].clientX;
+      startY = e.touches[0].clientY;
+      tracking = true;
+    }, { passive: true });
+
+    mainEl.addEventListener('touchend', function(e) {
+      if (!tracking) return;
+      tracking = false;
+      const endX = e.changedTouches[0].clientX;
+      const endY = e.changedTouches[0].clientY;
+      const dx = endX - startX;
+      const dy = Math.abs(endY - startY);
+      if (Math.abs(dx) < THRESHOLD) return;
+      if (dy / Math.abs(dx) > MAX_RATIO) return;  // too vertical
+      const cur = getCurrentIndex();
+      if (dx < 0) goTo(cur + 1);  // swipe left → next
+      else goTo(cur - 1);          // swipe right → prev
+    }, { passive: true });
+  })();
 });
 
 // ── PWA ──

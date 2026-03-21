@@ -23,6 +23,17 @@
     outline-offset: 2px;
   }
   .container { max-width: 820px; margin: 0 auto; padding: 0 16px; }
+  .back-to-dash {
+    display: block;
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 8px 16px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #1E40AF;
+    text-decoration: none;
+  }
+  .back-to-dash:hover { text-decoration: underline; }
 
   /* ── Header ── */
   header { border-bottom: 2px solid #111; padding: 20px 0 14px; }
@@ -360,6 +371,7 @@
 <body>
 <div class="container">
 
+  <a href="dashboard.html" id="backToDash" class="back-to-dash" style="display:none;">← Volver al Dashboard</a>
   <header>
     <div class="header-top">
       <h1>Thesis Knowledge Base</h1>
@@ -1129,6 +1141,12 @@ async function handleDeepLink() {
       setTimeout(() => article.style.background = "", 3000);
     }
   }
+}
+
+// ── Show back button when arriving via deep-link ────────────────────────────
+if (window.location.search) {
+  const btn = document.getElementById('backToDash');
+  if (btn) btn.style.display = 'block';
 }
 
 // ── Init ──────────────────────────────────────────────────────────────────────

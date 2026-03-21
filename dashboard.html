@@ -2879,6 +2879,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Skip if already rewritten to KB
     if (origUrl.includes('aauml.github.io/thesis/index.html')) return;
     a.href = 'https://aauml.github.io/thesis/index.html?url=' + encodeURIComponent(origUrl);
+    a.target = '_blank';
   });
 
   // Restore last active view on refresh

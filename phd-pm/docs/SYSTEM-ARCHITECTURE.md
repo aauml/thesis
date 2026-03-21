@@ -54,12 +54,15 @@ El sistema gestiona una tesis doctoral sobre AI governance / RegTech. Tiene tres
 | `pm_decisions` | 5 | Registro de decisiones de investigación | PM sessions (service_role) |
 | `pm_alerts` | variable | Alertas urgentes entre advisories | Sweep/advisory (service_role), anon UPDATE (dismissed) |
 | `chapter_sections` | 24 | Tracker de redacción por sección de capítulo | Advisory (service_role), anon UPDATE (status, word_count) |
+| `reading_conversations` | 0 | Conversaciones de aprendizaje: dudas de lectura y reflexiones sobre la tesis. Tipos: `reading` (ligada a fuente) y `reflection` (sobre estructura/argumento). FK a `evaluated_items`. | PM sessions (service_role) |
 | `_temp_file_transfer` | 1 | Utilidad temporal para transferir datos | service_role |
 
 ### 2.2 Relaciones entre tablas (foreign keys)
 
 ```
 reading_plan.source_kb_id  →  evaluated_items.pk
+reading_conversations.source_kb_id  →  evaluated_items.pk
+reading_conversations.superseded_by  →  reading_conversations.id
 reading_plan.advisory_id   →  pm_advisories.id
 pm_tasks.reading_plan_id   →  reading_plan.id
 ```

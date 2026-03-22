@@ -115,6 +115,7 @@ These are hard rules derived from past bugs. Violating any of these means repeat
 | 2026-03-21 | infrastructure | WebApp v35 deployed (deleteByUrl). Cleaned 20 off-topic items from run 005 (NewsLog+Supabase synced at 116). GitHub push: 3 files committed via gh CLI device flow auth. | PR-010, PR-011, PR-012 |
 | 2026-03-22 | inventory + sync | Full Sheet↔Supabase audit. Cleaned 5 junk entries (TEST, DELETED, test-url). Fixed 6 orphans (5 JPG→PDF, 1 NAP2023 rename). Fixed Bradford2012.pdf.pdf. Indexed 19 missing files from 01/04. Final sync: 1,502 items (1,044 web + 458 gdrive) in both. | PR-013, PR-014 |
 | 2026-03-22 | data enrichment | Scholar: 266→1,495 (100%) via CrossRef, Semantic Scholar, arXiv APIs + regex + institutional tagging. thesis_relevance: 19 gdrive items completed. Embeddings: all 1,495 complete. Cleanup: 9 items deleted (8 arXiv dups + 1 noise), synced to Sheet via deleteByUrl. BUG-001/002/003/005 resolved. TASK-006/007/008/011/012/013 completed. `chapters` column added and populated. TRUMP AI Act full analysis (300pp) completed, 2 PDFs indexed. AcademicOrchestrator-v3 (BUG-002 fix), WebApp-v36 (BUG-005 fix) prepared. TASK-006 dry run validated. Final DB: 1,495 items, ALL fields 100%. | — |
+| 2026-03-22 | infrastructure | Validation trigger `trg_validate_evaluated_item`: rechaza datos incompletos/degradados en INSERT/UPDATE. Health check `kb_health_check()`: 12 checks de calidad. pg_cron `kb-daily-health-check` diario 7am UTC → `kb_health_log`. Pipeline architecture documentada en `docs/PIPELINE-ARCHITECTURE.md`. | — |
 
 ---
 

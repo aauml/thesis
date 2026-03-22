@@ -32,9 +32,9 @@ _Actualizar al cierre de cada sesión. Este archivo es la memoria técnica del s
 ## Tareas técnicas pendientes
 
 ### TASK-001 — Limpiar 3 entradas TEST en NewsLog
-- **Estado:** Pendiente
+- **Estado:** Pendiente (ahora posible via `deleteByUrl`)
 - **Descripción:** Durante debugging el 2026-03-13 se añadieron 3 entradas con `notes: "TEST - DELETE"`. URLs: `techcrunch.com/2026/03/01/nist-ai-framework-test-entry`, `nist.gov` (variante no-www), `diligent.com`.
-- **Acción:** Llamar `updateByUrl` o `updateRow` para cada una con `notes: "DELETE"` y luego borrarlas manualmente del sheet, o añadir un action=deleteRow al WebApp.
+- **Acción:** Llamar `deleteByUrl` con las 3 URLs. WebApp v35 ya soporta esta acción.
 - **Prioridad:** Baja
 
 ### TASK-002 — Desplegar WebApp-v32 en GAS
@@ -64,6 +64,9 @@ _Actualizar al cierre de cada sesión. Este archivo es la memoria técnica del s
 | 2026-03-13 | `normalizeUrl` debe quitar `www.` para evitar que `www.domain.com` y `domain.com` sean tratados como URLs distintas. |
 | 2026-03-13 | NewsAPI free tier devuelve 426 desde GAS. Reemplazado por Google News RSS (sin key, sin límite). |
 | 2026-03-13 | Versiones activas: WebApp-v32, GoogleNewsRSS-v1, PerplexitySearch-v3, SKILL-KB-v11. |
+| 2026-03-21 | WebApp-v35 desplegado (GAS Version 44). Añade `deleteByUrl` action para eliminar rows por URL normalizado en cualquier tab. Soporta single y batch. |
+| 2026-03-21 | Limpieza run 2026-03-15-005: 20 registros off-topic eliminados de NewsLog via `deleteByUrl`. NewsLog (116) y Supabase (116) ahora sincronizados para run 005. |
+| 2026-03-21 | Versiones activas: WebApp-v35, GoogleNewsRSS-v1, PerplexitySearch-v3, SKILL-KB-v17. |
 | 2026-03-13 | Google News RSS reemplaza NewsAPI (426 en free tier). Sin API key, sin límite de requests. |
 | 2026-03-13 | Duplicate function names resuelto: `_advanceNextRunDate`, `_isQueryDue`, `_fmtDate` eliminadas de PerplexitySearch-v3. Solo viven en AcademicOrchestrator. |
 | 2026-03-15 | AcademicQueue first full review: 200 pending → 24 promoted, 156 discarded, 17 reviewed, 3 skipped (dupes). ArXiv queries return massive noise (quantum physics, biology) — needs query refinement or pre-staging filters. |
@@ -150,4 +153,4 @@ _Actualizar al cierre de cada sesión. Este archivo es la memoria técnica del s
 - **Prioridad 7:** TASK-008 — Update Colorado AI Act entries with new June 30 enforcement date
 - **Prioridad 8:** TASK-006 — Verificar Supabase end-to-end en sesión con queues activas
 
-_Última actualización: 2026-03-19_
+_Última actualización: 2026-03-21_

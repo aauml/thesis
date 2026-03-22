@@ -1,6 +1,6 @@
 # PM Session Log
-**Versión:** v8 · **Fecha:** 2026-03-19
-_Registro técnico del proyecto phd-pm. Actualizar al cierre de cada sesión. Al actualizar, crear PM-SessionLog-v9.md — nunca sobrescribir este archivo._
+**Versión:** v9 · **Fecha:** 2026-03-21
+_Registro técnico del proyecto phd-pm. Actualizar al cierre de cada sesión. Al actualizar, crear PM-SessionLog-v10.md — nunca sobrescribir este archivo._
 
 ---
 

@@ -607,12 +607,13 @@
     .sec-status-completo { background: #D1FAE5; color: #065F46; }
     .sec-words { font-size: 0.6rem; color: var(--text-muted); min-width: 50px; text-align: right; }
     .writing-summary {
-      display: flex; gap: 1rem; padding: 0.6rem 0.8rem;
+      display: flex; flex-wrap: wrap; gap: 0.6rem 1rem; padding: 0.6rem 0.8rem;
       background: #f9fbfd; border: 1px solid var(--border-light); border-radius: 5px;
       margin-bottom: 0.8rem; font-size: 0.76rem;
     }
-    .writing-stat { text-align: center; }
+    .writing-stat { text-align: center; flex: 1; min-width: 70px; }
     .writing-stat-val { font-size: 1.1rem; font-weight: 700; color: var(--accent); }
+    .writing-stat-val .ws-meta-sep { font-size: 0.72rem; color: var(--text-muted); font-weight: 400; }
     .writing-stat-label { font-size: 0.6rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
 
     /* ═══════════════════════════════════════
@@ -881,6 +882,9 @@
       .kb-pipe-queues { grid-template-columns: 1fr; }
       /* gap-list is flex column, no grid override needed */
       .kb-chap-grid { grid-template-columns: 1fr; }
+      /* Writing progress responsive */
+      .sec-title { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      .sec-words { min-width: 0; white-space: nowrap; }
     }
   </style>
 </head>
@@ -1539,8 +1543,7 @@
         <div class="writing-stat"><div class="writing-stat-val" id="wsTotal">—</div><div class="writing-stat-label">Secciones</div></div>
         <div class="writing-stat"><div class="writing-stat-val" id="wsComplete">—</div><div class="writing-stat-label">Completas</div></div>
         <div class="writing-stat"><div class="writing-stat-val" id="wsDraft">—</div><div class="writing-stat-label">Borrador</div></div>
-        <div class="writing-stat"><div class="writing-stat-val" id="wsWords">—</div><div class="writing-stat-label">Palabras</div></div>
-        <div class="writing-stat"><div class="writing-stat-val" id="wsTarget">—</div><div class="writing-stat-label">Meta</div></div>
+        <div class="writing-stat" style="flex:2; min-width:130px"><div class="writing-stat-val"><span id="wsWords">—</span><span class="ws-meta-sep"> / <span id="wsTarget">—</span></span></div><div class="writing-stat-label">Palabras escritas / meta</div></div>
         <div class="writing-stat"><div class="writing-stat-val" id="wsPct">—</div><div class="writing-stat-label">Progreso</div></div>
       </div>
 
@@ -2803,11 +2806,14 @@ async function fetchChapterSections() {
       return;
     }
 
+    // Chapter title overrides (frontend patch until DB is updated)
+    const CHAPTER_TITLE_OVERRIDE = { 3: 'Estado del Arte' };
+
     // Group by chapter
     const chapters = {};
     rows.forEach(s => {
       const key = s.chapter_num;
-      if (!chapters[key]) chapters[key] = { num: s.chapter_num, title: s.chapter_title, sections: [] };
+      if (!chapters[key]) chapters[key] = { num: s.chapter_num, title: CHAPTER_TITLE_OVERRIDE[s.chapter_num] || s.chapter_title, sections: [] };
       chapters[key].sections.push(s);
     });
 

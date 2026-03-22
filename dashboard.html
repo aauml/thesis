@@ -2857,7 +2857,6 @@ async function fetchChapterSections() {
               <div class="sec-row">
                 <span class="sec-num">${s.section_num}</span>
                 <span class="sec-title">${s.section_title}</span>
-                <span class="sec-status sec-status-${s.status}">${statusLabel[s.status] || s.status}</span>
                 <span class="sec-words">${(s.word_count || 0).toLocaleString('es')}/${(s.target_words || 0).toLocaleString('es')}</span>
               </div>
             `).join('')}

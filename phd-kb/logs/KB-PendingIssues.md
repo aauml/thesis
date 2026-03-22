@@ -138,24 +138,27 @@ _Actualizar al cierre de cada sesión. Este archivo es la memoria técnica del s
 - **Fecha detectado:** 2026-03-19
 
 ### TASK-011 — Agregar columna `chapters` (int[]) a evaluated_items
-- **Estado:** Pendiente
-- **Descripción:** Agregar columna `chapters` tipo `integer[]` a `evaluated_items` en Supabase. Permitiría asignar capítulos de la tesis (1-7) a cada item para construir una matriz de cobertura por capítulo. Habilitaría queries como "¿qué items ALTA cubren Cap. 5?" y gap analysis a nivel de capítulo. Requiere: (1) ALTER TABLE, (2) batch UPDATE para items existentes basado en capa/tags, (3) actualizar SKILL-KB para incluir chapters en el protocolo de evaluación.
-- **Impacto:** Medio — mejora significativa para el PM al planificar redacción por capítulo.
-- **Prioridad:** Media — no bloquea operaciones actuales
-- **Fecha detectado:** 2026-03-19
+- **Estado:** ✅ Completado 2026-03-22
+- **Descripción:** Columna `chapters integer[]` añadida. 1,493/1,493 items poblados con keyword heuristics sobre thesis_relevance. Distribución: Cap1=748, Cap2=37, Cap3=724, Cap4=818, Cap5=573, Cap6=378.
+- **Fecha completado:** 2026-03-22
 
 ---
 
 ### TASK-012 — Sincronizar eliminaciones Supabase→Sheet (9 items)
-- **Estado:** Pendiente
-- **Descripción:** 9 items eliminados de Supabase (8 arXiv PDF dups + 1 noise) aún existen en Sheet. Usar `deleteByUrl` del WebApp-v35 para eliminarlos.
-- **Prioridad:** Baja — no afecta operaciones, Sheet tiene 9 items de más
-- **Fecha detectado:** 2026-03-22
+- **Estado:** ✅ Completado 2026-03-22
+- **Descripción:** 9 items eliminados de Sheet vía `deleteByUrl`. Sheet y Supabase sincronizados en 1,493.
+- **Fecha completado:** 2026-03-22
 
 ### TASK-013 — Scholar restante: 253 web items
-- **Estado:** Pendiente
-- **Descripción:** 253 web items sin scholar (de 1,493 total). 35 DOIs donde CrossRef no resolvió, 10 Cambridge, 6 Springer, ~200 dominios dispersos. Requiere scraping individual, Semantic Scholar title search, o entrada manual.
-- **Prioridad:** Baja — publisher names ya taggeados como fallback (OUP, Cambridge, etc.)
+- **Estado:** ✅ Completado 2026-03-22
+- **Descripción:** 188 items enriched vía Semantic Scholar API (84.6%), CrossRef (fallback), domain heuristics. 1,493/1,493 items ahora tienen scholar (100%).
+- **Fecha completado:** 2026-03-22
+
+### BUG-005 — getUrls no filtra por tab
+- **Estado:** Abierto
+- **Descripción:** WebApp `action=getUrls&tab=X` devuelve siempre todas las URLs de toda la Sheet (1,493), ignorando el parámetro tab. Impide leer contenido de tabs específicas (PerplexityQueue, AcademicQueue) remotamente.
+- **Impacto:** Medio — bloquea limpieza de BUG-001 y cualquier operación tab-specific.
+- **Fix posible:** Actualizar `getUrls` en WebApp para filtrar por tab antes de recopilar URLs.
 - **Fecha detectado:** 2026-03-22
 
 ---
@@ -165,10 +168,8 @@ _Actualizar al cierre de cada sesión. Este archivo es la memoria técnica del s
 - **Prioridad 1:** TASK-009 — Post March 26 plenary vote: check Digital Omnibus outcome
 - **Prioridad 2:** TASK-007 follow-up — Análisis línea por línea TRUMP AMERICA AI Act (~300 pp)
 - **Prioridad 3:** BUG-004 — Deploy ArXiv_v2.gs (fix preparado, usuario copia a GAS)
-- **Prioridad 4:** BUG-001 — Limpiar 84 stuck en PerplexityQueue (script Python)
-- **Prioridad 5:** TASK-012 — Sync eliminaciones a Sheet (9 items vía deleteByUrl)
-- **Prioridad 6:** TASK-011 — Agregar columna `chapters` a Supabase
-- **Prioridad 7:** TASK-006 — Primera sesión Supabase-primary con queues activas
-- **Prioridad 8:** TASK-013 — Scholar restante (253 web items, baja prioridad)
+- **Prioridad 4:** BUG-005 — Fix getUrls tab filtering en WebApp
+- **Prioridad 5:** BUG-001 — Limpiar 84 stuck en PerplexityQueue (requiere BUG-005 fix)
+- **Prioridad 6:** TASK-006 — Primera sesión Supabase-primary con queues activas
 
 _Última actualización: 2026-03-22_

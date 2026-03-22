@@ -13,12 +13,10 @@ _Actualizar al cierre de cada sesión. Este archivo es la memoria técnica del s
 - **Fecha detectado:** 2026-03-13
 
 ### BUG-003 — 77 entradas degradadas en NewsLog (context window compression)
-- **Estado:** Abierto
-- **Descripción:** Sesión `update perplexity` del 2026-03-13 procesó 198 items (run `2026-03-13-205`). Al agotarse el contexto, 77 entradas fueron promovidas con `thesis_relevance` degradada: empiezan con "This content addresses [X]." y terminan con texto boilerplate genérico. Longitud promedio: 433ch vs. 1074ch de las entradas limpias.
-- **Impacto:** Medio — 77 entradas en NewsLog tienen evaluación de tesis incompleta. Las entradas existen y no son duplicados, pero su valor analítico es mínimo.
-- **Fix:** En sesión fresca: (1) filtrar NewsLog por `run_id=2026-03-13-205` y `thesis_relevance` corta, (2) recuperar síntesis originales de PerplexityQueue (aún existen, marcadas `promoted`), (3) re-evaluar y actualizar via `updateByUrl`. Priorizar las marcadas `importance=ALTA`.
-- **Prevención:** SKILL-KB-v11 introduce límite hard de 50 items por sesión y quality gate (bloquea posts con thesis_relevance < 600ch o con boilerplate detectado).
-- **Fecha detectado:** 2026-03-13
+- **Estado:** ✅ Resuelto 2026-03-22
+- **Descripción:** Sesión `update perplexity` del 2026-03-13 procesó 198 items (run `2026-03-13-205`). Al agotarse el contexto, 77 entradas fueron promovidas con `thesis_relevance` degradada.
+- **Resolución:** Auditoría de 2026-03-22 confirmó 0 entradas con patrón degradado ("This content addresses...") en Supabase. Las entradas fueron re-evaluadas en sesiones intermedias o durante el backfill a Supabase.
+- **Fecha resuelto:** 2026-03-22
 
 ### BUG-002 — sweep_index architectural bug en AcademicOrchestrator
 - **Estado:** Abierto
@@ -69,6 +67,11 @@ _Actualizar al cierre de cada sesión. Este archivo es la memoria técnica del s
 | 2026-03-22 | Inventario PhD folders: carpetas 01-04 completamente indexadas. Carpetas 00, 05-09 no indexadas (admin/herramientas/sistema — decisión intencional). |
 | 2026-03-22 | Sync final verificado: Sheet = Supabase = 1,502 items (1,044 web + 458 gdrive://). |
 | 2026-03-22 | `append` de WebApp requiere `"rows": [...]` (array), no `"row": {...}`. PR-013 registrado. |
+| 2026-03-22 | Scholar enrichment masivo: 983 items completados (CrossRef API, Semantic Scholar API, arXiv API, regex, institucional). Total scholar: 1,240/1,493 (83%). |
+| 2026-03-22 | 9 items eliminados de Supabase: 8 arXiv PDF duplicados (abs+pdf del mismo paper) + 1 Nancy Guthrie cold case (noise). DB: 1,493 items. Pendiente: eliminar de Sheet vía deleteByUrl. |
+| 2026-03-22 | BUG-003 resuelto: 0 entradas con patrón degradado en Supabase. Las 77 entradas originales fueron corregidas en sesiones intermedias. |
+| 2026-03-22 | thesis_relevance 100% completo: 1,493/1,493. Embeddings 100% completo: 1,493/1,493. |
+| 2026-03-22 | Edge function `generate-embeddings` requiere batch_size=1 en free tier (WORKER_LIMIT con batch>1). |
 | 2026-03-13 | Google News RSS reemplaza NewsAPI (426 en free tier). Sin API key, sin límite de requests. |
 | 2026-03-13 | Duplicate function names resuelto: `_advanceNextRunDate`, `_isQueryDue`, `_fmtDate` eliminadas de PerplexitySearch-v3. Solo viven en AcademicOrchestrator. |
 | 2026-03-15 | AcademicQueue first full review: 200 pending → 24 promoted, 156 discarded, 17 reviewed, 3 skipped (dupes). ArXiv queries return massive noise (quantum physics, biology) — needs query refinement or pre-staging filters. |
@@ -118,10 +121,9 @@ _Actualizar al cierre de cada sesión. Este archivo es la memoria técnica del s
 - **Fecha detectado:** 2026-03-19
 
 ### TASK-008 — Actualizar entrada Colorado AI Act con nueva fecha enforcement
-- **Estado:** Pendiente
-- **Descripción:** Colorado AI Act enforcement date moved from Feb 1, 2026 to June 30, 2026 via SB25B-004. Existing NewsLog entries about Colorado AI Act need notes updated to reflect the delay. NIST RMF affirmative defense provisions unchanged.
-- **Prioridad:** Baja
-- **Fecha detectado:** 2026-03-19
+- **Estado:** ✅ Completado 2026-03-22
+- **Descripción:** Colorado AI Act enforcement date moved from Feb 1, 2026 to June 30, 2026 via SB25B-004. Entrada Blank Rome actualizada en Supabase con fecha corregida. Demás entradas (Hunton, Baker Botts) ya mencionaban el delay.
+- **Fecha completado:** 2026-03-22
 
 ### TASK-009 — Monitorear voto plenario Digital Omnibus (March 26, 2026)
 - **Estado:** Pendiente
@@ -144,15 +146,29 @@ _Actualizar al cierre de cada sesión. Este archivo es la memoria técnica del s
 
 ---
 
+### TASK-012 — Sincronizar eliminaciones Supabase→Sheet (9 items)
+- **Estado:** Pendiente
+- **Descripción:** 9 items eliminados de Supabase (8 arXiv PDF dups + 1 noise) aún existen en Sheet. Usar `deleteByUrl` del WebApp-v35 para eliminarlos.
+- **Prioridad:** Baja — no afecta operaciones, Sheet tiene 9 items de más
+- **Fecha detectado:** 2026-03-22
+
+### TASK-013 — Scholar restante: 253 web items
+- **Estado:** Pendiente
+- **Descripción:** 253 web items sin scholar (de 1,493 total). 35 DOIs donde CrossRef no resolvió, 10 Cambridge, 6 Springer, ~200 dominios dispersos. Requiere scraping individual, Semantic Scholar title search, o entrada manual.
+- **Prioridad:** Baja — publisher names ya taggeados como fallback (OUP, Cambridge, etc.)
+- **Fecha detectado:** 2026-03-22
+
+---
+
 ## Próxima sesión
 
 - **Prioridad 1:** TASK-009 — Post March 26 plenary vote: check Digital Omnibus outcome
-- **Prioridad 2:** TASK-007 follow-up — Análisis línea por línea del texto completo (~300 pp) cuando esté disponible en formato procesable
-- **Prioridad 3:** BUG-004 — Reducir noise en AcademicQueue (filtros arXiv o pre-screening)
-- **Prioridad 4:** BUG-003 — re-evaluar 77 entradas degradadas (priorizar ALTA, usar synthesis de PerplexityQueue)
-- **Prioridad 5:** Resolver BUG-001 (84 stuck en PerplexityQueue) — script Python de limpieza
-- **Prioridad 6:** TASK-008 — Update Colorado AI Act entries with new June 30 enforcement date
-- **Prioridad 7:** TASK-006 — Verificar Supabase end-to-end en sesión con queues activas
-- **Prioridad 8:** TASK-011 — Agregar columna `chapters` a Supabase
+- **Prioridad 2:** TASK-007 follow-up — Análisis línea por línea TRUMP AMERICA AI Act (~300 pp)
+- **Prioridad 3:** BUG-004 — Deploy ArXiv_v2.gs (fix preparado, usuario copia a GAS)
+- **Prioridad 4:** BUG-001 — Limpiar 84 stuck en PerplexityQueue (script Python)
+- **Prioridad 5:** TASK-012 — Sync eliminaciones a Sheet (9 items vía deleteByUrl)
+- **Prioridad 6:** TASK-011 — Agregar columna `chapters` a Supabase
+- **Prioridad 7:** TASK-006 — Primera sesión Supabase-primary con queues activas
+- **Prioridad 8:** TASK-013 — Scholar restante (253 web items, baja prioridad)
 
 _Última actualización: 2026-03-22_

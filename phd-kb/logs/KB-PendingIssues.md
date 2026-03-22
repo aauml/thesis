@@ -76,6 +76,7 @@ _Actualizar al cierre de cada sesión. Este archivo es la memoria técnica del s
 | 2026-03-22 | BUG-001 resuelto: 0 items pending en PerplexityQueue (200 total: 125 promoted, 61 reviewed, 14 discarded). |
 | 2026-03-22 | WebApp-v36 preparado: fix getUrls tab filtering (BUG-005). Pendiente deploy por usuario. |
 | 2026-03-22 | Versiones activas: WebApp-v35 (v36 pendiente deploy), GoogleNewsRSS-v1, PerplexitySearch-v3, AcademicOrchestrator-v2 (v3 pendiente deploy), ArXiv-v1 (v2 pendiente deploy), SKILL-KB-v17. |
+| 2026-03-22 | TASK-014 completado: SKILL-KB-v18 publicado con estructura canónica de 7 capítulos. Campo `chapters` (int[]) ahora Required en schema Supabase y en todos los ejemplos de escritura. |
 | 2026-03-22 | BUG-002 fix: AcademicOrchestrator-v3 con clamp guard para sweep_index. Script en `scripts/AcademicOrchestrator-v3.txt`. |
 | 2026-03-22 | TASK-007 completado (fase 2): análisis full-text TRUMP AI Act (~300 pp). 2 PDFs indexados en Supabase + embeddings. DB: 1,495 items. |
 | 2026-03-22 | TASK-006 validado: dry run endpoints ok. Supabase-primary protocol listo para primera sesión `update`. |
@@ -158,10 +159,12 @@ _Actualizar al cierre de cada sesión. Este archivo es la memoria técnica del s
 - **Fecha completado:** 2026-03-22
 
 ### TASK-014 — Actualizar SKILL-KB con estructura canónica de capítulos
-- **Estado:** Pendiente
-- **Descripción:** PM remapeó chapters y creó estructura canónica de 7 caps. SKILL-KB debe actualizarse para que el pipeline de evaluación asigne `chapters` con la nueva numeración: 1=Intro, 2=Marco teórico, 3=Estado del arte, 4=Metodología, 5=Análisis comparativo, 6=Caso de estudio, 7=Conclusiones. Fuente de verdad: `chapter_sections` en Supabase.
+- **Estado:** ✅ Completado 2026-03-22
+- **Descripción:** PM remapeó chapters y creó estructura canónica de 7 caps. SKILL-KB-v18.md actualizado con numeración canónica: 1=Introducción, 2=Marco Teórico, 3=Estado del Arte, 4=Metodología, 5=Análisis Comparativo, 6=Caso de Estudio, 7=Conclusiones. Fuente de verdad: `chapter_sections` en Supabase.
+- **Cambios en v18:** (1) Nueva sección "Canonical Chapter Numbering" con tabla y guía de asignación por capítulo. (2) Campo `chapters` añadido a Additional Fields, ejemplo Write to NewsLog, ejemplo Supabase write, y tabla Supabase fields. (3) Campo marcado como Required en schema.
 - **Prioridad:** Alta — afecta cada evaluación futura.
 - **Fecha creado:** 2026-03-22
+- **Fecha completado:** 2026-03-22
 
 ---
 
@@ -197,4 +200,4 @@ _Actualizar al cierre de cada sesión. Este archivo es la memoria técnica del s
 2. **ArXiv-v2**: category filtering (BUG-004). Copiar `scripts/ArXiv-v2.txt` reemplazando `ArXiv.gs`.
 3. **AcademicOrchestrator-v3**: sweep_index clamp (BUG-002). Copiar `scripts/AcademicOrchestrator-v3.txt` reemplazando `AcademicOrchestrator.gs`.
 
-_Última actualización: 2026-03-22_
+_Última actualización: 2026-03-22 (TASK-014 completado — SKILL-KB-v18)_

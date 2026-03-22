@@ -93,26 +93,43 @@ Claude lee las staging queues, evalúa cada item, y decide:
 
 ## Etapa 3: Protecciones
 
-### Trigger de validación SQL (`trg_validate_evaluated_item`)
-Rechaza INSERT/UPDATE en `evaluated_items` si:
-- `title` < 5 chars
-- `url` < 10 chars
-- `importance` no es ALTA/MEDIA/BAJA
-- `thesis_relevance` < 100 chars
-- `thesis_relevance` empieza con "This content addresses" (patrón degradado BUG-003)
-- `scholar` < 2 chars
-- `chapters` vacío
+### Trigger de auto-corrección SQL (`trg_validate_evaluated_item`)
+En vez de rechazar items con datos incompletos, **corrige automáticamente** lo que puede y logea cada corrección en `kb_corrections_log`.
+
+**Solo rechaza** (no hay default razonable):
+- `title` < 5 chars — no se puede inventar un título
+- `url` < 10 chars — no se puede inventar una URL
+
+**Auto-corrige** (con defaults razonables):
+| Campo | Condición | Corrección |
+|-------|-----------|------------|
+| `importance` | NULL o valor inválido | → `'MEDIA'` |
+| `thesis_relevance` | < 100 chars | → `'[PENDIENTE] ' + texto original` |
+| `thesis_relevance` | Patrón degradado BUG-003 | → `'[DEGRADADO] ' + texto original` |
+| `scholar` | NULL o < 2 chars | → `'[sin asignar]'` |
+| `chapters` | NULL o vacío | → `'{4}'` (Cap 4 = Estado del Arte catch-all) |
+
+Cada item auto-corregido recibe en `notes`: `[autocorrected:N fields]`.
+Cada corrección se logea en `kb_corrections_log` con: url, campo, valor original, valor nuevo, timestamp.
 
 ### Health check (`kb_health_check()`)
-Función SQL callable que reporta:
+Función SQL que reporta 13 checks de calidad:
 - Campos faltantes o vacíos
-- Patrones degradados
+- Items con `[PENDIENTE]` (necesitan evaluación completa)
+- Items con `[DEGRADADO]` (patrón BUG-003)
+- Items con `[sin asignar]` scholar
+- Auto-correcciones recientes (últimos 7 días)
 - URLs duplicadas
 - Distribución de chapters e importance
-- Actividad reciente
 
 **Uso:** `SELECT * FROM kb_health_check();`
 **Cuándo ejecutar:** Al inicio y cierre de cada sesión de datos.
+
+### Cron automático (`kb-daily-health-check`)
+- pg_cron ejecuta health check diario a las 7am UTC
+- Resultados en tabla `kb_health_log` (retención 90 días)
+- **Consultar historial:** `SELECT * FROM kb_health_log ORDER BY run_at DESC LIMIT 7;`
+- Si `fails > 0` o `warns > 0`, revisar `details` jsonb para diagnóstico
 
 ---
 

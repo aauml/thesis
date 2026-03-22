@@ -78,7 +78,7 @@ _Actualizar al cierre de cada sesión. Este archivo es la memoria técnica del s
 | 2026-03-22 | BUG-002 fix: AcademicOrchestrator-v3 con clamp guard para sweep_index. Script en `scripts/AcademicOrchestrator-v3.txt`. |
 | 2026-03-22 | TASK-007 completado (fase 2): análisis full-text TRUMP AI Act (~300 pp). 2 PDFs indexados en Supabase + embeddings. DB: 1,495 items. |
 | 2026-03-22 | TASK-006 validado: dry run endpoints ok. Supabase-primary protocol listo para primera sesión `update`. |
-| 2026-03-22 | Validation trigger `trg_validate_evaluated_item` creado en Supabase. Rechaza INSERT/UPDATE con datos incompletos o degradados. |
+| 2026-03-22 | Trigger `trg_validate_evaluated_item` reemplazado: ahora auto-corrige en vez de rechazar. Defaults: importance→MEDIA, scholar→[sin asignar], chapters→{4}, thesis_relevance→[PENDIENTE]. Solo rechaza title/url vacíos. Correcciones logeadas en `kb_corrections_log`. |
 | 2026-03-22 | Health check function `kb_health_check()` creada. Reporta 12 checks de calidad de datos. |
 | 2026-03-22 | pg_cron habilitado. `kb-daily-health-check` corre diario 7am UTC → logea en `kb_health_log`. Retención: 90 días. |
 | 2026-03-22 | Pipeline architecture documentada en `phd-kb/docs/PIPELINE-ARCHITECTURE.md`. |

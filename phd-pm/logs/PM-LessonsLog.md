@@ -163,4 +163,10 @@ These are hard rules derived from past bugs. Violating any of these means repeat
 
 ---
 
-_Última actualización: 2026-03-18 (sesión reading-plan, cont.)_
+### PR-018 — chapter_sections es la fuente única de verdad para estructura de capítulos
+- **Derived from:** Sesión 2026-03-22. Se detectó inconsistencia triple: SKILL-PM tenía 6 caps con un orden, chapter_sections tenía 7 caps genéricos con otro orden, y el dashboard tenía 8 caps hardcodeados con un tercer orden. Los 1,495 items en evaluated_items.chapters estaban mapeados al orden del SKILL-PM, no al de chapter_sections.
+- **Root cause:** La estructura de capítulos se definió en tres lugares distintos sin coordinación. El dashboard no usaba el campo `chapters` de evaluated_items — aproximaba vía mapeo capa→capítulo.
+- **Rule:** `chapter_sections` en Supabase es la ÚNICA fuente de verdad. Si la estructura cambia, se actualiza SOLO ahí. Dashboard lee dinámicamente vía vista `chapter_coverage`. Skills documentan la estructura pero referencian a chapter_sections como canónico. NUNCA hardcodear nombres/números de capítulos en código JS, HTML, o skills. Usar siempre la vista o la tabla.
+- **Componentes afectados:** `chapter_sections` (reescrita), `evaluated_items.chapters` (remapeado), `reading_plan.chapter_ids` (nueva columna int[]), vista `chapter_coverage` (nueva), dashboard.html (chapterCoverage + lecturas dinámicas), SKILL-PM §8, SYSTEM-ARCHITECTURE §8.
+
+_Última actualización: 2026-03-22 (sesión unificación canónica de capítulos)_

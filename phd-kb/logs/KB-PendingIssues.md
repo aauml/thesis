@@ -72,13 +72,14 @@ _Actualizar al cierre de cada sesión. Este archivo es la memoria técnica del s
 | 2026-03-22 | Edge function `generate-embeddings` requiere batch_size=1 en free tier (WORKER_LIMIT con batch>1). |
 | 2026-03-22 | Scholar 100%: 1,493/1,493 completado (era 266 al inicio de sesión). APIs: CrossRef, Semantic Scholar, arXiv. |
 | 2026-03-22 | `chapters` column creada y poblada: Cap1=748, Cap2=37, Cap3=724, Cap4=818, Cap5=573, Cap6=378. |
+| 2026-03-22 | **REMAPEO CANÓNICO DE CAPÍTULOS (PM-initiated).** chapter_sections reescrita (7 caps, 29 secciones). evaluated_items.chapters remapeado: old 2→4(Meto), old 3→2(MT), old 4→3(EdA). Nueva distribución: Cap1=748, Cap2=726(MT), Cap3=818(EdA), Cap4=37(Meto), Cap5=574(Comp), Cap6=378(Caso). Vista `chapter_coverage` creada. reading_plan.chapter_ids (int[]) añadido. Dashboard dinámico. **KB debe usar nueva numeración en futuras evaluaciones.** |
 | 2026-03-22 | BUG-001 resuelto: 0 items pending en PerplexityQueue (200 total: 125 promoted, 61 reviewed, 14 discarded). |
 | 2026-03-22 | WebApp-v36 preparado: fix getUrls tab filtering (BUG-005). Pendiente deploy por usuario. |
 | 2026-03-22 | Versiones activas: WebApp-v35 (v36 pendiente deploy), GoogleNewsRSS-v1, PerplexitySearch-v3, AcademicOrchestrator-v2 (v3 pendiente deploy), ArXiv-v1 (v2 pendiente deploy), SKILL-KB-v17. |
 | 2026-03-22 | BUG-002 fix: AcademicOrchestrator-v3 con clamp guard para sweep_index. Script en `scripts/AcademicOrchestrator-v3.txt`. |
 | 2026-03-22 | TASK-007 completado (fase 2): análisis full-text TRUMP AI Act (~300 pp). 2 PDFs indexados en Supabase + embeddings. DB: 1,495 items. |
 | 2026-03-22 | TASK-006 validado: dry run endpoints ok. Supabase-primary protocol listo para primera sesión `update`. |
-| 2026-03-22 | Trigger `trg_validate_evaluated_item` reemplazado: ahora auto-corrige en vez de rechazar. Defaults: importance→MEDIA, scholar→[sin asignar], chapters→{4}, thesis_relevance→[PENDIENTE]. Solo rechaza title/url vacíos. Correcciones logeadas en `kb_corrections_log`. |
+| 2026-03-22 | Trigger `trg_validate_evaluated_item` actualizado: validación ESTRICTA — rechaza items sin title (≥5), url (≥10), importance (ALTA/MEDIA/BAJA), thesis_relevance (≥100 chars, sin patrones degradados), scholar (≥2), o chapters vacíos. NO auto-corrige. |
 | 2026-03-22 | Health check function `kb_health_check()` creada. Reporta 12 checks de calidad de datos. |
 | 2026-03-22 | pg_cron habilitado. `kb-daily-health-check` corre diario 7am UTC → logea en `kb_health_log`. Retención: 90 días. |
 | 2026-03-22 | Pipeline architecture documentada en `phd-kb/docs/PIPELINE-ARCHITECTURE.md`. |
@@ -151,9 +152,16 @@ _Actualizar al cierre de cada sesión. Este archivo es la memoria técnica del s
 - **Fecha detectado:** 2026-03-19
 
 ### TASK-011 — Agregar columna `chapters` (int[]) a evaluated_items
-- **Estado:** ✅ Completado 2026-03-22
-- **Descripción:** Columna `chapters integer[]` añadida. 1,493/1,493 items poblados con keyword heuristics sobre thesis_relevance. Distribución: Cap1=748, Cap2=37, Cap3=724, Cap4=818, Cap5=573, Cap6=378.
+- **Estado:** ✅ Completado 2026-03-22 (actualizado con remapeo canónico)
+- **Descripción:** Columna `chapters integer[]` añadida y remapeada. Estructura canónica (7 caps): 1=Introducción, 2=Marco teórico, 3=Estado del arte, 4=Metodología, 5=Análisis comparativo, 6=Caso de estudio, 7=Conclusiones. Distribución actual: Cap1=748, Cap2=726, Cap3=818, Cap4=37, Cap5=574, Cap6=378, Cap7=0.
+- **IMPORTANTE para KB:** En futuras evaluaciones, usar esta numeración canónica. Consultar `SELECT DISTINCT chapter_num, chapter_title FROM chapter_sections ORDER BY 1;` para referencia.
 - **Fecha completado:** 2026-03-22
+
+### TASK-014 — Actualizar SKILL-KB con estructura canónica de capítulos
+- **Estado:** Pendiente
+- **Descripción:** PM remapeó chapters y creó estructura canónica de 7 caps. SKILL-KB debe actualizarse para que el pipeline de evaluación asigne `chapters` con la nueva numeración: 1=Intro, 2=Marco teórico, 3=Estado del arte, 4=Metodología, 5=Análisis comparativo, 6=Caso de estudio, 7=Conclusiones. Fuente de verdad: `chapter_sections` en Supabase.
+- **Prioridad:** Alta — afecta cada evaluación futura.
+- **Fecha creado:** 2026-03-22
 
 ---
 

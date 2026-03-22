@@ -53,7 +53,7 @@ El sistema gestiona una tesis doctoral sobre AI governance / RegTech. Tiene tres
 | `pm_advisories` | 6 | Análisis y recomendaciones estratégicas. Campos de seguimiento: `next_review`, `review_interval` (weekly/biweekly/monthly/quarterly/on_trigger), `search_queries` (jsonb), `last_checked`, `check_notes`, `resolved_at`, `resolved_reason`. Status: active/resolved/parked. | Advisory (service_role), PM sessions |
 | `pm_decisions` | 5 | Registro de decisiones de investigación | PM sessions (service_role) |
 | `pm_alerts` | variable | Alertas urgentes entre advisories | Sweep/advisory (service_role), anon UPDATE (dismissed) |
-| `chapter_sections` | 24 | Tracker de redacción por sección de capítulo | Advisory (service_role), anon UPDATE (status, word_count) |
+| `chapter_sections` | 29 | Tracker de redacción por sección de capítulo (7 caps, fuente única de verdad) | Advisory (service_role), anon UPDATE (status, word_count) |
 | `reading_conversations` | 0 | Conversaciones de aprendizaje: dudas de lectura y reflexiones sobre la tesis. Tipos: `reading` (ligada a fuente) y `reflection` (sobre estructura/argumento). FK a `evaluated_items`. | PM sessions (service_role) |
 | `_temp_file_transfer` | 1 | Utilidad temporal para transferir datos | service_role |
 
@@ -304,14 +304,21 @@ Las alertas solo se generan para: `urgent_item`, `deadline_risk`, `stalled_task`
 - **Fase:** Año 0 (2026) — Inscripción y preparación
 - **Pregunta central:** ¿Puede una agencia federal que implementa el NIST AI RMF acreditar cumplimiento sustancial con los requisitos del AI Act (RIA) para sistemas de alto riesgo, sin duplicar estructuras de control?
 
-### Estructura de capítulos (chapter_sections)
-1. Introducción (5 secciones)
-2. Marco teórico (4 secciones)
-3. Revisión de literatura (3 secciones)
-4. Metodología (4 secciones)
-5. Resultados (3 secciones)
-6. Discusión (3 secciones)
-7. Conclusiones (2 secciones)
+### Estructura canónica de capítulos (chapter_sections) — ACTUALIZADO 2026-03-22
+
+**`chapter_sections` es la fuente única de verdad.** Dashboard, skills, y advisory leen de aquí dinámicamente.
+
+1. Introducción (5 secciones) — planteamiento, preguntas, objetivos, justificación, estructura
+2. Marco teórico (4 secciones) — regulación AI, gobernanza algorítmica, RegTech, derecho procesal
+3. Estado del arte (5 secciones) — revisión sistemática, EU AI Act, NIST AI RMF, interoperabilidad, brechas
+4. Metodología (4 secciones) — diseño, fuentes, técnicas de análisis comparativo, limitaciones
+5. Análisis comparativo (4 secciones) — mapeo EU↔NIST, convergencias, interoperabilidad controles, cumplimiento dual
+6. Caso de estudio (4 secciones) — contexto forense, STRmix, biometría/PATTERN, aplicación marco
+7. Conclusiones (3 secciones) — hallazgos, contribuciones, líneas futuras
+
+**Vista `chapter_coverage`:** cruza chapter_sections + evaluated_items.chapters + reading_plan.chapter_ids. Accesible vía `SELECT * FROM chapter_coverage;`
+
+**`reading_plan.chapter_ids`** (integer[]): columna normalizada que reemplaza el campo texto `chapters`. Permite joins directos.
 
 ---
 

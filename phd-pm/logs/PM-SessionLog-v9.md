@@ -503,3 +503,31 @@ Los 9 items hardcoded en Panorama fueron verificados contra `evaluated_items`. T
 ---
 
 _Última actualización: 2026-03-19 (v8)_
+
+---
+
+## Sesión 2026-03-22 — Unificación canónica de capítulos
+
+**Trigger:** Usuario preguntó sobre el campo `chapters` recién creado en Supabase. Análisis PM reveló inconsistencia triple.
+
+**Problema detectado:** SKILL-PM (6 caps), chapter_sections (7 caps genéricos), y dashboard (8 caps hardcodeados) tenían estructuras incompatibles. Los 1,495 items en `evaluated_items.chapters` usaban la numeración del SKILL-PM. El dashboard aproximaba cobertura vía capas, no usaba el campo `chapters`.
+
+**Cambios (7 bloques):**
+
+| # | Componente | Cambio |
+|---|-----------|--------|
+| 1 | `chapter_sections` | Reescrita: 7 caps, 29 secciones (fuente única de verdad) |
+| 2 | `evaluated_items.chapters` | Remapeado 1,495 items (old 2→4, 3→2, 4→3) |
+| 3 | Vista `chapter_coverage` | Creada — cruza KB + writing + reading en una query |
+| 4 | `dashboard.html` | chapterCoverage dinámico, lecturas con getChapterMap(), bibliografía dinámica, gap tracker y advisor corregidos |
+| 5 | `reading_plan.chapter_ids` | Nueva columna int[] poblada (33 filas) |
+| 6 | Docs | SKILL-PM v15, SYSTEM-ARCHITECTURE, PM-LessonsLog PR-018 |
+| 7 | KB notification | KB-PendingIssues actualizado + TASK-014 creada |
+
+**Estructura canónica:** 1=Intro, 2=Marco teórico, 3=Estado del arte, 4=Metodología, 5=Análisis comparativo, 6=Caso de estudio, 7=Conclusiones
+
+**KB post-remapeo:** Cap1=748, Cap2=726, Cap3=818, Cap4=37, Cap5=574, Cap6=378, Cap7=0
+
+**Pendiente:** Push a GitHub. TASK-014 (KB actualice SKILL-KB).
+
+_Última actualización: 2026-03-22 (v9)_

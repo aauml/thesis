@@ -6,11 +6,9 @@ _Actualizar al cierre de cada sesión. Este archivo es la memoria técnica del s
 ## Bugs conocidos (sin resolver)
 
 ### BUG-001 — 84 items stuck en PerplexityQueue
-- **Estado:** Abierto
-- **Descripción:** 84 rows duplicados en PerplexityQueue con status "pending" que no se actualizan con `updatePerplexityRow url=X`. Son duplicados de runs anteriores (mismo URL, distintos run_ids). El lookup por URL + pending solo procesa el primero; los duplicados restantes quedan atascados.
-- **Impacto:** Bajo — son duplicados de contenido ya procesado. No afectan el NewsLog.
-- **Fix posible:** Correr script Python que llame `updatePerplexityRow` múltiples veces por URL hasta que no queden pending. O purgar manualmente desde el sheet.
-- **Fecha detectado:** 2026-03-13
+- **Estado:** ✅ Resuelto 2026-03-22
+- **Descripción:** 84 rows duplicados en PerplexityQueue con status "pending". Verificación via `getPerplexityQueue?status=pending` muestra 0 items pending — todos fueron procesados (125 promoted, 61 reviewed, 14 discarded).
+- **Fecha resuelto:** 2026-03-22
 
 ### BUG-003 — 77 entradas degradadas en NewsLog (context window compression)
 - **Estado:** ✅ Resuelto 2026-03-22
@@ -72,6 +70,11 @@ _Actualizar al cierre de cada sesión. Este archivo es la memoria técnica del s
 | 2026-03-22 | BUG-003 resuelto: 0 entradas con patrón degradado en Supabase. Las 77 entradas originales fueron corregidas en sesiones intermedias. |
 | 2026-03-22 | thesis_relevance 100% completo: 1,493/1,493. Embeddings 100% completo: 1,493/1,493. |
 | 2026-03-22 | Edge function `generate-embeddings` requiere batch_size=1 en free tier (WORKER_LIMIT con batch>1). |
+| 2026-03-22 | Scholar 100%: 1,493/1,493 completado (era 266 al inicio de sesión). APIs: CrossRef, Semantic Scholar, arXiv. |
+| 2026-03-22 | `chapters` column creada y poblada: Cap1=748, Cap2=37, Cap3=724, Cap4=818, Cap5=573, Cap6=378. |
+| 2026-03-22 | BUG-001 resuelto: 0 items pending en PerplexityQueue (200 total: 125 promoted, 61 reviewed, 14 discarded). |
+| 2026-03-22 | WebApp-v36 preparado: fix getUrls tab filtering (BUG-005). Pendiente deploy por usuario. |
+| 2026-03-22 | Versiones activas: WebApp-v35 (v36 pendiente deploy), GoogleNewsRSS-v1, PerplexitySearch-v3, ArXiv-v1 (v2 pendiente deploy), SKILL-KB-v17. |
 | 2026-03-13 | Google News RSS reemplaza NewsAPI (426 en free tier). Sin API key, sin límite de requests. |
 | 2026-03-13 | Duplicate function names resuelto: `_advanceNextRunDate`, `_isQueryDue`, `_fmtDate` eliminadas de PerplexitySearch-v3. Solo viven en AcademicOrchestrator. |
 | 2026-03-15 | AcademicQueue first full review: 200 pending → 24 promoted, 156 discarded, 17 reviewed, 3 skipped (dupes). ArXiv queries return massive noise (quantum physics, biology) — needs query refinement or pre-staging filters. |
@@ -165,11 +168,10 @@ _Actualizar al cierre de cada sesión. Este archivo es la memoria técnica del s
 
 ## Próxima sesión
 
-- **Prioridad 1:** TASK-009 — Post March 26 plenary vote: check Digital Omnibus outcome
+- **Prioridad 1:** TASK-009 — Post March 26 plenary vote: check Digital Omnibus outcome. Briefing prep en `logs/TASK009-DigitalOmnibus-Prep.md`
 - **Prioridad 2:** TASK-007 follow-up — Análisis línea por línea TRUMP AMERICA AI Act (~300 pp)
-- **Prioridad 3:** BUG-004 — Deploy ArXiv_v2.gs (fix preparado, usuario copia a GAS)
-- **Prioridad 4:** BUG-005 — Fix getUrls tab filtering en WebApp
-- **Prioridad 5:** BUG-001 — Limpiar 84 stuck en PerplexityQueue (requiere BUG-005 fix)
-- **Prioridad 6:** TASK-006 — Primera sesión Supabase-primary con queues activas
+- **Prioridad 3:** BUG-004 — Deploy ArXiv_v2.gs (usuario copia contenido de `scripts/ArXiv-v2.txt` al editor GAS)
+- **Prioridad 4:** BUG-005 — Deploy WebApp-v36 (fix getUrls tab filtering). Usuario redespliega desde `gas/WebApp.js` o `scripts/WebApp-v36.txt`
+- **Prioridad 5:** TASK-006 — Primera sesión Supabase-primary con queues activas
 
 _Última actualización: 2026-03-22_

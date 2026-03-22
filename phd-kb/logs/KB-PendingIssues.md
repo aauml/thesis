@@ -31,11 +31,9 @@ _Actualizar al cierre de cada sesión. Este archivo es la memoria técnica del s
 
 ## Tareas técnicas pendientes
 
-### TASK-001 — Limpiar 3 entradas TEST en NewsLog
-- **Estado:** Pendiente (ahora posible via `deleteByUrl`)
-- **Descripción:** Durante debugging el 2026-03-13 se añadieron 3 entradas con `notes: "TEST - DELETE"`. URLs: `techcrunch.com/2026/03/01/nist-ai-framework-test-entry`, `nist.gov` (variante no-www), `diligent.com`.
-- **Acción:** Llamar `deleteByUrl` con las 3 URLs. WebApp v35 ya soporta esta acción.
-- **Prioridad:** Baja
+### TASK-001 — Limpiar entradas TEST en NewsLog
+- **Estado:** ✅ Completado 2026-03-22
+- **Descripción:** Eliminadas 2 entradas TEST (`doi.org/ssrn_TEST`, `nist.gov/announcing-ai-agent-standards`) + 1 GAO duplicado + 1 test-unique-url. Total: 5 entradas basura eliminadas de Sheet y Supabase.
 
 ### TASK-002 — Desplegar WebApp-v32 en GAS
 - **Estado:** ✅ Completado 2026-03-13
@@ -67,6 +65,10 @@ _Actualizar al cierre de cada sesión. Este archivo es la memoria técnica del s
 | 2026-03-21 | WebApp-v35 desplegado (GAS Version 44). Añade `deleteByUrl` action para eliminar rows por URL normalizado en cualquier tab. Soporta single y batch. |
 | 2026-03-21 | Limpieza run 2026-03-15-005: 20 registros off-topic eliminados de NewsLog via `deleteByUrl`. NewsLog (116) y Supabase (116) ahora sincronizados para run 005. |
 | 2026-03-21 | Versiones activas: WebApp-v35, GoogleNewsRSS-v1, PerplexitySearch-v3, SKILL-KB-v17. |
+| 2026-03-22 | Auditoría completa Sheet↔Supabase: 5 junk entries eliminadas, 6 orphans corregidos (5 JPG→PDF, 1 NAP2023), 19 archivos académicos indexados de 01_Marco_Teorico y 04_Estado_del_Arte. |
+| 2026-03-22 | Inventario PhD folders: carpetas 01-04 completamente indexadas. Carpetas 00, 05-09 no indexadas (admin/herramientas/sistema — decisión intencional). |
+| 2026-03-22 | Sync final verificado: Sheet = Supabase = 1,502 items (1,044 web + 458 gdrive://). |
+| 2026-03-22 | `append` de WebApp requiere `"rows": [...]` (array), no `"row": {...}`. PR-013 registrado. |
 | 2026-03-13 | Google News RSS reemplaza NewsAPI (426 en free tier). Sin API key, sin límite de requests. |
 | 2026-03-13 | Duplicate function names resuelto: `_advanceNextRunDate`, `_isQueryDue`, `_fmtDate` eliminadas de PerplexitySearch-v3. Solo viven en AcademicOrchestrator. |
 | 2026-03-15 | AcademicQueue first full review: 200 pending → 24 promoted, 156 discarded, 17 reviewed, 3 skipped (dupes). ArXiv queries return massive noise (quantum physics, biology) — needs query refinement or pre-staging filters. |
@@ -149,8 +151,8 @@ _Actualizar al cierre de cada sesión. Este archivo es la memoria técnica del s
 - **Prioridad 3:** BUG-004 — Reducir noise en AcademicQueue (filtros arXiv o pre-screening)
 - **Prioridad 4:** BUG-003 — re-evaluar 77 entradas degradadas (priorizar ALTA, usar synthesis de PerplexityQueue)
 - **Prioridad 5:** Resolver BUG-001 (84 stuck en PerplexityQueue) — script Python de limpieza
-- **Prioridad 6:** TASK-001 — limpiar 3 entradas TEST en NewsLog
-- **Prioridad 7:** TASK-008 — Update Colorado AI Act entries with new June 30 enforcement date
-- **Prioridad 8:** TASK-006 — Verificar Supabase end-to-end en sesión con queues activas
+- **Prioridad 6:** TASK-008 — Update Colorado AI Act entries with new June 30 enforcement date
+- **Prioridad 7:** TASK-006 — Verificar Supabase end-to-end en sesión con queues activas
+- **Prioridad 8:** TASK-011 — Agregar columna `chapters` a Supabase
 
-_Última actualización: 2026-03-21_
+_Última actualización: 2026-03-22_

@@ -62,6 +62,16 @@ These are hard rules derived from past bugs. Violating any of these means repeat
 - **Root cause:** The Claude in Chrome JavaScript tool has a content filter that blocks large string literals resembling cookies or query params. Google News URLs are opaque hashes that trip this filter.
 - **Rule:** When comparing URL sets between Sheet and Supabase, use fingerprints (e.g., `RIGHT(url, 30)` in SQL, `.slice(-30)` in JS) instead of passing full URLs as string literals. Last 30 chars of Google News opaque hashes are unique enough for set operations.
 
+### PR-013 — WebApp `append` expects `rows` (array), not `row` (singular)
+- **Derived from:** Session 2026-03-22, 19 gdrive items silently not appended
+- **Root cause:** `append` action reads `data.rows || []`. Passing `data.row` (singular object) results in an empty array — returns `{ok: true, added: 0, skipped: 0}` with no error.
+- **Rule:** Always use `"rows": [{...}]` (array) when calling `action=append`. Never `"row": {...}`. Check `added > 0` in the response to confirm items were actually written.
+
+### PR-014 — URL case sensitivity: Sheet normalizes to lowercase, Supabase preserves case
+- **Derived from:** Session 2026-03-22, URL comparison showed 254 phantom mismatches
+- **Root cause:** Sheet's `getUrls` returns `normalizeUrl()` output (lowercase). Supabase stores URLs as-is (mixed case). Direct string comparison fails.
+- **Rule:** Always use `.lower()` (Python) or `LOWER()` (SQL) when comparing URLs between Sheet and Supabase. The canonical normalized form is: strip protocol, strip `www.`, strip trailing `/`, lowercase.
+
 ### PR-009 — Supabase connectivity: test early, use Python sessions, batch calls
 - **Derived from:** Session 2026-03-19 (run 210), Supabase HTTP 000
 - **Root cause:** Container DNS resolver saturated after many curl calls to different domains; Supabase REST API unreachable by the time writes were attempted.
@@ -87,6 +97,8 @@ These are hard rules derived from past bugs. Violating any of these means repeat
 | 2026-03-21 | CORS blocks POST to GAS WebApp from external origin | Content-Type: application/json triggers OPTIONS preflight; GAS can't handle it | PR-010 | Yes — omit Content-Type header |
 | 2026-03-21 | `git push` fails after `gh auth login --web` | Device flow doesn't auto-register git credential helper | PR-011 | Yes — run `gh auth setup-git` |
 | 2026-03-21 | JS tool blocks large URL arrays as "Cookie/query string data" | Content filter trips on Google News opaque hash URLs | PR-012 | Yes — use fingerprint comparison (last 30 chars) |
+| 2026-03-22 | 19 gdrive items silently not appended to Sheet | `append` expects `rows` (array), sent `row` (singular) | PR-013 | Yes — fixed payload format |
+| 2026-03-22 | 254 phantom URL mismatches between Sheet and Supabase | Sheet normalizes to lowercase, Supabase preserves case | PR-014 | Yes — use `.lower()` in all comparisons |
 
 ---
 
@@ -101,7 +113,8 @@ These are hard rules derived from past bugs. Violating any of these means repeat
 | 2026-03-19 | update all (run 209) | Queues empty. 7 Claude searches → 7 items added (3 ALTA, 4 MEDIA). CRITICAL: IMCO/LIBE voted Digital Omnibus 101-9-8 (Mar 18), TRUMP AMERICA AI Act draft released (Mar 19). FJC PG guidance, CAISI listening sessions, CREATE AI Act, Sorenson forensics outlook. | — |
 | 2026-03-19 | update all (run 210) | Queues empty. 5 Claude searches → 5 items added (2 ALTA, 3 MEDIA). Council position Mar 13, EP Think Tank enforcement briefing, NLR TRUMP AI Act analysis, Zenodo gobernanza algorítmica paper (es), EC guidelines roadmap. Supabase unreachable — full rows written to Sheet as fallback. Meta update failed (DNS cache overflow). | PR-009 |
 | 2026-03-21 | infrastructure | WebApp v35 deployed (deleteByUrl). Cleaned 20 off-topic items from run 005 (NewsLog+Supabase synced at 116). GitHub push: 3 files committed via gh CLI device flow auth. | PR-010, PR-011, PR-012 |
+| 2026-03-22 | inventory + sync | Full Sheet↔Supabase audit. Cleaned 5 junk entries (TEST, DELETED, test-url). Fixed 6 orphans (5 JPG→PDF, 1 NAP2023 rename). Fixed Bradford2012.pdf.pdf. Indexed 19 missing files from 01/04. Final sync: 1,502 items (1,044 web + 458 gdrive) in both. | PR-013, PR-014 |
 
 ---
 
-_Última actualización: 2026-03-21_
+_Última actualización: 2026-03-22_

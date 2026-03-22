@@ -883,8 +883,9 @@
       /* gap-list is flex column, no grid override needed */
       .kb-chap-grid { grid-template-columns: 1fr; }
       /* Writing progress responsive */
-      .sec-title { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-      .sec-words { min-width: 0; white-space: nowrap; }
+      .sec-row { flex-wrap: wrap; row-gap: 0.15rem; }
+      .sec-title { flex: 1 1 100%; white-space: normal; }
+      .sec-words { margin-left: auto; }
     }
   </style>
 </head>

@@ -106,7 +106,7 @@ _Actualizar al cierre de cada sesión. Este archivo es la memoria técnica del s
 - **Fecha fix preparado:** 2026-03-15
 
 ### TASK-006 — Integrar Supabase como destino de escritura post-evaluación
-- **Estado:** ✅ Validado 2026-03-22
+- **Estado:** ✅ Completado 2026-03-22
 - **Descripción:** Supabase es ahora el **destino primario** de items evaluados. NewsLog recibe solo filas de verificación (title, url, importance, source_pipeline, notes="✓ Supabase"). Datos completos solo en Supabase.
 - **Progreso:**
   1. ✅ Tabla creada, RLS configurado, función de búsqueda semántica creada
@@ -117,11 +117,14 @@ _Actualizar al cierre de cada sesión. Este archivo es la memoria técnica del s
   6. ✅ SKILL-PM-v7 actualizado con Supabase en §8 y §12
   7. ✅ Dashboard: indicador Supabase live en KB Report + decisión actualizada
   8. ✅ Dry run validación: todos los endpoints WebApp verificados (queues vacías, stats correctas, meta ok)
+  9. ✅ PROTOCOL-UPDATE-SUPABASE.md creado (2026-03-22): protocolo completo de sesión Supabase-primary. Incluye: prerequisites checklist, ejecución paso a paso por fases (startup, batch evaluation, Claude searches, metadata close), configuración de tablas y credenciales, formato del verification log en Sheet, manejo de errores con comandos de rollback, criterios de éxito, y referencia rápida de comandos. Ruta: `phd-kb/docs/PROTOCOL-UPDATE-SUPABASE.md`.
+- **Resultado:** Sistema completamente documentado y listo para primera sesión `update` real. Protocolo consolida: SKILL-KB-v17 §"Supabase — Primary Data Store", PIPELINE-ARCHITECTURE.md, y reglas PR-001/PR-007/PR-013 en un solo documento operativo.
 - **Próximos pasos:**
-  1. Primera sesión `update` con protocolo v16 (Supabase-primary + verification log) — ya puede ejecutarse
+  1. ~~Primera sesión `update` con protocolo v16~~ → ejecutar usando PROTOCOL-UPDATE-SUPABASE.md como guía de referencia
   2. Eventualmente modificar WebApp para que Apps Script escriba directo a Supabase post-evaluación
 - **Fecha creado:** 2026-03-19
 - **Fecha validado:** 2026-03-22
+- **Fecha completado:** 2026-03-22
 
 ---
 

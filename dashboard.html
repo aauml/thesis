@@ -3066,9 +3066,30 @@ document.addEventListener('DOMContentLoaded', () => {
   })();
 });
 
-// ── PWA ──
+// ── bfcache: force reload when restored via back/forward navigation ──
+window.addEventListener('pageshow', function(e) {
+  if (e.persisted) {
+    // Page was restored from bfcache — reload to get fresh version
+    window.location.reload();
+  }
+});
+
+// ── PWA with update detection ──
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('sw.js').catch(() => {});
+  navigator.serviceWorker.register('sw.js').then(function(reg) {
+    // Check for SW updates periodically
+    reg.addEventListener('updatefound', function() {
+      var newWorker = reg.installing;
+      if (newWorker) {
+        newWorker.addEventListener('statechange', function() {
+          if (newWorker.state === 'activated') {
+            // New SW active — reload for fresh content
+            window.location.reload();
+          }
+        });
+      }
+    });
+  }).catch(function() {});
 }
 </script>
 </body>

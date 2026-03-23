@@ -1115,35 +1115,60 @@ function exportMarkdown() {
 async function handleDeepLink() {
   const params = new URLSearchParams(window.location.search);
   const targetUrl = params.get("url");
-  if (!targetUrl) return;
+  const searchQuery = params.get("q");
 
-  // Wait for data to load
+  if (!targetUrl && !searchQuery) return;
+
+  if (searchQuery) {
+    // ?q=... → set search field and trigger keyword search
+    const searchInput = document.getElementById("search");
+    if (searchInput) {
+      searchInput.value = searchQuery;
+      state.search = searchQuery;
+      state.page = 1;
+      await fetchData();
+    }
+    return;
+  }
+
+  // ?url=... → find and open matching card
   const { rows } = await loadAllRows();
   const idx = rows.findIndex(r => r.url === targetUrl);
-  if (idx < 0) return;
+  if (idx < 0) {
+    // Try partial match (URL might be slightly different)
+    const partial = rows.findIndex(r => r.url && (
+      r.url.includes(targetUrl) || targetUrl.includes(r.url)
+    ));
+    if (partial < 0) return;
+    openDeepLinkCard(partial, rows);
+    return;
+  }
+  openDeepLinkCard(idx, rows);
+}
 
+function openDeepLinkCard(idx, rows) {
   // Calculate which page this item is on (in default sort: found-desc)
   const page = Math.floor(idx / PAGE_LIMIT) + 1;
   state.page = page;
 
   // Render that page
-  await fetchData();
-
-  // Find the card on the rendered page and open it
-  const pageIdx = idx % PAGE_LIMIT;
-  const cardId = "c-" + page + "-" + pageIdx;
-  const el = document.getElementById(cardId);
-  if (el) {
-    expandedIds.add(cardId);
-    el.classList.add("open");
-    // Scroll to the card's article
-    const article = el.closest("article");
-    if (article) {
-      setTimeout(() => article.scrollIntoView({ behavior: "smooth", block: "start" }), 100);
-      article.style.background = "#FFFBEB";
-      setTimeout(() => article.style.background = "", 3000);
+  fetchData().then(() => {
+    // Find the card on the rendered page and open it
+    const pageIdx = idx % PAGE_LIMIT;
+    const cardId = "c-" + page + "-" + pageIdx;
+    const el = document.getElementById(cardId);
+    if (el) {
+      expandedIds.add(cardId);
+      el.classList.add("open");
+      // Scroll to the card's article
+      const article = el.closest("article");
+      if (article) {
+        setTimeout(() => article.scrollIntoView({ behavior: "smooth", block: "start" }), 100);
+        article.style.background = "#FFFBEB";
+        setTimeout(() => article.style.background = "", 3000);
+      }
     }
-  }
+  });
 }
 
 // ── Show back button when arriving via deep-link ────────────────────────────
@@ -1151,6 +1176,11 @@ if (window.location.search) {
   const btn = document.getElementById('backToDash');
   if (btn) btn.style.display = 'block';
 }
+
+// ── bfcache: force reload when restored via back/forward navigation ──
+window.addEventListener('pageshow', function(e) {
+  if (e.persisted) window.location.reload();
+});
 
 // ── Init ──────────────────────────────────────────────────────────────────────
 buildSubcapaDropdown("");

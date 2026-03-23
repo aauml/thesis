@@ -2422,17 +2422,17 @@ async function fetchKbStats() {
       // Gap definitions per chapter — these are the specific weak areas to monitor
       const GAP_DEFS = {
         2: [
-          { label: 'Procesal español + IA', filter: 'and=(language.eq.es,or=(title.ilike.*procesal*,title.ilike.*prueba*,title.ilike.*jurisdiccional*,thesis_relevance.ilike.*procesal*,scholar.ilike.*Bueno*,scholar.ilike.*Nieva*,scholar.ilike.*Barona*))' },
+          { label: 'Procesal español + IA', filter: 'language=eq.es&or=(title.ilike.*procesal*,title.ilike.*prueba*,title.ilike.*jurisdiccional*,thesis_relevance.ilike.*procesal*,scholar.ilike.*Bueno*,scholar.ilike.*Nieva*,scholar.ilike.*Barona*)' },
         ],
         3: [
-          { label: 'Implementación RIA', filter: 'and=(chapters.cs.{3},or=(title.ilike.*guideline*,title.ilike.*implementing*,title.ilike.*conformity*,title.ilike.*sandbox*,title.ilike.*directrices*,title.ilike.*compliance*guide*))' },
+          { label: 'Implementación RIA', filter: 'chapters=cs.%7B3%7D&or=(title.ilike.*guideline*,title.ilike.*implementing*,title.ilike.*conformity*,title.ilike.*sandbox*,title.ilike.*directrices*,title.ilike.*compliance*guide*)' },
         ],
         4: [
-          { label: 'Crítica NIST RMF', filter: 'and=(chapters.cs.{4},or=(thesis_relevance.ilike.*critico*,thesis_relevance.ilike.*critique*,thesis_relevance.ilike.*limitation*,thesis_relevance.ilike.*voluntary*,thesis_relevance.ilike.*accountability gap*,title.ilike.*accountability*,title.ilike.*Beyond Audit*))' },
+          { label: 'Crítica NIST RMF', filter: 'chapters=cs.%7B4%7D&or=(thesis_relevance.ilike.*critique*,thesis_relevance.ilike.*limitation*,thesis_relevance.ilike.*voluntary*,thesis_relevance.ilike.*accountability%20gap*,title.ilike.*accountability*,title.ilike.*Beyond%20Audit*)' },
         ],
         6: [
-          { label: 'PATTERN directas', filter: 'or=(title.ilike.*PATTERN*,title.ilike.*First Step Act*,title.ilike.*recidivism*BOP*,title.ilike.*Bureau of Prisons*risk*)' },
-          { label: 'STRmix + forensic DNA', filter: 'and=(chapters.cs.{6},or=(title.ilike.*STRmix*,title.ilike.*probabilistic genotyping*))' },
+          { label: 'PATTERN directas', filter: 'or=(title.ilike.*PATTERN*,title.ilike.*First%20Step%20Act*,title.ilike.*recidivism*BOP*,title.ilike.*Bureau%20of%20Prisons*risk*)' },
+          { label: 'STRmix + forensic DNA', filter: 'chapters=cs.%7B6%7D&or=(title.ilike.*STRmix*,title.ilike.*probabilistic%20genotyping*)' },
         ],
       };
 

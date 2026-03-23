@@ -3,7 +3,7 @@
 // Moving it to pwa/sw.js would restrict its scope to /thesis/pwa/
 // and it wouldn't be able to cache /thesis/dashboard.html.
 
-const CACHE = 'thesis-v16';
+const CACHE = 'thesis-v17';
 
 // Assets that rarely change → cache-first (fast offline loads)
 const STATIC_ASSETS = [

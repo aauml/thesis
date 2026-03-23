@@ -203,13 +203,27 @@ _Actualizar al cierre de cada sesión. Este archivo es la memoria técnica del s
 
 ## Próxima sesión
 
-- **Prioridad 1:** TASK-009 — Tarea automática ya programada para 2026-03-27: verificar resultado del voto plenario Digital Omnibus del 26 de marzo
-- **Prioridad 2:** TASK-006 — Primera sesión `update` con protocolo Supabase-primary (validado, listo para uso). Guía: `phd-kb/docs/PROTOCOL-UPDATE-SUPABASE.md`
-- **Prioridad 3:** TASK-015 — Decidir criterios y ejecutar backfill Cap 7 (Conclusiones)
-- **Prioridad 4:** Cap 4 (Metodología) escaso con 37 items — considerar búsqueda dirigida
+- **Prioridad 1:** TASK-009 — Verificar resultado del voto plenario Digital Omnibus del 26 de marzo
+- **Prioridad 2:** Bueno de Mata sweep — solo 1 entrada en KB. Agregar publicaciones manualmente (RGDP, Tirant, etc.)
+- **Prioridad 3:** Agregar al KB manualmente: Instrucción CGPJ 2/2026, Fernández Larrea (2026), Tanner et al. (2026)
+- **Prioridad 4:** PATTERN gap — solo 2 fuentes directas. Buscar: OIG DOJ reports, US Sentencing Commission evaluations, NIJ documentation
+- **Prioridad 5:** Q120 — literatura académica que analice críticamente el NIST AI RMF como objeto de estudio (no como herramienta)
+- **Prioridad 6:** Búsqueda Dialnet/CENDOJ — derecho procesal + IA en español
 
-### Versiones activas (tras Dispatch 2026-03-22, GAS Version 48)
+### Deuda técnica (no urgente)
+- `capa` field: 24 variantes CSV → futuro convertir a text[] array como chapters
+- Dashboard: bloque HTML estático `display:none` (líneas ~1295-1510) es dead code, limpiar
+- TASK-015: backfill Cap 7 (Conclusiones) — sin urgencia, capítulo de cierre
+
+### Análisis periódico del reading plan
+- **Último:** 2026-03-23 — 33→39 lecturas. Añadidos: Citron, Kroll, Thompson, Hacker, Coglianese, Husa. Stoltz movido C7→C4.
+- **Próximo:** C2 2026 (may-ago) o cuando haya 50+ fuentes nuevas en KB
+- **Método:** cruzar KB completa vs plan vs conocimiento del campo. Buscar autores clave ausentes, secuencias incorrectas, fuentes que deberían subir de nivel.
+
+### Versiones activas
 - WebApp: **v36** · ArXiv: **v2** · AcademicOrchestrator: **v3** · GoogleNewsRSS: v1 · PerplexitySearch: v3
-- SKILL-KB: **v18** · SKILL-PM: v13
+- SKILL-KB: **v18** · SKILL-PM: **v17**
+- Dashboard: **sw thesis-v9** · Estructura: 7 caps híbrida, 32 secciones, 1,332 KB items
+- Reading plan: **39 lecturas** (19 Ch2, 7 Ch3, 8 Ch4, 8 Ch5, 8 Ch6)
 
-_Última actualización: 2026-03-22 (sesión Dispatch — deploys GAS v48, sección Advisor dashboard, auditoría capítulos)_
+_Última actualización: 2026-03-23 (reading plan analysis + infrastructure fixes)_

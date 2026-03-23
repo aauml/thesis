@@ -496,6 +496,7 @@
     .kb-chap-gap b { margin-left: 0.1rem; font-weight: 700; }
     .kb-chap-gap.gap-critical { color: #c62828; }
     .kb-chap-gap.gap-warn { color: #b88200; }
+    .kb-chap-gap.gap-ok { color: #2d7a3f; }
 
     /* Chapter coverage grid — stacked bar variant */
     .kb-chap-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.4rem; }
@@ -911,6 +912,9 @@
       <button class="sb-item active" onclick="switchView('panorama', this)">
         <span class="sb-icon">◉</span> Panorama
       </button>
+      <button class="sb-item" onclick="switchView('novedades', this)">
+        <span class="sb-icon">📰</span> Novedades <span class="sb-badge" id="badge-news" style="display:none;">0</span>
+      </button>
       <button class="sb-item" onclick="switchView('operativo', this)">
         <span class="sb-icon">☑</span> Operativo <span class="sb-badge" id="badge-ops" style="display:none;">0</span>
       </button>
@@ -960,18 +964,41 @@
       <h2>Panorama</h2>
       <div style="font-size:0.68rem; color:var(--text-muted); margin-top:-0.5rem; margin-bottom:1.5rem;">Estado general · Datos desde Supabase</div>
 
-      <!-- Alerts banner — urgent items between advisories -->
+      <!-- Alerts banner — urgent items -->
       <div id="alertsBanner" class="alerts-banner"></div>
 
       <!-- Advisor — rendered from ADVISOR_CONFIG in JS -->
       <div id="advisorContainer"></div>
 
-      <!-- Actividad actual — dynamic from reading_plan -->
-      <div class="m2-heading">Actividad actual</div>
-      <div class="m2-meta">C1 Ene–Abr 2026 · <a href="#" onclick="switchView('lecturas', document.querySelectorAll('.sb-item')[4]); return false;">ver plan completo →</a></div>
+      <!-- Actividad actual — solo 1-2 lecturas en curso -->
+      <div class="m2-heading">Lectura activa</div>
+      <div class="m2-meta">C1 Ene–Abr 2026 · <a href="#" onclick="switchView('lecturas', document.querySelectorAll('.sb-item')[5]); return false;">ver plan completo →</a></div>
       <div id="actividadActual">
         <div style="color:var(--text-muted); font-size:0.72rem; padding:0.5rem;">Cargando actividad actual...</div>
       </div>
+
+      <!-- Próximo milestone — context line -->
+      <div class="m2-heading">Próximo hito</div>
+      <div id="nextMilestoneContainer">
+        <div style="color:var(--text-muted); font-size:0.72rem; padding:0.5rem;">Cargando...</div>
+      </div>
+
+      <!-- Riesgos activos — moved from Operativo -->
+      <div class="m2-heading">Riesgos activos</div>
+      <div class="m2-meta" id="risksPhaseLabel">Cargando...</div>
+      <div id="risksContainer" style="margin-bottom:1rem;">
+        <div style="color:var(--text-muted); font-size:0.72rem; padding:0.5rem;">Cargando riesgos...</div>
+      </div>
+
+    </div>
+
+    <!-- ═══════════════════════════════════
+         VIEW: NOVEDADES (News + Desarrollos + Advisories)
+    ═══════════════════════════════════ -->
+    <div class="view" id="view-novedades">
+
+      <h2>Novedades</h2>
+      <div style="font-size:0.68rem; color:var(--text-muted); margin-top:-0.5rem; margin-bottom:1.5rem;">Desarrollos, análisis y noticias recientes · desde Supabase</div>
 
       <!-- Desarrollos clave — dynamic from Supabase pm_developments -->
       <div class="m2-heading">Desarrollos clave</div>
@@ -987,9 +1014,9 @@
         <div style="color:var(--text-muted); font-size:0.72rem; padding:0.5rem;">Cargando análisis y recomendaciones...</div>
       </div>
 
-      <!-- Novedades recientes — dynamic from Supabase (ALTA items, 10 most recent) -->
-      <div class="m2-heading">Novedades recientes</div>
-      <div class="m2-meta">10 más recientes · items ALTA desde Supabase</div>
+      <!-- Noticias recientes — dynamic from Supabase (ALTA items) -->
+      <div class="m2-heading">Noticias recientes</div>
+      <div class="m2-meta">Items ALTA desde Supabase · más recientes primero</div>
       <div id="recentNewsContainer">
         <div style="color:var(--text-muted); font-size:0.78rem; padding:0.5rem;">Cargando noticias recientes...</div>
       </div>
@@ -1002,9 +1029,9 @@
     <div class="view" id="view-operativo">
 
       <h2>Operativo</h2>
-      <div style="font-size:0.68rem; color:var(--text-muted); margin-top:-0.5rem; margin-bottom:1.5rem;">Tareas, lecturas y seguimiento · C1 2026</div>
+      <div style="font-size:0.68rem; color:var(--text-muted); margin-top:-0.5rem; margin-bottom:1.5rem;">Tareas accionables · C1 2026</div>
 
-      <!-- Tareas — interactive checklist + reading plan items -->
+      <!-- Tareas — interactive checklist from pm_tasks -->
       <div class="m2-heading">Tareas</div>
       <div class="m2-meta">Acciones concretas · se limpian al completar</div>
       <div id="opCard" style="margin-bottom:1.2rem;">
@@ -1014,27 +1041,6 @@
           <button class="btn-sm" onclick="clearCompletedOps()">limpiar</button>
         </div>
         <div id="opCompleted"></div>
-      </div>
-
-      <!-- Actividad actual — lecturas del cuatrimestre desde reading_plan -->
-      <div class="m2-heading">Lecturas C1</div>
-      <div class="m2-meta">Desde Supabase · reading_plan · <a href="#" onclick="switchView('lecturas', document.querySelectorAll('.sb-item')[4]); return false;">ver plan completo →</a></div>
-      <div id="opLecturas" style="margin-bottom:1.2rem;">
-        <div style="color:var(--text-muted); font-size:0.72rem; padding:0.5rem;">Cargando lecturas...</div>
-      </div>
-
-      <!-- Milestones — dynamic from Supabase pm_milestones -->
-      <div class="m2-heading">Milestones</div>
-      <div class="m2-meta">Hitos institucionales y académicos · desde Supabase</div>
-      <div id="milestonesContainer" style="margin-bottom:1.2rem;">
-        <div style="color:var(--text-muted); font-size:0.72rem; padding:0.5rem;">Cargando milestones...</div>
-      </div>
-
-      <!-- Riesgos — dynamic from Supabase pm_risks -->
-      <div class="m2-heading">Riesgos activos</div>
-      <div class="m2-meta" id="risksPhaseLabel">Cargando...</div>
-      <div id="risksContainer" style="margin-bottom:1rem;">
-        <div style="color:var(--text-muted); font-size:0.72rem; padding:0.5rem;">Cargando riesgos...</div>
       </div>
 
     </div>
@@ -1572,7 +1578,7 @@
     </div>
 
     <footer>
-      Última actualización: 21 de marzo de 2026 · Thesis Dashboard v11.1 (M2) — alerts · chapter tracker · dynamic from Supabase
+      Última actualización: 23 de marzo de 2026 · Thesis Dashboard v12.0 (M2) — Panorama slim · Novedades tab · Operativo limpio · KB gaps completos
     </footer>
 
   </div><!-- /main -->
@@ -1970,6 +1976,13 @@ async function fetchRecentNews() {
 
     container.innerHTML = html;
 
+    // Update news badge in sidebar
+    const newsBadge = document.getElementById('badge-news');
+    if (newsBadge) {
+      newsBadge.textContent = rows.length;
+      newsBadge.style.display = rows.length > 0 ? '' : 'none';
+    }
+
   } catch(e) {
     container.innerHTML = '<div style="color:var(--text-muted); font-size:0.78rem;">No se pudo cargar noticias.</div>';
   }
@@ -2058,10 +2071,10 @@ async function fetchActividadActual() {
       return;
     }
 
-    // Show en_curso first, then siguiente, then top planificado — max 3-4 items
-    const active = rows.filter(r => r.status === 'en_curso' || r.status === 'siguiente');
-    const planned = rows.filter(r => r.status === 'planificado');
-    const display = active.length >= 3 ? active.slice(0,4) : [...active, ...planned.slice(0, 3 - active.length)];
+    // Show only en_curso (max 2) for Panorama — slim view
+    const active = rows.filter(r => r.status === 'en_curso');
+    const siguiente = rows.filter(r => r.status === 'siguiente');
+    const display = active.length >= 2 ? active.slice(0,2) : [...active, ...siguiente.slice(0, 2 - active.length)];
 
     let html = '';
     display.forEach(r => {
@@ -2473,8 +2486,7 @@ async function fetchKbStats() {
         const pB = t > 0 ? (b / t * 100).toFixed(1) : 0;
 
         const gaps = gapsByChapter[num] || [];
-        const visibleGaps = gaps.filter(g => g.cls !== 'gap-ok');
-        const gapsHtml = visibleGaps.length > 0 ? `<div class="kb-chap-gaps">${visibleGaps.map(g =>
+        const gapsHtml = gaps.length > 0 ? `<div class="kb-chap-gaps">${gaps.map(g =>
           `<span class="kb-chap-gap ${g.cls}">${g.label} <b>${g.count}</b></span>`
         ).join('')}</div>` : '';
 
@@ -2705,6 +2717,26 @@ async function fetchMilestones() {
   }
 }
 
+// ═══════════════════════════════════════
+// NEXT MILESTONE — single context line for Panorama
+// ═══════════════════════════════════════
+async function fetchNextMilestone() {
+  const container = document.getElementById('nextMilestoneContainer');
+  if (!container) return;
+  try {
+    const rows = await supabaseQuery('pm_milestones?select=*&status=eq.active&completed=eq.false&order=position.asc&limit=2');
+    if (!rows || rows.length === 0) {
+      container.innerHTML = '<div style="color:var(--text-muted); font-size:0.78rem;">Sin milestones pendientes.</div>';
+      return;
+    }
+    container.innerHTML = rows.map(m =>
+      `<div class="m2-ms" style="margin-bottom:0.3rem;"><span class="m2-ms-date">${m.target_period}</span> <span>${m.title}</span></div>`
+    ).join('') + '<div style="font-size:0.65rem; color:var(--text-muted); margin-top:0.2rem;">Todos los milestones en Supabase · pm_milestones</div>';
+  } catch(e) {
+    container.innerHTML = '<div style="color:var(--text-muted); font-size:0.72rem;">Error cargando milestones.</div>';
+  }
+}
+
 function toggleMilestone(id, completed) {
   fetch(SUPABASE_URL + '/rest/v1/pm_milestones?id=eq.' + id, {
     method: 'PATCH', headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
@@ -2883,16 +2915,15 @@ document.addEventListener('DOMContentLoaded', () => {
   fetchAlerts(); // Alert system — urgent items between advisories
   fetchChapterSections(); // Writing progress tracker
   fetchPipelineStatus(); // Live queue status on every page load
-  fetchRecentNews(); // Dynamic news from Supabase (10 most recent)
+  fetchRecentNews(); // Dynamic news → Novedades tab
   fetchKbStats(); // KB stats + gaps from Supabase (primary)
   fetchSupabaseStatus(); // Supabase connectivity + embedding count
-  fetchAdvisories(); // PM advisories from Supabase
-  fetchDevelopments(); // Desarrollos clave from Supabase
-  fetchActividadActual(); // Current readings from reading_plan
-  fetchOpLecturas(); // Reading plan items for Operativo view
-  fetchMilestones(); // Milestones from Supabase
+  fetchAdvisories(); // PM advisories → Novedades tab
+  fetchDevelopments(); // Desarrollos clave → Novedades tab
+  fetchActividadActual(); // Current readings for Panorama (1-2 items)
+  fetchNextMilestone(); // Próximo hito for Panorama
   fetchBiblioProjection(); // Bibliography projection (dynamic chapter names)
-  fetchRisks(); // Riesgos from Supabase
+  fetchRisks(); // Riesgos → Panorama
   fetchDecisions(); // Decisiones from Supabase
   fetchReadingPlan(); // Full reading plan from Supabase
 
@@ -2920,7 +2951,7 @@ document.addEventListener('DOMContentLoaded', () => {
   (function initSwipeNav() {
     const mainEl = document.querySelector('.main');
     if (!mainEl) return;
-    const viewOrder = ['panorama','operativo','kb','mapa','lecturas','redaccion','decisiones'];
+    const viewOrder = ['panorama','novedades','operativo','kb','mapa','lecturas','redaccion','decisiones'];
     let startX = 0, startY = 0, tracking = false;
     const THRESHOLD = 60;   // min px horizontal
     const MAX_RATIO = 0.6;  // max vertical/horizontal ratio (ignore diagonal/vertical swipes)

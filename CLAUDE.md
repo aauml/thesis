@@ -49,12 +49,39 @@ Commit y push incluyendo CHANGELOG.md.
 - **PM no toca:** index.html, scripts GAS, `phd-kb/`
 - **KB no toca:** dashboard.html, `phd-pm/`
 - **Antes de modificar cualquier componente:** lee SYSTEM-ARCHITECTURE.md (checklist §9)
-- **Deploy dashboard:** editar copia de trabajo → copiar a repo → commit → push → verificar con `?v=N`
-- **Git identity:**
+- **Deploy dashboard:** editar copia de trabajo → push a GitHub → GDrive sincroniza desde GitHub (GDrive es backup, no fuente)
+
+## Git Push desde Cowork / Claude Code
+
+El repo no está clonado en la carpeta de GDrive. Para hacer push:
+
 ```bash
+# 1. Leer el PAT guardado
+GH_TOKEN=$(cat /sessions/peaceful-cool-faraday/mnt/PhD/09_Sistema/.secrets/github-pat.txt)
+
+# 2. Clonar el repo con auth
+git clone "https://x-access-token:${GH_TOKEN}@github.com/aauml/thesis.git" /sessions/peaceful-cool-faraday/thesis-git-repo
+
+# 3. Configurar identidad
+cd /sessions/peaceful-cool-faraday/thesis-git-repo
 git config user.email "claude@thesis.local"
 git config user.name "Claude Code"
+
+# 4. Copiar archivos modificados desde la copia de trabajo
+cp /sessions/peaceful-cool-faraday/mnt/PhD/09_Sistema/thesis-repo/<archivo> ./<archivo>
+
+# 5. Commit y push
+git add <archivo>
+git commit -m "mensaje descriptivo"
+git push origin main
 ```
+
+**Notas:**
+- El PAT (fine-grained, sin expiración) está en `09_Sistema/.secrets/github-pat.txt`
+- Tiene permisos: Read/Write contents en `aauml/thesis` únicamente
+- Si el token falla, regenerar en GitHub → Settings → Developer Settings → Fine-grained tokens → `claude-thesis`
+- **NUNCA** usar el navegador para hacer push. Siempre usar git CLI con el PAT
+- **SIEMPRE** hacer push después de editar. GDrive es backup, GitHub es la fuente de verdad
 
 ## Jerarquía de memoria
 

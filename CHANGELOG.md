@@ -14,6 +14,15 @@ PM lee este archivo al inicio de cada sesión para tener visibilidad total.
 
 ---
 
+## 2026-03-23 | cowork | dashboard, sistema | Dashboard v12.0 + git workflow
+- Dashboard v12.0: Panorama slim (alerts, advisor, lectura activa, próximo hito, riesgos)
+- Nuevo tab Novedades (desarrollos + advisories + noticias — sacados de Panorama)
+- Operativo limpio: solo checklist pm_tasks (sin lecturas, milestones, riesgos)
+- KB gaps: ahora muestra todos incluyendo OK (verde)
+- Regenerado PAT `claude-thesis` y guardado en `09_Sistema/.secrets/github-pat.txt`
+- CLAUDE.md actualizado con flujo de git push desde Cowork (sin navegador)
+- Decisión: GDrive es backup de GitHub, no al revés. GitHub es fuente de verdad.
+
 ## 2026-03-23 | cowork | sistema | CHANGELOG.md y CLAUDE.md creados
 - Creado CHANGELOG.md como log unificado cross-contexto
 - Creado CLAUDE.md como entry point para Claude Code

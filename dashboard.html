@@ -883,9 +883,13 @@
       /* gap-list is flex column, no grid override needed */
       .kb-chap-grid { grid-template-columns: 1fr; }
       /* Writing progress responsive */
-      .sec-row { flex-wrap: wrap; row-gap: 0.15rem; }
-      .sec-title { flex: 1 1 100%; white-space: normal; }
-      .sec-words { margin-left: auto; }
+      .sec-row { flex-wrap: nowrap; }
+      .sec-title { flex: 1; white-space: normal; min-width: 0; }
+      .sec-words { margin-left: auto; flex-shrink: 0; }
+      .writing-summary { flex-wrap: nowrap; gap: 0.3rem; }
+      .writing-stat { min-width: 0; flex: 1; }
+      .writing-stat-val { font-size: 0.95rem; }
+      .writing-stat-label { font-size: 0.52rem; }
     }
   </style>
 </head>
@@ -1538,8 +1542,7 @@
         <div class="writing-stat"><div class="writing-stat-val" id="wsTotal">—</div><div class="writing-stat-label">Secciones</div></div>
         <div class="writing-stat"><div class="writing-stat-val" id="wsComplete">—</div><div class="writing-stat-label">Completas</div></div>
         <div class="writing-stat"><div class="writing-stat-val" id="wsDraft">—</div><div class="writing-stat-label">Borrador</div></div>
-        <div class="writing-stat" style="flex:2; min-width:130px"><div class="writing-stat-val"><span id="wsWords">—</span><span class="ws-meta-sep"> / <span id="wsTarget">—</span></span></div><div class="writing-stat-label">Palabras escritas / meta</div></div>
-        <div class="writing-stat"><div class="writing-stat-val" id="wsPct">—</div><div class="writing-stat-label">Progreso</div></div>
+        <div class="writing-stat"><div class="writing-stat-val"><span id="wsWords">—</span><span class="ws-meta-sep"> / <span id="wsTarget">—</span></span></div><div class="writing-stat-label">Palabras</div></div>
       </div>
 
       <!-- Chapter groups rendered dynamically -->
@@ -2834,8 +2837,6 @@ async function fetchChapterSections() {
     document.getElementById('wsDraft').textContent = draft;
     document.getElementById('wsWords').textContent = words.toLocaleString('es');
     document.getElementById('wsTarget').textContent = target.toLocaleString('es');
-    document.getElementById('wsPct').textContent = pct + '%';
-
     // Update sidebar badge
     const badge = document.getElementById('badge-writing');
     if (badge) { badge.textContent = pct + '%'; badge.style.display = ''; }
@@ -2853,7 +2854,6 @@ async function fetchChapterSections() {
             <span class="chapter-toggle">▸</span>
             <span>Cap. ${ch.num} · ${ch.title}</span>
             <span class="chapter-pct">${chPct}%</span>
-            <div class="chapter-progress-bar"><div class="chapter-progress-fill ${fillClass}" style="width:${chPct}%"></div></div>
           </div>
           <div class="chapter-sections">
             ${ch.sections.map(s => `

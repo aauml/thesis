@@ -491,13 +491,12 @@
 
     /* Gap pills — inline within chapter rows */
     .kb-gap-list { display: flex; flex-direction: column; gap: 0.35rem; }
-    .kb-chap-gaps { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-top: 0.25rem; }
-    .kb-chap-gap { font-size: 0.65rem; padding: 0.12rem 0.4rem; border-radius: 3px; background: var(--bg-main); border: 1px solid var(--border); white-space: nowrap; }
-    .kb-chap-gap b { margin-left: 0.15rem; }
-    .kb-chap-gap.gap-critical { border-color: #d32f2f; background: rgba(211,47,47,0.06); }
-    .kb-chap-gap.gap-warn { border-color: #f9a825; background: rgba(249,168,37,0.06); }
-    .kb-chap-gap.gap-ok { border-color: #2e7d32; background: rgba(46,125,50,0.06); }
-    .kb-chap.has-critical { border-left: 3px solid #d32f2f; }
+    .kb-chap-gaps { display: flex; flex-wrap: wrap; gap: 0.25rem; margin-top: 0.2rem; }
+    .kb-chap-gap { font-size: 0.6rem; padding: 0.1rem 0.35rem; border-radius: 2px; white-space: nowrap; color: var(--text-muted); }
+    .kb-chap-gap b { margin-left: 0.1rem; font-weight: 700; }
+    .kb-chap-gap.gap-critical { color: #c62828; }
+    .kb-chap-gap.gap-warn { color: #e78400; }
+    .kb-chap-gap.gap-ok { display: none; }
 
     /* Chapter coverage grid — stacked bar variant */
     .kb-chap-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.4rem; }
@@ -2508,10 +2507,10 @@ async function fetchKbStats() {
 
         const gaps = gapsByChapter[num] || [];
         const gapsHtml = gaps.length > 0 ? `<div class="kb-chap-gaps">${gaps.map(g =>
-          `<span class="kb-chap-gap ${g.cls}" title="${g.label}: ${g.count} fuentes">${g.icon} ${g.label} <b>${g.count}</b></span>`
+          `<span class="kb-chap-gap ${g.cls}" title="${g.label}: ${g.count} fuentes">${g.label} <b>${g.count}</b></span>`
         ).join('')}</div>` : '';
 
-        return `<div class="kb-chap ${gaps.some(g => g.cls === 'gap-critical') ? 'has-critical' : ''}">
+        return `<div class="kb-chap">>
           <span class="kb-chap-num">${num}</span>
           <div class="kb-chap-body">
             <div class="kb-chap-name">${ch.chapter_title}</div>

@@ -861,24 +861,30 @@ This ensures the change history is preserved (versioned files + git log) and the
 ### 1. Clonar o actualizar el repositorio
 ```bash
 git clone https://x-access-token:<token>@github.com/aauml/thesis.git thesis-repo
-cd thesis-repo && git config user.email "claude@thesis.local" && git config user.name "Claude PM"
+cd thesis-repo && git config user.email "claude@thesis.local" && git config user.name "Claude KB"
 ```
 Or if already cloned: `cd thesis-repo && git pull`
 
-### 2. Leer KB-LessonsLog.md
+### 2. Leer CHANGELOG.md (contexto cross-contexto)
+```
+Ruta: thesis-repo/CHANGELOG.md
+```
+Log unificado de TODOS los contextos (Chat, Cowork, Code, Dispatch). Leer las últimas entradas para saber qué cambió desde la última sesión KB — especialmente cambios de PM o Code que puedan afectar pipelines o datos.
+
+### 3. Leer KB-LessonsLog.md
 ```
 Ruta: thesis-repo/phd-kb/logs/KB-LessonsLog.md
 ```
 Read all Prevention Rules. These are hard rules derived from past bugs — violating any means repeating a known mistake. Internalize them before processing any items.
 
-### 3. Leer KB-PendingIssues.md
+### 4. Leer KB-PendingIssues.md
 ```
 Ruta: thesis-repo/phd-kb/logs/KB-PendingIssues.md
 ```
 Check for open bugs and pending tasks. Note any that are relevant to the current session's work.
 
-### 4. Confirm readiness
-Report: "Lessons log read (N prevention rules). Pending issues: [list open bugs]. Ready to proceed."
+### 5. Confirm readiness
+Report: "Lessons log read (N prevention rules). CHANGELOG: [resumen últimas entradas o 'sin cambios']. Pending issues: [list open bugs]. Ready to proceed."
 
 **This protocol takes 1 minute and prevents repeating known mistakes. It works in Cowork, regular chat, and Claude Code.**
 
@@ -932,10 +938,20 @@ Si durante la sesión cambiaron conexiones, servicios, arquitectura, o versiones
 
 No crear versiones de RECOVERY — es un snapshot que se sobreescribe.
 
-### 9. Commit y push
+### 9. CHANGELOG.md (cross-contexto, append-only)
+Agregar entrada al final de `CHANGELOG.md` con resumen de la sesión:
+```
+## YYYY-MM-DD | cowork-kb | componente(s) | resumen
+- Qué se hizo (items procesados, pipelines ejecutados)
+- Bugs encontrados (si aplica)
+- Qué afecta a otros contextos (si aplica)
+```
+**Regla:** Solo append. Nunca editar ni borrar entradas anteriores.
+
+### 10. Commit y push
 ```bash
 cd thesis-repo
-git add phd-kb/logs/ phd-kb/scripts/ phd-kb/docs/
+git add phd-kb/logs/ phd-kb/scripts/ phd-kb/docs/ CHANGELOG.md
 git commit -m "session close: [brief description of changes]"
 git push
 ```

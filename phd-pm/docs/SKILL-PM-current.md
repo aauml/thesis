@@ -141,19 +141,25 @@ cd thesis-repo && git config user.email "claude@thesis.local" && git config user
 ```
 O si ya clonado: `cd thesis-repo && git pull`
 
-2. **Leer PM-LessonsLog.md:**
+2. **Leer CHANGELOG.md (contexto cross-contexto):**
+```
+Ruta: thesis-repo/CHANGELOG.md
+```
+Este log unificado registra lo que hicieron TODOS los contextos (Chat, Cowork, Code, Dispatch). Leer las últimas entradas para saber qué cambió desde la última sesión PM. Esto reemplaza el "check KB delta" manual — el CHANGELOG ya tiene todo.
+
+3. **Leer PM-LessonsLog.md:**
 ```
 Ruta: thesis-repo/phd-pm/logs/PM-LessonsLog.md
 ```
 Read all Prevention Rules. Internalize before doing any work.
 
-3. **Leer PM-SessionLog (versión más reciente):**
+4. **Leer PM-SessionLog (versión más reciente):**
 ```
 Ruta: thesis-repo/phd-pm/logs/ → archivo PM-SessionLog con el número de versión más alto
 ```
 Recover state from last session: pending tasks, decisions, current phase.
 
-4. **Leer logs del KB (el PM supervisa todo):**
+5. **Leer logs del KB (el PM supervisa todo):**
 ```
 Ruta: thesis-repo/phd-kb/logs/KB-PendingIssues.md
 Ruta: thesis-repo/phd-kb/logs/KB-LessonsLog.md
@@ -163,7 +169,7 @@ Verificar si hubo sesiones KB desde la última sesión PM:
 - Notar bugs nuevos, tasks completados, cambios de infraestructura en KB-PendingIssues
 - Identificar si algún cambio KB impacta al PM (nueva infra, datos migrados, scripts actualizados)
 
-5. **Advisory follow-up check (Supabase):**
+6. **Advisory follow-up check (Supabase):**
 ```sql
 SELECT id, title, next_review, review_interval, search_queries
 FROM pm_advisories WHERE status='active' AND next_review <= CURRENT_DATE
@@ -171,8 +177,8 @@ ORDER BY next_review ASC;
 ```
 If any are due: execute their search_queries, update check_notes/last_checked/next_review. Report: "Advisories due: #N [result]. #M [result]." See §18.
 
-6. **Confirm readiness:**
-Report: "PM lessons read (N rules). KB delta since last PM session: [resumen o 'sin cambios']. Advisories due: [N due / none]. Last PM session: [date]. Pending: [items]. Ready."
+7. **Confirm readiness:**
+Report: "PM lessons read (N rules). CHANGELOG: [resumen últimas entradas o 'sin cambios']. Advisories due: [N due / none]. Last PM session: [date]. Pending: [items]. Ready."
 
 ### Check-in (cuando el usuario dice "toquemos base", "qué sigue", "dónde estamos")
 
@@ -201,14 +207,24 @@ Report: "PM lessons read (N rules). KB delta since last PM session: [resumen o '
    - §9 (Estado actual) si cambió la fase, lecturas, o infraestructura
    - §12 (Scheduled Tasks) si se creó o modificó un task
    No crear versiones de RECOVERY — es un snapshot que se sobreescribe.
-7. **Commit y push:**
+7. **CHANGELOG.md (cross-contexto, append-only):**
+Agregar entrada al final de `CHANGELOG.md` con resumen de la sesión:
+```
+## YYYY-MM-DD | cowork-pm | componente(s) | resumen
+- Qué se hizo
+- Decisiones tomadas (si aplica)
+- Qué afecta a otros contextos (si aplica)
+```
+**Regla:** Solo append. Nunca editar ni borrar entradas anteriores.
+
+8. **Commit y push:**
 ```bash
 cd thesis-repo
-git add phd-pm/ dashboard.html pwa/
+git add phd-pm/ dashboard.html pwa/ CHANGELOG.md
 git commit -m "session close: [brief description]"
 git push
 ```
-8. **Skill/archivos:** Si algún cambio requiere actualizar este skill, crear la siguiente versión, push, y notificar al usuario que debe reemplazar el project knowledge file.
+9. **Skill/archivos:** Si algún cambio requiere actualizar este skill, crear la siguiente versión, push, y notificar al usuario que debe reemplazar el project knowledge file.
 
 ---
 

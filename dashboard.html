@@ -489,15 +489,15 @@
     .kb-stack-legend .dot-media { background: var(--accent-mid); }
     .kb-stack-legend .dot-baja { background: #b0b8c4; }
 
-    /* Gap list — per-chapter with traffic light */
+    /* Gap pills — inline within chapter rows */
     .kb-gap-list { display: flex; flex-direction: column; gap: 0.35rem; }
-    .kb-gap-item { display: flex; align-items: center; gap: 0.5rem; padding: 0.4rem 0.7rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 4px; font-size: 0.78rem; }
-    .kb-gap-item.gap-critical { border-left: 3px solid #d32f2f; }
-    .kb-gap-item.gap-warn { border-left: 3px solid #f9a825; }
-    .kb-gap-item.gap-ok { border-left: 3px solid #2e7d32; }
-    .kb-gap-ch { font-size: 0.65rem; font-weight: 700; color: var(--text-muted); background: var(--bg-main); padding: 0.1rem 0.35rem; border-radius: 3px; white-space: nowrap; }
-    .kb-gap-name { font-weight: 600; color: var(--text); flex: 1; }
-    .kb-gap-count { font-size: 0.75rem; font-weight: 700; white-space: nowrap; }
+    .kb-chap-gaps { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-top: 0.25rem; }
+    .kb-chap-gap { font-size: 0.65rem; padding: 0.12rem 0.4rem; border-radius: 3px; background: var(--bg-main); border: 1px solid var(--border); white-space: nowrap; }
+    .kb-chap-gap b { margin-left: 0.15rem; }
+    .kb-chap-gap.gap-critical { border-color: #d32f2f; background: rgba(211,47,47,0.06); }
+    .kb-chap-gap.gap-warn { border-color: #f9a825; background: rgba(249,168,37,0.06); }
+    .kb-chap-gap.gap-ok { border-color: #2e7d32; background: rgba(46,125,50,0.06); }
+    .kb-chap.has-critical { border-left: 3px solid #d32f2f; }
 
     /* Chapter coverage grid — stacked bar variant */
     .kb-chap-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.4rem; }
@@ -1080,16 +1080,10 @@
         </div>
       </div>
 
-      <!-- Chapter coverage — tri-color stacked bars -->
-      <div class="section-label">Cobertura por capítulo</div>
-      <div id="chapterCoverage" class="kb-chap-grid">
+      <!-- Chapter coverage + gaps — unified per-chapter view -->
+      <div class="section-label">Cobertura y gaps por capítulo</div>
+      <div id="chapterCoverageGaps" class="kb-chap-grid">
         <div style="color:var(--text-muted); font-size:0.75rem; grid-column:1/-1;">Cargando cobertura...</div>
-      </div>
-
-      <!-- Gap analysis — plain text with quality counts -->
-      <div class="section-label">Análisis de gaps</div>
-      <div id="gapAnalysis" class="kb-gap-list">
-        <div style="color:var(--text-muted); font-size:0.75rem;">Cargando análisis...</div>
       </div>
 
       <!-- Process footer -->
@@ -2452,44 +2446,81 @@ async function fetchKbStats() {
       ).join('') + '<div style="font-size:0.6rem; color:var(--text-muted); margin-top:0.3rem;">Items multi-criterio contados en cada categoría aplicable</div>';
     }
 
-    // ── Chapter coverage — DYNAMIC from Supabase view chapter_coverage ──
-    const chapContainer = document.getElementById('chapterCoverage');
-    if (chapContainer) {
-      const chapData = await supabaseQuery('chapter_coverage?select=*&order=chapter_num.asc');
-      chapContainer.innerHTML = chapData.map(ch => {
+    // ── Unified chapter coverage + gaps ──
+    const unifiedContainer = document.getElementById('chapterCoverageGaps');
+    if (unifiedContainer) {
+      // Gap definitions per chapter — these are the specific weak areas to monitor
+      const GAP_DEFS = {
+        2: [
+          { label: 'Procesal español + IA', filter: 'and=(chapters.cs.{2},language.eq.es,or=(thesis_relevance.ilike.*procesal*,thesis_relevance.ilike.*prueba*,thesis_relevance.ilike.*jurisdiccional*))' },
+          { label: 'Director (Bueno de Mata)', filter: 'scholar=ilike.*Bueno*' },
+        ],
+        3: [
+          { label: 'Implementación RIA', filter: 'and=(chapters.cs.{3},or=(title.ilike.*guideline*,title.ilike.*implementing*,title.ilike.*conformity*,title.ilike.*sandbox*))' },
+        ],
+        4: [
+          { label: 'Crítica académica NIST', filter: 'and=(chapters.cs.{4},or=(thesis_relevance.ilike.*critico*,thesis_relevance.ilike.*critique*,thesis_relevance.ilike.*limitation*,thesis_relevance.ilike.*voluntary*))' },
+        ],
+        5: [
+          { label: 'Crosswalks ALTA', filter: 'and=(chapters.cs.{5},importance.eq.ALTA)' },
+        ],
+        6: [
+          { label: 'PATTERN directas', filter: 'or=(title.ilike.*PATTERN*,title.ilike.*First Step Act*risk*)' },
+          { label: 'STRmix + forensic DNA', filter: 'and=(chapters.cs.{6},or=(title.ilike.*STRmix*,title.ilike.*probabilistic genotyping*))' },
+        ],
+      };
+
+      // Fetch chapter data and all gap counts in parallel
+      const allGapFilters = [];
+      const gapMeta = []; // track which chapter each gap belongs to
+      for (const [ch, gaps] of Object.entries(GAP_DEFS)) {
+        for (const g of gaps) {
+          allGapFilters.push(supabaseCount(g.filter));
+          gapMeta.push({ ch: parseInt(ch), label: g.label });
+        }
+      }
+
+      const [chapData, ...gapCounts] = await Promise.all([
+        supabaseQuery('chapter_coverage?select=*&order=chapter_num.asc'),
+        ...allGapFilters
+      ]);
+
+      // Build gap lookup: { chapterNum: [{ label, count, icon, cls }] }
+      const gapsByChapter = {};
+      gapMeta.forEach((m, i) => {
+        if (!gapsByChapter[m.ch]) gapsByChapter[m.ch] = [];
+        const n = gapCounts[i];
+        let icon, cls;
+        if (n < 3) { icon = '🔴'; cls = 'gap-critical'; }
+        else if (n < 8) { icon = '🟡'; cls = 'gap-warn'; }
+        else { icon = '🟢'; cls = 'gap-ok'; }
+        gapsByChapter[m.ch].push({ label: m.label, count: n, icon, cls });
+      });
+
+      // Render unified view
+      unifiedContainer.innerHTML = chapData.map(ch => {
+        const num = ch.chapter_num;
         const t = ch.kb_total || 0;
         const a = ch.kb_alta || 0, m = ch.kb_media || 0, b = ch.kb_baja || 0;
         const pA = t > 0 ? (a / t * 100).toFixed(1) : 0;
         const pM = t > 0 ? (m / t * 100).toFixed(1) : 0;
         const pB = t > 0 ? (b / t * 100).toFixed(1) : 0;
-        return `<div class="kb-chap">
-          <span class="kb-chap-num">${ch.chapter_num}</span>
+
+        const gaps = gapsByChapter[num] || [];
+        const gapsHtml = gaps.length > 0 ? `<div class="kb-chap-gaps">${gaps.map(g =>
+          `<span class="kb-chap-gap ${g.cls}" title="${g.label}: ${g.count} fuentes">${g.icon} ${g.label} <b>${g.count}</b></span>`
+        ).join('')}</div>` : '';
+
+        return `<div class="kb-chap ${gaps.some(g => g.cls === 'gap-critical') ? 'has-critical' : ''}">
+          <span class="kb-chap-num">${num}</span>
           <div class="kb-chap-body">
             <div class="kb-chap-name">${ch.chapter_title}</div>
             <div class="kb-chap-meta"><span>${t.toLocaleString()} fuentes</span><span>${a}A · ${m}M · ${b}B</span></div>
+            ${gapsHtml}
           </div>
           <div class="kb-chap-bar">
             ${t > 0 ? `<div class="kb-stack-seg seg-alta" style="width:${pA}%"></div><div class="kb-stack-seg seg-media" style="width:${pM}%"></div><div class="kb-stack-seg seg-baja" style="width:${pB}%"></div>` : ''}
           </div>
-        </div>`;
-      }).join('');
-    }
-
-    // ── Gap analysis — from Supabase view (gap_analysis) ──
-    const gapContainer = document.getElementById('gapAnalysis');
-    if (gapContainer) {
-      const gapData = await supabaseQuery('gap_analysis?select=*&order=chapter_num.asc,gap_label.asc');
-
-      gapContainer.innerHTML = gapData.map(g => {
-        const n = g.gap_count || 0;
-        let icon, cls;
-        if (n < 3) { icon = '🔴'; cls = 'gap-critical'; }
-        else if (n < 8) { icon = '🟡'; cls = 'gap-warn'; }
-        else { icon = '🟢'; cls = 'gap-ok'; }
-        return `<div class="kb-gap-item ${cls}">
-          <span class="kb-gap-ch">Cap.${g.chapter_num}</span>
-          <span class="kb-gap-name">${g.gap_label}</span>
-          <span class="kb-gap-count">${icon} ${n}</span>
         </div>`;
       }).join('');
     }

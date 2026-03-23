@@ -241,7 +241,7 @@ _Actualizar al cierre de cada sesión. Este archivo es la memoria técnica del s
 - WebApp: **v36** · ArXiv: **v2** · AcademicOrchestrator: **v3** · GoogleNewsRSS: v1 · PerplexitySearch: v3
 - SKILL-KB: **v18** · SKILL-PM: **v17**
 - Dashboard: **sw thesis-v9** · Estructura: 7 caps híbrida, 32 secciones
-- KB: **1,336 items** (Supabase) · **1,331 items** (Sheet NewsLog)
+- KB: **1,344 items** (Supabase) · **1,331 items** (Sheet NewsLog)
 - Reading plan: **42 lecturas** (22 Ch2, 8 Ch3, 8 Ch4, 8 Ch5, 8 Ch6)
 
 _Última actualización: 2026-03-23 (Sheet cleanup + reading plan + Bueno de Mata + CGPJ + Tanner dedup)_

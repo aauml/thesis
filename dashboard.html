@@ -769,6 +769,14 @@
       display: inline-block; font-size: 0.65rem; color: var(--accent-mid);
       margin-top: 0.1rem;
     }
+    .lec-objective {
+      font-size: 0.78rem; color: var(--text); margin-top: 0.25rem;
+      padding: 0.3rem 0.5rem; background: var(--info-bg); border-left: 3px solid var(--info-border);
+      border-radius: 3px; line-height: 1.45;
+    }
+    .lec-lens {
+      font-size: 0.75rem; color: var(--text-light); margin-top: 0.15rem; line-height: 1.45;
+    }
 
     .lec-gaps { margin-top: 1.2rem; }
     .lec-gaps-title {
@@ -912,8 +920,8 @@
       <button class="sb-item active" onclick="switchView('panorama', this)">
         <span class="sb-icon">◉</span> Panorama
       </button>
-      <button class="sb-item" onclick="switchView('novedades', this)">
-        <span class="sb-icon">📰</span> Novedades <span class="sb-badge" id="badge-news" style="display:none;">0</span>
+      <button class="sb-item" onclick="switchView('news', this)">
+        <span class="sb-icon">📰</span> News <span class="sb-badge" id="badge-news" style="display:none;">0</span>
       </button>
       <button class="sb-item" onclick="switchView('operativo', this)">
         <span class="sb-icon">☑</span> Operativo <span class="sb-badge" id="badge-ops" style="display:none;">0</span>
@@ -929,9 +937,6 @@
       </button>
       <button class="sb-item" onclick="switchView('redaccion', this)">
         <span class="sb-icon">✍</span> Redacción <span class="sb-badge" id="badge-writing" style="display:none;">0%</span>
-      </button>
-      <button class="sb-item" onclick="switchView('decisiones', this)">
-        <span class="sb-icon">📜</span> Registro
       </button>
     </div>
 
@@ -972,33 +977,10 @@
 
       <!-- Actividad actual — solo 1-2 lecturas en curso -->
       <div class="m2-heading">Lectura activa</div>
-      <div class="m2-meta">C1 Ene–Abr 2026 · <a href="#" onclick="switchView('lecturas', document.querySelectorAll('.sb-item')[5]); return false;">ver plan completo →</a></div>
+      <div class="m2-meta">C1 Ene–Abr 2026 · <a href="#" onclick="switchView('lecturas', document.querySelectorAll('.sb-item')[4]); return false;">ver plan completo →</a></div>
       <div id="actividadActual">
         <div style="color:var(--text-muted); font-size:0.72rem; padding:0.5rem;">Cargando actividad actual...</div>
       </div>
-
-      <!-- Próximo milestone — context line -->
-      <div class="m2-heading">Próximo hito</div>
-      <div id="nextMilestoneContainer">
-        <div style="color:var(--text-muted); font-size:0.72rem; padding:0.5rem;">Cargando...</div>
-      </div>
-
-      <!-- Riesgos activos — moved from Operativo -->
-      <div class="m2-heading">Riesgos activos</div>
-      <div class="m2-meta" id="risksPhaseLabel">Cargando...</div>
-      <div id="risksContainer" style="margin-bottom:1rem;">
-        <div style="color:var(--text-muted); font-size:0.72rem; padding:0.5rem;">Cargando riesgos...</div>
-      </div>
-
-    </div>
-
-    <!-- ═══════════════════════════════════
-         VIEW: NOVEDADES (News + Desarrollos + Advisories)
-    ═══════════════════════════════════ -->
-    <div class="view" id="view-novedades">
-
-      <h2>Novedades</h2>
-      <div style="font-size:0.68rem; color:var(--text-muted); margin-top:-0.5rem; margin-bottom:1.5rem;">Desarrollos, análisis y noticias recientes · desde Supabase</div>
 
       <!-- Desarrollos clave — dynamic from Supabase pm_developments -->
       <div class="m2-heading">Desarrollos clave</div>
@@ -1014,9 +996,29 @@
         <div style="color:var(--text-muted); font-size:0.72rem; padding:0.5rem;">Cargando análisis y recomendaciones...</div>
       </div>
 
-      <!-- Noticias recientes — dynamic from Supabase (ALTA items) -->
-      <div class="m2-heading">Noticias recientes</div>
-      <div class="m2-meta">Items ALTA desde Supabase · más recientes primero</div>
+      <!-- Próximo milestone — context line -->
+      <div class="m2-heading">Próximo hito</div>
+      <div id="nextMilestoneContainer">
+        <div style="color:var(--text-muted); font-size:0.72rem; padding:0.5rem;">Cargando...</div>
+      </div>
+
+      <!-- Riesgos activos -->
+      <div class="m2-heading">Riesgos activos</div>
+      <div class="m2-meta" id="risksPhaseLabel">Cargando...</div>
+      <div id="risksContainer" style="margin-bottom:1rem;">
+        <div style="color:var(--text-muted); font-size:0.72rem; padding:0.5rem;">Cargando riesgos...</div>
+      </div>
+
+    </div>
+
+    <!-- ═══════════════════════════════════
+         VIEW: NEWS (solo noticias recientes del KB)
+    ═══════════════════════════════════ -->
+    <div class="view" id="view-news">
+
+      <h2>News</h2>
+      <div style="font-size:0.68rem; color:var(--text-muted); margin-top:-0.5rem; margin-bottom:1.5rem;">Entradas recientes ALTA del KB · desde Supabase</div>
+
       <div id="recentNewsContainer">
         <div style="color:var(--text-muted); font-size:0.78rem; padding:0.5rem;">Cargando noticias recientes...</div>
       </div>
@@ -1031,7 +1033,7 @@
       <h2>Operativo</h2>
       <div style="font-size:0.68rem; color:var(--text-muted); margin-top:-0.5rem; margin-bottom:1.5rem;">Tareas accionables · C1 2026</div>
 
-      <!-- Tareas — interactive checklist from pm_tasks -->
+      <!-- Tareas del usuario — interactive checklist from pm_tasks -->
       <div class="m2-heading">Tareas</div>
       <div class="m2-meta">Acciones concretas · se limpian al completar</div>
       <div id="opCard" style="margin-bottom:1.2rem;">
@@ -1041,6 +1043,13 @@
           <button class="btn-sm" onclick="clearCompletedOps()">limpiar</button>
         </div>
         <div id="opCompleted"></div>
+      </div>
+
+      <!-- Tareas PM (Claude) — gaps, vigilancia, acciones automáticas -->
+      <div class="m2-heading">Tareas PM (Claude)</div>
+      <div class="m2-meta">Gaps del KB, vigilancia normativa, acciones pendientes del sistema</div>
+      <div id="pmTasksContainer">
+        <div style="color:var(--text-muted); font-size:0.72rem; padding:0.5rem;">Cargando tareas PM...</div>
       </div>
 
     </div>
@@ -1558,27 +1567,10 @@
 
     </div>
 
-    <!-- ═══════════════════════════════════
-         VIEW: REGISTRO (Decisiones + Sesiones)
-    ═══════════════════════════════════ -->
-    <div class="view" id="view-decisiones">
-
-      <h2>Registro de Decisiones</h2>
-      <div style="font-size:0.72rem; color:var(--text-muted); margin-bottom:0.75rem;">Solo decisiones sustantivas de investigación. Infraestructura y sesiones → PM-SessionLog en repo.</div>
-
-      <div class="dec-controls">
-        <button class="btn-sm" onclick="toggleAllDec(true)">Expandir todo</button>
-        <button class="btn-sm" onclick="toggleAllDec(false)">Contraer todo</button>
-      </div>
-
-      <div id="decisionsContainer">
-        <div style="color:var(--text-muted); font-size:0.72rem; padding:0.5rem;">Cargando decisiones...</div>
-      </div>
-
-    </div>
+    <!-- Decisiones eliminadas del dashboard v12.1 — datos siguen en Supabase pm_decisions -->
 
     <footer>
-      Última actualización: 23 de marzo de 2026 · Thesis Dashboard v12.0 (M2) — Panorama slim · Novedades tab · Operativo limpio · KB gaps completos
+      Última actualización: 23 de marzo de 2026 · Thesis Dashboard v12.1 (M2) — News tab · PM tasks · reading objectives · sin Registro
     </footer>
 
   </div><!-- /main -->
@@ -2272,10 +2264,18 @@ async function fetchReadingPlan() {
           const urlHtml = `<a href="${kbLink}" target="_blank">${r.title}</a>`;
           const sourceTag = r.source === 'pm_advisory' ? ' <span style="font-size:0.55rem; background:var(--warn-bg); color:var(--warn-text); padding:0.1rem 0.3rem; border-radius:3px;">PM</span>' : '';
 
+          const objectiveHtml = r.reading_objective
+            ? `<div class="lec-objective"><strong>Objetivo:</strong> ${r.reading_objective}</div>`
+            : '';
+          const lensHtml = r.lens
+            ? `<div class="lec-lens"><strong>Contexto:</strong> <em>${r.lens}</em></div>`
+            : '';
+
           yearsHtml += `<div class="lec-item"><span class="lec-lvl ${lvlCls}">${lvlLabel}</span><div>
             <strong>${urlHtml}</strong> ${statusHtml}${sourceTag}
-            ${r.lens ? ' — <em>' + r.lens + '</em>' : ''}
-            ${r.chapter_ids && r.chapter_ids.length ? '<br><span class="lec-chapter">→ ' + formatChapterIds(r.chapter_ids, chMap) + '</span>' : ''}
+            ${objectiveHtml}
+            ${lensHtml}
+            ${r.chapter_ids && r.chapter_ids.length ? '<span class="lec-chapter">→ ' + formatChapterIds(r.chapter_ids, chMap) + '</span>' : ''}
           </div></div>`;
         });
 
@@ -2769,7 +2769,74 @@ async function fetchRisks() {
 }
 
 // ═══════════════════════════════════════
-// DECISIONES — from Supabase pm_decisions
+// PM TASKS (Claude) — gaps, vigilancia, acciones del sistema
+// ═══════════════════════════════════════
+async function fetchPmTasks() {
+  const container = document.getElementById('pmTasksContainer');
+  if (!container) return;
+
+  try {
+    // Fetch gap data from KB to generate actionable PM tasks
+    const GAP_DEFS = {
+      2: [{ label: 'Procesal español + IA', filter: 'language=eq.es&or=(title.ilike.*procesal*,title.ilike.*prueba*,title.ilike.*jurisdiccional*,thesis_relevance.ilike.*procesal*,scholar.ilike.*Bueno*,scholar.ilike.*Nieva*)' }],
+      4: [{ label: 'Crítica NIST RMF', filter: 'chapters=cs.%7B4%7D&or=(thesis_relevance.ilike.*critique*,thesis_relevance.ilike.*limitation*,thesis_relevance.ilike.*voluntary*,title.ilike.*accountability*,title.ilike.*Beyond%20Audit*)' }],
+      6: [{ label: 'PATTERN directas', filter: 'or=(title.ilike.*PATTERN*,title.ilike.*First%20Step%20Act*,title.ilike.*recidivism*BOP*)' }],
+    };
+
+    const gapPromises = [];
+    const gapMeta = [];
+    for (const [ch, gaps] of Object.entries(GAP_DEFS)) {
+      for (const g of gaps) {
+        gapPromises.push(supabaseCount(g.filter));
+        gapMeta.push({ ch: parseInt(ch), label: g.label });
+      }
+    }
+
+    // Also fetch pending queries and advisories for vigilancia tasks
+    const [pendingNews, ...gapCounts] = await Promise.all([
+      supabaseQuery('evaluated_items?select=pk&importance=eq.ALTA&created_at=gte.' + new Date(Date.now() - 7*86400000).toISOString().split('T')[0] + '&limit=1&order=created_at.desc'),
+      ...gapPromises
+    ]);
+
+    let html = '';
+
+    // Gap-based tasks
+    gapMeta.forEach((m, i) => {
+      const n = gapCounts[i];
+      if (n >= 8) return; // gap OK, no task needed
+      const severity = n < 3 ? 'm2-risk-high' : 'm2-risk-med';
+      const action = n < 3
+        ? 'Buscar fuentes adicionales vía Scholar, Perplexity. Considerar queries específicos.'
+        : 'Monitorear. Revisar en próximo sweep si mejora.';
+      html += `<div class="m2-risk" style="margin-bottom:0.5rem;">
+        <span class="m2-risk-lvl ${severity}">${n < 3 ? 'urgente' : 'vigilar'}</span>
+        <strong>Cap. ${m.ch} — ${m.label}</strong> (${n} fuentes).
+        <span style="color:var(--text-light);">${action}</span>
+      </div>`;
+    });
+
+    // Vigilancia task — new ALTA items in last 7 days
+    const recentAlta = (pendingNews || []).length;
+    if (recentAlta > 0) {
+      html += `<div class="m2-risk" style="margin-bottom:0.5rem;">
+        <span class="m2-risk-lvl m2-risk-low">info</span>
+        <strong>Vigilancia:</strong> Hay entradas ALTA nuevas esta semana.
+        <span style="color:var(--text-light);">Revisar en News y evaluar impacto en plan de lecturas.</span>
+      </div>`;
+    }
+
+    if (!html) {
+      html = '<div style="color:var(--text-muted); font-size:0.78rem;">Sin tareas PM pendientes. Gaps bajo control.</div>';
+    }
+
+    container.innerHTML = html;
+  } catch(e) {
+    container.innerHTML = '<div style="color:var(--text-muted); font-size:0.72rem;">Error cargando tareas PM.</div>';
+  }
+}
+
+// ═══════════════════════════════════════
+// DECISIONES — from Supabase pm_decisions (kept for data, view removed)
 // ═══════════════════════════════════════
 async function fetchDecisions() {
   const container = document.getElementById('decisionsContainer');
@@ -2924,7 +2991,7 @@ document.addEventListener('DOMContentLoaded', () => {
   fetchNextMilestone(); // Próximo hito for Panorama
   fetchBiblioProjection(); // Bibliography projection (dynamic chapter names)
   fetchRisks(); // Riesgos → Panorama
-  fetchDecisions(); // Decisiones from Supabase
+  fetchPmTasks(); // PM (Claude) tasks — gaps, vigilancia
   fetchReadingPlan(); // Full reading plan from Supabase
 
   // Rewrite all hardcoded lecturas links to KB deep-links (exact URL match)
@@ -2951,7 +3018,7 @@ document.addEventListener('DOMContentLoaded', () => {
   (function initSwipeNav() {
     const mainEl = document.querySelector('.main');
     if (!mainEl) return;
-    const viewOrder = ['panorama','novedades','operativo','kb','mapa','lecturas','redaccion','decisiones'];
+    const viewOrder = ['panorama','news','operativo','kb','mapa','lecturas','redaccion'];
     let startX = 0, startY = 0, tracking = false;
     const THRESHOLD = 60;   // min px horizontal
     const MAX_RATIO = 0.6;  // max vertical/horizontal ratio (ignore diagonal/vertical swipes)

@@ -465,6 +465,7 @@
     .kb-pipe-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; display: inline-block; }
     .kb-pipe-dot.green { background: var(--success-text); }
     .kb-pipe-dot.yellow { background: var(--warn-text); }
+    .kb-pipe-dot.gray { background: var(--text-muted); }
     .kb-pipe-name { font-size: 0.78rem; font-weight: 600; color: var(--text); }
     .kb-pipe-queue { font-size: 0.78rem; font-weight: 700; margin-left: auto; }
     .kb-pipe-queue.zero { color: var(--success-text); }
@@ -488,14 +489,15 @@
     .kb-stack-legend .dot-media { background: var(--accent-mid); }
     .kb-stack-legend .dot-baja { background: #b0b8c4; }
 
-    /* Gap list — plain text, no colored boxes */
+    /* Gap list — per-chapter with traffic light */
     .kb-gap-list { display: flex; flex-direction: column; gap: 0.35rem; }
-    .kb-gap-item { display: flex; align-items: center; gap: 0.6rem; padding: 0.45rem 0.7rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 4px; font-size: 0.78rem; }
+    .kb-gap-item { display: flex; align-items: center; gap: 0.5rem; padding: 0.4rem 0.7rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 4px; font-size: 0.78rem; }
+    .kb-gap-item.gap-critical { border-left: 3px solid #d32f2f; }
+    .kb-gap-item.gap-warn { border-left: 3px solid #f9a825; }
+    .kb-gap-item.gap-ok { border-left: 3px solid #2e7d32; }
+    .kb-gap-ch { font-size: 0.65rem; font-weight: 700; color: var(--text-muted); background: var(--bg-main); padding: 0.1rem 0.35rem; border-radius: 3px; white-space: nowrap; }
     .kb-gap-name { font-weight: 600; color: var(--text); flex: 1; }
-    .kb-gap-counts { display: flex; gap: 0.5rem; font-size: 0.7rem; }
-    .kb-gap-c { display: flex; align-items: center; gap: 0.15rem; }
-    .kb-gap-c .dot { width: 6px; height: 6px; border-radius: 2px; display: inline-block; }
-    .kb-gap-c-val { font-weight: 600; }
+    .kb-gap-count { font-size: 0.75rem; font-weight: 700; white-space: nowrap; }
 
     /* Chapter coverage grid — stacked bar variant */
     .kb-chap-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.4rem; }
@@ -1813,9 +1815,9 @@ async function fetchPipelineStatus() {
 
   try {
     const [acad, perp, news, meta, statsResp, supaResp] = await Promise.all([
-      fetch(GAS_API + '?action=getAcademicQueue&status=pending&limit=200').then(r => r.json()).catch(() => null),
-      fetch(GAS_API + '?action=getPerplexityQueue&status=pending&limit=200').then(r => r.json()).catch(() => null),
-      fetch(GAS_API + '?action=getNewsResults&status=pending&limit=200').then(r => r.json()).catch(() => null),
+      fetch(GAS_API + '?action=getAcademicQueue&limit=500').then(r => r.json()).catch(() => null),
+      fetch(GAS_API + '?action=getPerplexityQueue&limit=500').then(r => r.json()).catch(() => null),
+      fetch(GAS_API + '?action=getNewsResults&limit=500').then(r => r.json()).catch(() => null),
       fetch(GAS_API + '?action=getMeta').then(r => r.json()).catch(() => null),
       fetch(GAS_API + '?action=getStats').then(r => r.json()).catch(() => null),
       fetch(SUPABASE_URL + '/rest/v1/evaluated_items?select=pk&limit=1', {
@@ -1823,9 +1825,20 @@ async function fetchPipelineStatus() {
       }).then(r => { const c = parseInt(r.headers.get('content-range')?.split('/')[1] || '0'); return { count: c }; }).catch(() => null)
     ]);
 
-    const acadPending = acad?.total || acad?.rows?.length || 0;
-    const perpPending = perp?.total || perp?.rows?.length || 0;
-    const newsPending = news?.total || news?.rows?.length || 0;
+    // Count pending (new) vs total per queue
+    function queueStats(data) {
+      const rows = data?.rows || [];
+      const total = data?.total || rows.length;
+      const pending = rows.filter(r => r.status === 'pending').length;
+      return { total, pending };
+    }
+    const acadStats = queueStats(acad);
+    const perpStats = queueStats(perp);
+    const newsStats = queueStats(news);
+
+    const acadPending = acadStats.pending;
+    const perpPending = perpStats.pending;
+    const newsPending = newsStats.pending;
     const totalPending = acadPending + perpPending + newsPending;
     const sheetTotal = statsResp?.total || 0;
     const supaTotal = supaResp?.count || 0;
@@ -1866,17 +1879,27 @@ async function fetchPipelineStatus() {
 
     // Pipeline queue cards + sync card
     const queueRows = [
-      { name: 'Academic', count: acadPending, trigger: 'startIncrementalScan', schedule: 'lun 6am' },
-      { name: 'Perplexity', count: perpPending, trigger: 'runPerplexitySearch', schedule: 'dom 3am' },
-      { name: 'News', count: newsPending, trigger: 'runNewsAPI', schedule: 'diario 11pm' },
+      { name: 'Academic', count: acadPending, total: acadStats.total, trigger: 'startIncrementalScan', schedule: 'lun 6am' },
+      { name: 'Perplexity', count: perpPending, total: perpStats.total, trigger: 'runPerplexitySearch', schedule: 'dom 3am' },
+      { name: 'News', count: newsPending, total: newsStats.total, trigger: 'runNewsAPI', schedule: 'diario 11pm' },
     ];
 
     let html = '';
     queueRows.forEach(q => {
-      const dotClass = q.count > 0 ? 'yellow' : 'green';
-      const queueClass = q.count > 0 ? 'pending' : 'zero';
-      const queueLabel = q.count > 0 ? `${q.count} en cola` : '0 en cola';
+      const hasPending = q.count > 0;
+      const dotClass = hasPending ? 'yellow' : (q.total > 0 ? 'green' : 'gray');
       const nextRun = nextTriggerRun(q.name);
+      let queueLabel, queueClass;
+      if (hasPending) {
+        queueLabel = `${q.count} nuevos`;
+        queueClass = 'pending';
+      } else if (q.total > 0) {
+        queueLabel = `✓ ${q.total} procesados`;
+        queueClass = 'zero';
+      } else {
+        queueLabel = 'vacía';
+        queueClass = 'zero';
+      }
       html += `<div class="kb-pipe-card">
         <div class="kb-pipe-header">
           <span class="kb-pipe-dot ${dotClass}"></span>
@@ -2452,36 +2475,31 @@ async function fetchKbStats() {
       }).join('');
     }
 
-    // ── Gap analysis — plain text with quality counts ──
+    // ── Gap analysis — per-chapter specific gaps ──
     const gapContainer = document.getElementById('gapAnalysis');
     if (gapContainer) {
-      // Fetch alta/media/baja for each gap area
-      const gapDefs = [
-        { name: 'Derecho procesal español', filter: 'or=(thesis_relevance.ilike.*procesal*,thesis_relevance.ilike.*prueba electrónica*)' },
-        { name: 'Caso PATTERN/BOP', filter: 'or=(thesis_relevance.ilike.*PATTERN*,thesis_relevance.ilike.*Bureau of Prisons*,thesis_relevance.ilike.*recidivism*)' },
-        { name: 'Capa: Caso', filter: 'capa=ilike.*Caso*' },
-        { name: 'Capa: Metodológica', filter: 'capa=ilike.*Metodológica*' },
+      const chapterGaps = [
+        { ch: 2, label: 'Procesal español + IA', filter: 'and=(chapters.cs.{2},language.eq.es,or=(thesis_relevance.ilike.*procesal*,thesis_relevance.ilike.*prueba*,thesis_relevance.ilike.*jurisdiccional*))' },
+        { ch: 2, label: 'Director de tesis (Bueno de Mata)', filter: 'scholar=ilike.*Bueno*' },
+        { ch: 3, label: 'Implementación RIA (guidelines)', filter: 'and=(chapters.cs.{3},or=(title.ilike.*guideline*,title.ilike.*implementing*,title.ilike.*conformity*,title.ilike.*sandbox*))' },
+        { ch: 4, label: 'Crítica académica NIST RMF', filter: 'and=(chapters.cs.{4},or=(thesis_relevance.ilike.*critico*,thesis_relevance.ilike.*critique*,thesis_relevance.ilike.*limitation*,thesis_relevance.ilike.*voluntary*))' },
+        { ch: 5, label: 'Crosswalks ALTA', filter: 'and=(chapters.cs.{5},importance.eq.ALTA)' },
+        { ch: 6, label: 'PATTERN directas', filter: 'or=(title.ilike.*PATTERN*,title.ilike.*First Step Act*risk*)' },
+        { ch: 6, label: 'STRmix + forensic DNA', filter: 'and=(chapters.cs.{6},or=(title.ilike.*STRmix*,title.ilike.*probabilistic genotyping*))' },
       ];
 
-      const gapResults = await Promise.all(gapDefs.flatMap(g => [
-        supabaseCount(g.filter + '&importance=eq.ALTA'),
-        supabaseCount(g.filter + '&importance=eq.MEDIA'),
-        supabaseCount(g.filter + '&importance=eq.BAJA'),
-      ]));
+      const gapCounts = await Promise.all(chapterGaps.map(g => supabaseCount(g.filter)));
 
-      gapContainer.innerHTML = gapDefs.map((g, i) => {
-        const a = gapResults[i * 3];
-        const m = gapResults[i * 3 + 1];
-        const b = gapResults[i * 3 + 2];
-        const t = a + m + b;
-        return `<div class="kb-gap-item">
-          <span class="kb-gap-name">${g.name}</span>
-          <div class="kb-gap-counts">
-            <span class="kb-gap-c"><i class="dot dot-alta"></i> <span class="kb-gap-c-val">${a}</span></span>
-            <span class="kb-gap-c"><i class="dot dot-media"></i> <span class="kb-gap-c-val">${m}</span></span>
-            <span class="kb-gap-c"><i class="dot dot-baja"></i> <span class="kb-gap-c-val">${b}</span></span>
-            <span style="font-size:0.65rem; color:var(--text-muted);">(${t})</span>
-          </div>
+      gapContainer.innerHTML = chapterGaps.map((g, i) => {
+        const n = gapCounts[i];
+        let icon, cls;
+        if (n < 3) { icon = '🔴'; cls = 'gap-critical'; }
+        else if (n < 8) { icon = '🟡'; cls = 'gap-warn'; }
+        else { icon = '🟢'; cls = 'gap-ok'; }
+        return `<div class="kb-gap-item ${cls}">
+          <span class="kb-gap-ch">Cap.${g.ch}</span>
+          <span class="kb-gap-name">${g.label}</span>
+          <span class="kb-gap-count">${icon} ${n}</span>
         </div>`;
       }).join('');
     }

@@ -54,6 +54,46 @@ _Registro técnico del proyecto phd-pm. Actualizar al cierre de cada sesión. Al
 
 ## Registro de sesiones
 
+### 2026-03-22 — Dashboard Advisor + deploys GAS + auditoría capítulos (Dispatch)
+
+**Tipo de sesión:** Dispatch (automatizada)
+
+**Dashboard:**
+- Diseñada e implementada sección Advisor con dos capas: PM Briefing (manual) + Señales KB (dinámica vía API Sheet)
+- Fix overflow móvil en sección Redacción (flex-wrap)
+- Fix títulos de capítulo truncados en móvil
+- Eliminada etiqueta "Pendiente" de tarjetas de capítulo (el contador de palabras es suficiente)
+- Cap 3 renombrado a "Estado del Arte" vía CHAPTER_TITLE_OVERRIDE
+- Meta de palabras más clara: "Palabras escritas / meta" en un solo stat
+
+**Sistema / GAS:**
+- TASK-014 completada: SKILL-KB actualizado a v18 con 7 capítulos canónicos
+- TASK-006 preparada: protocolo Supabase-primary documentado y listo (PROTOCOL-UPDATE-SUPABASE.md)
+- 3 deploys GAS ejecutados vía Chrome (Version 48): WebApp-v36 (BUG-005), ArXiv-v2 (BUG-004), AcademicOrchestrator-v3 (BUG-002)
+- TASK-009 programada como tarea automática para 2026-03-27 (Digital Omnibus post-plenary)
+- Push pendiente de sesión desktop completado (commit 9afc3d2)
+
+**Diagnóstico Supabase:**
+- Auditoría completa del campo `chapters`: 1,495 items, 100% asignados, remapeo a 7 caps confirmado
+- Cap 7 (Conclusiones): 0 items — backfill pendiente de decisión del usuario
+- Cap 4 (Metodología): escaso con 37 items
+- Diagnóstico 09_Sistema: mockups y versiones obsoletas identificados, limpieza diferida
+
+**Decisiones:**
+- Cap 3 = "Estado del Arte" (por el momento, sujeto a revisión)
+- Limpieza de 09_Sistema diferida
+- Backfill Cap 7 pendiente de decisión del usuario
+
+**Versiones activas tras esta sesión:**
+- WebApp: v36 · ArXiv: v2 · AcademicOrchestrator: v3 · SKILL-KB: v18 · SKILL-PM: v13 · GAS Version 48
+
+**Pendiente para próxima sesión:**
+- Advisory #6 (TASK-009): verificar resultado del voto plenario Digital Omnibus del 26 de marzo
+- Decisión sobre backfill Cap 7 (Conclusiones)
+- Primera sesión `update` real con protocolo Supabase-primary
+
+---
+
 ### 2026-03-21 — Seguimiento proactivo de advisories (SKILL v13)
 
 **Cambios realizados:**

@@ -17,9 +17,10 @@ _Actualizar al cierre de cada sesión. Este archivo es la memoria técnica del s
 - **Fecha resuelto:** 2026-03-22
 
 ### BUG-002 — sweep_index architectural bug en AcademicOrchestrator
-- **Estado:** ✅ Resuelto 2026-03-22
+- **Estado:** ✅ Resuelto y desplegado 2026-03-22
 - **Descripción:** El índice `sweep_index` avanza más allá del array de queries elegibles cuando el array se reduce entre runs. Causa que algunas queries se salten en el historical sweep.
-- **Fix:** AcademicOrchestrator v3 — clamp guard: si `idx >= eligibleQueries.length`, resetea a 0. Script versionado en `scripts/AcademicOrchestrator-v3.txt`. Pendiente deploy por usuario.
+- **Fix:** AcademicOrchestrator v3 — clamp guard: si `idx >= eligibleQueries.length`, resetea a 0. Script versionado en `scripts/AcademicOrchestrator-v3.txt`.
+- **Deploy:** GAS Version 48, desplegado vía Chrome en sesión Dispatch 2026-03-22.
 - **Fecha detectado:** Sesión anterior a 2026-03-13
 - **Fecha resuelto:** 2026-03-22
 
@@ -74,8 +75,8 @@ _Actualizar al cierre de cada sesión. Este archivo es la memoria técnica del s
 | 2026-03-22 | `chapters` column creada y poblada: Cap1=748, Cap2=37, Cap3=724, Cap4=818, Cap5=573, Cap6=378. |
 | 2026-03-22 | **REMAPEO CANÓNICO DE CAPÍTULOS (PM-initiated).** chapter_sections reescrita (7 caps, 29 secciones). evaluated_items.chapters remapeado: old 2→4(Meto), old 3→2(MT), old 4→3(EdA). Nueva distribución: Cap1=748, Cap2=726(MT), Cap3=818(EdA), Cap4=37(Meto), Cap5=574(Comp), Cap6=378(Caso). Vista `chapter_coverage` creada. reading_plan.chapter_ids (int[]) añadido. Dashboard dinámico. **KB debe usar nueva numeración en futuras evaluaciones.** |
 | 2026-03-22 | BUG-001 resuelto: 0 items pending en PerplexityQueue (200 total: 125 promoted, 61 reviewed, 14 discarded). |
-| 2026-03-22 | WebApp-v36 preparado: fix getUrls tab filtering (BUG-005). Pendiente deploy por usuario. |
-| 2026-03-22 | Versiones activas: WebApp-v35 (v36 pendiente deploy), GoogleNewsRSS-v1, PerplexitySearch-v3, AcademicOrchestrator-v2 (v3 pendiente deploy), ArXiv-v1 (v2 pendiente deploy), SKILL-KB-v17. |
+| 2026-03-22 | WebApp-v36 desplegado: fix getUrls tab filtering (BUG-005). GAS Version 48. |
+| 2026-03-22 | Versiones activas (GAS Version 48, Dispatch): WebApp-v36, GoogleNewsRSS-v1, PerplexitySearch-v3, AcademicOrchestrator-v3, ArXiv-v2, SKILL-KB-v18. |
 | 2026-03-22 | TASK-014 completado: SKILL-KB-v18 publicado con estructura canónica de 7 capítulos. Campo `chapters` (int[]) ahora Required en schema Supabase y en todos los ejemplos de escritura. |
 | 2026-03-22 | BUG-002 fix: AcademicOrchestrator-v3 con clamp guard para sweep_index. Script en `scripts/AcademicOrchestrator-v3.txt`. |
 | 2026-03-22 | TASK-007 completado (fase 2): análisis full-text TRUMP AI Act (~300 pp). 2 PDFs indexados en Supabase + embeddings. DB: 1,495 items. |
@@ -97,13 +98,13 @@ _Actualizar al cierre de cada sesión. Este archivo es la memoria técnica del s
 ---
 
 ### BUG-004 — AcademicOrchestrator arXiv noise: massive off-topic returns
-- **Estado:** ✅ Fix preparado — pendiente deploy
+- **Estado:** ✅ Resuelto y desplegado 2026-03-22
 - **Descripción:** ArXiv queries retornan papers completamente off-topic (quantum physics, coral larvae, Hawking radiation) para queries de AI Act, Forensic AI, etc. La query construction en `q_arxiv` no filtra por categoría o subject. De 200 items pendientes, 79 fueron obviamente off-topic por keywords, y ~77 adicionales fueron tangenciales.
 - **Impacto:** Alto — la mayoría de los items en AcademicQueue son noise, desperdiciando tiempo de evaluación.
-- **Fix:** `ArXiv_v2.gs` — inyecta filtro de categorías automáticamente en todas las queries. Categorías permitidas: cs.AI, cs.CY, cs.LG, cs.CR, cs.HC, cs.CL, cs.SE, stat.ML, eess.SP, q-bio.QM. Si `q_arxiv` ya contiene `cat:`, no se inyecta (permite overrides manuales). Archivo disponible en repo (`ArXiv_v2.gs`) y en outputs.
-- **Deploy:** Usuario debe copiar contenido de `ArXiv_v2.gs` al editor GAS, reemplazando `ArXiv.gs`. No requiere redesploy del WebApp (es script interno del AcademicOrchestrator).
+- **Fix:** `ArXiv_v2.gs` — inyecta filtro de categorías automáticamente en todas las queries. Categorías permitidas: cs.AI, cs.CY, cs.LG, cs.CR, cs.HC, cs.CL, cs.SE, stat.ML, eess.SP, q-bio.QM. Si `q_arxiv` ya contiene `cat:`, no se inyecta (permite overrides manuales).
+- **Deploy:** GAS Version 48, desplegado vía Chrome en sesión Dispatch 2026-03-22.
 - **Fecha detectado:** 2026-03-15
-- **Fecha fix preparado:** 2026-03-15
+- **Fecha resuelto:** 2026-03-22
 
 ### TASK-006 — Integrar Supabase como destino de escritura post-evaluación
 - **Estado:** ✅ Completado 2026-03-22
@@ -144,10 +145,11 @@ _Actualizar al cierre de cada sesión. Este archivo es la memoria técnica del s
 - **Fecha completado:** 2026-03-22
 
 ### TASK-009 — Monitorear voto plenario Digital Omnibus (March 26, 2026)
-- **Estado:** Pendiente
+- **Estado:** Programada — tarea automática agendada para 2026-03-27
 - **Descripción:** IMCO/LIBE adoptaron posición conjunta 101-9-8 el 2026-03-18. Voto plenario scheduled for March 26. Después: trilogues con Council. Rastrear resultado y posiciones del Council.
-- **Prioridad:** URGENTE — run `update claude` on or after March 27
+- **Prioridad:** URGENTE — tarea automática ejecutará `update claude` el 2026-03-27
 - **Fecha detectado:** 2026-03-19
+- **Tarea programada:** Agendada en sesión Dispatch 2026-03-22 para ejecución el 2026-03-27
 
 ### TASK-010 — Backfill run 210 items to Supabase + update meta
 - **Estado:** ✅ Completado 2026-03-19
@@ -182,25 +184,32 @@ _Actualizar al cierre de cada sesión. Este archivo es la memoria técnica del s
 - **Fecha completado:** 2026-03-22
 
 ### BUG-005 — getUrls no filtra por tab
-- **Estado:** Abierto
-- **Descripción:** WebApp `action=getUrls&tab=X` devuelve siempre todas las URLs de toda la Sheet (1,493), ignorando el parámetro tab. Impide leer contenido de tabs específicas (PerplexityQueue, AcademicQueue) remotamente.
-- **Impacto:** Medio — bloquea limpieza de BUG-001 y cualquier operación tab-specific.
-- **Fix posible:** Actualizar `getUrls` en WebApp para filtrar por tab antes de recopilar URLs.
+- **Estado:** ✅ Resuelto y desplegado 2026-03-22
+- **Descripción:** WebApp `action=getUrls&tab=X` devolvía siempre todas las URLs de toda la Sheet (1,493), ignorando el parámetro tab. Impedía leer contenido de tabs específicas (PerplexityQueue, AcademicQueue) remotamente.
+- **Impacto:** Medio — bloqueaba limpieza de BUG-001 y cualquier operación tab-specific.
+- **Fix:** WebApp-v36 — `getUrls` actualizado para filtrar por tab antes de recopilar URLs.
+- **Deploy:** GAS Version 48, desplegado vía Chrome en sesión Dispatch 2026-03-22.
 - **Fecha detectado:** 2026-03-22
+- **Fecha resuelto:** 2026-03-22
+
+### TASK-015 — Backfill Cap 7 (Conclusiones) en evaluated_items
+- **Estado:** Pendiente — decisión del usuario requerida
+- **Descripción:** Cap 7 (Conclusiones) tiene 0 items asignados en `evaluated_items.chapters`. Los ítems del KB no han sido mapeados a este capítulo todavía. Requiere definir qué tipo de fuentes pertenecen a conclusiones y si el backfill es manual o semi-automático.
+- **Impacto:** Bajo por ahora — Conclusiones es el capítulo de cierre, aún no en redacción activa.
+- **Decisión pendiente:** ¿Backfill manual sesión `update`? ¿Criteria para qué items van a Cap 7?
+- **Fecha detectado:** 2026-03-22 (sesión Dispatch, auditoría chapters)
 
 ---
 
 ## Próxima sesión
 
-- **Prioridad 1:** TASK-009 — Post March 26 plenary vote: check Digital Omnibus outcome. Briefing prep en `logs/TASK009-DigitalOmnibus-Prep.md`
-- **Prioridad 2:** TASK-006 — Primera sesión `update` con protocolo Supabase-primary (validado, listo para uso)
-- **Prioridad 3:** BUG-004 — Deploy ArXiv_v2.gs (usuario copia contenido de `scripts/ArXiv-v2.txt` al editor GAS)
-- **Prioridad 4:** BUG-005 — Deploy WebApp-v36 (fix getUrls tab filtering). Usuario redespliega desde `gas/WebApp.js` o `scripts/WebApp-v36.txt`
-- **Prioridad 5:** BUG-002 — Deploy AcademicOrchestrator-v3 (usuario copia contenido de `scripts/AcademicOrchestrator-v3.txt` al editor GAS)
+- **Prioridad 1:** TASK-009 — Tarea automática ya programada para 2026-03-27: verificar resultado del voto plenario Digital Omnibus del 26 de marzo
+- **Prioridad 2:** TASK-006 — Primera sesión `update` con protocolo Supabase-primary (validado, listo para uso). Guía: `phd-kb/docs/PROTOCOL-UPDATE-SUPABASE.md`
+- **Prioridad 3:** TASK-015 — Decidir criterios y ejecutar backfill Cap 7 (Conclusiones)
+- **Prioridad 4:** Cap 4 (Metodología) escaso con 37 items — considerar búsqueda dirigida
 
-### Deploys pendientes (acciones del usuario)
-1. **WebApp-v36**: fix getUrls tab filtering (BUG-005). Copiar `gas/WebApp.js` al editor GAS → nueva versión.
-2. **ArXiv-v2**: category filtering (BUG-004). Copiar `scripts/ArXiv-v2.txt` reemplazando `ArXiv.gs`.
-3. **AcademicOrchestrator-v3**: sweep_index clamp (BUG-002). Copiar `scripts/AcademicOrchestrator-v3.txt` reemplazando `AcademicOrchestrator.gs`.
+### Versiones activas (tras Dispatch 2026-03-22, GAS Version 48)
+- WebApp: **v36** · ArXiv: **v2** · AcademicOrchestrator: **v3** · GoogleNewsRSS: v1 · PerplexitySearch: v3
+- SKILL-KB: **v18** · SKILL-PM: v13
 
-_Última actualización: 2026-03-22 (TASK-014 completado — SKILL-KB-v18)_
+_Última actualización: 2026-03-22 (sesión Dispatch — deploys GAS v48, sección Advisor dashboard, auditoría capítulos)_

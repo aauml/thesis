@@ -151,6 +151,7 @@ These are hard rules derived from past bugs. Violating any of these means repeat
 
 | Date | Session Type | Key Actions | Lessons Added |
 |------|-------------|-------------|---------------|
+| 2026-03-22 | dispatch | Dashboard Advisor (PM Briefing + KB Signals), 3 deploys GAS (v48), auditoría chapters, TASK-014 done, TASK-009 programada | PR-019 |
 | 2026-03-18 | reading-plan | KB analysis (1468 entries), Plan de Lecturas in Dashboard v8.1, 5 queries (Q120-Q124), sweep protocol, SKILL-PM v6, scheduled task | PR-015, PR-016, PR-017 |
 | 2026-03-17 | restructuring | Dashboard v6.1, vault files, iCloud cleanup, Operativo standalone, KPIs dinámicos, session log | PR-013, PR-014 |
 | 2026-03-15 | automation | Dashboard v5.0 live API fetch + scheduled daily queue review task | PR-011 |
@@ -163,10 +164,16 @@ These are hard rules derived from past bugs. Violating any of these means repeat
 
 ---
 
+### PR-019 — Dispatch puede ejecutar deploys GAS completos vía Chrome
+- **Derived from:** Sesión Dispatch 2026-03-22. 3 scripts GAS desplegados (WebApp-v36, ArXiv-v2, AcademicOrchestrator-v3) sin intervención del usuario.
+- **Root cause:** Dispatch tiene acceso al conector Chrome, que permite navegar al editor GAS, reemplazar contenido de scripts vía Monaco API, y crear nuevos deploys completos.
+- **Rule:** Cuando haya scripts GAS con fix preparado (script en `scripts/` o `gas/`), una sesión Dispatch puede ejecutar el deploy completo: (1) navegar a GAS editor, (2) reemplazar contenido con Monaco API (PR-004), (3) hacer deploy como nueva versión. No es necesario que el usuario ejecute estos deploys manualmente. Documentar número de versión GAS resultante en SessionLog y KB-PendingIssues.
+- **Limitación:** Dispatch no puede verificar el comportamiento runtime del script tras el deploy. Si se requiere validación funcional, coordinar con sesión interactiva post-deploy.
+
 ### PR-018 — chapter_sections es la fuente única de verdad para estructura de capítulos
 - **Derived from:** Sesión 2026-03-22. Se detectó inconsistencia triple: SKILL-PM tenía 6 caps con un orden, chapter_sections tenía 7 caps genéricos con otro orden, y el dashboard tenía 8 caps hardcodeados con un tercer orden. Los 1,495 items en evaluated_items.chapters estaban mapeados al orden del SKILL-PM, no al de chapter_sections.
 - **Root cause:** La estructura de capítulos se definió en tres lugares distintos sin coordinación. El dashboard no usaba el campo `chapters` de evaluated_items — aproximaba vía mapeo capa→capítulo.
 - **Rule:** `chapter_sections` en Supabase es la ÚNICA fuente de verdad. Si la estructura cambia, se actualiza SOLO ahí. Dashboard lee dinámicamente vía vista `chapter_coverage`. Skills documentan la estructura pero referencian a chapter_sections como canónico. NUNCA hardcodear nombres/números de capítulos en código JS, HTML, o skills. Usar siempre la vista o la tabla.
 - **Componentes afectados:** `chapter_sections` (reescrita), `evaluated_items.chapters` (remapeado), `reading_plan.chapter_ids` (nueva columna int[]), vista `chapter_coverage` (nueva), dashboard.html (chapterCoverage + lecturas dinámicas), SKILL-PM §8, SYSTEM-ARCHITECTURE §8.
 
-_Última actualización: 2026-03-22 (sesión unificación canónica de capítulos)_
+_Última actualización: 2026-03-22 (sesión Dispatch — PR-019 añadido, deploys GAS vía Chrome)_

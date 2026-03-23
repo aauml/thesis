@@ -1807,9 +1807,9 @@ async function fetchPipelineStatus() {
 
   try {
     const [acad, perp, news, meta, statsResp, supaResp] = await Promise.all([
-      fetch(GAS_API + '?action=getAcademicQueue&limit=500').then(r => r.json()).catch(() => null),
-      fetch(GAS_API + '?action=getPerplexityQueue&limit=500').then(r => r.json()).catch(() => null),
-      fetch(GAS_API + '?action=getNewsResults&limit=500').then(r => r.json()).catch(() => null),
+      fetch(GAS_API + '?action=getAcademicQueue&status=pending&limit=500').then(r => r.json()).catch(() => null),
+      fetch(GAS_API + '?action=getPerplexityQueue&status=pending&limit=500').then(r => r.json()).catch(() => null),
+      fetch(GAS_API + '?action=getNewsResults&status=pending&limit=500').then(r => r.json()).catch(() => null),
       fetch(GAS_API + '?action=getMeta').then(r => r.json()).catch(() => null),
       fetch(GAS_API + '?action=getStats').then(r => r.json()).catch(() => null),
       fetch(SUPABASE_URL + '/rest/v1/evaluated_items?select=pk&limit=1', {
@@ -1817,49 +1817,31 @@ async function fetchPipelineStatus() {
       }).then(r => { const c = parseInt(r.headers.get('content-range')?.split('/')[1] || '0'); return { count: c }; }).catch(() => null)
     ]);
 
-    // Count pending (new) vs total per queue
-    function queueStats(data) {
-      const rows = data?.rows || [];
-      const total = data?.total || rows.length;
-      const pending = rows.filter(r => r.status === 'pending').length;
-      return { total, pending };
-    }
-    const acadStats = queueStats(acad);
-    const perpStats = queueStats(perp);
-    const newsStats = queueStats(news);
-
-    const acadPending = acadStats.pending;
-    const perpPending = perpStats.pending;
-    const newsPending = newsStats.pending;
+    const acadPending = acad?.rows?.length || 0;
+    const perpPending = perp?.rows?.length || 0;
+    const newsPending = news?.rows?.length || 0;
     const totalPending = acadPending + perpPending + newsPending;
     const sheetTotal = statsResp?.total || 0;
     const supaTotal = supaResp?.count || 0;
-    const syncDelta = sheetTotal - supaTotal;
 
     const lastProcess = meta?.last_search_date || null;
-    const hasWork = totalPending > 0;
 
-    // Calculate next trigger run based on fixed schedules (local timezone)
-    // News: daily 11pm, Perplexity: Sunday 3am, Academic: every other Monday 6am
+    // Calculate next trigger run
     function nextTriggerRun(type) {
       const now = new Date();
       let next;
       if (type === 'News') {
-        // Daily at 11pm local
         next = new Date(now); next.setHours(23, 0, 0, 0);
         if (next <= now) next.setDate(next.getDate() + 1);
       } else if (type === 'Perplexity') {
-        // Sunday 3am local
         next = new Date(now); next.setHours(3, 0, 0, 0);
         const daysUntilSun = (7 - next.getDay()) % 7;
         next.setDate(next.getDate() + (daysUntilSun === 0 && next <= now ? 7 : daysUntilSun));
       } else {
-        // Academic: biweekly Monday 6am local (approximate — next Monday then +14d cycle)
         next = new Date(now); next.setHours(6, 0, 0, 0);
         const daysUntilMon = (8 - next.getDay()) % 7;
         next.setDate(next.getDate() + (daysUntilMon === 0 && next <= now ? 7 : daysUntilMon));
       }
-      // Format countdown
       const diffMs = next - now;
       const h = Math.floor(diffMs / 3600000);
       const m = Math.floor((diffMs % 3600000) / 60000);
@@ -1869,44 +1851,36 @@ async function fetchPipelineStatus() {
       return `en ${m}min`;
     }
 
-    // Pipeline queue cards + sync card
+    // Pipeline queue cards
     const queueRows = [
-      { name: 'Academic', count: acadPending, total: acadStats.total, trigger: 'startIncrementalScan', schedule: 'lun 6am' },
-      { name: 'Perplexity', count: perpPending, total: perpStats.total, trigger: 'runPerplexitySearch', schedule: 'dom 3am' },
-      { name: 'News', count: newsPending, total: newsStats.total, trigger: 'runNewsAPI', schedule: 'diario 11pm' },
+      { name: 'Academic', count: acadPending, schedule: 'lun 6am' },
+      { name: 'Perplexity', count: perpPending, schedule: 'dom 3am' },
+      { name: 'News', count: newsPending, schedule: 'diario 11pm' },
     ];
 
     let html = '';
     queueRows.forEach(q => {
       const hasPending = q.count > 0;
-      const dotClass = hasPending ? 'yellow' : (q.total > 0 ? 'green' : 'gray');
+      const dotClass = hasPending ? 'yellow' : 'green';
       const nextRun = nextTriggerRun(q.name);
-      let queueLabel, queueClass;
-      if (hasPending) {
-        queueLabel = `${q.count} nuevos`;
-        queueClass = 'pending';
-      } else if (q.total > 0) {
-        queueLabel = `✓ ${q.total} procesados`;
-        queueClass = 'zero';
-      } else {
-        queueLabel = 'vacía';
-        queueClass = 'zero';
-      }
+      const queueLabel = hasPending ? `${q.count} por filtrar` : 'sin nuevos';
+      const queueClass = hasPending ? 'pending' : 'zero';
       html += `<div class="kb-pipe-card">
         <div class="kb-pipe-header">
           <span class="kb-pipe-dot ${dotClass}"></span>
           <span class="kb-pipe-name">${q.name}</span>
           <span class="kb-pipe-queue ${queueClass}">${queueLabel}</span>
         </div>
-        <div class="kb-pipe-meta">Próx. scan: ${nextRun}</div>
-        <div class="kb-pipe-meta" style="opacity:0.7;"><code style="font-size:0.6rem;">${q.trigger}</code> · ${q.schedule}</div>
+        <div class="kb-pipe-meta">Próx. scan: ${nextRun} · ${q.schedule}</div>
       </div>`;
     });
 
-    // Sync card (4th column)
-    const syncOk = syncDelta === 0;
+    // Sync card — Sheet vs Supabase
+    // Normal: Supa ≥ Sheet (direct Claude additions). Problem: Sheet > Supa (items not synced)
+    const sheetAhead = sheetTotal > supaTotal ? sheetTotal - supaTotal : 0;
+    const syncOk = sheetAhead === 0;
     const syncDotClass = syncOk ? 'green' : 'yellow';
-    const syncLabel = syncOk ? 'sincronizado' : `${Math.abs(syncDelta)} ${syncDelta > 0 ? 'pendientes' : 'extra'}`;
+    const syncLabel = sheetAhead > 0 ? `${sheetAhead} por sincronizar` : 'ok';
     const syncQueueClass = syncOk ? 'zero' : 'pending';
     html += `<div class="kb-pipe-card sync-card">
       <div class="kb-pipe-header">
@@ -1915,14 +1889,13 @@ async function fetchPipelineStatus() {
         <span class="kb-pipe-queue ${syncQueueClass}">${syncLabel}</span>
       </div>
       <div class="kb-pipe-meta">Sheet: ${sheetTotal.toLocaleString()} · Supa: ${supaTotal.toLocaleString()}</div>
-      <div class="kb-pipe-meta" style="opacity:0.7;"><code style="font-size:0.6rem;">thesis-queue-review</code> · 7:05am</div>
     </div>`;
 
     el.innerHTML = html;
 
     // Update sidebar badge — amber for pending, green for clear
     const badge = document.getElementById('badge-kb');
-    const totalIssues = totalPending + Math.max(syncDelta, 0);
+    const totalIssues = totalPending + sheetAhead;
     if (badge) {
       badge.textContent = totalIssues > 0 ? totalIssues : '✓';
       badge.style.background = totalIssues > 0 ? '#e8d060' : '#b8e0c4';

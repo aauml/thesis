@@ -683,4 +683,19 @@ Cruce completo: KB (1,332 items) × reading plan (33 lecturas) × conocimiento d
 - PerplexityQueue: 258 items
 - **Total: 721 items pendientes de triaje**
 
+### KB additions (continuation)
+
+**Bueno de Mata sweep (3→7 entries):**
+- Added: Macrodatos RGDP 2020 (ALTA), Comentarios RIA Barrio 2024 (ALTA), IA generativa agente RGDP 2025 (MEDIA), Necesidad regular IA 2022 (MEDIA)
+- Updated: Sistemas gestión procesal → ALTA, scholar=Bueno de Mata
+- 3 entries added to reading plan (#40 N1, #41-42 N2)
+
+**Other KB additions:**
+- Instrucción CGPJ 2/2026 (BOE) — ALTA, Ch2+Ch3. Primera instrucción del CGPJ sobre IA jurisdiccional.
+- Fernández Larrea (2026) blog Hay Derecho — MEDIA, Ch2. Análisis de la Instrucción.
+
+**Tanner dedup:** 4 entries → 2. Deleted 2 brookings duplicates of gdrive version. Retitled "Managed Interdependence" (was misclassified as AI Sovereignty).
+
+**Final KB count:** 1,336 items (was 1,332). ALTA: 389 (was 386). Reading plan: 42 lecturas (was 33).
+
 _Última actualización: 2026-03-23 (v11)_

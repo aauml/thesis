@@ -219,7 +219,7 @@ _Actualizar al cierre de cada sesión. Este archivo es la memoria técnica del s
 
 - **Prioridad 1:** TASK-009 — Verificar resultado del voto plenario Digital Omnibus del 26 de marzo
 - **Prioridad 2:** ~~Bueno de Mata sweep~~ ✅ Completado 2026-03-23 (3→7 entradas, 3 lecturas añadidas al plan)
-- **Prioridad 3:** Agregar al KB manualmente: Instrucción CGPJ 2/2026, Fernández Larrea (2026), Tanner et al. (2026)
+- **Prioridad 3:** ~~Agregar al KB: CGPJ/Fernández/Tanner~~ ✅ Completado 2026-03-23 (CGPJ 2/2026 ALTA, Fernández Larrea MEDIA, 2 Tanner dupes eliminados, 1 retitulado)
 - **Prioridad 4:** PATTERN gap — solo 2 fuentes directas. Buscar: OIG DOJ reports, US Sentencing Commission evaluations, NIJ documentation
 - **Prioridad 5:** Q120 — literatura académica que analice críticamente el NIST AI RMF como objeto de estudio (no como herramienta)
 - **Prioridad 6:** Búsqueda Dialnet/CENDOJ — derecho procesal + IA en español
@@ -244,4 +244,4 @@ _Actualizar al cierre de cada sesión. Este archivo es la memoria técnica del s
 - KB: **1,336 items** (Supabase) · **1,331 items** (Sheet NewsLog)
 - Reading plan: **42 lecturas** (22 Ch2, 8 Ch3, 8 Ch4, 8 Ch5, 8 Ch6)
 
-_Última actualización: 2026-03-23 (Sheet cleanup + reading plan analysis + Bueno de Mata sweep)_
+_Última actualización: 2026-03-23 (Sheet cleanup + reading plan + Bueno de Mata + CGPJ + Tanner dedup)_

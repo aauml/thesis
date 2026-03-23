@@ -2265,10 +2265,10 @@ async function fetchReadingPlan() {
           const sourceTag = r.source === 'pm_advisory' ? ' <span style="font-size:0.55rem; background:var(--warn-bg); color:var(--warn-text); padding:0.1rem 0.3rem; border-radius:3px;">PM</span>' : '';
 
           const objectiveHtml = r.reading_objective
-            ? `<div class="lec-objective"><strong>Objetivo:</strong> ${r.reading_objective}</div>`
+            ? `<div class="lec-objective">${r.reading_objective}</div>`
             : '';
-          const lensHtml = r.lens
-            ? `<div class="lec-lens"><strong>Contexto:</strong> <em>${r.lens}</em></div>`
+          const lensHtml = r.lens && !r.reading_objective
+            ? `<div class="lec-lens"><em>${r.lens}</em></div>`
             : '';
 
           yearsHtml += `<div class="lec-item"><span class="lec-lvl ${lvlCls}">${lvlLabel}</span><div>

@@ -1875,12 +1875,11 @@ async function fetchPipelineStatus() {
       </div>`;
     });
 
-    // Sync card — Sheet vs Supabase
-    // Normal: Supa ≥ Sheet (direct Claude additions). Problem: Sheet > Supa (items not synced)
-    const sheetAhead = sheetTotal > supaTotal ? sheetTotal - supaTotal : 0;
-    const syncOk = sheetAhead === 0;
+    // Sync card — Sheet vs Supabase should match
+    const syncDelta = Math.abs(sheetTotal - supaTotal);
+    const syncOk = syncDelta === 0;
     const syncDotClass = syncOk ? 'green' : 'yellow';
-    const syncLabel = sheetAhead > 0 ? `${sheetAhead} por sincronizar` : 'ok';
+    const syncLabel = syncOk ? 'sincronizado' : `Δ ${syncDelta}`;
     const syncQueueClass = syncOk ? 'zero' : 'pending';
     html += `<div class="kb-pipe-card sync-card">
       <div class="kb-pipe-header">
@@ -1895,7 +1894,7 @@ async function fetchPipelineStatus() {
 
     // Update sidebar badge — amber for pending, green for clear
     const badge = document.getElementById('badge-kb');
-    const totalIssues = totalPending + sheetAhead;
+    const totalIssues = totalPending + syncDelta;
     if (badge) {
       badge.textContent = totalIssues > 0 ? totalIssues : '✓';
       badge.style.background = totalIssues > 0 ? '#e8d060' : '#b8e0c4';

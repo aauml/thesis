@@ -192,6 +192,20 @@ _Actualizar al cierre de cada sesión. Este archivo es la memoria técnica del s
 - **Fecha detectado:** 2026-03-22
 - **Fecha resuelto:** 2026-03-22
 
+### TASK-016 — Sincronizar Sheet NewsLog con Supabase post-limpieza
+- **Estado:** ✅ Completado 2026-03-23
+- **Descripción:** Sheet tenía 1,495 filas vs 1,332 en Supabase. 163 duplicados, 44 capas no-estándar, 27 author-name titles sin actualizar.
+- **Resolución:** deleteByUrl batch (9 batches, 164 filas eliminadas). cleanupNewsLog() en GAS (43 capas normalizadas). Author-name titles NO sincronizados (Sheet mantiene títulos originales — Supabase es fuente de verdad).
+- **Resultado:** Sheet 1,331 filas. Delta de 1 vs Supabase (1,332) — esperado, por items directos.
+- **Fecha completado:** 2026-03-23
+
+### BUG-006 — getStats encoding bug con capas acentuadas
+- **Estado:** Pendiente (cosmético)
+- **Descripción:** WebApp.js `getStats` hardcodea strings de capas con encoding incorrecto (`Te√≥rica` en vez de `Teórica`). Las capas Teórica, Analítica y Metodológica reportan 0 en la respuesta JSON.
+- **Impacto:** Bajo — los datos en las celdas están correctos. Solo afecta el conteo de stats en la API.
+- **Fix requerido:** Actualizar los strings de comparación en getStats para usar Unicode correcto.
+- **Fecha detectado:** 2026-03-23
+
 ### TASK-015 — Backfill Cap 7 (Conclusiones) en evaluated_items
 - **Estado:** Pendiente — decisión del usuario requerida
 - **Descripción:** Cap 7 (Conclusiones) tiene 0 items asignados en `evaluated_items.chapters`. Los ítems del KB no han sido mapeados a este capítulo todavía. Requiere definir qué tipo de fuentes pertenecen a conclusiones y si el backfill es manual o semi-automático.
@@ -211,9 +225,12 @@ _Actualizar al cierre de cada sesión. Este archivo es la memoria técnica del s
 - **Prioridad 6:** Búsqueda Dialnet/CENDOJ — derecho procesal + IA en español
 
 ### Deuda técnica (no urgente)
-- `capa` field: 24 variantes CSV → futuro convertir a text[] array como chapters
+- `capa` field en Supabase: 24 variantes CSV → futuro convertir a text[] array como chapters
 - Dashboard: bloque HTML estático `display:none` (líneas ~1295-1510) es dead code, limpiar
 - TASK-015: backfill Cap 7 (Conclusiones) — sin urgencia, capítulo de cierre
+- BUG-006: getStats encoding — capas acentuadas reportan 0 en API
+- GAS API URL en project instructions tiene `I` mayúscula (muerta) — SKILL files tienen `i` minúscula (correcta)
+- 721 items acumulados en colas staging (NewsResults: 192, AcademicQueue: 271, PerplexityQueue: 258) — necesitan sesión `update` para triaje
 
 ### Análisis periódico del reading plan
 - **Último:** 2026-03-23 — 33→39 lecturas. Añadidos: Citron, Kroll, Thompson, Hacker, Coglianese, Husa. Stoltz movido C7→C4.
@@ -223,7 +240,8 @@ _Actualizar al cierre de cada sesión. Este archivo es la memoria técnica del s
 ### Versiones activas
 - WebApp: **v36** · ArXiv: **v2** · AcademicOrchestrator: **v3** · GoogleNewsRSS: v1 · PerplexitySearch: v3
 - SKILL-KB: **v18** · SKILL-PM: **v17**
-- Dashboard: **sw thesis-v9** · Estructura: 7 caps híbrida, 32 secciones, 1,332 KB items
+- Dashboard: **sw thesis-v9** · Estructura: 7 caps híbrida, 32 secciones
+- KB: **1,332 items** (Supabase) · **1,331 items** (Sheet NewsLog) — sincronizados
 - Reading plan: **39 lecturas** (19 Ch2, 7 Ch3, 8 Ch4, 8 Ch5, 8 Ch6)
 
-_Última actualización: 2026-03-23 (reading plan analysis + infrastructure fixes)_
+_Última actualización: 2026-03-23 (Sheet cleanup + reading plan analysis)_

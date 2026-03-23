@@ -34,3 +34,9 @@ PM lee este archivo al inicio de cada sesión para tener visibilidad total.
 - Actualizado SKILL-PM y SKILL-KB para incluir CHANGELOG en sus protocolos de sesión
 - Creada tabla system_heartbeats en Supabase para tracking de Dispatch
 - Decisión: jerarquía de memoria formalizada (pm_decisions > CHANGELOG > SessionLogs)
+
+## 2026-03-23 | chat-pm | SKILL-PM, SKILL-KB, KB-PendingIssues | PM puede procesar colas KB
+- SKILL-PM v18: §19 nuevo — PM puede hacer triaje de colas staging (lee SKILL-KB del repo, no duplica protocolo de evaluación)
+- SKILL-PM v18: §1 interfaz actualizada (PM escribe en evaluated_items), §6 paso 7 queue check en startup
+- SKILL-KB v19: TASK-017 — canonical chapter numbering corregido a estructura híbrida (Ch3=RIA, Ch4=NIST)
+- Colas verificadas vacías (0 pending en las 3)

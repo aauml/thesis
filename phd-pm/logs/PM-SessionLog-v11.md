@@ -699,3 +699,37 @@ Cruce completo: KB (1,332 items) × reading plan (33 lecturas) × conocimiento d
 **Final KB count:** 1,336 items (was 1,332). ALTA: 389 (was 386). Reading plan: 42 lecturas (was 33).
 
 _Última actualización: 2026-03-23 (v11)_
+
+---
+
+## Sesión 2026-03-23 (PM #2) — PM puede procesar colas KB
+
+**Tipo:** Infrastructure
+**Trigger:** Usuario solicitó "update all" y preguntó por qué las colas no se procesaban desde PM.
+
+### Cambios
+
+| # | Componente | Cambio |
+|---|-----------|--------|
+| 1 | SKILL-PM v18 | §1: PM puede escribir en `evaluated_items`. §6 paso 7: queue check en startup. §19: nuevo protocolo de triaje de colas — lee SKILL-KB del repo (no duplica). |
+| 2 | SKILL-KB v19 | TASK-017: canonical chapter numbering actualizado a estructura híbrida (Ch3=RIA, Ch4=NIST). Guías de asignación corregidas. |
+| 3 | KB-PendingIssues | TASK-017 completada. Colas staging verificadas vacías (0 pending en las 3). Deuda técnica actualizada. |
+
+### Decisiones
+
+- **PM procesa colas KB sin sesión separada.** El protocolo de evaluación no se duplica — §19 lee `SKILL-KB-current.md` del repo cada vez. Si KB actualiza su skill, PM hereda los cambios automáticamente.
+- **Scope del PM al procesar colas:** puede evaluar y escribir a Supabase/Sheet. NO puede modificar scripts GAS, index.html, SKILL-KB, ni Queries tab.
+
+### Hallazgos
+
+- Colas estaban vacías (0 pending) — los 721 reportados en sesión anterior ya fueron procesados por sesiones Cowork intermedias.
+- SKILL-KB tenía numeración pre-híbrida en la guía de capítulos — corregido en v19.
+
+### Estado al cierre
+
+- KB: 1,372 items (Supabase), 1,345 (Sheet). ALTA: 407.
+- Colas: 0 pending en las 3.
+- SKILL-PM: v18. SKILL-KB: v19.
+- Reading plan: 42 lecturas. Advisories: 0 vencidas (próxima: #6 el 27 mar).
+
+_Última actualización: 2026-03-23 (v11)_

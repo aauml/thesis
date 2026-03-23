@@ -214,11 +214,10 @@ _Actualizar al cierre de cada sesión. Este archivo es la memoria técnica del s
 - **Fecha detectado:** 2026-03-22 (sesión Dispatch, auditoría chapters)
 
 ### TASK-017 — Actualizar SKILL-KB canonical chapter numbering a estructura híbrida
-- **Estado:** Pendiente — requiere sesión KB
-- **Descripción:** SKILL-KB v18 §"Canonical Chapter Numbering" (TASK-014) tiene la numeración pre-híbrida: Ch3=Estado del Arte, Ch4=Metodología. La tabla `chapter_sections` en Supabase y el clasificador v2 ya usan la estructura híbrida: Ch3=RIA, Ch4=NIST AI RMF. La guía de asignación por capítulo en SKILL-KB ("Cap 3: Existing literature..." / "Cap 4: Research design...") no corresponde al contenido real de esos capítulos.
-- **Impacto:** Medio — cualquier evaluación usando la guía del SKILL-KB asignaría capítulos incorrectamente. El clasificador v2 (trigger Supabase) usa la estructura correcta, así que items escritos a Supabase se corrigen, pero la confusión documental persiste.
-- **Fix requerido:** Actualizar SKILL-KB a v19 con la tabla de capítulos híbrida y las descripciones de asignación corregidas.
-- **Fecha detectado:** 2026-03-23 (sesión PM, al integrar §19 queue processing)
+- **Estado:** ✅ Completado 2026-03-23
+- **Descripción:** SKILL-KB v18 §"Canonical Chapter Numbering" tenía la numeración pre-híbrida (Ch3=Estado del Arte, Ch4=Metodología). Actualizado a estructura híbrida (Ch3=RIA, Ch4=NIST AI RMF) en SKILL-KB v19.
+- **Fecha detectado:** 2026-03-23
+- **Fecha completado:** 2026-03-23
 
 ---
 
@@ -235,10 +234,9 @@ _Actualizar al cierre de cada sesión. Este archivo es la memoria técnica del s
 - `capa` field en Supabase: 24 variantes CSV → futuro convertir a text[] array como chapters
 - Dashboard: bloque HTML estático `display:none` (líneas ~1295-1510) es dead code, limpiar
 - TASK-015: backfill Cap 7 (Conclusiones) — sin urgencia, capítulo de cierre
-- TASK-017: SKILL-KB canonical chapter numbering desactualizado (pre-híbrido) — fix en próxima sesión KB
 - BUG-006: getStats encoding — capas acentuadas reportan 0 en API
 - GAS API URL en project instructions tiene `I` mayúscula (muerta) — SKILL files tienen `i` minúscula (correcta)
-- 721 items acumulados en colas staging (NewsResults: 192, AcademicQueue: 271, PerplexityQueue: 258) — necesitan sesión `update` para triaje
+- Colas staging vacías (0 pending en las 3 colas, verificado 2026-03-23)
 
 ### Análisis periódico del reading plan
 - **Último:** 2026-03-23 — 33→42 lecturas. Añadidos: Citron, Kroll, Thompson, Hacker, Coglianese, Husa + Bueno de Mata (Macrodatos, Sistemas gestión, Comentarios RIA). Stoltz movido C7→C4.
@@ -247,9 +245,9 @@ _Actualizar al cierre de cada sesión. Este archivo es la memoria técnica del s
 
 ### Versiones activas
 - WebApp: **v36** · ArXiv: **v2** · AcademicOrchestrator: **v3** · GoogleNewsRSS: v1 · PerplexitySearch: v3
-- SKILL-KB: **v18** · SKILL-PM: **v18**
+- SKILL-KB: **v19** · SKILL-PM: **v18**
 - Dashboard: **sw thesis-v9** · Estructura: 7 caps híbrida, 32 secciones
-- KB: **1,372 items** (Supabase) · **1,331 items** (Sheet NewsLog)
+- KB: **1,372 items** (Supabase) · **1,345 items** (Sheet NewsLog)
 - Reading plan: **42 lecturas** (22 Ch2, 8 Ch3, 8 Ch4, 8 Ch5, 8 Ch6)
 
-_Última actualización: 2026-03-23 (SKILL-PM v18: PM puede procesar colas KB, TASK-017 creada)_
+_Última actualización: 2026-03-23 (SKILL-PM v18, SKILL-KB v19, TASK-017 completada, colas vacías)_

@@ -151,6 +151,7 @@ These are hard rules derived from past bugs. Violating any of these means repeat
 
 | Date | Session Type | Key Actions | Lessons Added |
 |------|-------------|-------------|---------------|
+| 2026-03-23 | infrastructure | SKILL-PM v18 (§19 queue processing from PM), SKILL-KB v19 (TASK-017 chapter numbering fix), colas verificadas vacías | — |
 | 2026-03-22 | dispatch | Dashboard Advisor (PM Briefing + KB Signals), 3 deploys GAS (v48), auditoría chapters, TASK-014 done, TASK-009 programada | PR-019 |
 | 2026-03-18 | reading-plan | KB analysis (1468 entries), Plan de Lecturas in Dashboard v8.1, 5 queries (Q120-Q124), sweep protocol, SKILL-PM v6, scheduled task | PR-015, PR-016, PR-017 |
 | 2026-03-17 | restructuring | Dashboard v6.1, vault files, iCloud cleanup, Operativo standalone, KPIs dinámicos, session log | PR-013, PR-014 |
@@ -176,4 +177,4 @@ These are hard rules derived from past bugs. Violating any of these means repeat
 - **Rule:** `chapter_sections` en Supabase es la ÚNICA fuente de verdad. Si la estructura cambia, se actualiza SOLO ahí. Dashboard lee dinámicamente vía vista `chapter_coverage`. Skills documentan la estructura pero referencian a chapter_sections como canónico. NUNCA hardcodear nombres/números de capítulos en código JS, HTML, o skills. Usar siempre la vista o la tabla.
 - **Componentes afectados:** `chapter_sections` (reescrita), `evaluated_items.chapters` (remapeado), `reading_plan.chapter_ids` (nueva columna int[]), vista `chapter_coverage` (nueva), dashboard.html (chapterCoverage + lecturas dinámicas), SKILL-PM §8, SYSTEM-ARCHITECTURE §8.
 
-_Última actualización: 2026-03-22 (sesión Dispatch — PR-019 añadido, deploys GAS vía Chrome)_
+_Última actualización: 2026-03-23 (sesión PM — SKILL-PM v18, SKILL-KB v19, TASK-017 completada)_

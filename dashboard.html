@@ -489,14 +489,13 @@
     .kb-stack-legend .dot-media { background: var(--accent-mid); }
     .kb-stack-legend .dot-baja { background: #b0b8c4; }
 
-    /* Gap pills — inline within chapter rows */
+    /* Gap pills — inline within chapter rows, only show warn/critical */
     .kb-gap-list { display: flex; flex-direction: column; gap: 0.35rem; }
     .kb-chap-gaps { display: flex; flex-wrap: wrap; gap: 0.25rem; margin-top: 0.2rem; }
-    .kb-chap-gap { font-size: 0.6rem; padding: 0.1rem 0.35rem; border-radius: 2px; white-space: nowrap; color: var(--text-muted); }
+    .kb-chap-gap { font-size: 0.6rem; padding: 0.1rem 0.35rem; border-radius: 2px; white-space: nowrap; }
     .kb-chap-gap b { margin-left: 0.1rem; font-weight: 700; }
     .kb-chap-gap.gap-critical { color: #c62828; }
-    .kb-chap-gap.gap-warn { color: #e78400; }
-    .kb-chap-gap.gap-ok { display: none; }
+    .kb-chap-gap.gap-warn { color: #b88200; }
 
     /* Chapter coverage grid — stacked bar variant */
     .kb-chap-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.4rem; }
@@ -2451,20 +2450,16 @@ async function fetchKbStats() {
       // Gap definitions per chapter — these are the specific weak areas to monitor
       const GAP_DEFS = {
         2: [
-          { label: 'Procesal español + IA', filter: 'and=(chapters.cs.{2},language.eq.es,or=(thesis_relevance.ilike.*procesal*,thesis_relevance.ilike.*prueba*,thesis_relevance.ilike.*jurisdiccional*))' },
-          { label: 'Director (Bueno de Mata)', filter: 'scholar=ilike.*Bueno*' },
+          { label: 'Procesal español + IA', filter: 'and=(language.eq.es,or=(title.ilike.*procesal*,title.ilike.*prueba*,title.ilike.*jurisdiccional*,thesis_relevance.ilike.*procesal*,scholar.ilike.*Bueno*,scholar.ilike.*Nieva*,scholar.ilike.*Barona*))' },
         ],
         3: [
-          { label: 'Implementación RIA', filter: 'and=(chapters.cs.{3},or=(title.ilike.*guideline*,title.ilike.*implementing*,title.ilike.*conformity*,title.ilike.*sandbox*))' },
+          { label: 'Implementación RIA', filter: 'and=(chapters.cs.{3},or=(title.ilike.*guideline*,title.ilike.*implementing*,title.ilike.*conformity*,title.ilike.*sandbox*,title.ilike.*directrices*,title.ilike.*compliance*guide*))' },
         ],
         4: [
-          { label: 'Crítica académica NIST', filter: 'and=(chapters.cs.{4},or=(thesis_relevance.ilike.*critico*,thesis_relevance.ilike.*critique*,thesis_relevance.ilike.*limitation*,thesis_relevance.ilike.*voluntary*))' },
-        ],
-        5: [
-          { label: 'Crosswalks ALTA', filter: 'and=(chapters.cs.{5},importance.eq.ALTA)' },
+          { label: 'Crítica NIST RMF', filter: 'and=(chapters.cs.{4},or=(thesis_relevance.ilike.*critico*,thesis_relevance.ilike.*critique*,thesis_relevance.ilike.*limitation*,thesis_relevance.ilike.*voluntary*,thesis_relevance.ilike.*accountability gap*,title.ilike.*accountability*,title.ilike.*Beyond Audit*))' },
         ],
         6: [
-          { label: 'PATTERN directas', filter: 'or=(title.ilike.*PATTERN*,title.ilike.*First Step Act*risk*)' },
+          { label: 'PATTERN directas', filter: 'or=(title.ilike.*PATTERN*,title.ilike.*First Step Act*,title.ilike.*recidivism*BOP*,title.ilike.*Bureau of Prisons*risk*)' },
           { label: 'STRmix + forensic DNA', filter: 'and=(chapters.cs.{6},or=(title.ilike.*STRmix*,title.ilike.*probabilistic genotyping*))' },
         ],
       };
@@ -2489,11 +2484,8 @@ async function fetchKbStats() {
       gapMeta.forEach((m, i) => {
         if (!gapsByChapter[m.ch]) gapsByChapter[m.ch] = [];
         const n = gapCounts[i];
-        let icon, cls;
-        if (n < 3) { icon = '🔴'; cls = 'gap-critical'; }
-        else if (n < 8) { icon = '🟡'; cls = 'gap-warn'; }
-        else { icon = '🟢'; cls = 'gap-ok'; }
-        gapsByChapter[m.ch].push({ label: m.label, count: n, icon, cls });
+        const cls = n < 3 ? 'gap-critical' : n < 8 ? 'gap-warn' : 'gap-ok';
+        gapsByChapter[m.ch].push({ label: m.label, count: n, cls });
       });
 
       // Render unified view
@@ -2506,11 +2498,12 @@ async function fetchKbStats() {
         const pB = t > 0 ? (b / t * 100).toFixed(1) : 0;
 
         const gaps = gapsByChapter[num] || [];
-        const gapsHtml = gaps.length > 0 ? `<div class="kb-chap-gaps">${gaps.map(g =>
-          `<span class="kb-chap-gap ${g.cls}" title="${g.label}: ${g.count} fuentes">${g.label} <b>${g.count}</b></span>`
+        const visibleGaps = gaps.filter(g => g.cls !== 'gap-ok');
+        const gapsHtml = visibleGaps.length > 0 ? `<div class="kb-chap-gaps">${visibleGaps.map(g =>
+          `<span class="kb-chap-gap ${g.cls}">${g.label} <b>${g.count}</b></span>`
         ).join('')}</div>` : '';
 
-        return `<div class="kb-chap">>
+        return `<div class="kb-chap">
           <span class="kb-chap-num">${num}</span>
           <div class="kb-chap-body">
             <div class="kb-chap-name">${ch.chapter_title}</div>

@@ -14,6 +14,11 @@ PM lee este archivo al inicio de cada sesión para tener visibilidad total.
 
 ---
 
+## 2026-03-23 | cowork | dashboard, reading_plan | Plan lecturas: consistencia visual
+- CSS .lec-lens igualado a .lec-objective (mismo fondo, borde, tamaño)
+- Poblados reading_objective para las 29 lecturas de C3-C9 en Supabase
+- Ahora todas las lecturas muestran caja de objetivo consistente en todos los cuatrimestres y años
+
 ## 2026-03-23 | cowork | dashboard, sistema | Dashboard v12.0 + git workflow
 - Dashboard v12.0: Panorama slim (alerts, advisor, lectura activa, próximo hito, riesgos)
 - Nuevo tab Novedades (desarrollos + advisories + noticias — sacados de Panorama)

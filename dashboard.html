@@ -1520,7 +1520,7 @@
 
       <!-- ── BIBLIOGRAFÍA PROYECTADA ── -->
       <div class="lec-biblio">
-        <div class="lec-biblio-title">Bibliografía final proyectada: 150–220 fuentes</div>
+        <div class="lec-biblio-title">Bibliografía final proyectada: 150–200 fuentes</div>
         <table class="lec-biblio-table">
           <thead><tr><th>Capítulo</th><th>N1</th><th>N2</th><th>N3-N4</th><th>Est. total</th></tr></thead>
           <tbody id="biblioBody">
@@ -2158,12 +2158,12 @@ async function fetchBiblioProjection() {
   if (!tbody) return;
   try {
     const chMap = await getChapterMap();
-    // Estimated bibliography per chapter (N1, N2, N3-N4) — based on thesis scope
+    // Estimated bibliography per chapter (N1, N2, N3-N4) — updated for hybrid 7-cap structure (2026-03-22)
     const estimates = {
-      1: { n1: '3-5', n2: '3-5', n34: '5-8', est: '~15' },
-      2: { n1: '10-12', n2: '15-20', n34: '10-15', est: '~40' },
-      3: { n1: '8-10', n2: '15-20', n34: '10-15', est: '~40' },
-      4: { n1: '3-5', n2: '5-8', n34: '3-5', est: '~15' },
+      1: { n1: '2-3', n2: '3-5', n34: '5-8', est: '~12' },
+      2: { n1: '10-12', n2: '15-20', n34: '10-15', est: '~42' },
+      3: { n1: '6-8', n2: '10-15', n34: '8-12', est: '~30' },
+      4: { n1: '5-7', n2: '10-15', n34: '8-12', est: '~30' },
       5: { n1: '5-7', n2: '10-15', n34: '10-15', est: '~35' },
       6: { n1: '5-7', n2: '10-15', n34: '15-20', est: '~38' },
       7: { n1: '0-1', n2: '3-5', n34: '5-10', est: '~12' },
@@ -2174,7 +2174,7 @@ async function fetchBiblioProjection() {
       const e = estimates[n] || { n1: '?', n2: '?', n34: '?', est: '?' };
       html += `<tr><td>Cap. ${n} · ${chMap[n]}</td><td>${e.n1}</td><td>${e.n2}</td><td>${e.n34}</td><td>${e.est}</td></tr>`;
     });
-    html += '<tr class="lec-biblio-total"><td><strong>Total (descontando solapamiento)</strong></td><td>~35</td><td>~65</td><td>~95</td><td><strong>~195</strong></td></tr>';
+    html += '<tr class="lec-biblio-total"><td><strong>Total (descontando solapamiento)</strong></td><td>~37</td><td>~68</td><td>~70</td><td><strong>~175</strong></td></tr>';
     tbody.innerHTML = html;
   } catch(e) { console.warn('fetchBiblioProjection error:', e); }
 }
@@ -2807,8 +2807,8 @@ async function fetchChapterSections() {
       return;
     }
 
-    // Chapter title overrides (frontend patch until DB is updated)
-    const CHAPTER_TITLE_OVERRIDE = { 3: 'Estado del Arte' };
+    // Chapter title overrides removed — chapter_sections in Supabase is now the single source of truth
+    const CHAPTER_TITLE_OVERRIDE = {};
 
     // Group by chapter
     const chapters = {};

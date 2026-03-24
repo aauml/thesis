@@ -240,4 +240,15 @@ El dashboard (`dashboard.html`) genera enlaces que abren tarjetas individuales e
 
 - **Clasificar puntos de la matriz:** Cuando la Fase 1 produzca resultados, cambiar puntos negros por verde/rojo/azul. Agregar clases CSS `.mtx-co { background: #2d7a3f; }`, `.mtx-di { background: #b03030; }`, `.mtx-cp { background: #185fa5; }`.
 - **Actualizar caso de estudio:** Cuando se confirme con el director, reemplazar los criterios genéricos con el caso específico y sus detalles.
-- **Cache versioning:** Al hacer cambios significativos al dashboard, incrementar `thesis-v1` → `thesis-v2` en `sw.js` para forzar recarga en dispositivos.
+- **Cache versioning:** Al hacer cambios significativos al dashboard, incrementar versión en `sw.js` para forzar recarga en dispositivos. Versión actual: `thesis-v20`.
+
+---
+
+## CHANGELOG
+
+### 2026-03-23 (sesión PM)
+- **Dashboard News:** ahora muestra 25 items más recientes por `date_published` (antes: 50 ALTA por `created_at`). Dot rojo en ALTA items. 10 visibles + 15 expandible.
+- **index.html KB:** sort simplificado (Newest/Oldest por pub date + Importance). Eliminados filtros found-asc/found-desc. Default: pub date desc.
+- **index.html mobile:** grid layout para controls row en ≤480px (iPhone 14 Pro Max). Línea 1: mode toggle + search. Línea 2: sort + Go.
+- **index.html header:** muestra backup status (● synced verde / ● N pending ámbar) comparando Supabase vs Sheet.
+- SW bumped: v18 → v20.

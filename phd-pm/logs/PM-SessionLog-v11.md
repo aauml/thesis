@@ -733,3 +733,41 @@ _Última actualización: 2026-03-23 (v11)_
 - Reading plan: 42 lecturas. Advisories: 0 vencidas (próxima: #6 el 27 mar).
 
 _Última actualización: 2026-03-23 (v11)_
+
+---
+
+## Sesión 2026-03-23 (PM #3) — CLASP + Supabase Sync + UI updates
+
+**Tipo:** Infrastructure + UI
+**Trigger:** Usuario pidió verificar uso de CLASP, habilitarlo para PM, y hacer cambios de UI.
+
+### Cambios
+
+| # | Componente | Cambio |
+|---|-----------|--------|
+| 1 | SKILL-PM v19 | §20 CLASP CI/CD para PM. §1: GAS scripts compartido. §3: repo muestra `phd-kb/gas/`. §14: prohibición solo index.html + SKILL-KB. §19: GAS restriction eliminada. |
+| 2 | SupabaseSync.js (nuevo) | One-way hourly Supabase → Sheet NewsLog mirror. `syncFromSupabase()` full + `syncIncremental()` delta. Requiere Script Properties + `setupSupabaseSync()`. |
+| 3 | WebApp v37 | `getStats` ahora devuelve `last_supabase_sync` timestamp. |
+| 4 | index.html | Sort simplificado (pub date default, removed found-asc/found-desc). Header muestra backup status. Mobile grid layout para iPhone 14 Pro Max. |
+| 5 | Dashboard News | 25 items por date_published (antes 50 ALTA por created_at). Dot rojo en ALTA. |
+| 6 | SW | thesis-v18 → thesis-v20 |
+
+### Decisiones
+
+- **CLASP compartido PM+KB.** El PM puede editar y desplegar scripts GAS directamente via push a main. Docs full en KB-SystemReference-v1.txt (no duplicadas en SKILL-PM).
+- **Supabase → Sheet one-way sync.** NewsLog deja de recibir verification rows individuales y pasa a ser un mirror completo por hora. Elimina el gap de 27 items.
+- **Sort por pub date default.** Fecha de publicación es más útil que fecha de descubrimiento. Filtros found-asc/found-desc eliminados.
+
+### Pendientes para usuario
+
+1. Agregar `SUPABASE_URL` + `SUPABASE_KEY` a Script Properties en GAS editor
+2. Ejecutar `setupSupabaseSync()` para initial full sync + trigger horario
+
+### Estado al cierre
+
+- KB: 1,376 Supabase / 1,349 Sheet (gap se cierra al correr setupSupabaseSync)
+- SKILL-PM: v19. WebApp: v37. SW: thesis-v20.
+- Colas: 0 | 0 | 0. Advisories due: none (next #6 Mar 27).
+- Reading plan: 42 lecturas.
+
+_Última actualización: 2026-03-23 (v11)_

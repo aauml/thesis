@@ -48,3 +48,12 @@ PM lee este archivo al inicio de cada sesión para tener visibilidad total.
 - First full Supabase-primary session: write + Sheet verification + embeddings all succeeded
 - DB: ~1,376 Supabase, ~1,349 Sheet NewsLog. Meta: total_searches=211
 - TASK-009 still pending: Digital Omnibus plenary vote Mar 26
+
+## 2026-03-23 | chat-pm | SKILL-PM, GAS, dashboard, index.html | CLASP + Supabase sync + UI
+- SKILL-PM v19: §20 CLASP CI/CD para PM — scripts GAS ahora compartidos PM+KB
+- SupabaseSync.js (nuevo): hourly one-way Supabase → Sheet NewsLog mirror
+- WebApp v37: getStats devuelve last_supabase_sync
+- Dashboard News: 25 items por date_published (antes 50 ALTA por created_at)
+- index.html: sort simplificado (pub date default), mobile grid layout iPhone 14 Pro Max, backup status en header
+- SW: thesis-v18 → thesis-v20
+- Pendiente usuario: agregar Script Properties + correr setupSupabaseSync()

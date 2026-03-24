@@ -151,6 +151,7 @@ These are hard rules derived from past bugs. Violating any of these means repeat
 
 | Date | Session Type | Key Actions | Lessons Added |
 |------|-------------|-------------|---------------|
+| 2026-03-23 | infrastructure+UI | SKILL-PM v19 (CLASP §20), SupabaseSync.js, WebApp v37, Dashboard News pub-date, index.html sort+mobile | — |
 | 2026-03-23 | infrastructure | SKILL-PM v18 (§19 queue processing from PM), SKILL-KB v19 (TASK-017 chapter numbering fix), colas verificadas vacías | — |
 | 2026-03-22 | dispatch | Dashboard Advisor (PM Briefing + KB Signals), 3 deploys GAS (v48), auditoría chapters, TASK-014 done, TASK-009 programada | PR-019 |
 | 2026-03-18 | reading-plan | KB analysis (1468 entries), Plan de Lecturas in Dashboard v8.1, 5 queries (Q120-Q124), sweep protocol, SKILL-PM v6, scheduled task | PR-015, PR-016, PR-017 |

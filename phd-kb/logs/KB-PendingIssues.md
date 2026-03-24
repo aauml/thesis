@@ -240,10 +240,10 @@ _Actualizar al cierre de cada sesión. Este archivo es la memoria técnica del s
 - **Método:** cruzar KB completa vs plan vs conocimiento del campo. Buscar autores clave ausentes, secuencias incorrectas, fuentes que deberían subir de nivel.
 
 ### Versiones activas
-- WebApp: **v36** · ArXiv: **v2** · AcademicOrchestrator: **v3** · GoogleNewsRSS: v1 · PerplexitySearch: v3
-- SKILL-KB: **v19** · SKILL-PM: **v18**
-- Dashboard: **sw thesis-v9** · Estructura: 7 caps híbrida, 32 secciones
-- KB: **1,376 items** (Supabase) · **1,349 items** (Sheet NewsLog)
+- WebApp: **v37** · ArXiv: **v2** · AcademicOrchestrator: **v3** · GoogleNewsRSS: v1 · PerplexitySearch: v3 · **SupabaseSync: v1** (nuevo, requiere setup)
+- SKILL-KB: **v19** · SKILL-PM: **v19**
+- Dashboard: **sw thesis-v20** · Estructura: 7 caps híbrida, 32 secciones
+- KB: **1,376 items** (Supabase) · **1,349 items** (Sheet NewsLog — gap closes after setupSupabaseSync)
 - Reading plan: **42 lecturas** (22 Ch2, 8 Ch3, 8 Ch4, 8 Ch5, 8 Ch6)
 
-_Última actualización: 2026-03-23 (run 211: 4 items added, first Supabase-primary session)_
+_Última actualización: 2026-03-23 (SKILL-PM v19: CLASP for PM, SupabaseSync.js, WebApp v37, UI updates)_

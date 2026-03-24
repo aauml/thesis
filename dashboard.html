@@ -246,6 +246,20 @@
     .op-due-urgent { color: #DC2626; background: #FEE2E2; font-weight: 700; }
     .op-due-overdue { color: #fff; background: #DC2626; font-weight: 700; animation: pulse-overdue 2s infinite; }
     @keyframes pulse-overdue { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
+    .cl-sched { display: flex; flex-direction: column; gap: 0.3rem; }
+    .cl-sched-item { display: flex; align-items: center; gap: 0.5rem; font-size: 0.76rem; padding: 0.3rem 0; border-bottom: 1px solid var(--border-light); }
+    .cl-sched-item:last-child { border-bottom: none; }
+    .cl-sched-name { font-weight: 600; color: var(--text); flex: 1; }
+    .cl-sched-freq { font-size: 0.62rem; color: var(--text-muted); }
+    .cl-sched-next { font-size: 0.62rem; padding: 1px 5px; border-radius: 3px; white-space: nowrap; }
+    .cl-sched-next.soon { background: #FEF3C7; color: #92400E; font-weight: 600; }
+    .cl-sched-next.normal { background: var(--bg-card); color: var(--text-muted); }
+    .cl-adv { display: flex; align-items: center; gap: 0.5rem; font-size: 0.76rem; padding: 0.3rem 0; border-bottom: 1px solid var(--border-light); }
+    .cl-adv:last-child { border-bottom: none; }
+    .cl-adv-due { font-size: 0.62rem; padding: 1px 5px; border-radius: 3px; white-space: nowrap; }
+    .cl-adv-due.overdue { background: #FEE2E2; color: #DC2626; font-weight: 700; }
+    .cl-adv-due.upcoming { background: #FEF3C7; color: #92400E; font-weight: 600; }
+    .cl-adv-due.ok { background: var(--bg-card); color: var(--text-muted); }
     .op-completed-header {
       display: flex; align-items: center; justify-content: space-between;
       margin-top: 0.8rem; padding-top: 0.6rem; border-top: 1px solid var(--border-light);
@@ -1058,8 +1072,8 @@
       <div style="font-size:0.68rem; color:var(--text-muted); margin-top:-0.5rem; margin-bottom:1.5rem;">Tareas accionables · C1 2026</div>
 
       <!-- Tareas del usuario — interactive checklist from pm_tasks -->
-      <div class="m2-heading">Tareas</div>
-      <div class="m2-meta">Acciones concretas · se limpian al completar</div>
+      <div class="m2-heading">Mis tareas</div>
+      <div class="m2-meta">Lecturas, búsquedas y acciones asignadas · se limpian al completar</div>
       <div id="opCard" style="margin-bottom:1.2rem;">
         <div id="opActive"></div>
         <div class="op-completed-header" id="opCompletedHeader" style="display:none;">
@@ -1069,11 +1083,14 @@
         <div id="opCompleted"></div>
       </div>
 
-      <!-- Tareas PM (Claude) — gaps, vigilancia, acciones automáticas -->
-      <div class="m2-heading">Tareas PM (Claude)</div>
-      <div class="m2-meta">Gaps del KB, vigilancia normativa, acciones pendientes del sistema</div>
+      <!-- Tareas PM (Claude) — gaps, vigilancia, scheduled tasks, advisory reviews -->
+      <div class="m2-heading">Tareas de Claude</div>
+      <div class="m2-meta">Gaps del KB, vigilancia normativa, revisiones de advisories, tareas automatizadas</div>
       <div id="pmTasksContainer">
-        <div style="color:var(--text-muted); font-size:0.72rem; padding:0.5rem;">Cargando tareas PM...</div>
+        <div style="color:var(--text-muted); font-size:0.72rem; padding:0.5rem;">Cargando tareas de Claude...</div>
+      </div>
+      <div id="claudeScheduleContainer" style="margin-top:0.8rem;">
+        <div style="color:var(--text-muted); font-size:0.72rem; padding:0.5rem;">Cargando calendario...</div>
       </div>
 
     </div>
@@ -2928,6 +2945,60 @@ async function fetchPmTasks() {
 }
 
 // ═══════════════════════════════════════
+// CLAUDE SCHEDULE — advisory reviews + upcoming tasks
+// ═══════════════════════════════════════
+async function fetchClaudeSchedule() {
+  const container = document.getElementById('claudeScheduleContainer');
+  if (!container) return;
+  try {
+    // Fetch active advisories with next_review dates
+    const advisories = await supabaseQuery('pm_advisories?select=id,title,next_review,review_interval,status&status=eq.active&order=next_review.asc');
+    const today = new Date(); today.setHours(0,0,0,0);
+
+    let html = '';
+
+    // Advisory reviews section
+    if (advisories && advisories.length > 0) {
+      html += '<div style="font-size:0.68rem; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-muted); margin-bottom:0.3rem;">Revisiones pendientes</div>';
+      html += '<div class="cl-sched">';
+      advisories.forEach(a => {
+        const nr = a.next_review ? new Date(a.next_review + 'T00:00:00') : null;
+        let badge = '';
+        if (nr) {
+          const diff = Math.ceil((nr - today) / 86400000);
+          const label = nr.toLocaleDateString('es-ES', { day:'numeric', month:'short' });
+          if (diff < 0) badge = `<span class="cl-adv-due overdue">⚠ ${label} (hace ${-diff}d)</span>`;
+          else if (diff <= 7) badge = `<span class="cl-adv-due upcoming">${label} (${diff}d)</span>`;
+          else badge = `<span class="cl-adv-due ok">${label}</span>`;
+        }
+        const intLabel = { weekly:'semanal', biweekly:'quincenal', monthly:'mensual', quarterly:'trimestral', on_trigger:'por evento' }[a.review_interval] || a.review_interval;
+        html += `<div class="cl-adv"><span style="flex:1;">${a.title}</span><span class="cl-sched-freq">${intLabel}</span>${badge}</div>`;
+      });
+      html += '</div>';
+    }
+
+    // Static scheduled tasks info (hardcoded since we can't call Cowork API from browser)
+    const tasks = [
+      { name: 'Ingesta diaria', freq: 'Diario 7am', id: 'thesis-queue-review' },
+      { name: 'Check semanal', freq: 'Lunes 8am', id: 'weekly-advisory-check' },
+      { name: 'KB Sweep', freq: '1° del mes', id: 'monthly-kb-reading-sweep' },
+      { name: 'Advisory mensual', freq: '1° del mes', id: 'weekly-pm-advisory' },
+      { name: 'Digital Omnibus', freq: '27 mar', id: 'digital-omnibus-monitor' },
+    ];
+    html += '<div style="font-size:0.68rem; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-muted); margin-top:0.8rem; margin-bottom:0.3rem;">Tareas programadas</div>';
+    html += '<div class="cl-sched">';
+    tasks.forEach(t => {
+      html += `<div class="cl-sched-item"><span class="cl-sched-name">${t.name}</span><span class="cl-sched-freq">${t.freq}</span></div>`;
+    });
+    html += '</div>';
+
+    container.innerHTML = html;
+  } catch(e) {
+    container.innerHTML = '<div style="color:var(--text-muted); font-size:0.72rem;">Error cargando calendario de Claude.</div>';
+  }
+}
+
+// ═══════════════════════════════════════
 // DECISIONES — from Supabase pm_decisions (kept for data, view removed)
 // ═══════════════════════════════════════
 async function fetchDecisions() {
@@ -3084,6 +3155,7 @@ document.addEventListener('DOMContentLoaded', () => {
   fetchBiblioProjection(); // Bibliography projection (dynamic chapter names)
   fetchRisks(); // Riesgos → Panorama
   fetchPmTasks(); // PM (Claude) tasks — gaps, vigilancia
+  fetchClaudeSchedule(); // Advisory reviews + scheduled tasks calendar
   fetchReadingPlan(); // Full reading plan from Supabase
 
   // Rewrite all hardcoded lecturas links to KB deep-links (exact URL match)

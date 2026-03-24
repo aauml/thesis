@@ -14,6 +14,14 @@ PM lee este archivo al inicio de cada sesión para tener visibilidad total.
 
 ---
 
+## 2026-03-24 | chat | KB, reading_plan, advisories | Kroll author deep dive — 8 KB entries + 8 reading plan + advisory
+- 8 nuevas entradas Kroll en evaluated_items (4 ALTA, 4 MEDIA): Outlining Traceability, Lessons Learned NIST, Fallacy of Inscrutability, Trust But Verify, ACM TechBrief Facial Recognition, Responsible AI Management Problem, This Thing Called Fairness, Plane Crashes to Algorithmic Harm
+- Kroll KB total: 3→11 entradas
+- Advisory #8 creada: seguimiento trimestral de Kroll (próx revisión jun-24-2026)
+- 8 lecturas añadidas al reading plan (#44-51). 3 lecturas corregidas (#35 N2→N1+Ch5, #46 +Ch5, #47 N3→N2+Ch5)
+- Reading plan: 42→50 lecturas
+- SessionLog v12→v13
+
 ## 2026-03-23 | code | dashboard, sw.js | Dashboard v12.2 — UX fixes
 - Panorama siempre al abrir (ya no restaura última vista desde localStorage)
 - Refresh automático de datos Panorama al navegar a esa vista (throttled 60s)

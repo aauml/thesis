@@ -14,6 +14,14 @@ PM lee este archivo al inicio de cada sesión para tener visibilidad total.
 
 ---
 
+## 2026-03-24 | cowork | dashboard, reading_plan, Supabase | Changelog dinámico + limpieza dashboard_work
+- Creada tabla `reading_plan_changelog` en Supabase con trigger `fn_reading_plan_audit` que auto-registra INSERT/UPDATE/DELETE en reading_plan
+- Trigger captura: added, removed, modified (status/level/title), reordered (position/quarter/year)
+- Dashboard: changelog HTML estático reemplazado por `fetchChangelog()` que carga desde Supabase
+- Corregidas posiciones duplicadas (position=0) en C3 (Kroll ids 44,46,47,49) y Año 1 C1 (ids 45,50,51)
+- Eliminado `dashboard_work.html` — redundante, git maneja versionado
+- Afecta otros contextos: cualquier sesión que modifique reading_plan ahora genera log automático en Supabase
+
 ## 2026-03-24 | chat | KB, reading_plan, advisories | Kroll author deep dive — 8 KB entries + 8 reading plan + advisory
 - 8 nuevas entradas Kroll en evaluated_items (4 ALTA, 4 MEDIA): Outlining Traceability, Lessons Learned NIST, Fallacy of Inscrutability, Trust But Verify, ACM TechBrief Facial Recognition, Responsible AI Management Problem, This Thing Called Fairness, Plane Crashes to Algorithmic Harm
 - Kroll KB total: 3→11 entradas

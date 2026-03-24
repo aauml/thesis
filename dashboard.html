@@ -246,20 +246,21 @@
     .op-due-urgent { color: #DC2626; background: #FEE2E2; font-weight: 700; }
     .op-due-overdue { color: #fff; background: #DC2626; font-weight: 700; animation: pulse-overdue 2s infinite; }
     @keyframes pulse-overdue { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
-    .cl-sched { display: flex; flex-direction: column; gap: 0.3rem; }
-    .cl-sched-item { display: flex; align-items: center; gap: 0.5rem; font-size: 0.76rem; padding: 0.3rem 0; border-bottom: 1px solid var(--border-light); }
-    .cl-sched-item:last-child { border-bottom: none; }
-    .cl-sched-name { font-weight: 600; color: var(--text); flex: 1; }
-    .cl-sched-freq { font-size: 0.62rem; color: var(--text-muted); }
-    .cl-sched-next { font-size: 0.62rem; padding: 1px 5px; border-radius: 3px; white-space: nowrap; }
-    .cl-sched-next.soon { background: #FEF3C7; color: #92400E; font-weight: 600; }
-    .cl-sched-next.normal { background: var(--bg-card); color: var(--text-muted); }
-    .cl-adv { display: flex; align-items: center; gap: 0.5rem; font-size: 0.76rem; padding: 0.3rem 0; border-bottom: 1px solid var(--border-light); }
-    .cl-adv:last-child { border-bottom: none; }
-    .cl-adv-due { font-size: 0.62rem; padding: 1px 5px; border-radius: 3px; white-space: nowrap; }
-    .cl-adv-due.overdue { background: #FEE2E2; color: #DC2626; font-weight: 700; }
-    .cl-adv-due.upcoming { background: #FEF3C7; color: #92400E; font-weight: 600; }
-    .cl-adv-due.ok { background: var(--bg-card); color: var(--text-muted); }
+    .cl-task-item { padding: 0.45rem 0; border-bottom: 1px solid var(--border-light); }
+    .cl-task-item:last-child { border-bottom: none; }
+    .cl-task-top { display: flex; align-items: center; gap: 0.4rem; }
+    .cl-task-type { font-size: 0.56rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; padding: 1px 5px; border-radius: 2px; white-space: nowrap; flex-shrink: 0; }
+    .cl-type-seg { background: #DBEAFE; color: #1E40AF; }
+    .cl-type-vig { background: #D1FAE5; color: #065F46; }
+    .cl-task-label { font-size: 0.78rem; font-weight: 600; color: var(--text); flex: 1; }
+    .cl-task-desc { font-size: 0.7rem; color: var(--text-light); line-height: 1.45; padding-left: 0.2rem; margin-top: 2px; }
+    .cl-task-freq { font-size: 0.6rem; color: var(--text-muted); font-style: italic; }
+    .cl-sched-section { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin-bottom: 0.3rem; margin-top: 0.4rem; }
+    .cl-auto-item { padding: 0.3rem 0; border-bottom: 1px solid var(--border-light); }
+    .cl-auto-item:last-child { border-bottom: none; }
+    .cl-auto-name { font-size: 0.76rem; font-weight: 600; color: var(--text); }
+    .cl-auto-freq { font-size: 0.6rem; color: var(--text-muted); margin-left: 0.4rem; }
+    .cl-auto-desc { font-size: 0.68rem; color: var(--text-light); margin-top: 1px; }
     .op-completed-header {
       display: flex; align-items: center; justify-content: space-between;
       margin-top: 0.8rem; padding-top: 0.6rem; border-top: 1px solid var(--border-light);
@@ -2878,124 +2879,123 @@ async function fetchRisks() {
 }
 
 // ═══════════════════════════════════════
-// PM TASKS (Claude) — gaps, vigilancia, acciones del sistema
+// CLAUDE TASKS — unified: advisories + gaps + scheduled tasks
 // ═══════════════════════════════════════
 async function fetchPmTasks() {
   const container = document.getElementById('pmTasksContainer');
   if (!container) return;
-
   try {
-    // Fetch gap data from KB to generate actionable PM tasks
+    // Parallel fetch: advisories, gaps, recent ALTA
     const GAP_DEFS = {
       2: [{ label: 'Procesal español + IA', filter: 'language=eq.es&or=(title.ilike.*procesal*,title.ilike.*prueba*,title.ilike.*jurisdiccional*,thesis_relevance.ilike.*procesal*,scholar.ilike.*Bueno*,scholar.ilike.*Nieva*)' }],
       4: [{ label: 'Crítica NIST RMF', filter: 'chapters=cs.%7B4%7D&or=(thesis_relevance.ilike.*critique*,thesis_relevance.ilike.*limitation*,thesis_relevance.ilike.*voluntary*,title.ilike.*accountability*,title.ilike.*Beyond%20Audit*)' }],
       6: [{ label: 'PATTERN directas', filter: 'or=(title.ilike.*PATTERN*,title.ilike.*First%20Step%20Act*,title.ilike.*recidivism*BOP*)' }],
     };
-
-    const gapPromises = [];
-    const gapMeta = [];
+    const gapPromises = []; const gapMeta = [];
     for (const [ch, gaps] of Object.entries(GAP_DEFS)) {
-      for (const g of gaps) {
-        gapPromises.push(supabaseCount(g.filter));
-        gapMeta.push({ ch: parseInt(ch), label: g.label });
-      }
+      for (const g of gaps) { gapPromises.push(supabaseCount(g.filter)); gapMeta.push({ ch: parseInt(ch), label: g.label }); }
     }
-
-    // Also fetch pending queries and advisories for vigilancia tasks
-    const [pendingNews, ...gapCounts] = await Promise.all([
+    const [advisories, pendingNews, ...gapCounts] = await Promise.all([
+      supabaseQuery('pm_advisories?select=id,title,action_summary,next_review,review_interval,status&status=eq.active&order=next_review.asc'),
       supabaseQuery('evaluated_items?select=pk&importance=eq.ALTA&created_at=gte.' + new Date(Date.now() - 7*86400000).toISOString().split('T')[0] + '&limit=1&order=created_at.desc'),
       ...gapPromises
     ]);
+    const today = new Date(); today.setHours(0,0,0,0);
+    const fmtDate = d => d.toLocaleDateString('es-ES', { day:'numeric', month:'short' });
+    const daysDiff = d => Math.ceil((d - today) / 86400000);
 
-    let html = '';
+    // ── Build unified task list: [{type, label, desc, date, urgency}] ──
+    const items = [];
 
-    // Gap-based tasks
-    gapMeta.forEach((m, i) => {
-      const n = gapCounts[i];
-      if (n >= 8) return; // gap OK, no task needed
-      const severity = n < 3 ? 'm2-risk-high' : 'm2-risk-med';
-      const action = n < 3
-        ? 'Buscar fuentes adicionales vía Scholar, Perplexity. Considerar queries específicos.'
-        : 'Monitorear. Revisar en próximo sweep si mejora.';
-      html += `<div class="m2-risk" style="margin-bottom:0.5rem;">
-        <span class="m2-risk-lvl ${severity}">${n < 3 ? 'urgente' : 'vigilar'}</span>
-        <strong>Cap. ${m.ch} — ${m.label}</strong> (${n} fuentes).
-        <span style="color:var(--text-light);">${action}</span>
-      </div>`;
+    // 1. Advisories → clear action items
+    (advisories || []).forEach(a => {
+      const nr = a.next_review ? new Date(a.next_review + 'T00:00:00') : null;
+      const diff = nr ? daysDiff(nr) : 999;
+      const urgency = diff < 0 ? 'overdue' : diff <= 3 ? 'urgent' : diff <= 7 ? 'soon' : 'normal';
+      const intLabel = { weekly:'semanal', biweekly:'quincenal', monthly:'mensual', quarterly:'trimestral', on_trigger:'evento' }[a.review_interval] || '';
+      items.push({
+        type: 'seguimiento',
+        label: a.title,
+        desc: a.action_summary || '',
+        date: nr ? fmtDate(nr) : '',
+        dateDiff: diff,
+        urgency,
+        freq: intLabel,
+      });
     });
 
-    // Vigilancia task — new ALTA items in last 7 days
-    const recentAlta = (pendingNews || []).length;
-    if (recentAlta > 0) {
-      html += `<div class="m2-risk" style="margin-bottom:0.5rem;">
-        <span class="m2-risk-lvl m2-risk-low">info</span>
-        <strong>Vigilancia:</strong> Hay entradas ALTA nuevas esta semana.
-        <span style="color:var(--text-light);">Revisar en News y evaluar impacto en plan de lecturas.</span>
+    // 2. Gap tasks
+    gapMeta.forEach((m, i) => {
+      const n = gapCounts[i];
+      if (n >= 8) return;
+      const gapActions = {
+        2: `Solo ${n}/15 fuentes ALTA. Buscar en Dialnet, CENDOJ, publicaciones Bueno de Mata. Si no mejora en sweep, ampliar a repositorios universitarios.`,
+        4: `${n} fuentes sobre limitaciones/críticas del NIST RMF. Buscar en Scholar: accountability, voluntary frameworks, audit critiques.`,
+        6: `${n} fuentes directas sobre PATTERN/First Step Act. Buscar en DOJ, BOP reports, recidivism literature.`,
+      };
+      items.push({
+        type: n < 3 ? 'gap crítico' : 'gap',
+        label: `Cap. ${m.ch} — ${m.label} (${n} fuentes)`,
+        desc: gapActions[m.ch] || 'Monitorear en próximo sweep.',
+        date: '1 abr',
+        dateDiff: daysDiff(new Date(2026, 3, 1)),
+        urgency: n < 3 ? 'urgent' : 'normal',
+        freq: 'sweep mensual',
+      });
+    });
+
+    // 3. Vigilancia ALTA
+    if ((pendingNews || []).length > 0) {
+      items.push({
+        type: 'vigilancia',
+        label: 'Entradas ALTA nuevas esta semana',
+        desc: 'Revisar en News. Evaluar si alguna afecta el plan de lecturas o los capítulos activos.',
+        date: 'continuo',
+        dateDiff: 999,
+        urgency: 'normal',
+        freq: 'ingesta diaria',
+      });
+    }
+
+    // Sort: overdue first, then by dateDiff
+    items.sort((a, b) => {
+      const urgOrd = { overdue: 0, urgent: 1, soon: 2, normal: 3 };
+      return (urgOrd[a.urgency] || 3) - (urgOrd[b.urgency] || 3) || a.dateDiff - b.dateDiff;
+    });
+
+    // ── Render ──
+    if (items.length === 0) {
+      container.innerHTML = '<div style="color:var(--text-muted); font-size:0.78rem;">Sin tareas pendientes de Claude.</div>';
+      return;
+    }
+
+    const typeClass = { 'gap crítico': 'm2-risk-high', 'gap': 'm2-risk-med', 'seguimiento': 'cl-type-seg', 'vigilancia': 'cl-type-vig' };
+    const urgClass = { overdue: 'op-due-overdue', urgent: 'op-due-urgent', soon: 'op-due-soon', normal: '' };
+
+    container.innerHTML = items.map(it => {
+      const typeBadge = `<span class="cl-task-type ${typeClass[it.type] || ''}">${it.type}</span>`;
+      const dateBadge = it.date ? `<span class="op-due ${urgClass[it.urgency] || ''}">${it.date}</span>` : '';
+      return `<div class="cl-task-item">
+        <div class="cl-task-top">${typeBadge}<span class="cl-task-label">${it.label}</span>${dateBadge}</div>
+        <div class="cl-task-desc">${it.desc}${it.freq ? ` <span class="cl-task-freq">[${it.freq}]</span>` : ''}</div>
       </div>`;
-    }
-
-    if (!html) {
-      html = '<div style="color:var(--text-muted); font-size:0.78rem;">Sin tareas PM pendientes. Gaps bajo control.</div>';
-    }
-
-    container.innerHTML = html;
+    }).join('');
   } catch(e) {
-    container.innerHTML = '<div style="color:var(--text-muted); font-size:0.72rem;">Error cargando tareas PM.</div>';
+    container.innerHTML = '<div style="color:var(--text-muted); font-size:0.72rem;">Error cargando tareas de Claude.</div>';
   }
 }
 
-// ═══════════════════════════════════════
-// CLAUDE SCHEDULE — advisory reviews + upcoming tasks
-// ═══════════════════════════════════════
 async function fetchClaudeSchedule() {
   const container = document.getElementById('claudeScheduleContainer');
   if (!container) return;
-  try {
-    // Fetch active advisories with next_review dates
-    const advisories = await supabaseQuery('pm_advisories?select=id,title,next_review,review_interval,status&status=eq.active&order=next_review.asc');
-    const today = new Date(); today.setHours(0,0,0,0);
-
-    let html = '';
-
-    // Advisory reviews section
-    if (advisories && advisories.length > 0) {
-      html += '<div style="font-size:0.68rem; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-muted); margin-bottom:0.3rem;">Revisiones pendientes</div>';
-      html += '<div class="cl-sched">';
-      advisories.forEach(a => {
-        const nr = a.next_review ? new Date(a.next_review + 'T00:00:00') : null;
-        let badge = '';
-        if (nr) {
-          const diff = Math.ceil((nr - today) / 86400000);
-          const label = nr.toLocaleDateString('es-ES', { day:'numeric', month:'short' });
-          if (diff < 0) badge = `<span class="cl-adv-due overdue">⚠ ${label} (hace ${-diff}d)</span>`;
-          else if (diff <= 7) badge = `<span class="cl-adv-due upcoming">${label} (${diff}d)</span>`;
-          else badge = `<span class="cl-adv-due ok">${label}</span>`;
-        }
-        const intLabel = { weekly:'semanal', biweekly:'quincenal', monthly:'mensual', quarterly:'trimestral', on_trigger:'por evento' }[a.review_interval] || a.review_interval;
-        html += `<div class="cl-adv"><span style="flex:1;">${a.title}</span><span class="cl-sched-freq">${intLabel}</span>${badge}</div>`;
-      });
-      html += '</div>';
-    }
-
-    // Static scheduled tasks info (hardcoded since we can't call Cowork API from browser)
-    const tasks = [
-      { name: 'Ingesta diaria', freq: 'Diario 7am', id: 'thesis-queue-review' },
-      { name: 'Check semanal', freq: 'Lunes 8am', id: 'weekly-advisory-check' },
-      { name: 'KB Sweep', freq: '1° del mes', id: 'monthly-kb-reading-sweep' },
-      { name: 'Advisory mensual', freq: '1° del mes', id: 'weekly-pm-advisory' },
-      { name: 'Digital Omnibus', freq: '27 mar', id: 'digital-omnibus-monitor' },
-    ];
-    html += '<div style="font-size:0.68rem; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-muted); margin-top:0.8rem; margin-bottom:0.3rem;">Tareas programadas</div>';
-    html += '<div class="cl-sched">';
-    tasks.forEach(t => {
-      html += `<div class="cl-sched-item"><span class="cl-sched-name">${t.name}</span><span class="cl-sched-freq">${t.freq}</span></div>`;
-    });
-    html += '</div>';
-
-    container.innerHTML = html;
-  } catch(e) {
-    container.innerHTML = '<div style="color:var(--text-muted); font-size:0.72rem;">Error cargando calendario de Claude.</div>';
-  }
+  const tasks = [
+    { name: 'Ingesta diaria', desc: 'Revisa colas de fuentes, evalúa, inserta en KB con embeddings', freq: 'Diario 7am' },
+    { name: 'Check semanal', desc: 'Escanea deadlines vencidos, tareas estancadas, advisories pendientes → genera alertas', freq: 'Lunes 8am' },
+    { name: 'KB Sweep mensual', desc: 'Evalúa upgrades MEDIA→ALTA, identifica gaps, actualiza plan de lecturas y riesgos', freq: '1° del mes' },
+    { name: 'Advisory mensual', desc: 'Revisa tareas completadas, lee output en Obsidian, escribe feedback, genera nuevas tareas', freq: '1° del mes' },
+  ];
+  container.innerHTML = '<div class="cl-sched-section">Automatizaciones</div>' +
+    tasks.map(t => `<div class="cl-auto-item"><span class="cl-auto-name">${t.name}</span><span class="cl-auto-freq">${t.freq}</span><div class="cl-auto-desc">${t.desc}</div></div>`).join('');
 }
 
 // ═══════════════════════════════════════

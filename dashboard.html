@@ -123,7 +123,16 @@
 
     /* View panels */
     .view { display: none; }
-    .view.active { display: block; }
+    .view.active { display: block; animation: viewFadeIn 0.22s ease-out; }
+    @keyframes viewFadeIn {
+      from { opacity: 0; transform: translateX(18px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+    .view.active.swipe-right { animation-name: viewFadeInRight; }
+    @keyframes viewFadeInRight {
+      from { opacity: 0; transform: translateX(-18px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
 
     /* ═══════════════════════════════════════
        SHARED COMPONENTS
@@ -1574,7 +1583,7 @@
     <!-- Decisiones eliminadas del dashboard v12.1 — datos siguen en Supabase pm_decisions -->
 
     <footer>
-      Última actualización: 23 de marzo de 2026 · Thesis Dashboard v12.1 (M2) — News tab · PM tasks · reading objectives · sin Registro
+      Última actualización: 23 de marzo de 2026 · Thesis Dashboard v12.2 (M2) — News tab · PM tasks · reading objectives
     </footer>
 
   </div><!-- /main -->
@@ -1597,7 +1606,22 @@ function switchView(id, btn) {
   document.querySelectorAll('.sb-item').forEach(b => b.classList.remove('active'));
   document.getElementById('view-' + id).classList.add('active');
   if (btn) btn.classList.add('active');
-  try { localStorage.setItem('dash-active-view', id); } catch(e) {}
+  // Refresh Panorama data whenever navigating to it
+  if (id === 'panorama') refreshPanorama();
+}
+
+let _lastPanoramaRefresh = 0;
+function refreshPanorama() {
+  const now = Date.now();
+  // Throttle: skip if refreshed less than 60s ago
+  if (now - _lastPanoramaRefresh < 60000) return;
+  _lastPanoramaRefresh = now;
+  fetchAlerts();
+  fetchActividadActual();
+  fetchDevelopments();
+  fetchAdvisories();
+  fetchNextMilestone();
+  fetchRisks();
 }
 
 // ═══════════════════════════════════════
@@ -1926,43 +1950,54 @@ async function fetchPipelineStatus() {
 }
 
 // ═══════════════════════════════════════
-// NOVEDADES RECIENTES — from Supabase (25 most recently published)
+// NOVEDADES RECIENTES — from Supabase (ALTA items, 10 most recent + expandable)
 // ═══════════════════════════════════════
 async function fetchRecentNews() {
   const container = document.getElementById('recentNewsContainer');
   if (!container) return;
 
   function renderNewsItem(row) {
-    const d = new Date(row.date_published || row.created_at || 0);
-    const shortDate = !isNaN(d.getTime()) ? d.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' }) : '';
+    // Prefer date_published (actual publication date), fall back to created_at
+    const rawDate = row.date_published || row.created_at || '';
+    let shortDate = '';
+    if (rawDate) {
+      const d = new Date(rawDate);
+      if (!isNaN(d.getTime())) {
+        // Show year if not current year
+        const now = new Date();
+        const opts = d.getFullYear() === now.getFullYear()
+          ? { day: 'numeric', month: 'short' }
+          : { day: 'numeric', month: 'short', year: 'numeric' };
+        shortDate = d.toLocaleDateString('es-ES', opts);
+      }
+    }
     const title = row.title || '(sin título)';
-    const impDot = row.importance === 'ALTA' ? '<span style="color:#DC2626;font-weight:700;margin-right:2px;">•</span>' : '';
     const kbUrl = row.url
       ? 'https://aauml.github.io/thesis/index.html?url=' + encodeURIComponent(row.url)
       : 'https://aauml.github.io/thesis/index.html?q=' + encodeURIComponent(title.split(/[\s:—–()«»""]+/).filter(w => w.length > 3 && !/^\d+$/.test(w)).slice(0, 5).join(' '));
     const titleHtml = `<a href="${kbUrl}" target="_blank" rel="noopener">${title}</a>`;
-    return `<div class="m2-nw"><span class="m2-nw-date">${shortDate}</span> ${impDot}${titleHtml}</div>`;
+    return `<div class="m2-nw"><span class="m2-nw-date">${shortDate}</span> ${titleHtml}</div>`;
   }
 
   try {
     const rows = await supabaseQuery(
-      'evaluated_items?select=title,url,importance,date_published,created_at&order=date_published.desc.nullslast&limit=25'
+      'evaluated_items?select=title,url,importance,capa,date_published,created_at&importance=eq.ALTA&order=created_at.desc&limit=50'
     );
 
     if (!rows || rows.length === 0) {
-      container.innerHTML = '<div style="color:var(--text-muted); font-size:0.78rem;">No hay entradas en Supabase.</div>';
+      container.innerHTML = '<div style="color:var(--text-muted); font-size:0.78rem;">No hay entradas ALTA en Supabase.</div>';
       return;
     }
 
-    const visible = rows.slice(0, 10);
-    const rest = rows.slice(10);
+    const visible = rows.slice(0, 25);
+    const rest = rows.slice(25);
 
     let html = visible.map(renderNewsItem).join('');
 
     if (rest.length > 0) {
       html += `<details class="news-expand">
         <summary style="cursor:pointer; font-size:0.72rem; color:var(--text-muted); padding:0.4rem 0; user-select:none;">
-          ver más (${rest.length}) →
+          mostrar más (${rest.length}) →
         </summary>
         <div style="margin-top:0.2rem;">
           ${rest.map(renderNewsItem).join('')}
@@ -3007,14 +3042,10 @@ document.addEventListener('DOMContentLoaded', () => {
     a.target = '_blank';
   });
 
-  // Restore last active view on refresh
-  const savedView = localStorage.getItem('dash-active-view');
-  if (savedView) {
-    const btn = document.querySelector(`.sb-item[onclick*="'${savedView}'"]`);
-    if (btn && document.getElementById('view-' + savedView)) {
-      switchView(savedView, btn);
-    }
-  }
+  // Always open to Panorama on page load (ignore saved view)
+  // Panorama is already active by default in HTML, just ensure sidebar matches
+  switchView('panorama', document.querySelector('.sb-item'));
+  localStorage.removeItem('dash-active-view');
 
   // ═══════════════════════════════════════
   // SWIPE NAVIGATION — left/right to switch views
@@ -3023,9 +3054,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const mainEl = document.querySelector('.main');
     if (!mainEl) return;
     const viewOrder = ['panorama','news','operativo','kb','mapa','lecturas','redaccion'];
-    let startX = 0, startY = 0, tracking = false;
-    const THRESHOLD = 60;   // min px horizontal
-    const MAX_RATIO = 0.6;  // max vertical/horizontal ratio (ignore diagonal/vertical swipes)
+    let startX = 0, startY = 0, startTime = 0, tracking = false, locked = false, dirLocked = null;
+    const THRESHOLD = 40;     // min px to trigger (lowered for responsiveness)
+    const MAX_RATIO = 0.55;   // max vertical/horizontal ratio
+    const VELOCITY_MIN = 0.25; // min px/ms for fast flick detection
 
     function getCurrentIndex() {
       const active = document.querySelector('.view.active');
@@ -3035,11 +3067,16 @@ document.addEventListener('DOMContentLoaded', () => {
       return idx >= 0 ? idx : 0;
     }
 
-    function goTo(idx) {
+    function goTo(idx, direction) {
       if (idx < 0 || idx >= viewOrder.length) return;
       const btn = document.querySelectorAll('.sb-item')[idx];
+      // Add direction class for correct animation
+      const view = document.getElementById('view-' + viewOrder[idx]);
+      if (view) {
+        view.classList.remove('swipe-right');
+        if (direction === 'right') view.classList.add('swipe-right');
+      }
       switchView(viewOrder[idx], btn);
-      // Scroll the nav tab into view on mobile
       if (btn) btn.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
     }
 
@@ -3047,49 +3084,51 @@ document.addEventListener('DOMContentLoaded', () => {
       if (e.touches.length !== 1) return;
       startX = e.touches[0].clientX;
       startY = e.touches[0].clientY;
+      startTime = Date.now();
       tracking = true;
+      locked = false;
+      dirLocked = null;
+    }, { passive: true });
+
+    mainEl.addEventListener('touchmove', function(e) {
+      if (!tracking) return;
+      const dx = Math.abs(e.touches[0].clientX - startX);
+      const dy = Math.abs(e.touches[0].clientY - startY);
+      // Lock direction after 10px of movement
+      if (!locked && (dx > 10 || dy > 10)) {
+        locked = true;
+        dirLocked = dx > dy ? 'horizontal' : 'vertical';
+      }
+      // If horizontal swipe detected, hint the browser not to scroll vertically
+      if (dirLocked === 'horizontal' && dx > 15) {
+        mainEl.style.opacity = Math.max(0.85, 1 - dx / 600).toString();
+      }
     }, { passive: true });
 
     mainEl.addEventListener('touchend', function(e) {
+      mainEl.style.opacity = '';
       if (!tracking) return;
       tracking = false;
+      if (dirLocked === 'vertical') return; // was a scroll, ignore
       const endX = e.changedTouches[0].clientX;
       const endY = e.changedTouches[0].clientY;
       const dx = endX - startX;
       const dy = Math.abs(endY - startY);
-      if (Math.abs(dx) < THRESHOLD) return;
-      if (dy / Math.abs(dx) > MAX_RATIO) return;  // too vertical
+      const elapsed = Date.now() - startTime;
+      const velocity = Math.abs(dx) / Math.max(elapsed, 1);
+      // Accept if threshold met OR fast flick
+      if (Math.abs(dx) < THRESHOLD && velocity < VELOCITY_MIN) return;
+      if (dy / Math.max(Math.abs(dx), 1) > MAX_RATIO) return;
       const cur = getCurrentIndex();
-      if (dx < 0) goTo(cur + 1);  // swipe left → next
-      else goTo(cur - 1);          // swipe right → prev
+      if (dx < 0) goTo(cur + 1, 'left');   // swipe left → next
+      else goTo(cur - 1, 'right');           // swipe right → prev
     }, { passive: true });
   })();
 });
 
-// ── bfcache: force reload when restored via back/forward navigation ──
-window.addEventListener('pageshow', function(e) {
-  if (e.persisted) {
-    // Page was restored from bfcache — reload to get fresh version
-    window.location.reload();
-  }
-});
-
-// ── PWA with update detection ──
+// ── PWA ──
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('sw.js').then(function(reg) {
-    // Check for SW updates periodically
-    reg.addEventListener('updatefound', function() {
-      var newWorker = reg.installing;
-      if (newWorker) {
-        newWorker.addEventListener('statechange', function() {
-          if (newWorker.state === 'activated') {
-            // New SW active — reload for fresh content
-            window.location.reload();
-          }
-        });
-      }
-    });
-  }).catch(function() {});
+  navigator.serviceWorker.register('sw.js').catch(() => {});
 }
 </script>
 </body>

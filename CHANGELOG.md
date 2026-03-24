@@ -14,6 +14,14 @@ PM lee este archivo al inicio de cada sesión para tener visibilidad total.
 
 ---
 
+## 2026-03-23 | code | dashboard, sw.js | Dashboard v12.2 — UX fixes
+- Panorama siempre al abrir (ya no restaura última vista desde localStorage)
+- Refresh automático de datos Panorama al navegar a esa vista (throttled 60s)
+- Eliminada referencia "sin Registro" del footer
+- Swipe mejorado: threshold 40px, detección de flick por velocidad, lock de dirección, animación CSS fade+slide
+- News: 25 items visibles (antes 10), usa date_published en vez de created_at, muestra año si no es actual
+- Service worker bumped a thesis-v7
+
 ## 2026-03-23 | cowork | dashboard, reading_plan | Plan lecturas: consistencia visual
 - CSS .lec-lens igualado a .lec-objective (mismo fondo, borde, tamaño)
 - Poblados reading_objective para las 29 lecturas de C3-C9 en Supabase
@@ -34,26 +42,3 @@ PM lee este archivo al inicio de cada sesión para tener visibilidad total.
 - Actualizado SKILL-PM y SKILL-KB para incluir CHANGELOG en sus protocolos de sesión
 - Creada tabla system_heartbeats en Supabase para tracking de Dispatch
 - Decisión: jerarquía de memoria formalizada (pm_decisions > CHANGELOG > SessionLogs)
-
-## 2026-03-23 | chat-pm | SKILL-PM, SKILL-KB, KB-PendingIssues | PM puede procesar colas KB
-- SKILL-PM v18: §19 nuevo — PM puede hacer triaje de colas staging (lee SKILL-KB del repo, no duplica protocolo de evaluación)
-- SKILL-PM v18: §1 interfaz actualizada (PM escribe en evaluated_items), §6 paso 7 queue check en startup
-- SKILL-KB v19: TASK-017 — canonical chapter numbering corregido a estructura híbrida (Ch3=RIA, Ch4=NIST)
-- Colas verificadas vacías (0 pending en las 3)
-
-## 2026-03-23 | chat-kb | KB update | Run 211: update all (Supabase-primary)
-- All 3 queues empty. 4 Claude targeted searches → 4 items added (2 ALTA, 2 MEDIA)
-- ALTA: WH National AI Legislative Framework (Mar 20), Nelson Mullins preemption analysis (99-1 rejection, DOJ Task Force)
-- MEDIA: Sullivan & Cromwell framework analysis, AECA gobernanza IA sector público (es)
-- First full Supabase-primary session: write + Sheet verification + embeddings all succeeded
-- DB: ~1,376 Supabase, ~1,349 Sheet NewsLog. Meta: total_searches=211
-- TASK-009 still pending: Digital Omnibus plenary vote Mar 26
-
-## 2026-03-23 | chat-pm | SKILL-PM, GAS, dashboard, index.html | CLASP + Supabase sync + UI
-- SKILL-PM v19: §20 CLASP CI/CD para PM — scripts GAS ahora compartidos PM+KB
-- SupabaseSync.js (nuevo): hourly one-way Supabase → Sheet NewsLog mirror
-- WebApp v37: getStats devuelve last_supabase_sync
-- Dashboard News: 25 items por date_published (antes 50 ALTA por created_at)
-- index.html: sort simplificado (pub date default), mobile grid layout iPhone 14 Pro Max, backup status en header
-- SW: thesis-v18 → thesis-v20
-- Pendiente usuario: agregar Script Properties + correr setupSupabaseSync()

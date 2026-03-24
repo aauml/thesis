@@ -4,7 +4,7 @@ description: "Arquitectura completa del sistema de tesis doctoral (Supabase + Gi
 ---
 
 # Thesis System — Arquitectura y Flujo Completo
-**Última actualización:** 2026-03-20
+**Última actualización:** 2026-03-23
 
 Este documento es la referencia técnica del sistema completo. Léelo antes de modificar cualquier componente para entender las dependencias y evitar romper algo.
 
@@ -50,7 +50,7 @@ El sistema gestiona una tesis doctoral sobre AI governance / RegTech. Tiene tres
 | `pm_milestones` | 8 | Hitos institucionales/académicos | Advisory (service_role), anon UPDATE (completed) |
 | `pm_risks` | 4 | Registro de riesgos | Advisory/sweep (service_role) |
 | `pm_developments` | 9 | Desarrollos regulatorios clave | Advisory (service_role) |
-| `pm_advisories` | 6 | Análisis y recomendaciones estratégicas. Campos de seguimiento: `next_review`, `review_interval` (weekly/biweekly/monthly/quarterly/on_trigger), `search_queries` (jsonb), `last_checked`, `check_notes`, `resolved_at`, `resolved_reason`. Status: active/resolved/parked. | Advisory (service_role), PM sessions |
+| `pm_advisories` | 6 | Análisis y recomendaciones estratégicas. Campos de seguimiento: `next_review`, `review_interval` (weekly/biweekly/monthly/quarterly/on_trigger), `search_queries` (jsonb), `last_checked`, `check_notes`, `resolved_at`, `resolved_reason`, `action_summary` (text, descripción clara de la acción que Claude hará). Status: active/resolved/parked. | Advisory (service_role), PM sessions |
 | `pm_decisions` | 5 | Registro de decisiones de investigación | PM sessions (service_role) |
 | `pm_alerts` | variable | Alertas urgentes entre advisories | Sweep/advisory (service_role), anon UPDATE (dismissed) |
 | `chapter_sections` | 29 | Tracker de redacción por sección de capítulo (7 caps, fuente única de verdad) | Advisory (service_role), anon UPDATE (status, word_count) |
@@ -88,6 +88,7 @@ alert_type IN ('urgent_item', 'deadline_risk', 'stalled_task')
 ```sql
 task_type IN ('lectura', 'ficha', 'busqueda', 'redaccion', 'revision', 'action', 'admin')
 review_status IN ('none', 'pending_review', 'reviewed')
+due_date DATE -- nullable, para deadlines visibles y triggers de weekly-advisory-check
 ```
 
 Ciclo de revisión: cuando el usuario marca `done=true`, el dashboard pone `review_status='pending_review'`. El advisory mensual revisa el output en Obsidian y pone `review_status='reviewed'` con `review_notes`.
@@ -185,6 +186,8 @@ git push https://<PAT>@github.com/aauml/thesis.git main
 | `thesis-queue-review` | Diario 7:05am | **Ingesta:** revisa colas pendientes → evalúa → inserta en `evaluated_items` → genera embeddings → actualiza dashboard |
 | `monthly-kb-reading-sweep` | 1° del mes 9:00am | **Técnico:** evalúa upgrades MEDIA→ALTA, identifica gaps, actualiza `reading_plan` y `pm_risks` |
 | `weekly-pm-advisory` | 1° del mes 10:00am | **Advisory mensual:** revisa tareas completadas, lee output en Obsidian, escribe feedback, genera nuevas tareas. Actualiza `pm_tasks`, `pm_developments`, `pm_advisories`, `pm_milestones` |
+| `weekly-advisory-check` | Lunes 8:00am | **Check semanal:** escanea advisories con `next_review` vencido, tareas con `due_date` próximo/vencido, tareas estancadas (>21d). Genera `pm_alerts`. Solo lectura + alertas. |
+| `digital-omnibus-monitor` | One-time 27 mar 2026 | **Evento:** monitorear resultado voto plenario Digital Omnibus EU. Auto-disable tras ejecución. |
 | `director-meeting-prep` | Manual | **On-demand:** genera briefing .docx para reunión con director desde datos Supabase |
 | `generate-embeddings-backfill` | Deshabilitado | Backfill completado (1489 embeddings). Reactivar si hay items sin embedding |
 

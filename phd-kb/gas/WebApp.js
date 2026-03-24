@@ -1,13 +1,11 @@
 /**
  * WebApp.gs — Thesis KB API
- * Version: 36
- * Date: 2026-03-22
+ * Version: 37
+ * Date: 2026-03-23
  *
- * Changes from v35:
- *   - FIX: getUrls now respects `tab` parameter (BUG-005). Was hardcoded to NewsLog.
- *     Allowed tabs: NewsLog, PerplexityQueue, AcademicQueue, NewsResults.
- *     Default: NewsLog (backwards-compatible).
- *     Usage: ?action=getUrls&tab=PerplexityQueue
+ * Changes from v36:
+ *   - getStats now includes `last_supabase_sync` timestamp from Script Properties.
+ *     Populated by SupabaseSync.js hourly trigger.
  *
  * Previous (v35):
  *   - NEW: deleteByUrl (POST) — permanent row deletion by URL.
@@ -261,6 +259,12 @@ function doGet(e) {
           metaData.forEach(row => { if (row[0]) meta[row[0]] = row[1]; });
         } catch(e) {}
 
+        // Sync status
+        let lastSync = null;
+        try {
+          lastSync = PropertiesService.getScriptProperties().getProperty('LAST_SUPABASE_SYNC') || null;
+        } catch(e) {}
+
         return jsonResponse({
           total,
           by_importance: byImp,
@@ -268,7 +272,8 @@ function doGet(e) {
           last_acad_scan: meta.last_acad_scan || null,
           last_news_scan: meta.last_news_scan || null,
           last_perplexity_scan: meta.last_perplexity_scan || null,
-          last_search_date: meta.last_search_date || null
+          last_search_date: meta.last_search_date || null,
+          last_supabase_sync: lastSync
         });
       }
 

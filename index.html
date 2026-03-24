@@ -485,6 +485,9 @@ const SB_HEADERS = {
   "Content-Type": "application/json",
 };
 const PAGE_LIMIT = 50;
+const SHEET_API = "https://script.google.com/macros/s/AKfycbzk2vhu-qcKFBPqEImKGEZKSitpVZv1IQQEv5ZzG7pNfo-iPUWfvSoLWWnkoc8d8PQQ/exec";
+let _sheetTotal = null; // backup count from Sheet
+let _sheetLastSync = null; // last sync timestamp
 
 const SUBCAPA_OPTIONS = {
   all: [
@@ -696,6 +699,15 @@ async function fetchData() {
   try {
     // Always load the full cache for stats and keyword search
     const { rows: allRows, stats } = await loadAllRows();
+
+    // Background: fetch Sheet count for backup indicator (non-blocking)
+    if (_sheetTotal === null) {
+      fetch(SHEET_API + "?action=getStats").then(r => r.json()).then(d => {
+        _sheetTotal = d.total || 0;
+        _sheetLastSync = d.last_supabase_sync || null;
+        renderHeader(stats); // re-render with backup info
+      }).catch(() => {});
+    }
 
     let filtered;
     let isSemanticResult = false;
@@ -947,11 +959,24 @@ function renderHeader(stats) {
     || document.getElementById("selEvaluativa").value
     || document.getElementById("selType").value;
   if (stats) {
+    let backupHtml = "";
+    if (_sheetTotal !== null) {
+      const synced = _sheetTotal === stats.total_all;
+      const syncColor = synced ? "#059669" : "#D97706";
+      const syncLabel = synced ? "synced" : `${stats.total_all - _sheetTotal} pending`;
+      let syncTime = "";
+      if (_sheetLastSync) {
+        const d = new Date(_sheetLastSync);
+        syncTime = " · " + d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+      }
+      backupHtml = `<span style="color:${syncColor};font-size:11px" title="Sheet backup: ${_sheetTotal} rows${syncTime}">● backup ${syncLabel}</span>`;
+    }
     el.innerHTML = `
       <span><strong>${stats.total_all}</strong> sources</span>
       <span style="color:#DC2626;font-weight:700">${stats.alta} Alta</span>
       <span style="color:#D97706;font-weight:700">${stats.media} Media</span>
       <span style="color:#9CA3AF;font-weight:700">${stats.baja} Baja</span>
+      ${backupHtml}
       ${hasFilter ? `<span>· <strong>${state.total}</strong> matching</span>` : ""}
     `;
   } else {

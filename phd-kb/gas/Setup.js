@@ -44,3 +44,44 @@ function scheduleDeepSweep() {
     .timeBased().at(new Date(Date.now() + 60000)).create();
   Logger.log('Deep sweep scheduled in 60s');
 }
+
+// ── Supabase Sync setup ──────────────────────────────────────────────────────
+
+/**
+ * Run ONCE after adding SUPABASE_URL and SUPABASE_KEY to Script Properties.
+ * (File > Project properties > Script properties in the old editor,
+ *  or Project Settings > Script Properties in the new editor)
+ *
+ * Creates an hourly trigger for incremental sync.
+ */
+function setupSupabaseSync() {
+  // Verify credentials exist
+  var props = PropertiesService.getScriptProperties();
+  var url = props.getProperty('SUPABASE_URL');
+  var key = props.getProperty('SUPABASE_KEY');
+  if (!url || !key) {
+    Logger.log('ERROR: Set SUPABASE_URL and SUPABASE_KEY in Script Properties first.');
+    return;
+  }
+  Logger.log('Supabase credentials: OK');
+
+  // Remove existing sync triggers
+  ScriptApp.getProjectTriggers().forEach(function(t) {
+    if (t.getHandlerFunction() === 'syncIncremental') {
+      ScriptApp.deleteTrigger(t);
+      Logger.log('Removed existing syncIncremental trigger');
+    }
+  });
+
+  // Create hourly trigger
+  ScriptApp.newTrigger('syncIncremental')
+    .timeBased()
+    .everyHours(1)
+    .create();
+  Logger.log('Created hourly syncIncremental trigger');
+
+  // Run initial full sync
+  Logger.log('Running initial full sync...');
+  syncFromSupabase();
+  Logger.log('Setup complete.');
+}

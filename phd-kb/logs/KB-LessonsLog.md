@@ -116,7 +116,8 @@ These are hard rules derived from past bugs. Violating any of these means repeat
 | 2026-03-22 | inventory + sync | Full Sheet↔Supabase audit. Cleaned 5 junk entries (TEST, DELETED, test-url). Fixed 6 orphans (5 JPG→PDF, 1 NAP2023 rename). Fixed Bradford2012.pdf.pdf. Indexed 19 missing files from 01/04. Final sync: 1,502 items (1,044 web + 458 gdrive) in both. | PR-013, PR-014 |
 | 2026-03-22 | data enrichment | Scholar: 266→1,495 (100%) via CrossRef, Semantic Scholar, arXiv APIs + regex + institutional tagging. thesis_relevance: 19 gdrive items completed. Embeddings: all 1,495 complete. Cleanup: 9 items deleted (8 arXiv dups + 1 noise), synced to Sheet via deleteByUrl. BUG-001/002/003/005 resolved. TASK-006/007/008/011/012/013 completed. `chapters` column added and populated. TRUMP AI Act full analysis (300pp) completed, 2 PDFs indexed. AcademicOrchestrator-v3 (BUG-002 fix), WebApp-v36 (BUG-005 fix) prepared. TASK-006 dry run validated. Final DB: 1,495 items, ALL fields 100%. | — |
 | 2026-03-22 | infrastructure | Auto-correction trigger `trg_validate_evaluated_item`: corrige campos incompletos en vez de rechazar (importance→MEDIA, scholar→[sin asignar], chapters→{4}, thesis_relevance→[PENDIENTE]). Solo rechaza title/url vacíos. Correcciones en `kb_corrections_log`. Health check `kb_health_check()`: 13 checks. pg_cron diario 7am UTC → `kb_health_log`. Pipeline documentada en `docs/PIPELINE-ARCHITECTURE.md`. | — |
+| 2026-03-23 | update all (run 211) | Queues empty (all 3). 4 Claude searches → 4 items added (2 ALTA, 2 MEDIA). WH National AI Legislative Framework (Mar 20), Nelson Mullins preemption analysis, Sullivan & Cromwell framework analysis, AECA gobernanza IA sector público (es). First full Supabase-primary session: write+verification+embeddings all succeeded. | — |
 
 ---
 
-_Última actualización: 2026-03-22_
+_Última actualización: 2026-03-23_

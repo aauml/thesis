@@ -40,3 +40,11 @@ PM lee este archivo al inicio de cada sesión para tener visibilidad total.
 - SKILL-PM v18: §1 interfaz actualizada (PM escribe en evaluated_items), §6 paso 7 queue check en startup
 - SKILL-KB v19: TASK-017 — canonical chapter numbering corregido a estructura híbrida (Ch3=RIA, Ch4=NIST)
 - Colas verificadas vacías (0 pending en las 3)
+
+## 2026-03-23 | chat-kb | KB update | Run 211: update all (Supabase-primary)
+- All 3 queues empty. 4 Claude targeted searches → 4 items added (2 ALTA, 2 MEDIA)
+- ALTA: WH National AI Legislative Framework (Mar 20), Nelson Mullins preemption analysis (99-1 rejection, DOJ Task Force)
+- MEDIA: Sullivan & Cromwell framework analysis, AECA gobernanza IA sector público (es)
+- First full Supabase-primary session: write + Sheet verification + embeddings all succeeded
+- DB: ~1,376 Supabase, ~1,349 Sheet NewsLog. Meta: total_searches=211
+- TASK-009 still pending: Digital Omnibus plenary vote Mar 26

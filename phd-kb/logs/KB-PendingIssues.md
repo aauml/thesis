@@ -223,12 +223,8 @@ _Actualizar al cierre de cada sesión. Este archivo es la memoria técnica del s
 
 ## Próxima sesión
 
-- **Prioridad 1:** TASK-009 — Verificar resultado del voto plenario Digital Omnibus del 26 de marzo
-- **Prioridad 2:** ~~Bueno de Mata sweep~~ ✅ Completado 2026-03-23 (3→7 entradas, 3 lecturas añadidas al plan)
-- **Prioridad 3:** ~~Agregar al KB: CGPJ/Fernández/Tanner~~ ✅ Completado 2026-03-23 (CGPJ 2/2026 ALTA, Fernández Larrea MEDIA, 2 Tanner dupes eliminados, 1 retitulado)
-- **Prioridad 4:** ~~PATTERN gap~~ ✅ 4 fuentes añadidas (GAO-26-107268, GAO-23-105139, Labrecque 2025, DOJ FSA Annual 2024)
-- **Prioridad 5:** ~~Q120 NIST critique~~ ✅ 2 fuentes (AI Now «Moving Beyond Audits», Raji et al. 2020)
-- **Prioridad 6:** ~~Dialnet/CENDOJ~~ ✅ 2 fuentes (De Miguel Beriain 2019, IA prueba indiciaria 2024)
+- **Prioridad 1:** TASK-009 — Verificar resultado del voto plenario Digital Omnibus del 26 de marzo (run `update claude` el 27 de marzo)
+- **Prioridad 2:** Monitor WH AI Framework congressional response — track Blackburn bill committee progress, DOJ AI Litigation Task Force actions, FTC/Commerce state AI assessments (due late March)
 
 ### Deuda técnica (no urgente)
 - `capa` field en Supabase: 24 variantes CSV → futuro convertir a text[] array como chapters
@@ -247,7 +243,7 @@ _Actualizar al cierre de cada sesión. Este archivo es la memoria técnica del s
 - WebApp: **v36** · ArXiv: **v2** · AcademicOrchestrator: **v3** · GoogleNewsRSS: v1 · PerplexitySearch: v3
 - SKILL-KB: **v19** · SKILL-PM: **v18**
 - Dashboard: **sw thesis-v9** · Estructura: 7 caps híbrida, 32 secciones
-- KB: **1,372 items** (Supabase) · **1,345 items** (Sheet NewsLog)
+- KB: **1,376 items** (Supabase) · **1,349 items** (Sheet NewsLog)
 - Reading plan: **42 lecturas** (22 Ch2, 8 Ch3, 8 Ch4, 8 Ch5, 8 Ch6)
 
-_Última actualización: 2026-03-23 (SKILL-PM v18, SKILL-KB v19, TASK-017 completada, colas vacías)_
+_Última actualización: 2026-03-23 (run 211: 4 items added, first Supabase-primary session)_

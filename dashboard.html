@@ -1328,14 +1328,11 @@
       </div>
       <div style="font-size:0.7rem; color:var(--text-muted); margin-bottom:1rem;">N1 = lectura completa con ficha · N2 = capítulos seleccionados · N3 = consulta puntual (20-30 min) · N4 = referencia indirecta · 🎧 = podcast/curso/conferencia</div>
 
-      <!-- ── CHANGELOG ── -->
+      <!-- ── CHANGELOG (dynamic from Supabase) ── -->
       <details class="lec-changelog">
-        <summary class="lec-changelog-toggle">Historial de cambios al plan <span class="lec-changelog-count">4</span></summary>
-        <div class="lec-changelog-body">
-          <div class="lec-cl-item"><span class="lec-cl-date">2026-03-18</span> <strong>Auditoría de links y coherencia.</strong> Bradford → OUP. Tabassi podcast → Wiley Law. Panorama sincronizado con Plan C1. Timeline eliminado.</div>
-          <div class="lec-cl-item"><span class="lec-cl-date">2026-03-18</span> <strong>Plan creado.</strong> Análisis completo del KB (1,490 entradas). 25 lecturas asignadas con niveles N1-N4 + no-texto. 5 queries agregados (Q120-Q124). Gaps identificados: NIST (crítico), PATTERN, derecho procesal español, equidad.</div>
-          <div class="lec-cl-item"><span class="lec-cl-date">2026-03-18</span> <strong>Links verificados.</strong> 7 URLs corregidos (NIST Playbook, Wachter, Renda, Wexler, Dempsey, Ebers, Hildebrandt). Vista Progreso absorbida.</div>
-          <div class="lec-cl-item"><span class="lec-cl-date">2026-03-18</span> <strong>Protocolo de sweep codificado.</strong> 3 niveles (session/monthly/quarterly). Scheduled task mensual activo. SKILL-PM v6 §16.</div>
+        <summary class="lec-changelog-toggle">Historial de cambios al plan <span class="lec-changelog-count" id="changelogCount">…</span></summary>
+        <div class="lec-changelog-body" id="changelogBody">
+          <div style="color:var(--text-muted); font-size:0.72rem; padding:0.5rem;">Cargando historial…</div>
         </div>
       </details>
 
@@ -2260,6 +2257,71 @@ async function fetchBiblioProjection() {
 }
 
 // ═══════════════════════════════════════
+// CHANGELOG — from reading_plan_changelog table
+// ═══════════════════════════════════════
+async function fetchChangelog() {
+  const body = document.getElementById('changelogBody');
+  const countEl = document.getElementById('changelogCount');
+  if (!body) return;
+
+  try {
+    const rows = await supabaseQuery('reading_plan_changelog?select=*&order=created_at.desc&limit=50');
+    if (!rows || rows.length === 0) {
+      body.innerHTML = '<div style="color:var(--text-muted); font-size:0.72rem; padding:0.5rem;">Sin cambios registrados.</div>';
+      if (countEl) countEl.textContent = '0';
+      return;
+    }
+
+    // Group by date
+    const actionVerbs = {
+      'added': 'Se agregó',
+      'removed': 'Se eliminó',
+      'modified': 'Se modificó',
+      'reordered': 'Se reubicó'
+    };
+    const fieldLabels = {
+      'status': 'estado',
+      'level': 'nivel',
+      'position': 'posición',
+      'target_quarter': 'cuatrimestre',
+      'target_year': 'año',
+      'title': 'título'
+    };
+
+    let html = '';
+    rows.forEach(r => {
+      const date = r.created_at.slice(0, 10);
+      const verb = actionVerbs[r.action] || r.action;
+      const shortTitle = r.author
+        ? `${r.author} — «${r.title.replace(/^.*?«/, '').replace(/».*$/, '')}»`
+        : r.title;
+      const location = `Año ${r.target_year}, ${r.target_quarter}`;
+
+      let detail = '';
+      if (r.action === 'added') {
+        detail = `${verb} <strong>${shortTitle}</strong> → ${location}.`;
+      } else if (r.action === 'removed') {
+        detail = `${verb} <strong>${shortTitle}</strong> de ${location}.`;
+      } else if (r.action === 'reordered') {
+        detail = `${verb} <strong>${shortTitle}</strong>: ${r.old_value} → ${r.new_value}.`;
+      } else if (r.action === 'modified') {
+        const field = fieldLabels[r.field_changed] || r.field_changed;
+        detail = `${verb} ${field} de <strong>${shortTitle}</strong>: ${r.old_value} → ${r.new_value}.`;
+      }
+
+      html += `<div class="lec-cl-item"><span class="lec-cl-date">${date}</span> ${detail}</div>`;
+    });
+
+    body.innerHTML = html;
+    if (countEl) countEl.textContent = rows.length;
+
+  } catch(e) {
+    body.innerHTML = '<div style="color:var(--text-muted); font-size:0.72rem;">Error cargando historial.</div>';
+    console.warn('fetchChangelog error:', e);
+  }
+}
+
+// ═══════════════════════════════════════
 // PLAN DE LECTURAS — from reading_plan table
 // ═══════════════════════════════════════
 async function fetchReadingPlan() {
@@ -3157,6 +3219,7 @@ document.addEventListener('DOMContentLoaded', () => {
   fetchPmTasks(); // PM (Claude) tasks — gaps, vigilancia
   fetchClaudeSchedule(); // Advisory reviews + scheduled tasks calendar
   fetchReadingPlan(); // Full reading plan from Supabase
+  fetchChangelog();   // Reading plan changelog from Supabase
 
   // Rewrite all hardcoded lecturas links to KB deep-links (exact URL match)
   document.querySelectorAll('.lec-item a[href^="http"]').forEach(a => {

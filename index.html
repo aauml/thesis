@@ -348,10 +348,19 @@
 
     .ctrl-sep { display: none; }
 
-    .controls-row3 { gap: 4px; }
-    select { max-width: none; flex: 1 1 auto; min-width: 0; font-size: 11px; }
-    .search-wrap { flex: 1 1 100%; max-width: none; }
-    .btn-search { flex-shrink: 0; }
+    /* Search row: mode toggle + search input on line 1, sort + go on line 2 */
+    .controls-row3 {
+      gap: 4px;
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      grid-template-rows: auto auto;
+    }
+    .search-mode-toggle { grid-column: 1; grid-row: 1; }
+    .search-wrap { grid-column: 2 / -1; grid-row: 1; max-width: none; min-width: 0; }
+    #selSort { grid-column: 1 / 3; grid-row: 2; max-width: none; font-size: 12px; }
+    .btn-search { grid-column: 3; grid-row: 2; flex-shrink: 0; }
+
+    select { min-width: 0; font-size: 11px; }
 
     .card-title { font-size: 15px; }
     .card-body p { font-size: 13px; }
@@ -420,10 +429,8 @@
       </div>
       <button class="btn-search" onclick="submitSearch()">Go</button>
       <select id="selSort" onchange="applySort()" aria-label="Sort results">
-        <option value="found-desc">Newest</option>
-        <option value="found-asc">Oldest</option>
-        <option value="date-desc">Pub. ↓</option>
-        <option value="date-asc">Pub. ↑</option>
+        <option value="date-desc">Newest</option>
+        <option value="date-asc">Oldest</option>
         <option value="importance">Importance</option>
       </select>
     </div>
@@ -553,7 +560,7 @@ const SUBCAPA_OPTIONS = {
 
 let state = {
   page: 1, search: "", importance: "", capa: "", capaKey: "",
-  sort: "found-desc", starFilter: false,
+  sort: "date-desc", starFilter: false,
   rows: [], total: 0, total_pages: 1, has_next: false, has_prev: false,
   loading: false, lastFetch: null,
   searchMode: "keyword",      // "keyword" | "semantic"
@@ -763,11 +770,9 @@ async function fetchData() {
     if (!isSemanticResult) {
       filtered = [...filtered].sort((a, b) => {
         switch (state.sort) {
-          case "found-asc":  return new Date(a.date_found)      - new Date(b.date_found);
-          case "date-desc":  return new Date(b.date_published)  - new Date(a.date_published);
           case "date-asc":   return new Date(a.date_published)  - new Date(b.date_published);
           case "importance": { const o={ALTA:0,MEDIA:1,BAJA:2}; return (o[a.importance]??3)-(o[b.importance]??3); }
-          default:           return new Date(b.date_found)      - new Date(a.date_found); // found-desc
+          default:           return new Date(b.date_published)  - new Date(a.date_published); // date-desc
         }
       });
     }
@@ -907,7 +912,7 @@ function clearSearch() {
 
 function clearAllFilters() {
   document.getElementById("searchInput").value = "";
-  document.getElementById("selSort").value = "found-desc";
+  document.getElementById("selSort").value = "date-desc";
   document.getElementById("selEvaluativa").value = "";
   document.getElementById("selType").value = "";
   ["ALTA","MEDIA","BAJA"].forEach(i => document.getElementById("btn-" + i).className = "btn-imp");
@@ -915,7 +920,7 @@ function clearAllFilters() {
     document.getElementById("btn-" + c).className = "btn-capa"
   );
   state.search = ""; state.importance = ""; state.capa = ""; state.capaKey = "";
-  state.sort = "found-desc"; state.page = 1; state.starFilter = false;
+  state.sort = "date-desc"; state.page = 1; state.starFilter = false;
   state.semanticResults = null; state.searchMode = "keyword";
   document.getElementById("modeKeyword").classList.add("active");
   document.getElementById("modeSemantic").classList.remove("active");
@@ -1172,7 +1177,7 @@ async function handleDeepLink() {
 }
 
 function openDeepLinkCard(idx, rows) {
-  // Calculate which page this item is on (in default sort: found-desc)
+  // Calculate which page this item is on (in default sort: date-desc)
   const page = Math.floor(idx / PAGE_LIMIT) + 1;
   state.page = page;
 

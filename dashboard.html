@@ -1613,10 +1613,12 @@ const LS_PREFIX = 'td4_';
 // VIEW SWITCHING
 // ═══════════════════════════════════════
 function switchView(id, btn) {
-  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active','swipe-right'));
   document.querySelectorAll('.sb-item').forEach(b => b.classList.remove('active'));
   document.getElementById('view-' + id).classList.add('active');
   if (btn) btn.classList.add('active');
+  // Persist active view in URL hash for refresh persistence
+  history.replaceState(null, '', '#' + id);
   // Refresh Panorama data whenever navigating to it
   if (id === 'panorama') refreshPanorama();
 }
@@ -3093,10 +3095,12 @@ document.addEventListener('DOMContentLoaded', () => {
     a.target = '_blank';
   });
 
-  // Always open to Panorama on page load (ignore saved view)
-  // Panorama is already active by default in HTML, just ensure sidebar matches
-  switchView('panorama', document.querySelector('.sb-item'));
-  localStorage.removeItem('dash-active-view');
+  // Restore last view from URL hash, or default to Panorama
+  const validViews = ['panorama','news','operativo','kb','mapa','lecturas','redaccion','registro'];
+  const hashView = location.hash.replace('#', '');
+  const targetView = validViews.includes(hashView) ? hashView : 'panorama';
+  const targetBtn = document.querySelector(`.sb-item[onclick*="'${targetView}'"]`) || document.querySelector('.sb-item');
+  switchView(targetView, targetBtn);
 
   // ═══════════════════════════════════════
   // SWIPE NAVIGATION — left/right to switch views

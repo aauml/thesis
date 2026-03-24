@@ -66,3 +66,9 @@ PM lee este archivo al inicio de cada sesión para tener visibilidad total.
 - Actualizado SKILL-PM y SKILL-KB para incluir CHANGELOG en sus protocolos de sesión
 - Creada tabla system_heartbeats en Supabase para tracking de Dispatch
 - Decisión: jerarquía de memoria formalizada (pm_decisions > CHANGELOG > SessionLogs)
+
+## 2026-03-24 | chat-kb | KB, Queries | David Sacks research — 3 items + query Q140
+- 3 items added to Supabase (run 212): Morrison Foerster AI Action Plan analysis (ALTA), Mondaq DOJ AI Litigation Task Force (MEDIA), NPR preemption EO Sacks scope (MEDIA)
+- Query Q140 added: David Sacks (type=government, tier=1, monthly). Pipelines: q_semantic, q_fullweb, q_news
+- Decision: Sacks tracked as government actor, not scholar — no peer-reviewed output, relevance is as policy architect (NIST RMF revision directive, state preemption, DOJ Task Force)
+- Afecta otros contextos: PM should note Sacks as key actor in Ch4/Ch5 analysis; existing KB entries on AI Action Plan and preemption EO already cover the policies, Q140 captures the actor specifically

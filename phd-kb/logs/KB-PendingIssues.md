@@ -79,6 +79,7 @@ _Actualizar al cierre de cada sesión. Este archivo es la memoria técnica del s
 | 2026-03-22 | Versiones activas (GAS Version 48, Dispatch): WebApp-v36, GoogleNewsRSS-v1, PerplexitySearch-v3, AcademicOrchestrator-v3, ArXiv-v2, SKILL-KB-v18. |
 | 2026-03-22 | TASK-014 completado: SKILL-KB-v18 publicado con estructura canónica de 7 capítulos. Campo `chapters` (int[]) ahora Required en schema Supabase y en todos los ejemplos de escritura. |
 | 2026-03-22 | BUG-002 fix: AcademicOrchestrator-v3 con clamp guard para sweep_index. Script en `scripts/AcademicOrchestrator-v3.txt`. |
+| 2026-03-24 | David Sacks añadido como query Q140 (type=government, tier=1, monthly). Tracked como actor gubernamental (AI Czar), no como scholar. 3 items evaluados y escritos a Supabase (run 212). |
 | 2026-03-22 | TASK-007 completado (fase 2): análisis full-text TRUMP AI Act (~300 pp). 2 PDFs indexados en Supabase + embeddings. DB: 1,495 items. |
 | 2026-03-22 | TASK-006 validado: dry run endpoints ok. Supabase-primary protocol listo para primera sesión `update`. |
 | 2026-03-22 | Trigger `trg_validate_evaluated_item` actualizado: validación ESTRICTA — rechaza items sin title (≥5), url (≥10), importance (ALTA/MEDIA/BAJA), thesis_relevance (≥100 chars, sin patrones degradados), scholar (≥2), o chapters vacíos. NO auto-corrige. |
@@ -246,4 +247,4 @@ _Actualizar al cierre de cada sesión. Este archivo es la memoria técnica del s
 - KB: **1,376 items** (Supabase) · **1,349 items** (Sheet NewsLog — gap closes after setupSupabaseSync)
 - Reading plan: **42 lecturas** (22 Ch2, 8 Ch3, 8 Ch4, 8 Ch5, 8 Ch6)
 
-_Última actualización: 2026-03-23 (SKILL-PM v19: CLASP for PM, SupabaseSync.js, WebApp v37, UI updates)_
+_Última actualización: 2026-03-24 (David Sacks research: 3 items + query Q140)_

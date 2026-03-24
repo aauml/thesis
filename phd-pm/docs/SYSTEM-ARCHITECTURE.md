@@ -4,7 +4,7 @@ description: "Arquitectura completa del sistema de tesis doctoral (Supabase + Gi
 ---
 
 # Thesis System — Arquitectura y Flujo Completo
-**Última actualización:** 2026-03-23
+**Última actualización:** 2026-03-24
 
 Este documento es la referencia técnica del sistema completo. Léelo antes de modificar cualquier componente para entender las dependencias y evitar romper algo.
 
@@ -156,26 +156,14 @@ Ordena por similaridad coseno descendente. Threshold default 0.3.
 ### 3.4 Flujo de despliegue
 
 ```
-Editar dashboard_work.html (copia de trabajo local)
-      ↓
-Copiar a thesis-push-tmp/dashboard.html
+Editar dashboard.html directamente
       ↓
 git add, commit, push → GitHub Pages se actualiza (~30-60s)
       ↓
 GitHub Pages CDN puede cachear — usar ?v=N para forzar refresh
 ```
 
-**IMPORTANTE:** Siempre editar `dashboard_work.html` como copia de trabajo, nunca directamente el repo. Copiar al repo push solo para desplegar.
-
-**Push command pattern:**
-```bash
-cd /sessions/friendly-vibrant-goodall/thesis-push-tmp
-cp /sessions/friendly-vibrant-goodall/dashboard_work.html dashboard.html
-cp /sessions/friendly-vibrant-goodall/mnt/PhD/09_Sistema/thesis-repo/index.html index.html
-git add dashboard.html index.html
-git commit -m "message"
-git push https://<PAT>@github.com/aauml/thesis.git main
-```
+**Nota:** `dashboard_work.html` fue eliminado (2026-03-24). Git proporciona versionado y rollback — usar ramas para experimentar si es necesario.
 
 ---
 
@@ -282,8 +270,8 @@ Después de un push, GitHub Pages puede seguir sirviendo la versión anterior du
 ### 7.4 Supabase anon key
 El anon key correcto tiene `iat:1773937306` y termina en `...1eCIlv6URlo...`. Ha habido confusión con keys antiguas que devuelven 401. Si algo falla con 401, verificar el key.
 
-### 7.5 dashboard_work.html es la copia de trabajo
-NUNCA editar directamente en el repo. Editar `/sessions/friendly-vibrant-goodall/dashboard_work.html`, luego copiar al repo push. Esto evita conflictos con el repo local del usuario.
+### 7.5 Edición directa de dashboard.html
+Editar `dashboard.html` directamente en el repo. `dashboard_work.html` fue eliminado (2026-03-24) por ser redundante — git proporciona versionado.
 
 ### 7.6 Git author identity en fresh clones
 Al clonar fresh, configurar antes de commit:
@@ -325,11 +313,62 @@ Las alertas solo se generan para: `urgent_item`, `deadline_risk`, `stalled_task`
 
 ---
 
+## 10. CLAUDE.AI CONNECTORS
+
+Connected 2026-03-24. These are Claude.ai-native integrations, not GAS scripts. They operate within the conversation context and are invoked by the PM on demand.
+
+### 10.1 Available Connectors
+
+| Connector | Type | Purpose | Data flow |
+|-----------|------|---------|-----------|
+| Scholar Gateway | Academic search | Semantic search across academic databases | PM → connector → evaluate → Supabase (`source_pipeline='scholar_gateway'`) |
+| Consensus | Academic search | AI-powered paper search with agreement signals | PM → connector → evaluate → Supabase (`source_pipeline='consensus'`) |
+| Google Calendar | Schedule | Read deadlines, meetings, conflicts | PM reads at session startup + advisory follow-up |
+
+### 10.2 Integration with existing architecture
+
+```
+┌─────────────────────────────────────────────────────┐
+│  PM identifies gap (advisory, sweep, user request)  │
+└───────────────────┬─────────────────────────────────┘
+                    │ creates pm_task (task_type='busqueda')
+                    ▼
+┌───────────────────────────────────────────────────────┐
+│  Connector search (Scholar Gateway / Consensus)       │
+│  Results evaluated with standard KB protocol          │
+└───────────────────┬───────────────────────────────────┘
+                    │
+          ┌─────────┼─────────┐
+          ▼         ▼         ▼
+    Supabase    Sheet      Queries tab
+    (primary)   (verify)   (log query)
+          │
+          ▼
+    pm_task closed
+    with results
+```
+
+### 10.3 Key differences from GAS pipelines
+
+- **No staging queue:** Connector results are evaluated inline (no PerplexityQueue/AcademicQueue equivalent)
+- **No automatic trigger:** PM decides when to search (vs. GAS cron triggers)
+- **Task-driven:** Every connector search has a `pm_task` documenting intent and results
+- **Same evaluation standard:** importance, capa, chapters, thesis_relevance — no shortcuts
+
+### 10.4 Google Calendar
+
+Read-only integration. PM checks calendar during:
+- Session startup: upcoming deadlines, supervisor meetings
+- Advisory follow-up: scheduling conflicts with proposed milestones
+- Never creates events without user confirmation
+
+---
+
 ## 9. CHECKLIST ANTES DE MODIFICAR
 
 Antes de hacer cualquier cambio al sistema:
 
-- [ ] ¿Estoy editando el archivo correcto? (dashboard_work.html, no el del repo)
+- [ ] ¿Estoy editando dashboard.html directamente?
 - [ ] ¿Entiendo qué tabla de Supabase afecta esto?
 - [ ] ¿El cambio respeta los permisos RLS? (anon no puede INSERT en tablas PM)
 - [ ] ¿Hay funciones async que puedan romper el init chain si fallan?

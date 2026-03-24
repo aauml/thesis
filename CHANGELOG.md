@@ -14,6 +14,14 @@ PM lee este archivo al inicio de cada sesión para tener visibilidad total.
 
 ---
 
+## 2026-03-24 | cowork | SKILL-PM, SKILL-KB, SYSTEM-ARCHITECTURE, PM-LessonsLog | Connector integration (Scholar Gateway, Consensus, Google Calendar)
+- SKILL-PM v20: §21 añadido (integración de connectors). §1 interfaz actualizada. §6 startup paso 6b (pickup connector tasks) + closing paso 7b (queue connector tasks). §12 infraestructura actualizada. §14 prohibiciones actualizadas.
+- SKILL-KB v20: Pipelines 5-6 (Scholar Gateway, Consensus) añadidos. Trigger commands `update scholar_gw` y `update consensus`. Secciones de ejecución completas con batch limits (20/sesión) y criterios de preferencia.
+- SYSTEM-ARCHITECTURE: §10 añadido (Claude.ai Connectors) — diagrama de flujo, diferencias con pipelines GAS, Google Calendar read-only.
+- PM-LessonsLog: PR-020 (connector-sourced items requieren pm_task previo + evaluación completa + queries en Queries tab). Session History actualizado.
+- Decisión arquitectónica: connectors son herramientas mid-workflow (no pipelines independientes). Resultados pasan por evaluación completa. Tasks rastreados en pm_tasks. Queries en Queries tab del Sheet.
+- Afecta otros contextos: cualquier sesión PM ahora puede usar connectors si hay gaps. KB hereda source_pipeline values ya existentes.
+
 ## 2026-03-24 | cowork | dashboard, reading_plan, Supabase | Changelog dinámico + limpieza dashboard_work
 - Creada tabla `reading_plan_changelog` en Supabase con trigger `fn_reading_plan_audit` que auto-registra INSERT/UPDATE/DELETE en reading_plan
 - Trigger captura: added, removed, modified (status/level/title), reordered (position/quarter/year)

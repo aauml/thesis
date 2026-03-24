@@ -123,7 +123,16 @@
 
     /* View panels */
     .view { display: none; }
-    .view.active { display: block; }
+    .view.active { display: block; animation: viewFadeIn 0.22s ease-out; }
+    @keyframes viewFadeIn {
+      from { opacity: 0; transform: translateX(18px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+    .view.active.swipe-right { animation-name: viewFadeInRight; }
+    @keyframes viewFadeInRight {
+      from { opacity: 0; transform: translateX(-18px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
 
     /* ═══════════════════════════════════════
        SHARED COMPONENTS
@@ -232,11 +241,6 @@
     .op-type-admin { background: #F3F4F6; color: #6B7280; }
     .op-review { font-size: 0.58rem; color: #D97706; font-weight: 600; margin-left: 4px; }
     .op-output { font-size: 0.62rem; color: var(--text-muted); display: block; padding-left: 1.5rem; margin-top: 1px; }
-    .op-due { font-size: 0.58rem; color: var(--text-muted); margin-left: auto; white-space: nowrap; padding: 1px 5px; border-radius: 3px; background: var(--bg-card); }
-    .op-due-soon { color: #D97706; background: #FEF3C7; font-weight: 600; }
-    .op-due-urgent { color: #DC2626; background: #FEE2E2; font-weight: 700; }
-    .op-due-overdue { color: #fff; background: #DC2626; font-weight: 700; animation: pulse-overdue 2s infinite; }
-    @keyframes pulse-overdue { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
     .op-completed-header {
       display: flex; align-items: center; justify-content: space-between;
       margin-top: 0.8rem; padding-top: 0.6rem; border-top: 1px solid var(--border-light);
@@ -470,6 +474,7 @@
     .kb-pipe-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; display: inline-block; }
     .kb-pipe-dot.green { background: var(--success-text); }
     .kb-pipe-dot.yellow { background: var(--warn-text); }
+    .kb-pipe-dot.gray { background: var(--text-muted); }
     .kb-pipe-name { font-size: 0.78rem; font-weight: 600; color: var(--text); }
     .kb-pipe-queue { font-size: 0.78rem; font-weight: 700; margin-left: auto; }
     .kb-pipe-queue.zero { color: var(--success-text); }
@@ -493,14 +498,14 @@
     .kb-stack-legend .dot-media { background: var(--accent-mid); }
     .kb-stack-legend .dot-baja { background: #b0b8c4; }
 
-    /* Gap list — plain text, no colored boxes */
+    /* Gap pills — inline within chapter rows, only show warn/critical */
     .kb-gap-list { display: flex; flex-direction: column; gap: 0.35rem; }
-    .kb-gap-item { display: flex; align-items: center; gap: 0.6rem; padding: 0.45rem 0.7rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: 4px; font-size: 0.78rem; }
-    .kb-gap-name { font-weight: 600; color: var(--text); flex: 1; }
-    .kb-gap-counts { display: flex; gap: 0.5rem; font-size: 0.7rem; }
-    .kb-gap-c { display: flex; align-items: center; gap: 0.15rem; }
-    .kb-gap-c .dot { width: 6px; height: 6px; border-radius: 2px; display: inline-block; }
-    .kb-gap-c-val { font-weight: 600; }
+    .kb-chap-gaps { display: flex; flex-wrap: wrap; gap: 0.25rem; margin-top: 0.2rem; }
+    .kb-chap-gap { font-size: 0.6rem; padding: 0.1rem 0.35rem; border-radius: 2px; white-space: nowrap; }
+    .kb-chap-gap b { margin-left: 0.1rem; font-weight: 700; }
+    .kb-chap-gap.gap-critical { color: #c62828; }
+    .kb-chap-gap.gap-warn { color: #b88200; }
+    .kb-chap-gap.gap-ok { color: #2d7a3f; }
 
     /* Chapter coverage grid — stacked bar variant */
     .kb-chap-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.4rem; }
@@ -612,12 +617,13 @@
     .sec-status-completo { background: #D1FAE5; color: #065F46; }
     .sec-words { font-size: 0.6rem; color: var(--text-muted); min-width: 50px; text-align: right; }
     .writing-summary {
-      display: flex; gap: 1rem; padding: 0.6rem 0.8rem;
+      display: flex; flex-wrap: wrap; gap: 0.6rem 1rem; padding: 0.6rem 0.8rem;
       background: #f9fbfd; border: 1px solid var(--border-light); border-radius: 5px;
       margin-bottom: 0.8rem; font-size: 0.76rem;
     }
-    .writing-stat { text-align: center; }
+    .writing-stat { text-align: center; flex: 1; min-width: 70px; }
     .writing-stat-val { font-size: 1.1rem; font-weight: 700; color: var(--accent); }
+    .writing-stat-val .ws-meta-sep { font-size: 0.72rem; color: var(--text-muted); font-weight: 400; }
     .writing-stat-label { font-size: 0.6rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
 
     /* ═══════════════════════════════════════
@@ -663,12 +669,6 @@
     .m2-ms input[type="checkbox"] { accent-color: var(--sb-accent); cursor: default; margin-top: 2px; }
     .m2-ms-date { font-size: 0.7rem; color: #999; min-width: 3.5rem; white-space: nowrap; }
     .m2-ms span { color: var(--text-light); }
-    .m2-ms-approaching .m2-ms-date { color: #D97706; font-weight: 600; }
-    .m2-ms-imminent { background: #FEF3C7; border-radius: 4px; padding: 0.25rem 0.4rem; }
-    .m2-ms-imminent .m2-ms-date { color: #DC2626; font-weight: 700; }
-    .m2-ms-overdue { background: #FEE2E2; border-radius: 4px; padding: 0.25rem 0.4rem; }
-    .m2-ms-overdue .m2-ms-date { color: #DC2626; font-weight: 700; }
-    .m2-ms-overdue .m2-ms-date::after { content: ' ⚠'; }
 
     /* M2 risks */
     .m2-risk { margin-bottom: 0.4rem; font-size: 0.82rem; line-height: 1.6; }
@@ -774,9 +774,21 @@
     .lec-st-progress { background: #fff3e0; color: #e65100; }
     .lec-st-done { background: var(--success-bg); color: var(--success-text); }
     .lec-st-ficha { background: #e8f0fe; color: #1a56db; }
+    .lec-item a { color: var(--accent); text-decoration: none; }
+    .lec-item a:hover { text-decoration: underline; }
     .lec-chapter {
       display: inline-block; font-size: 0.65rem; color: var(--accent-mid);
       margin-top: 0.1rem;
+    }
+    .lec-objective {
+      font-size: 0.78rem; color: var(--text); margin-top: 0.25rem;
+      padding: 0.3rem 0.5rem; background: var(--info-bg); border-left: 3px solid var(--info-border);
+      border-radius: 3px; line-height: 1.45;
+    }
+    .lec-lens {
+      font-size: 0.78rem; color: var(--text); margin-top: 0.25rem;
+      padding: 0.3rem 0.5rem; background: var(--info-bg); border-left: 3px solid var(--info-border);
+      border-radius: 3px; line-height: 1.45;
     }
 
     .lec-gaps { margin-top: 1.2rem; }
@@ -892,6 +904,14 @@
       .kb-pipe-queues { grid-template-columns: 1fr; }
       /* gap-list is flex column, no grid override needed */
       .kb-chap-grid { grid-template-columns: 1fr; }
+      /* Writing progress responsive */
+      .sec-row { flex-wrap: nowrap; }
+      .sec-title { flex: 1; white-space: normal; min-width: 0; }
+      .sec-words { margin-left: auto; flex-shrink: 0; }
+      .writing-summary { flex-wrap: nowrap; gap: 0.3rem; }
+      .writing-stat { min-width: 0; flex: 1; }
+      .writing-stat-val { font-size: 0.95rem; }
+      .writing-stat-label { font-size: 0.52rem; }
     }
   </style>
 </head>
@@ -913,6 +933,9 @@
       <button class="sb-item active" onclick="switchView('panorama', this)">
         <span class="sb-icon">◉</span> Panorama
       </button>
+      <button class="sb-item" onclick="switchView('news', this)">
+        <span class="sb-icon">📰</span> News <span class="sb-badge" id="badge-news" style="display:none;">0</span>
+      </button>
       <button class="sb-item" onclick="switchView('operativo', this)">
         <span class="sb-icon">☑</span> Operativo <span class="sb-badge" id="badge-ops" style="display:none;">0</span>
       </button>
@@ -927,9 +950,6 @@
       </button>
       <button class="sb-item" onclick="switchView('redaccion', this)">
         <span class="sb-icon">✍</span> Redacción <span class="sb-badge" id="badge-writing" style="display:none;">0%</span>
-      </button>
-      <button class="sb-item" onclick="switchView('decisiones', this)">
-        <span class="sb-icon">📜</span> Registro
       </button>
     </div>
 
@@ -962,14 +982,14 @@
       <h2>Panorama</h2>
       <div style="font-size:0.68rem; color:var(--text-muted); margin-top:-0.5rem; margin-bottom:1.5rem;">Estado general · Datos desde Supabase</div>
 
-      <!-- Alerts banner — urgent items between advisories -->
+      <!-- Alerts banner — urgent items -->
       <div id="alertsBanner" class="alerts-banner"></div>
 
       <!-- Advisor — rendered from ADVISOR_CONFIG in JS -->
       <div id="advisorContainer"></div>
 
-      <!-- Actividad actual — dynamic from reading_plan -->
-      <div class="m2-heading">Actividad actual</div>
+      <!-- Actividad actual — solo 1-2 lecturas en curso -->
+      <div class="m2-heading">Lectura activa</div>
       <div class="m2-meta">C1 Ene–Abr 2026 · <a href="#" onclick="switchView('lecturas', document.querySelectorAll('.sb-item')[4]); return false;">ver plan completo →</a></div>
       <div id="actividadActual">
         <div style="color:var(--text-muted); font-size:0.72rem; padding:0.5rem;">Cargando actividad actual...</div>
@@ -989,9 +1009,29 @@
         <div style="color:var(--text-muted); font-size:0.72rem; padding:0.5rem;">Cargando análisis y recomendaciones...</div>
       </div>
 
-      <!-- Novedades recientes — dynamic from Supabase (ALTA items, 10 most recent) -->
-      <div class="m2-heading">Novedades recientes</div>
-      <div class="m2-meta">10 más recientes · items ALTA desde Supabase</div>
+      <!-- Próximo milestone — context line -->
+      <div class="m2-heading">Próximo hito</div>
+      <div id="nextMilestoneContainer">
+        <div style="color:var(--text-muted); font-size:0.72rem; padding:0.5rem;">Cargando...</div>
+      </div>
+
+      <!-- Riesgos activos -->
+      <div class="m2-heading">Riesgos activos</div>
+      <div class="m2-meta" id="risksPhaseLabel">Cargando...</div>
+      <div id="risksContainer" style="margin-bottom:1rem;">
+        <div style="color:var(--text-muted); font-size:0.72rem; padding:0.5rem;">Cargando riesgos...</div>
+      </div>
+
+    </div>
+
+    <!-- ═══════════════════════════════════
+         VIEW: NEWS (solo noticias recientes del KB)
+    ═══════════════════════════════════ -->
+    <div class="view" id="view-news">
+
+      <h2>News</h2>
+      <div style="font-size:0.68rem; color:var(--text-muted); margin-top:-0.5rem; margin-bottom:1.5rem;">Entradas recientes ALTA del KB · desde Supabase</div>
+
       <div id="recentNewsContainer">
         <div style="color:var(--text-muted); font-size:0.78rem; padding:0.5rem;">Cargando noticias recientes...</div>
       </div>
@@ -1004,9 +1044,9 @@
     <div class="view" id="view-operativo">
 
       <h2>Operativo</h2>
-      <div style="font-size:0.68rem; color:var(--text-muted); margin-top:-0.5rem; margin-bottom:1.5rem;">Tareas, lecturas y seguimiento · C1 2026</div>
+      <div style="font-size:0.68rem; color:var(--text-muted); margin-top:-0.5rem; margin-bottom:1.5rem;">Tareas accionables · C1 2026</div>
 
-      <!-- Tareas — interactive checklist + reading plan items -->
+      <!-- Tareas del usuario — interactive checklist from pm_tasks -->
       <div class="m2-heading">Tareas</div>
       <div class="m2-meta">Acciones concretas · se limpian al completar</div>
       <div id="opCard" style="margin-bottom:1.2rem;">
@@ -1018,25 +1058,11 @@
         <div id="opCompleted"></div>
       </div>
 
-      <!-- Actividad actual — lecturas del cuatrimestre desde reading_plan -->
-      <div class="m2-heading">Lecturas C1</div>
-      <div class="m2-meta">Desde Supabase · reading_plan · <a href="#" onclick="switchView('lecturas', document.querySelectorAll('.sb-item')[4]); return false;">ver plan completo →</a></div>
-      <div id="opLecturas" style="margin-bottom:1.2rem;">
-        <div style="color:var(--text-muted); font-size:0.72rem; padding:0.5rem;">Cargando lecturas...</div>
-      </div>
-
-      <!-- Milestones — dynamic from Supabase pm_milestones -->
-      <div class="m2-heading">Milestones</div>
-      <div class="m2-meta">Hitos institucionales y académicos · desde Supabase</div>
-      <div id="milestonesContainer" style="margin-bottom:1.2rem;">
-        <div style="color:var(--text-muted); font-size:0.72rem; padding:0.5rem;">Cargando milestones...</div>
-      </div>
-
-      <!-- Riesgos — dynamic from Supabase pm_risks -->
-      <div class="m2-heading">Riesgos activos</div>
-      <div class="m2-meta" id="risksPhaseLabel">Cargando...</div>
-      <div id="risksContainer" style="margin-bottom:1rem;">
-        <div style="color:var(--text-muted); font-size:0.72rem; padding:0.5rem;">Cargando riesgos...</div>
+      <!-- Tareas PM (Claude) — gaps, vigilancia, acciones automáticas -->
+      <div class="m2-heading">Tareas PM (Claude)</div>
+      <div class="m2-meta">Gaps del KB, vigilancia normativa, acciones pendientes del sistema</div>
+      <div id="pmTasksContainer">
+        <div style="color:var(--text-muted); font-size:0.72rem; padding:0.5rem;">Cargando tareas PM...</div>
       </div>
 
     </div>
@@ -1084,16 +1110,10 @@
         </div>
       </div>
 
-      <!-- Chapter coverage — tri-color stacked bars -->
-      <div class="section-label">Cobertura por capítulo</div>
-      <div id="chapterCoverage" class="kb-chap-grid">
+      <!-- Chapter coverage + gaps — unified per-chapter view -->
+      <div class="section-label">Cobertura y gaps por capítulo</div>
+      <div id="chapterCoverageGaps" class="kb-chap-grid">
         <div style="color:var(--text-muted); font-size:0.75rem; grid-column:1/-1;">Cargando cobertura...</div>
-      </div>
-
-      <!-- Gap analysis — plain text with quality counts -->
-      <div class="section-label">Análisis de gaps</div>
-      <div id="gapAnalysis" class="kb-gap-list">
-        <div style="color:var(--text-muted); font-size:0.75rem;">Cargando análisis...</div>
       </div>
 
       <!-- Process footer -->
@@ -1550,9 +1570,7 @@
         <div class="writing-stat"><div class="writing-stat-val" id="wsTotal">—</div><div class="writing-stat-label">Secciones</div></div>
         <div class="writing-stat"><div class="writing-stat-val" id="wsComplete">—</div><div class="writing-stat-label">Completas</div></div>
         <div class="writing-stat"><div class="writing-stat-val" id="wsDraft">—</div><div class="writing-stat-label">Borrador</div></div>
-        <div class="writing-stat"><div class="writing-stat-val" id="wsWords">—</div><div class="writing-stat-label">Palabras</div></div>
-        <div class="writing-stat"><div class="writing-stat-val" id="wsTarget">—</div><div class="writing-stat-label">Meta</div></div>
-        <div class="writing-stat"><div class="writing-stat-val" id="wsPct">—</div><div class="writing-stat-label">Progreso</div></div>
+        <div class="writing-stat"><div class="writing-stat-val"><span id="wsWords">—</span><span class="ws-meta-sep"> / <span id="wsTarget">—</span></span></div><div class="writing-stat-label">Palabras</div></div>
       </div>
 
       <!-- Chapter groups rendered dynamically -->
@@ -1562,27 +1580,10 @@
 
     </div>
 
-    <!-- ═══════════════════════════════════
-         VIEW: REGISTRO (Decisiones + Sesiones)
-    ═══════════════════════════════════ -->
-    <div class="view" id="view-decisiones">
-
-      <h2>Registro de Decisiones</h2>
-      <div style="font-size:0.72rem; color:var(--text-muted); margin-bottom:0.75rem;">Solo decisiones sustantivas de investigación. Infraestructura y sesiones → PM-SessionLog en repo.</div>
-
-      <div class="dec-controls">
-        <button class="btn-sm" onclick="toggleAllDec(true)">Expandir todo</button>
-        <button class="btn-sm" onclick="toggleAllDec(false)">Contraer todo</button>
-      </div>
-
-      <div id="decisionsContainer">
-        <div style="color:var(--text-muted); font-size:0.72rem; padding:0.5rem;">Cargando decisiones...</div>
-      </div>
-
-    </div>
+    <!-- Decisiones eliminadas del dashboard v12.1 — datos siguen en Supabase pm_decisions -->
 
     <footer>
-      Última actualización: 21 de marzo de 2026 · Thesis Dashboard v11.1 (M2) — alerts · chapter tracker · dynamic from Supabase
+      Última actualización: 23 de marzo de 2026 · Thesis Dashboard v12.2 (M2) — News tab · PM tasks · reading objectives
     </footer>
 
   </div><!-- /main -->
@@ -1605,7 +1606,22 @@ function switchView(id, btn) {
   document.querySelectorAll('.sb-item').forEach(b => b.classList.remove('active'));
   document.getElementById('view-' + id).classList.add('active');
   if (btn) btn.classList.add('active');
-  try { localStorage.setItem('dash-active-view', id); } catch(e) {}
+  // Refresh Panorama data whenever navigating to it
+  if (id === 'panorama') refreshPanorama();
+}
+
+let _lastPanoramaRefresh = 0;
+function refreshPanorama() {
+  const now = Date.now();
+  // Throttle: skip if refreshed less than 60s ago
+  if (now - _lastPanoramaRefresh < 60000) return;
+  _lastPanoramaRefresh = now;
+  fetchAlerts();
+  fetchActividadActual();
+  fetchDevelopments();
+  fetchAdvisories();
+  fetchNextMilestone();
+  fetchRisks();
 }
 
 // ═══════════════════════════════════════
@@ -1653,7 +1669,6 @@ async function loadOps() {
       expected_output: r.expected_output || '',
       review_status: r.review_status || 'none',
       review_notes: r.review_notes || '',
-      due_date: r.due_date || null,
     }));
   } catch(e) { _tasksCache = []; }
   return _tasksCache;
@@ -1667,24 +1682,10 @@ function renderTaskItem(o, isDone) {
   const outputLine = !isDone && o.expected_output ? `<span class="op-output">→ ${o.expected_output}</span>` : '';
   const checked = isDone ? ' checked' : '';
   const doneClass = isDone ? ' done' : '';
-
-  // Due date badge with urgency
-  let dueBadge = '';
-  if (!isDone && o.due_date) {
-    const today = new Date(); today.setHours(0,0,0,0);
-    const due = new Date(o.due_date + 'T00:00:00');
-    const diff = Math.ceil((due - today) / 86400000);
-    const label = due.toLocaleDateString('es-ES', { day:'numeric', month:'short' });
-    if (diff < 0) dueBadge = `<span class="op-due op-due-overdue" title="Vencida hace ${-diff}d">⚠ ${label}</span>`;
-    else if (diff <= 3) dueBadge = `<span class="op-due op-due-urgent" title="Faltan ${diff}d">${label}</span>`;
-    else if (diff <= 7) dueBadge = `<span class="op-due op-due-soon" title="Faltan ${diff}d">${label}</span>`;
-    else dueBadge = `<span class="op-due" title="Faltan ${diff}d">${label}</span>`;
-  }
-
   return `
     <div class="op-item${doneClass}" data-id="${o.id}">
       <input type="checkbox"${checked} onchange="toggleOp('${o.id}', ${!isDone})">
-      ${typeTag}<span>${o.text}</span>${dueBadge}${reviewTag}${reviewedTag}
+      ${typeTag}<span>${o.text}</span>${reviewTag}${reviewedTag}
       ${isDone ? `<span class="op-ts">${o.ts || ''}</span>` : ''}
     </div>${outputLine}`;
 }
@@ -1835,9 +1836,9 @@ async function fetchPipelineStatus() {
 
   try {
     const [acad, perp, news, meta, statsResp, supaResp] = await Promise.all([
-      fetch(GAS_API + '?action=getAcademicQueue&status=pending&limit=200').then(r => r.json()).catch(() => null),
-      fetch(GAS_API + '?action=getPerplexityQueue&status=pending&limit=200').then(r => r.json()).catch(() => null),
-      fetch(GAS_API + '?action=getNewsResults&status=pending&limit=200').then(r => r.json()).catch(() => null),
+      fetch(GAS_API + '?action=getAcademicQueue&status=pending&limit=500').then(r => r.json()).catch(() => null),
+      fetch(GAS_API + '?action=getPerplexityQueue&status=pending&limit=500').then(r => r.json()).catch(() => null),
+      fetch(GAS_API + '?action=getNewsResults&status=pending&limit=500').then(r => r.json()).catch(() => null),
       fetch(GAS_API + '?action=getMeta').then(r => r.json()).catch(() => null),
       fetch(GAS_API + '?action=getStats').then(r => r.json()).catch(() => null),
       fetch(SUPABASE_URL + '/rest/v1/evaluated_items?select=pk&limit=1', {
@@ -1845,38 +1846,31 @@ async function fetchPipelineStatus() {
       }).then(r => { const c = parseInt(r.headers.get('content-range')?.split('/')[1] || '0'); return { count: c }; }).catch(() => null)
     ]);
 
-    const acadPending = acad?.total || acad?.rows?.length || 0;
-    const perpPending = perp?.total || perp?.rows?.length || 0;
-    const newsPending = news?.total || news?.rows?.length || 0;
+    const acadPending = acad?.rows?.length || 0;
+    const perpPending = perp?.rows?.length || 0;
+    const newsPending = news?.rows?.length || 0;
     const totalPending = acadPending + perpPending + newsPending;
     const sheetTotal = statsResp?.total || 0;
     const supaTotal = supaResp?.count || 0;
-    const syncDelta = sheetTotal - supaTotal;
 
     const lastProcess = meta?.last_search_date || null;
-    const hasWork = totalPending > 0;
 
-    // Calculate next trigger run based on fixed schedules (local timezone)
-    // News: daily 11pm, Perplexity: Sunday 3am, Academic: every other Monday 6am
+    // Calculate next trigger run
     function nextTriggerRun(type) {
       const now = new Date();
       let next;
       if (type === 'News') {
-        // Daily at 11pm local
         next = new Date(now); next.setHours(23, 0, 0, 0);
         if (next <= now) next.setDate(next.getDate() + 1);
       } else if (type === 'Perplexity') {
-        // Sunday 3am local
         next = new Date(now); next.setHours(3, 0, 0, 0);
         const daysUntilSun = (7 - next.getDay()) % 7;
         next.setDate(next.getDate() + (daysUntilSun === 0 && next <= now ? 7 : daysUntilSun));
       } else {
-        // Academic: biweekly Monday 6am local (approximate — next Monday then +14d cycle)
         next = new Date(now); next.setHours(6, 0, 0, 0);
         const daysUntilMon = (8 - next.getDay()) % 7;
         next.setDate(next.getDate() + (daysUntilMon === 0 && next <= now ? 7 : daysUntilMon));
       }
-      // Format countdown
       const diffMs = next - now;
       const h = Math.floor(diffMs / 3600000);
       const m = Math.floor((diffMs % 3600000) / 60000);
@@ -1886,34 +1880,35 @@ async function fetchPipelineStatus() {
       return `en ${m}min`;
     }
 
-    // Pipeline queue cards + sync card
+    // Pipeline queue cards
     const queueRows = [
-      { name: 'Academic', count: acadPending, trigger: 'startIncrementalScan', schedule: 'lun 6am' },
-      { name: 'Perplexity', count: perpPending, trigger: 'runPerplexitySearch', schedule: 'dom 3am' },
-      { name: 'News', count: newsPending, trigger: 'runNewsAPI', schedule: 'diario 11pm' },
+      { name: 'Academic', count: acadPending, schedule: 'lun 6am' },
+      { name: 'Perplexity', count: perpPending, schedule: 'dom 3am' },
+      { name: 'News', count: newsPending, schedule: 'diario 11pm' },
     ];
 
     let html = '';
     queueRows.forEach(q => {
-      const dotClass = q.count > 0 ? 'yellow' : 'green';
-      const queueClass = q.count > 0 ? 'pending' : 'zero';
-      const queueLabel = q.count > 0 ? `${q.count} en cola` : '0 en cola';
+      const hasPending = q.count > 0;
+      const dotClass = hasPending ? 'yellow' : 'green';
       const nextRun = nextTriggerRun(q.name);
+      const queueLabel = hasPending ? `${q.count} por filtrar` : 'sin nuevos';
+      const queueClass = hasPending ? 'pending' : 'zero';
       html += `<div class="kb-pipe-card">
         <div class="kb-pipe-header">
           <span class="kb-pipe-dot ${dotClass}"></span>
           <span class="kb-pipe-name">${q.name}</span>
           <span class="kb-pipe-queue ${queueClass}">${queueLabel}</span>
         </div>
-        <div class="kb-pipe-meta">Próx. scan: ${nextRun}</div>
-        <div class="kb-pipe-meta" style="opacity:0.7;"><code style="font-size:0.6rem;">${q.trigger}</code> · ${q.schedule}</div>
+        <div class="kb-pipe-meta">Próx. scan: ${nextRun} · ${q.schedule}</div>
       </div>`;
     });
 
-    // Sync card (4th column)
+    // Sync card — Sheet vs Supabase should match
+    const syncDelta = Math.abs(sheetTotal - supaTotal);
     const syncOk = syncDelta === 0;
     const syncDotClass = syncOk ? 'green' : 'yellow';
-    const syncLabel = syncOk ? 'sincronizado' : `${Math.abs(syncDelta)} ${syncDelta > 0 ? 'pendientes' : 'extra'}`;
+    const syncLabel = syncOk ? 'sincronizado' : `Δ ${syncDelta}`;
     const syncQueueClass = syncOk ? 'zero' : 'pending';
     html += `<div class="kb-pipe-card sync-card">
       <div class="kb-pipe-header">
@@ -1922,14 +1917,13 @@ async function fetchPipelineStatus() {
         <span class="kb-pipe-queue ${syncQueueClass}">${syncLabel}</span>
       </div>
       <div class="kb-pipe-meta">Sheet: ${sheetTotal.toLocaleString()} · Supa: ${supaTotal.toLocaleString()}</div>
-      <div class="kb-pipe-meta" style="opacity:0.7;"><code style="font-size:0.6rem;">thesis-queue-review</code> · 7:05am</div>
     </div>`;
 
     el.innerHTML = html;
 
     // Update sidebar badge — amber for pending, green for clear
     const badge = document.getElementById('badge-kb');
-    const totalIssues = totalPending + Math.max(syncDelta, 0);
+    const totalIssues = totalPending + syncDelta;
     if (badge) {
       badge.textContent = totalIssues > 0 ? totalIssues : '✓';
       badge.style.background = totalIssues > 0 ? '#e8d060' : '#b8e0c4';
@@ -1963,10 +1957,21 @@ async function fetchRecentNews() {
   if (!container) return;
 
   function renderNewsItem(row) {
-    const d = new Date(row.created_at || 0);
-    const shortDate = !isNaN(d.getTime()) ? d.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' }) : '';
+    // Prefer date_published (actual publication date), fall back to created_at
+    const rawDate = row.date_published || row.created_at || '';
+    let shortDate = '';
+    if (rawDate) {
+      const d = new Date(rawDate);
+      if (!isNaN(d.getTime())) {
+        // Show year if not current year
+        const now = new Date();
+        const opts = d.getFullYear() === now.getFullYear()
+          ? { day: 'numeric', month: 'short' }
+          : { day: 'numeric', month: 'short', year: 'numeric' };
+        shortDate = d.toLocaleDateString('es-ES', opts);
+      }
+    }
     const title = row.title || '(sin título)';
-    // Link to exact KB card by URL, fallback to search
     const kbUrl = row.url
       ? 'https://aauml.github.io/thesis/index.html?url=' + encodeURIComponent(row.url)
       : 'https://aauml.github.io/thesis/index.html?q=' + encodeURIComponent(title.split(/[\s:—–()«»""]+/).filter(w => w.length > 3 && !/^\d+$/.test(w)).slice(0, 5).join(' '));
@@ -1976,7 +1981,7 @@ async function fetchRecentNews() {
 
   try {
     const rows = await supabaseQuery(
-      'evaluated_items?select=title,url,importance,capa,created_at&importance=eq.ALTA&order=created_at.desc&limit=50'
+      'evaluated_items?select=title,url,importance,capa,date_published,created_at&importance=eq.ALTA&order=created_at.desc&limit=50'
     );
 
     if (!rows || rows.length === 0) {
@@ -1984,15 +1989,15 @@ async function fetchRecentNews() {
       return;
     }
 
-    const visible = rows.slice(0, 10);
-    const rest = rows.slice(10);
+    const visible = rows.slice(0, 25);
+    const rest = rows.slice(25);
 
     let html = visible.map(renderNewsItem).join('');
 
     if (rest.length > 0) {
       html += `<details class="news-expand">
         <summary style="cursor:pointer; font-size:0.72rem; color:var(--text-muted); padding:0.4rem 0; user-select:none;">
-          ver más (${rest.length}) →
+          mostrar más (${rest.length}) →
         </summary>
         <div style="margin-top:0.2rem;">
           ${rest.map(renderNewsItem).join('')}
@@ -2001,6 +2006,13 @@ async function fetchRecentNews() {
     }
 
     container.innerHTML = html;
+
+    // Update news badge in sidebar
+    const newsBadge = document.getElementById('badge-news');
+    if (newsBadge) {
+      newsBadge.textContent = rows.length;
+      newsBadge.style.display = rows.length > 0 ? '' : 'none';
+    }
 
   } catch(e) {
     container.innerHTML = '<div style="color:var(--text-muted); font-size:0.78rem;">No se pudo cargar noticias.</div>';
@@ -2090,10 +2102,10 @@ async function fetchActividadActual() {
       return;
     }
 
-    // Show en_curso first, then siguiente, then top planificado — max 3-4 items
-    const active = rows.filter(r => r.status === 'en_curso' || r.status === 'siguiente');
-    const planned = rows.filter(r => r.status === 'planificado');
-    const display = active.length >= 3 ? active.slice(0,4) : [...active, ...planned.slice(0, 3 - active.length)];
+    // Show only en_curso (max 2) for Panorama — slim view
+    const active = rows.filter(r => r.status === 'en_curso');
+    const siguiente = rows.filter(r => r.status === 'siguiente');
+    const display = active.length >= 2 ? active.slice(0,2) : [...active, ...siguiente.slice(0, 2 - active.length)];
 
     let html = '';
     display.forEach(r => {
@@ -2291,10 +2303,18 @@ async function fetchReadingPlan() {
           const urlHtml = `<a href="${kbLink}" target="_blank">${r.title}</a>`;
           const sourceTag = r.source === 'pm_advisory' ? ' <span style="font-size:0.55rem; background:var(--warn-bg); color:var(--warn-text); padding:0.1rem 0.3rem; border-radius:3px;">PM</span>' : '';
 
+          const objectiveHtml = r.reading_objective
+            ? `<div class="lec-objective">${r.reading_objective}</div>`
+            : '';
+          const lensHtml = r.lens && !r.reading_objective
+            ? `<div class="lec-lens"><em>${r.lens}</em></div>`
+            : '';
+
           yearsHtml += `<div class="lec-item"><span class="lec-lvl ${lvlCls}">${lvlLabel}</span><div>
             <strong>${urlHtml}</strong> ${statusHtml}${sourceTag}
-            ${r.lens ? ' — <em>' + r.lens + '</em>' : ''}
-            ${r.chapter_ids && r.chapter_ids.length ? '<br><span class="lec-chapter">→ ' + formatChapterIds(r.chapter_ids, chMap) + '</span>' : ''}
+            ${objectiveHtml}
+            ${lensHtml}
+            ${r.chapter_ids && r.chapter_ids.length ? '<span class="lec-chapter">→ ' + formatChapterIds(r.chapter_ids, chMap) + '</span>' : ''}
           </div></div>`;
         });
 
@@ -2451,58 +2471,73 @@ async function fetchKbStats() {
       ).join('') + '<div style="font-size:0.6rem; color:var(--text-muted); margin-top:0.3rem;">Items multi-criterio contados en cada categoría aplicable</div>';
     }
 
-    // ── Chapter coverage — DYNAMIC from Supabase view chapter_coverage ──
-    const chapContainer = document.getElementById('chapterCoverage');
-    if (chapContainer) {
-      const chapData = await supabaseQuery('chapter_coverage?select=*&order=chapter_num.asc');
-      chapContainer.innerHTML = chapData.map(ch => {
+    // ── Unified chapter coverage + gaps ──
+    const unifiedContainer = document.getElementById('chapterCoverageGaps');
+    if (unifiedContainer) {
+      // Gap definitions per chapter — these are the specific weak areas to monitor
+      const GAP_DEFS = {
+        2: [
+          { label: 'Procesal español + IA', filter: 'language=eq.es&or=(title.ilike.*procesal*,title.ilike.*prueba*,title.ilike.*jurisdiccional*,thesis_relevance.ilike.*procesal*,scholar.ilike.*Bueno*,scholar.ilike.*Nieva*,scholar.ilike.*Barona*)' },
+        ],
+        3: [
+          { label: 'Implementación RIA', filter: 'chapters=cs.%7B3%7D&or=(title.ilike.*guideline*,title.ilike.*implementing*,title.ilike.*conformity*,title.ilike.*sandbox*,title.ilike.*directrices*,title.ilike.*compliance*guide*)' },
+        ],
+        4: [
+          { label: 'Crítica NIST RMF', filter: 'chapters=cs.%7B4%7D&or=(thesis_relevance.ilike.*critique*,thesis_relevance.ilike.*limitation*,thesis_relevance.ilike.*voluntary*,thesis_relevance.ilike.*accountability%20gap*,title.ilike.*accountability*,title.ilike.*Beyond%20Audit*)' },
+        ],
+        6: [
+          { label: 'PATTERN directas', filter: 'or=(title.ilike.*PATTERN*,title.ilike.*First%20Step%20Act*,title.ilike.*recidivism*BOP*,title.ilike.*Bureau%20of%20Prisons*risk*)' },
+          { label: 'STRmix + forensic DNA', filter: 'chapters=cs.%7B6%7D&or=(title.ilike.*STRmix*,title.ilike.*probabilistic%20genotyping*)' },
+        ],
+      };
+
+      // Fetch chapter data and all gap counts in parallel
+      const allGapFilters = [];
+      const gapMeta = []; // track which chapter each gap belongs to
+      for (const [ch, gaps] of Object.entries(GAP_DEFS)) {
+        for (const g of gaps) {
+          allGapFilters.push(supabaseCount(g.filter));
+          gapMeta.push({ ch: parseInt(ch), label: g.label });
+        }
+      }
+
+      const [chapData, ...gapCounts] = await Promise.all([
+        supabaseQuery('chapter_coverage?select=*&order=chapter_num.asc'),
+        ...allGapFilters
+      ]);
+
+      // Build gap lookup: { chapterNum: [{ label, count, icon, cls }] }
+      const gapsByChapter = {};
+      gapMeta.forEach((m, i) => {
+        if (!gapsByChapter[m.ch]) gapsByChapter[m.ch] = [];
+        const n = gapCounts[i];
+        const cls = n < 3 ? 'gap-critical' : n < 8 ? 'gap-warn' : 'gap-ok';
+        gapsByChapter[m.ch].push({ label: m.label, count: n, cls });
+      });
+
+      // Render unified view
+      unifiedContainer.innerHTML = chapData.map(ch => {
+        const num = ch.chapter_num;
         const t = ch.kb_total || 0;
         const a = ch.kb_alta || 0, m = ch.kb_media || 0, b = ch.kb_baja || 0;
         const pA = t > 0 ? (a / t * 100).toFixed(1) : 0;
         const pM = t > 0 ? (m / t * 100).toFixed(1) : 0;
         const pB = t > 0 ? (b / t * 100).toFixed(1) : 0;
+
+        const gaps = gapsByChapter[num] || [];
+        const gapsHtml = gaps.length > 0 ? `<div class="kb-chap-gaps">${gaps.map(g =>
+          `<span class="kb-chap-gap ${g.cls}">${g.label} <b>${g.count}</b></span>`
+        ).join('')}</div>` : '';
+
         return `<div class="kb-chap">
-          <span class="kb-chap-num">${ch.chapter_num}</span>
+          <span class="kb-chap-num">${num}</span>
           <div class="kb-chap-body">
             <div class="kb-chap-name">${ch.chapter_title}</div>
             <div class="kb-chap-meta"><span>${t.toLocaleString()} fuentes</span><span>${a}A · ${m}M · ${b}B</span></div>
+            ${gapsHtml}
           </div>
           <div class="kb-chap-bar">
             ${t > 0 ? `<div class="kb-stack-seg seg-alta" style="width:${pA}%"></div><div class="kb-stack-seg seg-media" style="width:${pM}%"></div><div class="kb-stack-seg seg-baja" style="width:${pB}%"></div>` : ''}
-          </div>
-        </div>`;
-      }).join('');
-    }
-
-    // ── Gap analysis — plain text with quality counts ──
-    const gapContainer = document.getElementById('gapAnalysis');
-    if (gapContainer) {
-      // Fetch alta/media/baja for each gap area
-      const gapDefs = [
-        { name: 'Derecho procesal español', filter: 'or=(thesis_relevance.ilike.*procesal*,thesis_relevance.ilike.*prueba electrónica*)' },
-        { name: 'Caso PATTERN/BOP', filter: 'or=(thesis_relevance.ilike.*PATTERN*,thesis_relevance.ilike.*Bureau of Prisons*,thesis_relevance.ilike.*recidivism*)' },
-        { name: 'Capa: Caso', filter: 'capa=ilike.*Caso*' },
-        { name: 'Capa: Metodológica', filter: 'capa=ilike.*Metodológica*' },
-      ];
-
-      const gapResults = await Promise.all(gapDefs.flatMap(g => [
-        supabaseCount(g.filter + '&importance=eq.ALTA'),
-        supabaseCount(g.filter + '&importance=eq.MEDIA'),
-        supabaseCount(g.filter + '&importance=eq.BAJA'),
-      ]));
-
-      gapContainer.innerHTML = gapDefs.map((g, i) => {
-        const a = gapResults[i * 3];
-        const m = gapResults[i * 3 + 1];
-        const b = gapResults[i * 3 + 2];
-        const t = a + m + b;
-        return `<div class="kb-gap-item">
-          <span class="kb-gap-name">${g.name}</span>
-          <div class="kb-gap-counts">
-            <span class="kb-gap-c"><i class="dot dot-alta"></i> <span class="kb-gap-c-val">${a}</span></span>
-            <span class="kb-gap-c"><i class="dot dot-media"></i> <span class="kb-gap-c-val">${m}</span></span>
-            <span class="kb-gap-c"><i class="dot dot-baja"></i> <span class="kb-gap-c-val">${b}</span></span>
-            <span style="font-size:0.65rem; color:var(--text-muted);">(${t})</span>
           </div>
         </div>`;
       }).join('');
@@ -2714,34 +2749,28 @@ async function fetchMilestones() {
     container.innerHTML = rows.map(m => {
       const checked = m.completed ? ' checked' : '';
       const style = m.completed ? ' style="opacity:0.5; text-decoration:line-through;"' : '';
-      // Parse target_period proximity (Q1-Q4 YYYY or YYYY)
-      let msClass = '';
-      if (!m.completed && m.target_period) {
-        const now = new Date();
-        const qMatch = m.target_period.match(/Q(\d)\s*(\d{4})/);
-        const yMatch = m.target_period.match(/^(\d{4})$/);
-        let targetStart = null;
-        if (qMatch) {
-          const qMonth = (parseInt(qMatch[1]) - 1) * 3; // Q1=0, Q2=3, Q3=6, Q4=9
-          targetStart = new Date(parseInt(qMatch[2]), qMonth, 1);
-        } else if (yMatch) {
-          targetStart = new Date(parseInt(yMatch[1]), 0, 1);
-        }
-        // Handle ranges like "Q3-Q4 2026" — use the later quarter
-        const rangeMatch = m.target_period.match(/Q(\d)-Q(\d)\s*(\d{4})/);
-        if (rangeMatch) {
-          const qEnd = (parseInt(rangeMatch[2])) * 3; // end of later quarter
-          targetStart = new Date(parseInt(rangeMatch[3]), qEnd - 1, 1);
-        }
-        if (targetStart) {
-          const daysLeft = Math.ceil((targetStart - now) / 86400000);
-          if (daysLeft < 0) msClass = ' m2-ms-overdue';
-          else if (daysLeft <= 30) msClass = ' m2-ms-imminent';
-          else if (daysLeft <= 90) msClass = ' m2-ms-approaching';
-        }
-      }
-      return `<div class="m2-ms${msClass}"><input type="checkbox"${checked} onchange="toggleMilestone(${m.id}, this.checked)"><span class="m2-ms-date">${m.target_period}</span> <span${style}>${m.title}</span></div>`;
+      return `<div class="m2-ms"><input type="checkbox"${checked} onchange="toggleMilestone(${m.id}, this.checked)"><span class="m2-ms-date">${m.target_period}</span> <span${style}>${m.title}</span></div>`;
     }).join('');
+  } catch(e) {
+    container.innerHTML = '<div style="color:var(--text-muted); font-size:0.72rem;">Error cargando milestones.</div>';
+  }
+}
+
+// ═══════════════════════════════════════
+// NEXT MILESTONE — single context line for Panorama
+// ═══════════════════════════════════════
+async function fetchNextMilestone() {
+  const container = document.getElementById('nextMilestoneContainer');
+  if (!container) return;
+  try {
+    const rows = await supabaseQuery('pm_milestones?select=*&status=eq.active&completed=eq.false&order=position.asc&limit=2');
+    if (!rows || rows.length === 0) {
+      container.innerHTML = '<div style="color:var(--text-muted); font-size:0.78rem;">Sin milestones pendientes.</div>';
+      return;
+    }
+    container.innerHTML = rows.map(m =>
+      `<div class="m2-ms" style="margin-bottom:0.3rem;"><span class="m2-ms-date">${m.target_period}</span> <span>${m.title}</span></div>`
+    ).join('') + '<div style="font-size:0.65rem; color:var(--text-muted); margin-top:0.2rem;">Todos los milestones en Supabase · pm_milestones</div>';
   } catch(e) {
     container.innerHTML = '<div style="color:var(--text-muted); font-size:0.72rem;">Error cargando milestones.</div>';
   }
@@ -2779,7 +2808,74 @@ async function fetchRisks() {
 }
 
 // ═══════════════════════════════════════
-// DECISIONES — from Supabase pm_decisions
+// PM TASKS (Claude) — gaps, vigilancia, acciones del sistema
+// ═══════════════════════════════════════
+async function fetchPmTasks() {
+  const container = document.getElementById('pmTasksContainer');
+  if (!container) return;
+
+  try {
+    // Fetch gap data from KB to generate actionable PM tasks
+    const GAP_DEFS = {
+      2: [{ label: 'Procesal español + IA', filter: 'language=eq.es&or=(title.ilike.*procesal*,title.ilike.*prueba*,title.ilike.*jurisdiccional*,thesis_relevance.ilike.*procesal*,scholar.ilike.*Bueno*,scholar.ilike.*Nieva*)' }],
+      4: [{ label: 'Crítica NIST RMF', filter: 'chapters=cs.%7B4%7D&or=(thesis_relevance.ilike.*critique*,thesis_relevance.ilike.*limitation*,thesis_relevance.ilike.*voluntary*,title.ilike.*accountability*,title.ilike.*Beyond%20Audit*)' }],
+      6: [{ label: 'PATTERN directas', filter: 'or=(title.ilike.*PATTERN*,title.ilike.*First%20Step%20Act*,title.ilike.*recidivism*BOP*)' }],
+    };
+
+    const gapPromises = [];
+    const gapMeta = [];
+    for (const [ch, gaps] of Object.entries(GAP_DEFS)) {
+      for (const g of gaps) {
+        gapPromises.push(supabaseCount(g.filter));
+        gapMeta.push({ ch: parseInt(ch), label: g.label });
+      }
+    }
+
+    // Also fetch pending queries and advisories for vigilancia tasks
+    const [pendingNews, ...gapCounts] = await Promise.all([
+      supabaseQuery('evaluated_items?select=pk&importance=eq.ALTA&created_at=gte.' + new Date(Date.now() - 7*86400000).toISOString().split('T')[0] + '&limit=1&order=created_at.desc'),
+      ...gapPromises
+    ]);
+
+    let html = '';
+
+    // Gap-based tasks
+    gapMeta.forEach((m, i) => {
+      const n = gapCounts[i];
+      if (n >= 8) return; // gap OK, no task needed
+      const severity = n < 3 ? 'm2-risk-high' : 'm2-risk-med';
+      const action = n < 3
+        ? 'Buscar fuentes adicionales vía Scholar, Perplexity. Considerar queries específicos.'
+        : 'Monitorear. Revisar en próximo sweep si mejora.';
+      html += `<div class="m2-risk" style="margin-bottom:0.5rem;">
+        <span class="m2-risk-lvl ${severity}">${n < 3 ? 'urgente' : 'vigilar'}</span>
+        <strong>Cap. ${m.ch} — ${m.label}</strong> (${n} fuentes).
+        <span style="color:var(--text-light);">${action}</span>
+      </div>`;
+    });
+
+    // Vigilancia task — new ALTA items in last 7 days
+    const recentAlta = (pendingNews || []).length;
+    if (recentAlta > 0) {
+      html += `<div class="m2-risk" style="margin-bottom:0.5rem;">
+        <span class="m2-risk-lvl m2-risk-low">info</span>
+        <strong>Vigilancia:</strong> Hay entradas ALTA nuevas esta semana.
+        <span style="color:var(--text-light);">Revisar en News y evaluar impacto en plan de lecturas.</span>
+      </div>`;
+    }
+
+    if (!html) {
+      html = '<div style="color:var(--text-muted); font-size:0.78rem;">Sin tareas PM pendientes. Gaps bajo control.</div>';
+    }
+
+    container.innerHTML = html;
+  } catch(e) {
+    container.innerHTML = '<div style="color:var(--text-muted); font-size:0.72rem;">Error cargando tareas PM.</div>';
+  }
+}
+
+// ═══════════════════════════════════════
+// DECISIONES — from Supabase pm_decisions (kept for data, view removed)
 // ═══════════════════════════════════════
 async function fetchDecisions() {
   const container = document.getElementById('decisionsContainer');
@@ -2855,11 +2951,14 @@ async function fetchChapterSections() {
       return;
     }
 
+    // Chapter title overrides removed — chapter_sections in Supabase is now the single source of truth
+    const CHAPTER_TITLE_OVERRIDE = {};
+
     // Group by chapter
     const chapters = {};
     rows.forEach(s => {
       const key = s.chapter_num;
-      if (!chapters[key]) chapters[key] = { num: s.chapter_num, title: s.chapter_title, sections: [] };
+      if (!chapters[key]) chapters[key] = { num: s.chapter_num, title: CHAPTER_TITLE_OVERRIDE[s.chapter_num] || s.chapter_title, sections: [] };
       chapters[key].sections.push(s);
     });
 
@@ -2876,8 +2975,6 @@ async function fetchChapterSections() {
     document.getElementById('wsDraft').textContent = draft;
     document.getElementById('wsWords').textContent = words.toLocaleString('es');
     document.getElementById('wsTarget').textContent = target.toLocaleString('es');
-    document.getElementById('wsPct').textContent = pct + '%';
-
     // Update sidebar badge
     const badge = document.getElementById('badge-writing');
     if (badge) { badge.textContent = pct + '%'; badge.style.display = ''; }
@@ -2895,14 +2992,12 @@ async function fetchChapterSections() {
             <span class="chapter-toggle">▸</span>
             <span>Cap. ${ch.num} · ${ch.title}</span>
             <span class="chapter-pct">${chPct}%</span>
-            <div class="chapter-progress-bar"><div class="chapter-progress-fill ${fillClass}" style="width:${chPct}%"></div></div>
           </div>
           <div class="chapter-sections">
             ${ch.sections.map(s => `
               <div class="sec-row">
                 <span class="sec-num">${s.section_num}</span>
                 <span class="sec-title">${s.section_title}</span>
-                <span class="sec-status sec-status-${s.status}">${statusLabel[s.status] || s.status}</span>
                 <span class="sec-words">${(s.word_count || 0).toLocaleString('es')}/${(s.target_words || 0).toLocaleString('es')}</span>
               </div>
             `).join('')}
@@ -2926,17 +3021,16 @@ document.addEventListener('DOMContentLoaded', () => {
   fetchAlerts(); // Alert system — urgent items between advisories
   fetchChapterSections(); // Writing progress tracker
   fetchPipelineStatus(); // Live queue status on every page load
-  fetchRecentNews(); // Dynamic news from Supabase (10 most recent)
+  fetchRecentNews(); // Dynamic news → Novedades tab
   fetchKbStats(); // KB stats + gaps from Supabase (primary)
   fetchSupabaseStatus(); // Supabase connectivity + embedding count
-  fetchAdvisories(); // PM advisories from Supabase
-  fetchDevelopments(); // Desarrollos clave from Supabase
-  fetchActividadActual(); // Current readings from reading_plan
-  fetchOpLecturas(); // Reading plan items for Operativo view
-  fetchMilestones(); // Milestones from Supabase
+  fetchAdvisories(); // PM advisories → Novedades tab
+  fetchDevelopments(); // Desarrollos clave → Novedades tab
+  fetchActividadActual(); // Current readings for Panorama (1-2 items)
+  fetchNextMilestone(); // Próximo hito for Panorama
   fetchBiblioProjection(); // Bibliography projection (dynamic chapter names)
-  fetchRisks(); // Riesgos from Supabase
-  fetchDecisions(); // Decisiones from Supabase
+  fetchRisks(); // Riesgos → Panorama
+  fetchPmTasks(); // PM (Claude) tasks — gaps, vigilancia
   fetchReadingPlan(); // Full reading plan from Supabase
 
   // Rewrite all hardcoded lecturas links to KB deep-links (exact URL match)
@@ -2948,14 +3042,10 @@ document.addEventListener('DOMContentLoaded', () => {
     a.target = '_blank';
   });
 
-  // Restore last active view on refresh
-  const savedView = localStorage.getItem('dash-active-view');
-  if (savedView) {
-    const btn = document.querySelector(`.sb-item[onclick*="'${savedView}'"]`);
-    if (btn && document.getElementById('view-' + savedView)) {
-      switchView(savedView, btn);
-    }
-  }
+  // Always open to Panorama on page load (ignore saved view)
+  // Panorama is already active by default in HTML, just ensure sidebar matches
+  switchView('panorama', document.querySelector('.sb-item'));
+  localStorage.removeItem('dash-active-view');
 
   // ═══════════════════════════════════════
   // SWIPE NAVIGATION — left/right to switch views
@@ -2963,10 +3053,11 @@ document.addEventListener('DOMContentLoaded', () => {
   (function initSwipeNav() {
     const mainEl = document.querySelector('.main');
     if (!mainEl) return;
-    const viewOrder = ['panorama','operativo','kb','mapa','lecturas','redaccion','decisiones'];
-    let startX = 0, startY = 0, tracking = false;
-    const THRESHOLD = 60;   // min px horizontal
-    const MAX_RATIO = 0.6;  // max vertical/horizontal ratio (ignore diagonal/vertical swipes)
+    const viewOrder = ['panorama','news','operativo','kb','mapa','lecturas','redaccion'];
+    let startX = 0, startY = 0, startTime = 0, tracking = false, locked = false, dirLocked = null;
+    const THRESHOLD = 40;     // min px to trigger (lowered for responsiveness)
+    const MAX_RATIO = 0.55;   // max vertical/horizontal ratio
+    const VELOCITY_MIN = 0.25; // min px/ms for fast flick detection
 
     function getCurrentIndex() {
       const active = document.querySelector('.view.active');
@@ -2976,11 +3067,16 @@ document.addEventListener('DOMContentLoaded', () => {
       return idx >= 0 ? idx : 0;
     }
 
-    function goTo(idx) {
+    function goTo(idx, direction) {
       if (idx < 0 || idx >= viewOrder.length) return;
       const btn = document.querySelectorAll('.sb-item')[idx];
+      // Add direction class for correct animation
+      const view = document.getElementById('view-' + viewOrder[idx]);
+      if (view) {
+        view.classList.remove('swipe-right');
+        if (direction === 'right') view.classList.add('swipe-right');
+      }
       switchView(viewOrder[idx], btn);
-      // Scroll the nav tab into view on mobile
       if (btn) btn.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
     }
 
@@ -2988,21 +3084,44 @@ document.addEventListener('DOMContentLoaded', () => {
       if (e.touches.length !== 1) return;
       startX = e.touches[0].clientX;
       startY = e.touches[0].clientY;
+      startTime = Date.now();
       tracking = true;
+      locked = false;
+      dirLocked = null;
+    }, { passive: true });
+
+    mainEl.addEventListener('touchmove', function(e) {
+      if (!tracking) return;
+      const dx = Math.abs(e.touches[0].clientX - startX);
+      const dy = Math.abs(e.touches[0].clientY - startY);
+      // Lock direction after 10px of movement
+      if (!locked && (dx > 10 || dy > 10)) {
+        locked = true;
+        dirLocked = dx > dy ? 'horizontal' : 'vertical';
+      }
+      // If horizontal swipe detected, hint the browser not to scroll vertically
+      if (dirLocked === 'horizontal' && dx > 15) {
+        mainEl.style.opacity = Math.max(0.85, 1 - dx / 600).toString();
+      }
     }, { passive: true });
 
     mainEl.addEventListener('touchend', function(e) {
+      mainEl.style.opacity = '';
       if (!tracking) return;
       tracking = false;
+      if (dirLocked === 'vertical') return; // was a scroll, ignore
       const endX = e.changedTouches[0].clientX;
       const endY = e.changedTouches[0].clientY;
       const dx = endX - startX;
       const dy = Math.abs(endY - startY);
-      if (Math.abs(dx) < THRESHOLD) return;
-      if (dy / Math.abs(dx) > MAX_RATIO) return;  // too vertical
+      const elapsed = Date.now() - startTime;
+      const velocity = Math.abs(dx) / Math.max(elapsed, 1);
+      // Accept if threshold met OR fast flick
+      if (Math.abs(dx) < THRESHOLD && velocity < VELOCITY_MIN) return;
+      if (dy / Math.max(Math.abs(dx), 1) > MAX_RATIO) return;
       const cur = getCurrentIndex();
-      if (dx < 0) goTo(cur + 1);  // swipe left → next
-      else goTo(cur - 1);          // swipe right → prev
+      if (dx < 0) goTo(cur + 1, 'left');   // swipe left → next
+      else goTo(cur - 1, 'right');           // swipe right → prev
     }, { passive: true });
   })();
 });

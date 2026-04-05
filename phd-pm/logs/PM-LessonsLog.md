@@ -190,3 +190,22 @@ These are hard rules derived from past bugs. Violating any of these means repeat
 - **Componentes afectados:** `chapter_sections` (reescrita), `evaluated_items.chapters` (remapeado), `reading_plan.chapter_ids` (nueva columna int[]), vista `chapter_coverage` (nueva), dashboard.html (chapterCoverage + lecturas dinámicas), SKILL-PM §8, SYSTEM-ARCHITECTURE §8.
 
 _Última actualización: 2026-03-24 (sesión Cowork — connector integration, PR-020)_
+
+### PR-021 — GAS POST para promoteToNewsLog: usar curl, no no-cors fetch desde browser
+- **Derived from:** Sesión scheduled 2026-04-05. El anterior session log registraba que no-cors funcionaba pero no era correcto.
+- **Root cause:** `fetch()` con `mode: "no-cors"` desde el browser (google.com) no procesa correctamente payloads de promoteToNewsLog en el GAS server. El resultado es que la petición llega pero no produce escritura (la respuesta opaca no reporta error). `updatePerplexityRow` sí funciona con no-cors (operaciones más simples).
+- **Rule:**
+  1. Para `promoteToNewsLog`, `append`, y cualquier escritura en NewsLog: **usar `curl` vía Bash tool**, no fetch desde browser. El GAS web app acepta POST sin autenticación desde curl.
+  2. Para `updatePerplexityRow`, `updateNewsRow`, `updateAcademicRow`: no-cors funciona (confirmado múltiples sesiones).
+  3. El payload de `promoteToNewsLog` usa `rows` (array), no `row` (objeto). Verificar siempre.
+  4. Ejemplo correcto: `curl -s -L "SHEET_API" -H "Content-Type: application/json" -d '{"action":"promoteToNewsLog","rows":[{...}],"source_queue":"perplexity"}'`
+
+### PR-022 — Supabase evaluated_items: action_tag CHECK constraint + batch insert no tolera duplicados
+- **Derived from:** Sesión scheduled 2026-04-05.
+- **Root cause:** (1) El campo `action_tag` tiene CHECK constraint que solo acepta REFERENCE/CONTEXT/FOLLOW-UP/URGENT. "READ" no es válido aunque el GAS Sheet lo acepte. (2) Un batch insert con `Prefer: resolution=ignore-duplicates` falla con 23505 si ALGUNO de los rows viola la constraint `unique_url`.
+- **Rule:**
+  1. `action_tag` en Supabase: mapear "READ" → "REFERENCE" o "CONTEXT" según el tipo de fuente. NUNCA enviar "READ" a Supabase.
+  2. Antes de un batch insert con ignore-duplicates, filtrar los URLs que ya existen usando: `curl "${SUPA_URL}/rest/v1/evaluated_items?url=in.(url1,url2,...)&select=url"`. Solo insertar los nuevos.
+  3. Alternativamente, insertar de uno en uno con manejo de errores individual.
+
+_Última actualización: 2026-04-05 (scheduled task — PR-021, PR-022)_

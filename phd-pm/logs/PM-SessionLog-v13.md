@@ -795,3 +795,41 @@ Discusión sobre autores clave de la tesis. Análisis de por qué Kroll es el au
 - Nada nuevo. Pendientes heredados de sesión anterior.
 
 _Última actualización: 2026-03-24 (v13)_
+
+---
+
+## Sesión thesis-queue-review automatizada — 2026-04-05
+
+**Tipo:** Scheduled task (automated, no interactive)
+**Duración estimada:** ~45 min (split across 2 context windows)
+**Context:** phd-kb + phd-pm
+
+### Acciones realizadas
+
+**PerplexityQueue review (14 items procesados):**
+- 11 promovidos a NewsLog + Supabase
+- 3 descartados (sin contenido relevante 2025-2026)
+- Queue vaciada (0 pending)
+
+**Items ALTA promovidos (4):**
+| URL | Título | Capa |
+|-----|--------|------|
+| commission.europa.eu/...liability... | Retirada AILD Programa Trabajo CE 2025 | Analítica |
+| open-research-europe.ec.europa.eu/articles/6-83 | Opinión BCE CON/2026/10 y EMPL directiva algorítmica | Analítica |
+| digital-strategy.ec.europa.eu/en/policies/... | Directrices AI Office GPAI + Ómnibus Digital Nov 2025 | Analítica |
+| digital-strategy.ec.europa.eu/en/library/... | COM(2025) 868 — Primera Modificación AI Act | Analítica |
+
+**Stats finales:**
+- NewsLog: 1352 → 1361 (+9 nuevos, 2 ya existían)
+- Supabase evaluated_items: 1396 total (9 nuevos insertados)
+- Embeddings: 0 sin embedding (3 generados con batch_size=1)
+
+**Infraestructura — Lecciones aprendidas (session):**
+- PR-nuevo: no-cors fetch desde google.com no funciona para promoteToNewsLog (el updatePerplexityRow sí funciona). Usar curl vía Bash para GAS POST.
+- PR-nuevo: GAS promoteToNewsLog usa `rows` (array) no `row` (singular)
+- PR-nuevo: Supabase action_tag acepta solo REFERENCE/CONTEXT/FOLLOW-UP/URGENT (no READ)
+- PR-nuevo: Supabase insert con ignore-duplicates falla en batch si hay algún duplicado — filtrar previamente
+
+**Dashboard:** Actualizado y pusheado a GitHub (e96359f)
+
+_Última actualización: 2026-04-05 (scheduled task)_

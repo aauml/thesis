@@ -72,3 +72,11 @@ PM lee este archivo al inicio de cada sesión para tener visibilidad total.
 - Query Q140 added: David Sacks (type=government, tier=1, monthly). Pipelines: q_semantic, q_fullweb, q_news
 - Decision: Sacks tracked as government actor, not scholar — no peer-reviewed output, relevance is as policy architect (NIST RMF revision directive, state preemption, DOJ Task Force)
 - Afecta otros contextos: PM should note Sacks as key actor in Ch4/Ch5 analysis; existing KB entries on AI Action Plan and preemption EO already cover the policies, Q140 captures the actor specifically
+
+## 2026-04-05 | cowork-kb | PerplexityQueue, Supabase, embeddings | queue-review automatizado
+- 14 items PerplexityQueue evaluados: 11 promovidos, 3 descartados
+- NewsLog: 1352 → 1361 (+9 nuevos; 2 ya existían)
+- Supabase: 1396 total (+9 nuevos insertados, 0 sin embedding tras generate-embeddings)
+- ALTA: retirada AILD CE, Opinión BCE CON/2026/10, directrices GPAI+Ómnibus, COM(2025) 868
+- Dashboard pusheado (e96359f)
+- Lecciones: no-cors GAS POST no funciona desde browser para promoteToNewsLog; usar curl; action_tag válidos Supabase = REFERENCE/CONTEXT/FOLLOW-UP/URGENT
